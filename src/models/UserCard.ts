@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const userCardSchema = new mongoose.Schema({
   userId: {
@@ -32,13 +32,17 @@ const userCardSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  notes: String,
+  notes: {
+    type: String
+  },
   quantity: {
     type: Number,
     default: 1,
     min: 1
   },
-  estimatedValue: Number,
+  estimatedValue: {
+    type: Number
+  },
   forTrade: {
     type: Boolean,
     default: false
@@ -47,8 +51,8 @@ const userCardSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Índice compuesto para búsquedas eficientes
+
 userCardSchema.index({ userId: 1, cardId: 1 });
 userCardSchema.index({ userId: 1, isPublic: 1 });
 
-module.exports = mongoose.model('UserCard', userCardSchema);
+export const UserCard = mongoose.model('UserCard', userCardSchema);

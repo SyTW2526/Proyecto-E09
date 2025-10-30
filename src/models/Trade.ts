@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const tradeSchema = new mongoose.Schema({
   initiatorUserId: {
@@ -21,7 +21,9 @@ const tradeSchema = new mongoose.Schema({
     enum: ['public', 'private'],
     required: true
   },
-  privateRoomCode: String,
+  privateRoomCode: {
+    type: String
+  },
   initiatorCards: [{
     userCardId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -31,7 +33,9 @@ const tradeSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Card'
     },
-    estimatedValue: Number
+    estimatedValue: {
+      type: Number
+    }
   }],
   receiverCards: [{
     userCardId: {
@@ -42,34 +46,45 @@ const tradeSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Card'
     },
-    estimatedValue: Number
+    estimatedValue: {
+      type: Number
+    }
   }],
-  initiatorTotalValue: Number,
-  receiverTotalValue: Number,
-  valueDifferencePercentage: Number,
+  initiatorTotalValue: {
+    type: Number
+  },
+  receiverTotalValue: {
+    type: Number
+  },
+  valueDifferencePercentage: {
+    type: Number
+  },
   messages: [{
     senderId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     },
-    message: String,
+    message: {
+      type: String
+    },
     timestamp: {
       type: Date,
       default: Date.now
     }
   }],
-  completedAt: Date
+  completedAt: {
+    type: Date
+  }
 }, {
   timestamps: true
 });
 
-// Validación personalizada para el 10% de diferencia
-tradeSchema.pre('save', function(next) {
+tradeSchema.pre('save', function (next) {
   if (this.initiatorTotalValue && this.receiverTotalValue) {
     const diff = Math.abs(this.initiatorTotalValue - this.receiverTotalValue);
     const maxValue = Math.max(this.initiatorTotalValue, this.receiverTotalValue);
     this.valueDifferencePercentage = (diff / maxValue) * 100;
-    
+
     if (this.valueDifferencePercentage > 10) {
       return next(new Error('La diferencia de valor no puede superar el 10%'));
     }
@@ -77,4 +92,5 @@ tradeSchema.pre('save', function(next) {
   next();
 });
 
-module.exports = mongoose.model('Trade', tradeSchema);
+
+export const Trade = mongoose.model('Trade', tradeSchema);

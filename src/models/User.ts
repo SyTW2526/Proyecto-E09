@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+import validator from 'validator';
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -11,7 +12,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    lowercase: true
+    lowercase: true,
+    validate(value: string) {
+      if (!validator.default.isEmail(value)) {
+        throw new Error('Email is invalid');
+      }
+    }
   },
   password: {
     type: String,
@@ -36,16 +42,14 @@ const userSchema = new mongoose.Schema({
       showWishlist: { type: Boolean, default: true }
     }
   },
-  friends: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
-  blockedUsers: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }]
+  friends: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  ],
+  blockedUsers: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  ]
 }, {
-  timestamps: true // Crea automáticamente createdAt y updatedAt
+  timestamps: true
 });
 
-module.exports = mongoose.model('User', userSchema);
+export const User = mongoose.model('User', userSchema);

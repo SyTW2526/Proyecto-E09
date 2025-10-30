@@ -56,7 +56,7 @@ npm start
 
 Ejecuta la aplicación compilada desde la carpeta `dist/`.
 
-## Estructura del Proyecto actualmente
+## 📁 Estructura del Proyecto
 
 ```
 Proyecto-E09/
@@ -67,6 +67,7 @@ Proyecto-E09/
 │   ├── routers/    # Rutas de la API
 │   ├── api.ts      # Configuración de Express
 │   └── index.ts    # Punto de entrada
+├── test/           # Tests de la base de datos
 ├── dist/           # Código compilado (generado)
 └── package.json    # Dependencias y scripts
 ```

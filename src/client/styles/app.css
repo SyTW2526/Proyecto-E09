@@ -1,0 +1,60 @@
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
+
+/* Estilos para el efecto de flip 3D */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Swiper personalización */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #3b82f6 !important;
+  background: white;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  font-size: 20px !important;
+}
+
+.swiper-pagination-bullet {
+  background: #3b82f6 !important;
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: #1e40af !important;
+}
+
+/* Animaciones suaves */
+* {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Scroll suave */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fuentes serif para títulos */
+h1, h2 {
+  font-family: 'Georgia', 'Times New Roman', serif;
+}

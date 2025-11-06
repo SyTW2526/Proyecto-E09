@@ -5,7 +5,8 @@ import { User } from '../models/User.js';
 export const userRouter = express.Router();
 
 /**
- * Ruta para crear un nuevo usuario
+ * POST /users
+ * Crear un nuevo usuario
  */
 userRouter.post('/users', async (req, res) => {
   try {
@@ -17,23 +18,40 @@ userRouter.post('/users', async (req, res) => {
   }
 });
 /**
- * Ruta para obtener la lista de usuarios
+ * GET /users
+ * Obtener la lista de usuarios
  */
 userRouter.get('/users', async (req, res) => {
   try {
-    const filter = req.query ? req.query : {};
-    const users = await User.find(filter);
-    if (users.length > 0) {
-      res.send(users);
-    } else {
-      res.status(404).send({ error: 'No se encontraron usuarios' });
+    const { page = 1, limit = 20 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const users = await User.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    const total = await User.countDocuments();
+    const totalPages = Math.ceil(total / Number(limit));
+
+    if (users.length === 0) {
+      return res.status(404).send({ error: 'No se encontraron usuarios' });
     }
+
+    res.send({
+      page: Number(page),
+      totalPages,
+      totalResults: total,
+      resultsPerPage: Number(limit),
+      users,
+    });
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send({ error: error.message });
   }
 });
 /**
- * Ruta para obtener un usuario (por id o username)
+ * GET /users/:identifier
+ * Obtener un usuario (por id o username)
  */
 userRouter.get('/users/:identifier', async (req, res) => {
   try {
@@ -54,7 +72,8 @@ userRouter.get('/users/:identifier', async (req, res) => {
   }
 });
 /**
- * Ruta para actualizar un usuario (por id o username)
+ * PATCH /users/:identifier
+ * Actualizar un usuario (por id o username)
  */
 userRouter.patch('/users/:identifier', async (req, res) => {
   const allowedUpdates = [
@@ -88,7 +107,8 @@ userRouter.patch('/users/:identifier', async (req, res) => {
   }
 });
 /**
- * Ruta para eliminar un usuario (por id o username)
+ * DELETE /users/:identifier
+ * Eliminar un usuario (por id o username)
  */
 userRouter.delete('/users/:identifier', async (req, res) => {
   try {
@@ -106,7 +126,8 @@ userRouter.delete('/users/:identifier', async (req, res) => {
 });
 
 /**
- * Ruta para agregar un amigo (por id o username)
+ * POST /users/:identifier/friends/:friendIdentifier
+ * Agregar un amigo (por id o username)
  */
 userRouter.post('/users/:identifier/friends/:friendIdentifier', async (req, res) => {
   try {
@@ -127,7 +148,8 @@ userRouter.post('/users/:identifier/friends/:friendIdentifier', async (req, res)
 });
 
 /**
- * Ruta para eliminar un amigo (por id o username)
+ * DELETE /users/:identifier/friends/:friendIdentifier
+ * Eliminar un amigo (por id o username)
  */
 userRouter.delete('/users/:identifier/friends/:friendIdentifier', async (req, res) => {
   try {
@@ -146,7 +168,8 @@ userRouter.delete('/users/:identifier/friends/:friendIdentifier', async (req, re
 });
 
 /**
- * Ruta para bloquear un usuario (por id o username)
+ * POST /users/:identifier/block/:blockedIdentifier
+ * Bloquear un usuario (por id o username)
  */
 userRouter.post('/users/:identifier/block/:blockedIdentifier', async (req, res) => {
   try {
@@ -167,7 +190,8 @@ userRouter.post('/users/:identifier/block/:blockedIdentifier', async (req, res) 
 });
 
 /**
- * Ruta para desbloquear un usuario (por id o username)
+ * DELETE /users/:identifier/block/:blockedIdentifier
+ * Desbloquear un usuario (por id o username)
  */
 userRouter.delete('/users/:identifier/block/:blockedIdentifier', async (req, res) => {
   try {

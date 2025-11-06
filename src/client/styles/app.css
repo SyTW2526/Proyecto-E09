@@ -139,9 +139,9 @@ body {
 
 /* Featured Cards Section */
 .featured-section {
-  border-top: 4px dashed #999;
-  border-bottom: 4px dashed #999;
+  background: white;
   padding: 3rem 0;
+  box-shadow: #333;
 }
 
 .featured-title {
@@ -149,6 +149,7 @@ body {
   padding: 1rem 3rem;
   background: linear-gradient(to right, #6eb6f5, #4a9de8);
   color: white;
+  margin-bottom: 2rem;
   font-size: 1.875rem;
   font-weight: 700;
   border-radius: 0.5rem;
@@ -244,6 +245,52 @@ body {
 
 .slider-button-right {
   right: -1rem;
+}
+
+/* Hide native scrollbar for the horizontal slider container */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+/* Featured slider: force 5 cards per view on large screens */
+.featured-slider .card-item {
+  flex: 0 0 20%; /* 5 cards per row */
+  max-width: 20%;
+}
+
+@media (max-width: 1024px) {
+  /* 4 per row on medium-large screens */
+  .featured-slider .card-item {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
+@media (max-width: 768px) {
+  /* 3 per row on tablets */
+  .featured-slider .card-item {
+    flex: 0 0 33.3333%;
+    max-width: 33.3333%;
+  }
+}
+
+@media (max-width: 640px) {
+  /* 2 per row on small phones */
+  .featured-slider .card-item {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 420px) {
+  /* 1 per row on very small screens */
+  .featured-slider .card-item {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
 }
 
 /* Footer */

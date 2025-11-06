@@ -17,6 +17,8 @@ interface Card {
 
 const FeaturedCards: React.FC = () => {
   const [currentIndex, setCurrentIndex] = React.useState(0);
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const trackRef = React.useRef<HTMLDivElement | null>(null);
 
   const featuredCards: Card[] = [
     {
@@ -66,6 +68,9 @@ const FeaturedCards: React.FC = () => {
     },
   ];
 
+  // Triple list to enable infinite scroll illusion (copy - original - copy)
+  const tripleList = React.useMemo(() => [...featuredCards, ...featuredCards, ...featuredCards], [featuredCards]);
+
   const PokemonCard = ({ card }: { card: Card }) => {
     const [isFlipped, setIsFlipped] = React.useState(false);
     const [isFavorite, setIsFavorite] = React.useState(false);
@@ -78,11 +83,11 @@ const FeaturedCards: React.FC = () => {
       >
         <div className="relative w-full">
           {!isFlipped ? (
-            <div className="relative rounded-2xl shadow-xl overflow-hidden cursor-pointer border-4 border-blue-400">
-              <img 
-                src={card.image} 
+            <div className="pokemon-card overflow-hidden cursor-pointer">
+              <img
+                src={card.image}
                 alt={card.name}
-                className="w-full h-auto object-cover"
+                className="pokemon-card-image"
               />
               
               <button
@@ -98,7 +103,7 @@ const FeaturedCards: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="rounded-2xl shadow-xl border-4 border-blue-400 bg-white p-6 min-h-[400px]">
+            <div className="pokemon-card-back bg-white p-4 min-h-[320px]">
               <div className="h-full flex flex-col justify-between">
                 <div>
                   <h3 className="text-2xl font-bold mb-4 text-center text-gray-800">{card.name}</h3>
@@ -134,33 +139,86 @@ const FeaturedCards: React.FC = () => {
     );
   };
 
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % (featuredCards.length - 4));
+  const scrollByCard = (direction: 'next' | 'prev') => {
+    const container = containerRef.current;
+    const track = trackRef.current;
+    if (!container || !track) return;
+
+    const firstCard = track.querySelector<HTMLElement>('.card-item');
+    if (!firstCard) return;
+
+    const gap = parseInt(getComputedStyle(track).gap || '16', 10) || 16;
+    const cardWidth = firstCard.offsetWidth + gap;
+
+    const offset = direction === 'next' ? cardWidth : -cardWidth;
+    container.scrollBy({ left: offset, behavior: 'smooth' });
   };
 
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + (featuredCards.length - 4)) % (featuredCards.length - 4));
-  };
+  // Optional autoplay (every 5s)
+  React.useEffect(() => {
+    const id = setInterval(() => scrollByCard('next'), 5000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Setup initial scroll position to the middle copy and handle wrapping
+  React.useEffect(() => {
+    const container = containerRef.current;
+    const track = trackRef.current;
+    if (!container || !track) return;
+
+    // Wait a tick so images/layout can settle
+    const init = () => {
+      const singleWidth = track.scrollWidth / 3;
+      if (singleWidth && Number.isFinite(singleWidth)) {
+        container.scrollLeft = singleWidth;
+      }
+    };
+
+    const t = window.setTimeout(init, 150);
+
+    const onScroll = () => {
+      const singleWidth = track.scrollWidth / 3;
+      if (!singleWidth) return;
+
+      const threshold = Math.max(8, singleWidth * 0.02); // small buffer
+
+      // If we've scrolled into the last copy (near the end), jump back one copy (no animation)
+      if (container.scrollLeft >= singleWidth * 2 - threshold) {
+        // compute equivalent position in the middle copy
+        container.scrollLeft = container.scrollLeft - singleWidth;
+      }
+
+      // If we've scrolled into the first copy (near the start), jump forward one copy
+      if (container.scrollLeft <= threshold) {
+        container.scrollLeft = container.scrollLeft + singleWidth;
+      }
+    };
+
+    container.addEventListener('scroll', onScroll, { passive: true });
+
+    return () => {
+      window.clearTimeout(t);
+      container.removeEventListener('scroll', onScroll);
+    };
+  }, [tripleList]);
 
   return (
     <section className="container mx-auto px-4 py-8">
-      <div className="border-t-4 border-b-4 border-dashed border-gray-400 py-8">
+      <div className="featured-section py-12">
         {/* Título */}
         <div className="text-center mb-8">
-          <h2 className="inline-block px-12 py-4 bg-gradient-to-r from-blue-400 to-blue-500 text-white text-3xl font-bold rounded-lg shadow-lg border-2 border-blue-600">
+          <h2 className="featured-title">
             CARTAS DESTACADAS
           </h2>
         </div>
 
-        {/* Slider de cartas */}
+        {/* Slider de cartas (responsive, scroll-based) */}
         <div className="relative">
-          <div className="overflow-hidden">
-            <div 
-              className="flex gap-6 transition-transform duration-500 ease-in-out"
-              style={{ transform: `translateX(-${currentIndex * (100 / 5)}%)` }}
-            >
-              {featuredCards.map((card) => (
-                <div key={card.id} className="flex-shrink-0 w-1/5 px-2">
+          <div ref={containerRef} className="overflow-x-auto no-scrollbar">
+            <div ref={trackRef} className="flex gap-6 items-stretch py-4 featured-slider">
+              {tripleList.map((card, i) => (
+                <div key={`${card.id}-${i}`} className="card-item px-2">
                   <PokemonCard card={card} />
                 </div>
               ))}
@@ -168,16 +226,10 @@ const FeaturedCards: React.FC = () => {
           </div>
 
           {/* Botones de navegación */}
-          <button
-            onClick={prevSlide}
-            className="absolute left-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition-colors z-10"
-          >
+          <button onClick={() => scrollByCard('prev')} aria-label="Anterior" className="slider-button slider-button-left z-20">
             <ChevronLeft className="w-6 h-6 text-gray-700" />
           </button>
-          <button
-            onClick={nextSlide}
-            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition-colors z-10"
-          >
+          <button onClick={() => scrollByCard('next')} aria-label="Siguiente" className="slider-button slider-button-right z-20">
             <ChevronRight className="w-6 h-6 text-gray-700" />
           </button>
         </div>

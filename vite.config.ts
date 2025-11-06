@@ -1,15 +1,19 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
 export default defineConfig({
-  root: 'src/client', // <-- La raíz del cliente ahora es src/client
-  plugins: [react()],
-  publicDir: '../../public', // se mantiene la carpeta public si la usas
+  root: 'src/client',
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
+  publicDir: '../../public',
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src/client')
-    }
+      '@': path.resolve(__dirname, './src/client'),
+    },
   },
   server: {
     port: 3000,
@@ -17,11 +21,11 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
-      }
-    }
+      },
+    },
   },
   build: {
-    outDir: '../../dist/client', // salida relativa a root (src/client)
-    emptyOutDir: true // limpia antes de construir
-  }
+    outDir: '../../dist/client',
+    emptyOutDir: true,
+  },
 })

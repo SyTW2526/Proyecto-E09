@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import api from '../../api/apiService'
+import api from '../../services/apiService'
 import { PokemonCard, PaginatedResponse } from '../../types'
 
 interface CardsState {

@@ -110,22 +110,6 @@ body {
   display: block;
 }
 
-/* Hero Section */
-.hero-text {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 3rem;
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  color: #333;
-}
-
-.hero-logo {
-  width: 180px;
-  height: 180px;
-  object-fit: contain;
-  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15));
-}
-
 /* Header-specific logo (small) */
 .header-logo {
   width: 150px;
@@ -133,6 +117,24 @@ body {
   object-fit: contain;
   filter: drop-shadow(0 6px 14px rgba(0,0,0,0.12));
   display: block;
+}
+
+/* Hero Section */
+.hero-text {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  margin-left: 5rem;
+  margin-right: 5rem;
+  letter-spacing: 0.05em;
+  color: black;
+}
+
+.hero-logo {
+  width: 500px;
+  height: 500px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15));
 }
 
 /* Featured Cards Section */

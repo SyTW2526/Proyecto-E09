@@ -1,52 +1,119 @@
 // services/pokemon.ts
-import 'dotenv/config';
 
-const POKEMON_TCG_BASE_URL = 'https://api.pokemontcg.io/v2';
-const API_KEY = process.env.POKEMON_TCG_API_KEY;
+const TCGDEX_BASE_URL = 'https://api.tcgdex.net/v2/en';
 
 async function apiFetch(endpoint: string) {
-  const response = await fetch(`${POKEMON_TCG_BASE_URL}${endpoint}`, {
+  const response = await fetch(`${TCGDEX_BASE_URL}${endpoint}`, {
     headers: {
-      'X-Api-Key': API_KEY!,
       'Content-Type': 'application/json'
     }
   });
 
   if (!response.ok) {
-    throw new Error(`Pokemon TCG API Error: ${response.statusText}`);
+    throw new Error(`TCGdex API Error: ${response.statusText}`);
   }
   return response.json();
 }
 
 /**
- * Obtiene una carta por nombre o ID
+ * Obtiene cartas por nombre
+ * @param name - Nombre del Pokémon a buscar
+ * @returns Array de cartas que coinciden con el nombre
  */
-export async function getPokemon(nameOrId: string) {
-  // Búsqueda por nombre (puede devolver varias cartas)
-  return apiFetch(`/cards?q=name:${nameOrId}`);
+export async function getCardsByName(name: string) {
+  return apiFetch(`/cards?name=${encodeURIComponent(name)}`);
 }
 
 /**
- * Lista cartas con paginación
+ * Obtiene una carta específica por ID
+ * @param id - ID de la carta (ej: "swsh3-25")
+ * @returns Detalles completos de la carta
  */
-export async function getPokemonList(limit = 20, offset = 0) {
-  const page = Math.floor(offset / limit) + 1;
-  return apiFetch(`/cards?page=${page}&pageSize=${limit}`);
+export async function getCardById(id: string) {
+  return apiFetch(`/cards/${id}`);
 }
 
 /**
- * Obtiene multiples cartas por array de IDs
+ * Obtiene todas las cartas de un set específico
+ * @param setId - ID del set (ej: "swsh3", "base1")
+ * @returns Array de cartas del set
  */
-export async function getMultiplePokemon(ids: string[]) {
-  const query = ids.map(id => `id:${id}`).join(" OR ");
-  return apiFetch(`/cards?q=${query}`);
+export async function getCardsBySet(setId: string) {
+  return apiFetch(`/sets/${setId}`);
 }
 
 /**
- * Obtiene una carta aleatoria
+ * Obtiene la lista de todos los sets disponibles
+ * @returns Array de sets con información básica
  */
-export async function getRandomPokemon() {
-  const randomPage = Math.floor(Math.random() * 100);
-  const list = await getPokemonList(1, randomPage);
-  return list.data?.[0];
+export async function getAllSets() {
+  return apiFetch('/sets');
+}
+
+/**
+ * Obtiene cartas filtradas por tipo
+ * @param type - Tipo de carta (ej: "Pokémon", "Trainer", "Energy")
+ * @returns Array de cartas del tipo especificado
+ */
+export async function getCardsByType(type: string) {
+  return apiFetch(`/cards?types=${encodeURIComponent(type)}`);
+}
+
+/**
+ * Obtiene cartas filtradas por HP
+ * @param hp - HP mínimo o exacto
+ * @returns Array de cartas con ese HP
+ */
+export async function getCardsByHP(hp: number) {
+  return apiFetch(`/cards?hp=${hp}`);
+}
+
+/**
+ * Obtiene cartas por rareza
+ * @param rarity - Rareza de la carta (ej: "Common", "Rare", "Ultra Rare")
+ * @returns Array de cartas con esa rareza
+ */
+export async function getCardsByRarity(rarity: string) {
+  return apiFetch(`/cards?rarity=${encodeURIComponent(rarity)}`);
+}
+
+/**
+ * Obtiene información de una serie específica
+ * @param seriesId - ID de la serie
+ * @returns Información de la serie
+ */
+export async function getSeriesById(seriesId: string) {
+  return apiFetch(`/series/${seriesId}`);
+}
+
+/**
+ * Obtiene todas las series disponibles
+ * @returns Array de series
+ */
+export async function getAllSeries() {
+  return apiFetch('/series');
+}
+
+/**
+ * Búsqueda avanzada de cartas con múltiples filtros
+ * @param filters - Objeto con filtros opcionales (name, types, hp, rarity, etc.)
+ * @returns Array de cartas que cumplen los filtros
+ */
+export async function searchCards(filters: {
+  name?: string;
+  types?: string;
+  hp?: number;
+  rarity?: string;
+  set?: string;
+}) {
+  const params = new URLSearchParams();
+  
+  if (filters.name) params.append('name', filters.name);
+  if (filters.types) params.append('types', filters.types);
+  if (filters.hp) params.append('hp', filters.hp.toString());
+  if (filters.rarity) params.append('rarity', filters.rarity);
+  if (filters.set) params.append('set', filters.set);
+  
+  const queryString = params.toString();
+  return apiFetch(`/cards${queryString ? `?${queryString}` : ''}`);
 }

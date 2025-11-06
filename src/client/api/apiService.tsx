@@ -1,4 +1,4 @@
-import { PokemonCard, ApiResponse, PaginatedResponse } from '../types';
+import { PokemonCard, ApiResponse, PaginatedResponse, User, TradeStatus } from '../types';
 
 const API_BASE_URL = '/api'; // Tu backend Node.js
 const TCGDEX_URL = 'https://api.tcgdex.net/v2/en'; // API pública de tcgDex
@@ -128,7 +128,7 @@ class ApiService {
     }
   }
 
-  async updateTradeStatus(tradeId: string, status: 'accepted' | 'rejected' | 'completed'): Promise<boolean> {
+  async updateTradeStatus(tradeId: string, status: TradeStatus): Promise<boolean> {
     try {
       const response = await fetch(`${API_BASE_URL}/trades/${tradeId}`, {
         method: 'PATCH',
@@ -139,6 +139,94 @@ class ApiService {
     } catch (error) {
       console.error('Error:', error);
       return false;
+    }
+  }
+  //Métodos para usuarios
+  async getUserById(userId: string): Promise<User | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}`)
+      if (!response.ok) throw new Error('Error fetching user')
+      const data: ApiResponse<User> = await response.json()
+      return data.data
+    } catch (error) {
+      console.error('Error:', error)
+      return null
+    }
+  }
+
+  async getUserFriends(userId: string): Promise<User[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/friends`)
+      if (!response.ok) throw new Error('Error fetching friends')
+      const data: ApiResponse<User[]> = await response.json()
+      return data.data
+    } catch (error) {
+      console.error('Error:', error)
+      return []
+    }
+  }
+
+  async addFriend(userId: string, friendId: string): Promise<User | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/friends/${friendId}`, {
+        method: 'POST',
+      })
+      if (!response.ok) throw new Error('Error adding friend')
+      const data: ApiResponse<User> = await response.json()
+      return data.data
+    } catch (error) {
+      console.error('Error:', error)
+      return null
+    }
+  }
+
+  async removeFriend(userId: string, friendId: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/friends/${friendId}`, {
+        method: 'DELETE',
+      })
+      return response.ok
+    } catch (error) {
+      console.error('Error:', error)
+      return false
+    }
+  }
+  // Métodos para la wishlist del usuario
+  async getWishlist(userId: string): Promise<PokemonCard[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/wishlist`)
+      if (!response.ok) throw new Error('Error fetching wishlist')
+      const data: ApiResponse<PokemonCard[]> = await response.json()
+      return data.data
+    } catch (error) {
+      console.error('Error:', error)
+      return []
+    }
+  }
+
+  async addToWishlist(userId: string, cardId: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/wishlist`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cardId }),
+      })
+      return response.ok
+    } catch (error) {
+      console.error('Error:', error)
+      return false
+    }
+  }
+
+  async removeFromWishlist(userId: string, cardId: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/wishlist/${cardId}`, {
+        method: 'DELETE',
+      })
+      return response.ok
+    } catch (error) {
+      console.error('Error:', error)
+      return false
     }
   }
 }

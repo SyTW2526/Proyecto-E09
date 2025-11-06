@@ -74,12 +74,13 @@ export interface User {
   trades: Trade[];
 }
 
+export type TradeStatus = 'pending' | 'accepted' | 'rejected' | 'completed';
 export interface Trade {
   id: string;
   from: string;
   to: string;
   offeredCards: string[];
   requestedCards: string[];
-  status: 'pending' | 'accepted' | 'rejected' | 'completed';
+  status: TradeStatus;
   createdAt: Date;
 }

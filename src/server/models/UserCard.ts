@@ -46,6 +46,11 @@ const userCardSchema = new mongoose.Schema({
   forTrade: {
     type: Boolean,
     default: false
+  },
+  collectionType: {
+    type: String,
+    enum: ['collection', 'wishlist'],
+    default: 'collection'
   }
 }, {
   timestamps: true
@@ -54,5 +59,6 @@ const userCardSchema = new mongoose.Schema({
 
 userCardSchema.index({ userId: 1, cardId: 1 });
 userCardSchema.index({ userId: 1, isPublic: 1 });
+userCardSchema.index({ userId: 1, collectionType: 1 });
 
 export const UserCard = mongoose.model('UserCard', userCardSchema);

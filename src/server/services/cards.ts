@@ -42,8 +42,8 @@ export async function syncAllCards() {
         );
         count++;
       }
-    } catch (err) {
-      console.error(`Error al sincronizar el set ${setId}:`, err.message);
+    } catch (error) {
+      console.error(`Error al sincronizar el set ${setId}:`, (error as Error).message ?? String(error));
     }
   }
 

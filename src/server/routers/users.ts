@@ -46,8 +46,8 @@ userRouter.get('/users', async (req, res) => {
       users,
     });
   } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
+  res.status(500).send({ error: (error as Error).message ?? String(error) });
+}
 });
 /**
  * GET /users/:identifier
@@ -143,8 +143,8 @@ userRouter.post('/users/:identifier/friends/:friendIdentifier', async (req, res)
     }
     res.send({ message: 'Amigo agregado', user });
   } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
+  res.status(500).send({ error: (error as Error).message ?? String(error) });
+}
 });
 
 /**
@@ -163,7 +163,7 @@ userRouter.delete('/users/:identifier/friends/:friendIdentifier', async (req, re
     await user.save();
     res.send({ message: 'Amigo eliminado', user });
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(500).send({ error: (error as Error).message ?? String(error) });
   }
 });
 
@@ -185,7 +185,7 @@ userRouter.post('/users/:identifier/block/:blockedIdentifier', async (req, res) 
     }
     res.send({ message: 'Usuario bloqueado', user });
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(500).send({ error: (error as Error).message ?? String(error) });
   }
 });
 
@@ -205,7 +205,7 @@ userRouter.delete('/users/:identifier/block/:blockedIdentifier', async (req, res
     await user.save();
     res.send({ message: 'Usuario desbloqueado', user });
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(500).send({ error: (error as Error).message ?? String(error) });
   }
 });
 

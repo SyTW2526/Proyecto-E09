@@ -28,7 +28,7 @@ userCardRouter.post('/usercards/:username/:type', async (req, res) => {
     await newCard.save();
     res.status(201).send(newCard);
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(400).send({ error: (error as Error).message ?? String(error) });
   }
 });
 
@@ -134,7 +134,7 @@ userCardRouter.patch('/usercards/:username/cards/:userCardId', async (req, res) 
     }
     res.send(userCard);
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(400).send({ error: (error as Error).message ?? String(error) });
   }
 });
 
@@ -160,7 +160,7 @@ userCardRouter.delete('/usercards/:username/cards/:userCardId', async (req, res)
     }
     res.send({ message: 'Carta eliminada correctamente', deletedCard });
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(500).send({ error: (error as Error).message ?? String(error) });
   }
 });
 

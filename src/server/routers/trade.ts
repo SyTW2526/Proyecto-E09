@@ -14,7 +14,7 @@ tradeRouter.post('/trades', async (req, res) => {
     await trade.save();
     res.status(201).send(trade);
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(400).send({ error: (error as Error).message ?? String(error) });
   }
 });
 
@@ -71,7 +71,7 @@ tradeRouter.get('/trades/:id', async (req, res) => {
     }
     res.send(trade);
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(500).send({ error: (error as Error).message ?? String(error) });
   }
 });
 
@@ -98,7 +98,7 @@ tradeRouter.patch('/trades/:id', async (req, res) => {
     }
     res.send(trade);
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(400).send({ error: (error as Error).message ?? String(error) });
   }
 });
 
@@ -114,6 +114,6 @@ tradeRouter.delete('/trades/:id', async (req, res) => {
     }
     res.send({ message: 'Intercambio eliminado', trade });
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(500).send({ error: (error as Error).message ?? String(error) });
   }
 });

@@ -1,6 +1,4 @@
-@import "tailwindcss/preflight";
-@import "tailwindcss/utilities";
-
+@import "tailwindcss";
 /* Variables globales */
 :root {
   --color-blue-light: #a8d5f7;
@@ -88,15 +86,17 @@ body {
 * Tendrá un aspecto similar a los botones anteriores, manteniendo la coherencia visual.
 */
 .header-search {
-  width: 50rem;
-  padding: 0.5rem 0.75rem;
+  width: 100%;
+  max-width: 28rem; /* ✅ tamaño equilibrado */
+  padding: 0.5rem 2.5rem 0.5rem 0.75rem; /* derecha extendida para la lupa */
   border: 2px solid var(--color-blue-dark);
   border-radius: 9999px;
   background: linear-gradient(135deg, var(--color-blue-light) 0%, var(--color-blue-medium) 70%);
   color: #000;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
+
 
 /* Icons for settings and stuff
 * Estilos para los iconos usados en el header y otras partes.

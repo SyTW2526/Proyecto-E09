@@ -1,0 +1,21 @@
+.signup-background {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: #f0f8ff; 
+  overflow: hidden;
+}
+
+.signup-background::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.25;
+  background-image: url("/logo.png");
+  background-size: 180px;
+  background-repeat: round;
+  background-position: center;
+  z-index: 0;
+}

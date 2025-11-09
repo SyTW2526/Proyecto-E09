@@ -20,7 +20,9 @@ const Hero: React.FC = () => {
 
         {/* Texto derecho */}
         <div className="flex-1 flex justify-end">
-          <h2 className="hero-text text-right">NUNCA ES TARDE PARA JUGAR</h2>
+          <h1 className="text-5xl font-extrabold text-sky-700 text-center">
+            ¡Colecciona, intercambia y descubre tu mundo Pokémon!
+          </h1>
         </div>
       </div>
     </section>

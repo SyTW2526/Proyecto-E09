@@ -1,34 +1,24 @@
 
-# Como Probar la API
+# Como Probar la APP
 
-## Endpoints Disponibles
+## Compilar y ejecutar
 
-### Obtener un Pokemon
+### Compilar y ejecutar cliente:
 ```bash
-curl http://localhost:3000/pokemon/pikachu
-curl http://localhost:3000/pokemon/25
+npm install
+npm run build-client
+npm run dev-client
 ```
 
-### Pokemon aleatorio
+### Compilar y ejecutar server:
 ```bash
-curl http://localhost:3000/pokemon/random
+npm install
+npm run build-server
+npm run dev-server
 ```
 
-### Lista de Pokemon
+### Obtener un Pokemon o un Set
 ```bash
-curl "http://localhost:3000/pokemon/list?limit=5"
+Postman: http://localhost:3000/pokemon/sets/swsh3 
+Postman: http://localhost:3000/pokemon/cards/swsh3-16
 ```
-
-### Multiples Pokemon
-```bash
-curl -X POST http://localhost:3000/pokemon/multiple \
-  -H "Content-Type: application/json" \
-  -d '{"ids": [1, 4, 7, 25]}'
-```
-
-## Servidor
-
-```bash
-npm run dev
-```
-

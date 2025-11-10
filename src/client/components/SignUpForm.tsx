@@ -70,7 +70,7 @@ const SignUpForm: React.FC = () => {
           <button
             type="button"
             onClick={() => window.location.href = '/home'}
-            className="w-4/5 mt-6 bg-gradient-to-r from-sky-600 to-blue-600 text-white
+            className="w-4/5 mt-6 bg-linear-to-r from-sky-600 to-blue-600 text-white
                       font-semibold py-3 rounded-lg shadow-md hover:from-sky-700 hover:to-blue-700
                       transition text-base cursor-pointer"
           >

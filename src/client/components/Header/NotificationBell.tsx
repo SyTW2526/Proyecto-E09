@@ -42,7 +42,7 @@ const NotificationBell: React.FC = () => {
         className="p-2 hover:bg-white/20 rounded-full transition relative"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <Bell className="w-6 h-6 sm:w-7 sm:h-7 text-black dark:text-white" />
+        <Bell className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
         {unread > 0 && (
           <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
             {unread > 9 ? '9+' : unread}
@@ -51,23 +51,23 @@ const NotificationBell: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
-          <div className="p-4 border-b dark:border-gray-700 flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-2xl z-[9999] max-h-96 overflow-y-auto border border-gray-200">
+          <div className="p-4 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white rounded-t-lg">
+            <h3 className="text-lg font-semibold text-gray-800">
               Notificaciones
             </h3>
             {unread > 0 && (
               <button
                 onClick={handleMarkAllAsRead}
-                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                className="text-sm text-blue-600 hover:underline font-medium"
               >
-                Marcar todo como leído
+                Marcar todo
               </button>
             )}
           </div>
 
           {notifications.length === 0 ? (
-            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+            <div className="p-8 text-center text-gray-500">
               No tienes notificaciones
             </div>
           ) : (
@@ -75,16 +75,16 @@ const NotificationBell: React.FC = () => {
               {notifications.map((notification) => (
                 <div
                   key={notification._id}
-                  className={`p-4 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition ${
-                    !notification.isRead ? 'bg-blue-50 dark:bg-gray-700' : ''
+                  className={`p-4 border-b border-gray-200 hover:bg-gray-50 transition ${
+                    !notification.isRead ? 'bg-blue-50' : ''
                   }`}
                 >
                   <div className="flex justify-between items-start gap-3">
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-800 dark:text-white">
+                      <h4 className="font-semibold text-gray-800">
                         {notification.title}
                       </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                      <p className="text-sm text-gray-600 mt-1">
                         {notification.message}
                       </p>
                       <p className="text-xs text-gray-400 mt-2">
@@ -99,16 +99,16 @@ const NotificationBell: React.FC = () => {
                     </div>
                     <button
                       onClick={() => handleRemoveNotification(notification._id)}
-                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
+                      className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600"
                       aria-label="Eliminar"
                     >
-                      <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
                   {!notification.isRead && (
                     <button
                       onClick={() => handleMarkAsRead(notification._id)}
-                      className="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                      className="mt-2 text-xs text-blue-600 hover:underline font-medium"
                     >
                       Marcar como leído
                     </button>

@@ -6,7 +6,7 @@ import DarkModeToggle from "./DarkModeToggle";
 
 const AuthHeader: React.FC = () => {
   return (
-    <header className="bg-gradient-to-r from-sky-600 to-blue-500 shadow-lg fixed top-0 left-0 w-full z-50 overflow-x-hidden dark:from-gray-800 dark:to-gray-900">
+    <header className="bg-gradient-to-r from-sky-600 to-blue-500 shadow-lg fixed top-0 left-0 w-full z-40">
       <div className="flex items-center justify-between w-full px-8 py-4">
         
         {/*LOGO */}
@@ -22,30 +22,30 @@ const AuthHeader: React.FC = () => {
         </div>
 
         {/* BOTONES + CONTROLES */}
-        <div className="flex items-center gap-8 relative" style={{ right: "3rem" }}>
+        <div className="flex items-center gap-6">
           {/* Bloque de botones */}
-          <div className="flex items-center gap-5">
-            <a href="/login" className="CollectionButton">
+          <div className="flex items-center gap-4">
+            <a href="/login" className="CollectionButton text-sm">
               Iniciar sesión
             </a>
-            <a href="/signup" className="CollectionButton">
+            <a href="/signup" className="CollectionButton text-sm">
               Crear cuenta
             </a>
           </div>
 
           {/* Nuevos controles: Notificaciones, Idioma, Modo Oscuro */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <NotificationBell />
             <LanguageSelector />
             <DarkModeToggle />
           </div>
 
-          {/* Icono ajustes (legacy) */}
+          {/* Icono ajustes */}
           <button
             aria-label="Ajustes"
             className="p-2 hover:bg-white/20 rounded-full transition"
           >
-            <Settings className="w-7 h-7 text-black dark:text-white" />
+            <Settings className="w-7 h-7 text-white" />
           </button>
         </div>
       </div>

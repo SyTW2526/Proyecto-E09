@@ -23,12 +23,12 @@ const FeaturedCards: React.FC = () => {
   const featuredCards: Card[] = [
     {
       id: '1',
-      name: 'PEPE',
-      image: '/carta1.png',
-      hp: '110',
-      type: 'Fire',
-      rarity: 'Rare',
-      price: { low: 15, mid: 20, high: 30 }
+      name: 'Mega Gardevoir',
+      image: 'https://assets.tcgdex.net/en/me/me01/178/high.png',
+      hp: '360',
+      type: 'Psychic',
+      rarity: 'Mega Hyper Rare',
+      price: { low: 429.99, mid: 555, high: 1299 }
     },
     {
       id: '2',
@@ -103,7 +103,7 @@ const FeaturedCards: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="pokemon-card-back bg-white p-4 min-h-[320px]">
+            <div className="pokemon-card-back bg-white p-4 min-h-80">
               <div className="h-full flex flex-col justify-between">
                 <div>
                   <h3 className="text-2xl font-bold mb-4 text-center text-gray-800">{card.name}</h3>

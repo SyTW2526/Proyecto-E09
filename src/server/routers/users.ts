@@ -113,6 +113,7 @@ userRouter.post('/users', async (req, res) => {
     res.status(500).send(error);
   }
 });
+
 /**
  * GET /users
  * Obtener la lista de usuarios

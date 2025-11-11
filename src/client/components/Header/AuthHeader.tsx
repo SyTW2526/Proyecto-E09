@@ -1,9 +1,12 @@
 import React from "react";
 import { Settings } from "lucide-react";
+import NotificationBell from "./NotificationBell";
+import LanguageSelector from "./LanguageSelector";
+import DarkModeToggle from "./DarkModeToggle";
 
 const AuthHeader: React.FC = () => {
   return (
-    <header className="bg-gradient-to-r from-sky-600 to-blue-500 shadow-lg fixed top-0 left-0 w-full z-50 overflow-x-hidden">
+    <header className="bg-gradient-to-r from-sky-600 to-blue-500 shadow-lg fixed top-0 left-0 w-full z-50 overflow-x-hidden dark:from-gray-800 dark:to-gray-900">
       <div className="flex items-center justify-between w-full px-8 py-4">
         
         {/*LOGO */}
@@ -18,7 +21,7 @@ const AuthHeader: React.FC = () => {
           </h1>
         </div>
 
-        {/* BOTONES + AJUSTES */}
+        {/* BOTONES + CONTROLES */}
         <div className="flex items-center gap-8 relative" style={{ right: "3rem" }}>
           {/* Bloque de botones */}
           <div className="flex items-center gap-5">
@@ -30,12 +33,19 @@ const AuthHeader: React.FC = () => {
             </a>
           </div>
 
-          {/* Icono ajustes */}
+          {/* Nuevos controles: Notificaciones, Idioma, Modo Oscuro */}
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <LanguageSelector />
+            <DarkModeToggle />
+          </div>
+
+          {/* Icono ajustes (legacy) */}
           <button
             aria-label="Ajustes"
             className="p-2 hover:bg-white/20 rounded-full transition"
           >
-            <Settings className="w-7 h-7 text-black" />
+            <Settings className="w-7 h-7 text-black dark:text-white" />
           </button>
         </div>
       </div>

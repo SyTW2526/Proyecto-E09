@@ -30,7 +30,12 @@ const userSchema = new mongoose.Schema({
   settings: {
     language: {
       type: String,
-      default: 'es'
+      default: 'es',
+      enum: ['es', 'en']
+    },
+    darkMode: {
+      type: Boolean,
+      default: false
     },
     notifications: {
       trades: { type: Boolean, default: true },

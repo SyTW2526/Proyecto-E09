@@ -14,8 +14,8 @@
   "notifications": {
     "titulo": "Notifications",
     "marcarTodo": "Mark all",
-    "sinNotificaciones": "You have no notifications",
-    "marcarLeido": "Mark as read",
+    "sin": "You have no notifications",
+    "marcar": "Mark as read",
     "eliminar": "Delete"
   },
   "language": {
@@ -23,7 +23,7 @@
     "ingles": "English"
   },
   "darkMode": {
-    "cambiarClaro": "Switch to light mode",
-    "cambiarOscuro": "Switch to dark mode"
+    "dark": "Switch to dark mode",
+    "light": "Switch to light mode"
   }
 }

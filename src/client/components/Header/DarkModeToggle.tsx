@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store/store';
@@ -8,18 +8,21 @@ const DarkModeToggle: React.FC = () => {
   const dispatch = useDispatch();
   const darkMode = useSelector((state: RootState) => state.preferences.preferences.darkMode);
 
+  useEffect(() => {
+    const htmlElement = document.documentElement;
+    if (darkMode) {
+      htmlElement.classList.add('dark');
+      document.body.style.colorScheme = 'dark';
+    } else {
+      htmlElement.classList.remove('dark');
+      document.body.style.colorScheme = 'light';
+    }
+  }, [darkMode]);
+
   const handleToggleDarkMode = () => {
     const newDarkMode = !darkMode;
     dispatch(setDarkMode(newDarkMode));
-    
-    // Aplicar cambio al HTML element
-    if (newDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('darkMode', 'true');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('darkMode', 'false');
-    }
+    localStorage.setItem('darkMode', String(newDarkMode));
   };
 
   return (

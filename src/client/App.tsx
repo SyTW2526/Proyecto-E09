@@ -7,7 +7,6 @@ import { setDarkMode, setLanguage } from './features/preferences/preferencesSlic
 const App: React.FC = () => {
   const dispatch = useDispatch();
   const darkMode = useSelector((state: RootState) => state.preferences.preferences.darkMode);
-  const language = useSelector((state: RootState) => state.preferences.preferences.language);
 
   // Cargar preferencias del localStorage al montar
   useEffect(() => {
@@ -19,6 +18,10 @@ const App: React.FC = () => {
       dispatch(setDarkMode(isDark));
       if (isDark) {
         document.documentElement.classList.add('dark');
+        document.body.style.colorScheme = 'dark';
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.body.style.colorScheme = 'light';
       }
     }
 
@@ -31,8 +34,10 @@ const App: React.FC = () => {
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
+      document.body.style.colorScheme = 'dark';
     } else {
       document.documentElement.classList.remove('dark');
+      document.body.style.colorScheme = 'light';
     }
   }, [darkMode]);
 

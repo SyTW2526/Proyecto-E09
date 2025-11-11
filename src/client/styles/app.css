@@ -1,4 +1,16 @@
 @import "tailwindcss";
+
+/* Dark mode styles */
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+}
+
 /* Variables globales */
 :root {
   --color-blue-light: #a8d5f7;
@@ -19,12 +31,23 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.dark body {
+  background-color: #1a1a1a;
+  color: #e5e5e5;
 }
 
 /* Fondo degradado de la página */
 #root {
   min-height: 100vh;
   background: linear-gradient(to bottom, #8ac4ed 0%, #ffffff 50%);
+  transition: background 0.3s ease;
+}
+
+html.dark #root {
+  background: linear-gradient(to bottom, #1a1a1a 0%, #2d2d2d 50%);
 }
 
 /* Header */

@@ -1,122 +1,137 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bell, X } from 'lucide-react';
+import { Bell, X, CheckCheck } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { RootState } from '../../store/store';
-import { markAsRead, removeNotification, markAllAsRead } from '../../features/notifications/notificationsSlice';
+import {
+  markAsRead,
+  markAllAsRead,
+  removeNotification,
+  Notification,
+} from '../../features/notifications/notificationsSlice';
 
 const NotificationBell: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
   const dispatch = useDispatch();
-  
-  const { notifications, unread } = useSelector((state: RootState) => state.notifications);
+  const notifications = useSelector(
+    (state: RootState) => state.notifications.notifications
+  );
+  const unread = notifications.filter((n: Notification) => !n.isRead).length;
 
-  // Cerrar dropdown al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen]);
 
   const handleMarkAsRead = (notificationId: string) => {
     dispatch(markAsRead(notificationId));
-  };
-
-  const handleRemoveNotification = (notificationId: string) => {
-    dispatch(removeNotification(notificationId));
   };
 
   const handleMarkAllAsRead = () => {
     dispatch(markAllAsRead());
   };
 
+  const handleRemoveNotification = (notificationId: string) => {
+    dispatch(removeNotification(notificationId));
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        aria-label="Notificaciones"
-        className="p-2 hover:bg-white/20 rounded-full transition relative"
         onClick={() => setIsOpen(!isOpen)}
+        className="relative p-2 hover:bg-white/20 rounded-full transition"
+        aria-label={t('notifications.titulo')}
       >
         <Bell className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
         {unread > 0 && (
-          <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
+          <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
             {unread > 9 ? '9+' : unread}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-2xl z-[9999] max-h-96 overflow-y-auto border border-gray-200">
-          <div className="p-4 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white rounded-t-lg">
-            <h3 className="text-lg font-semibold text-gray-800">
-              Notificaciones
+        <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white rounded-lg shadow-2xl z-[9999] border border-gray-200">
+          {/* Header */}
+          <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex justify-between items-center">
+            <h3 className="font-bold text-gray-800">
+              {t('notifications.titulo')}
             </h3>
             {unread > 0 && (
               <button
                 onClick={handleMarkAllAsRead}
-                className="text-sm text-blue-600 hover:underline font-medium"
+                className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
               >
-                Marcar todo
+                <CheckCheck className="w-4 h-4" />
+                {t('notifications.marcarTodo')}
               </button>
             )}
           </div>
 
-          {notifications.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              No tienes notificaciones
-            </div>
-          ) : (
-            <div>
-              {notifications.map((notification) => (
+          {/* Notifications List */}
+          <div>
+            {notifications.length === 0 ? (
+              <div className="p-8 text-center">
+                <p className="text-gray-500 text-sm">
+                  {t('notifications.sin')}
+                </p>
+              </div>
+            ) : (
+              notifications.map((notification: Notification) => (
                 <div
                   key={notification._id}
-                  className={`p-4 border-b border-gray-200 hover:bg-gray-50 transition ${
+                  className={`border-b border-gray-100 p-4 hover:bg-gray-50 transition ${
                     !notification.isRead ? 'bg-blue-50' : ''
                   }`}
                 >
-                  <div className="flex justify-between items-start gap-3">
+                  <div className="flex gap-3">
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-800">
+                      <h4 className="font-medium text-gray-800 text-sm">
                         {notification.title}
                       </h4>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-gray-600 text-xs mt-1">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-gray-400 mt-2">
-                        {new Date(notification.createdAt).toLocaleDateString('es-ES', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
+                      <p className="text-gray-400 text-xs mt-2">
+                        {new Date(notification.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <button
-                      onClick={() => handleRemoveNotification(notification._id)}
-                      className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600"
-                      aria-label="Eliminar"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-start gap-1">
+                      {!notification.isRead && (
+                        <button
+                          onClick={() => handleMarkAsRead(notification._id)}
+                          className="text-blue-600 hover:text-blue-800 p-1"
+                          title={t('notifications.marcar')}
+                        >
+                          <CheckCheck className="w-4 h-4" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleRemoveNotification(notification._id)}
+                        className="text-gray-400 hover:text-red-600 p-1"
+                        title="Eliminar"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  {!notification.isRead && (
-                    <button
-                      onClick={() => handleMarkAsRead(notification._id)}
-                      className="mt-2 text-xs text-blue-600 hover:underline font-medium"
-                    >
-                      Marcar como leído
-                    </button>
-                  )}
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -1,10 +1,13 @@
 import React from "react";
 import { Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import NotificationBell from "./NotificationBell";
 import LanguageSelector from "./LanguageSelector";
 import DarkModeToggle from "./DarkModeToggle";
 
 const AuthHeader: React.FC = () => {
+  const { t } = useTranslation();
+  
   return (
     <header className="bg-gradient-to-r from-sky-600 to-blue-500 shadow-lg fixed top-0 left-0 w-full z-40">
       <div className="flex items-center justify-between w-full px-8 py-4">
@@ -26,10 +29,10 @@ const AuthHeader: React.FC = () => {
           {/* Bloque de botones */}
           <div className="flex items-center gap-4">
             <a href="/login" className="CollectionButton text-sm">
-              Iniciar sesión
+              {t('header.iniciarSesion')}
             </a>
             <a href="/signup" className="CollectionButton text-sm">
-              Crear cuenta
+              {t('header.crearCuenta')}
             </a>
           </div>
 
@@ -42,7 +45,7 @@ const AuthHeader: React.FC = () => {
 
           {/* Icono ajustes */}
           <button
-            aria-label="Ajustes"
+            aria-label={t('header.settings')}
             className="p-2 hover:bg-white/20 rounded-full transition"
           >
             <Settings className="w-7 h-7 text-white" />

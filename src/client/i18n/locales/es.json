@@ -1,0 +1,29 @@
+{
+  "header": {
+    "coleccion": "Colección",
+    "intercambio": "Intercambio",
+    "buscar": "Buscar cartas...",
+    "notificaciones": "Notificaciones",
+    "idioma": "Selector de idioma",
+    "darkMode": "Modo oscuro",
+    "settings": "Ajustes",
+    "perfil": "Perfil",
+    "iniciarSesion": "Iniciar sesión",
+    "crearCuenta": "Crear cuenta"
+  },
+  "notifications": {
+    "titulo": "Notificaciones",
+    "marcarTodo": "Marcar todo",
+    "sinNotificaciones": "No tienes notificaciones",
+    "marcarLeido": "Marcar como leído",
+    "eliminar": "Eliminar"
+  },
+  "language": {
+    "espanol": "Español",
+    "ingles": "English"
+  },
+  "darkMode": {
+    "cambiarClaro": "Cambiar a modo claro",
+    "cambiarOscuro": "Cambiar a modo oscuro"
+  }
+}

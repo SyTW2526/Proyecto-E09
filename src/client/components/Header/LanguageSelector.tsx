@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Globe } from 'lucide-react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../store/store';
+import { useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
 import { setLanguage } from '../../features/preferences/preferencesSlice';
 
 const LanguageSelector: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { i18n } = useTranslation();
   const dispatch = useDispatch();
-  const language = useSelector((state: RootState) => state.preferences.preferences.language);
 
   const handleLanguageChange = (newLanguage: 'es' | 'en') => {
+    i18n.changeLanguage(newLanguage);
     dispatch(setLanguage(newLanguage));
     setIsOpen(false);
     localStorage.setItem('language', newLanguage);
@@ -30,7 +31,7 @@ const LanguageSelector: React.FC = () => {
           <button
             onClick={() => handleLanguageChange('es')}
             className={`w-full text-left px-4 py-3 text-sm font-medium transition border-b border-gray-100 ${
-              language === 'es'
+              i18n.language === 'es'
                 ? 'bg-blue-50 text-blue-700'
                 : 'text-gray-700 hover:bg-gray-50'
             }`}
@@ -40,7 +41,7 @@ const LanguageSelector: React.FC = () => {
           <button
             onClick={() => handleLanguageChange('en')}
             className={`w-full text-left px-4 py-3 text-sm font-medium transition ${
-              language === 'en'
+              i18n.language === 'en'
                 ? 'bg-blue-50 text-blue-700'
                 : 'text-gray-700 hover:bg-gray-50'
             }`}

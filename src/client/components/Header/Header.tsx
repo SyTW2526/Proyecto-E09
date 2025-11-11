@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Search, Settings, User, Menu } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import NotificationBell from "./NotificationBell";
 import LanguageSelector from "./LanguageSelector";
 import DarkModeToggle from "./DarkModeToggle";
 
 const Header: React.FC = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -23,10 +25,10 @@ const Header: React.FC = () => {
           {/* NAV SOLO EN DESKTOP */}
           <nav className="hidden md:flex items-center gap-4 sm:gap-6">
             <a href="/coleccion" className="CollectionButton">
-              Colección
+              {t('header.coleccion')}
             </a>
             <a href="/intercambio" className="CollectionButton">
-              Intercambio
+              {t('header.intercambio')}
             </a>
           </nav>
 
@@ -43,7 +45,7 @@ const Header: React.FC = () => {
         <div className="hidden sm:flex items-center justify-center w-full max-w-md relative mx-4 md:mx-10">
           <input
             type="text"
-            placeholder="Buscar cartas..."
+            placeholder={t('header.buscar')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="header-search pr-10 w-full"
@@ -60,13 +62,13 @@ const Header: React.FC = () => {
           
           {/* Ajustes legacy */}
           <button
-            aria-label="Ajustes"
+            aria-label={t('header.settings')}
             className="p-2 hover:bg-white/20 rounded-full transition"
           >
             <Settings className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
           </button>
           <button
-            aria-label="Perfil"
+            aria-label={t('header.perfil')}
             className="p-2 hover:bg-white/20 rounded-full transition"
           >
             <User className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
@@ -78,10 +80,10 @@ const Header: React.FC = () => {
       {menuOpen && (
         <nav className="md:hidden bg-sky-700 text-white flex flex-col items-center gap-4 py-4 shadow-inner">
           <a href="/coleccion" className="CollectionButton w-40 text-center">
-            Colección
+            {t('header.coleccion')}
           </a>
           <a href="/intercambio" className="CollectionButton w-40 text-center">
-            Intercambio
+            {t('header.intercambio')}
           </a>
         </nav>
       )}

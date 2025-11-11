@@ -1,0 +1,29 @@
+{
+  "header": {
+    "coleccion": "Collection",
+    "intercambio": "Trading",
+    "buscar": "Search cards...",
+    "notificaciones": "Notifications",
+    "idioma": "Language selector",
+    "darkMode": "Dark mode",
+    "settings": "Settings",
+    "perfil": "Profile",
+    "iniciarSesion": "Sign in",
+    "crearCuenta": "Create account"
+  },
+  "notifications": {
+    "titulo": "Notifications",
+    "marcarTodo": "Mark all",
+    "sinNotificaciones": "You have no notifications",
+    "marcarLeido": "Mark as read",
+    "eliminar": "Delete"
+  },
+  "language": {
+    "espanol": "Español",
+    "ingles": "English"
+  },
+  "darkMode": {
+    "cambiarClaro": "Switch to light mode",
+    "cambiarOscuro": "Switch to dark mode"
+  }
+}

@@ -10,15 +10,25 @@ const DarkModeToggle: React.FC = () => {
   const { t } = useTranslation();
   const darkMode = useSelector((state: RootState) => state.preferences.preferences.darkMode);
 
+  // Aplicar la clase 'dark' al inicializar y cuando cambia darkMode
   useEffect(() => {
+    const htmlElement = document.documentElement;
     if (darkMode) {
-      document.documentElement.classList.add('dark');
+      htmlElement.classList.add('dark');
       document.body.style.colorScheme = 'dark';
     } else {
-      document.documentElement.classList.remove('dark');
+      htmlElement.classList.remove('dark');
       document.body.style.colorScheme = 'light';
     }
   }, [darkMode]);
+
+  // Inicializar al cargar el componente
+  useEffect(() => {
+    const saved = localStorage.getItem('darkMode');
+    if (saved === 'true') {
+      dispatch(setDarkMode(true));
+    }
+  }, [dispatch]);
 
   const handleToggle = () => {
     const newMode = !darkMode;

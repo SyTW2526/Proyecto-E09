@@ -20,10 +20,17 @@ interface PreferencesState {
   error: string | null;
 }
 
+// Leer dark mode desde localStorage
+const getSavedDarkMode = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  const saved = localStorage.getItem('darkMode');
+  return saved ? saved === 'true' : false;
+};
+
 const initialState: PreferencesState = {
   preferences: {
     language: 'es',
-    darkMode: false,
+    darkMode: getSavedDarkMode(),
     notifications: {
       trades: true,
       messages: true,

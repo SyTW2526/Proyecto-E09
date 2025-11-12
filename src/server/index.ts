@@ -1,6 +1,6 @@
 import http from "http";
 import { Server } from "socket.io";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { app } from "./api.js";
 
 const port = process.env.PORT || 3000;
@@ -19,8 +19,8 @@ io.use((socket, next) => {
     const token = socket.handshake.auth?.token;
     if (!token) return next(new Error("No token provided"));
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    socket.data.userId = decoded._id;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu-clave-secreta') as JwtPayload;
+    socket.data.userId = decoded.userId;
     socket.data.username = decoded.username;
 
     next();

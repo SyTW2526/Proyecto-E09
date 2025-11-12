@@ -29,8 +29,11 @@ const SignInForm: React.FC = () => {
     try {
       const response = await authService.login(formData);
       
-      // Inicio de sesión exitoso - guarda el usuario
+      // Inicio de sesión exitoso - guarda el usuario y el token
       authService.saveUser(response.user);
+      if (response.token) {
+        authService.saveToken(response.token);
+      }
       
       // Redirige a home
       navigate("/home");

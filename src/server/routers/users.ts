@@ -1,8 +1,10 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
 import { Trade } from '../models/Trade.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
 
 export const userRouter = express.Router();
 
@@ -61,6 +63,7 @@ userRouter.post('/users/register', async (req: Request, res: Response) => {
 /**
  * POST /users/login
  * Iniciar sesión con username/email y contraseña
+ * Devuelve JWT para mantener sesión segura
  */
 userRouter.post('/users/login', async (req: Request, res: Response) => {
   try {
@@ -87,14 +90,27 @@ userRouter.post('/users/login', async (req: Request, res: Response) => {
       return res.status(401).send({ error: 'Usuario o contraseña incorrectos' });
     }
 
-    // Login exitoso: devolver información del usuario
+    // Generar JWT
+    const secret: string = process.env.JWT_SECRET || 'tu-clave-secreta';
+    const expiresIn: string = process.env.JWT_EXPIRY || '7d';
+    const token = jwt.sign(
+      {
+        userId: user._id.toString(),
+        username: user.username
+      },
+      secret,
+      { expiresIn: expiresIn as any }
+    );
+
+    // Login exitoso: devolver información del usuario + token
     res.status(200).send({
       message: 'Sesión iniciada correctamente',
       user: {
         id: user._id,
         username: user.username,
         email: user.email
-      }
+      },
+      token  // JWT para mantener sesión segura
     });
   } catch (error) {
     res.status(500).send({ error: (error as Error).message ?? String(error) });

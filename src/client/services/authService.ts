@@ -26,6 +26,7 @@ interface User {
 interface AuthResponse {
   message: string;
   user: User;
+  token?: string;  // JWT devuelto por el servidor en login
 }
 
 export const authService = {
@@ -86,10 +87,35 @@ export const authService = {
   },
 
   /**
+   * Guarda el token JWT en localStorage
+   */
+  saveToken(token: string): void {
+    localStorage.setItem("token", token);
+  },
+
+  /**
+   * Obtiene el token JWT del localStorage
+   */
+  getToken(): string | null {
+    return localStorage.getItem("token");
+  },
+
+  /**
+   * Retorna headers con el token para peticiones autenticadas
+   */
+  getAuthHeaders(): { Authorization: string } | {} {
+    const token = this.getToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  },
+
+  /**
    * Verifica si el usuario está autenticado
    */
   isAuthenticated(): boolean {
-    return localStorage.getItem("isAuthenticated") === "true";
+    // Verificar que existe tanto el usuario como el token
+    const hasUser = localStorage.getItem("isAuthenticated") === "true";
+    const hasToken = this.getToken() !== null;
+    return hasUser && hasToken;
   },
 
   /**
@@ -98,5 +124,6 @@ export const authService = {
   logout(): void {
     localStorage.removeItem("user");
     localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("token");  // Limpiar JWT también
   },
 };

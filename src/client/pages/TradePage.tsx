@@ -71,9 +71,9 @@ const TradeRoomPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-sky-100 via-sky-200 to-blue-300 text-gray-900">
       <Header />
-      
+
       <main className="flex-1 w-full flex justify-center px-6 py-12">
-        <div className="w-full max-w-7xl bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-sky-200 flex flex-col overflow-visible pb-32 mb-28">
+        <div className="w-full max-w-7xl bg-white rounded-3xl border border-gray-200 flex flex-col overflow-visible pb-32 mb-28">
 
           <div className="flex flex-col lg:flex-row flex-grow">
 
@@ -150,16 +150,20 @@ const TradeRoomPage: React.FC = () => {
             </section>
 
             {/* CHAT */}
-            <aside className="w-full lg:w-[28rem] bg-white border-l border-gray-200 flex flex-col p-6 rounded-br-3xl">
+            <aside
+              className="w-full lg:w-[28rem] flex flex-col p-6 rounded-br-3xl"
+              style={{ backgroundColor: "#ffffff", boxShadow: "none" }}
+            >
               <h3 className="font-extrabold text-sky-700 text-center text-2xl mb-6 tracking-wide">
                 CHAT
               </h3>
 
-              <div className="flex-1 overflow-y-auto bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-5 mb-8 space-y-4">
+              {/* Mensajes: fondo claro y borde (restaurado) */}
+              <div className="flex-1 overflow-y-auto bg-gray-50 border border-gray-200 rounded-xl p-5 pb-8 mb-12 space-y-4">
                 {messages.map((m, i) => (
                   <div key={i} className={`flex ${m.user === "Tú" ? "justify-end" : "justify-start"}`}>
                     <div
-                      className={`px-5 py-3 max-w-[75%] text-sm font-medium leading-snug rounded-lg shadow ${
+                      className={`px-5 py-3 max-w-[75%] text-sm font-medium leading-snug rounded-lg shadow-sm ${
                         m.user === "Tú"
                           ? "bg-gradient-to-r from-sky-500 to-sky-600 text-white"
                           : "bg-white border border-gray-200 text-gray-800"
@@ -174,27 +178,37 @@ const TradeRoomPage: React.FC = () => {
                 ))}
               </div>
 
-              <div className="bg-white border border-gray-300 rounded-lg shadow-md flex items-center overflow-hidden px-2 py-2">
+              {/* Espacio antes de la línea separadora (reducido) */}
+              <div className="h-2" />
+
+              {/* Línea separadora sutil (margen reducido) */}
+              <div className="w-full flex justify-center mb-3">
+                <div className="w-20 h-px bg-gray-100 opacity-40 rounded-full" />
+              </div>
+
+              {/* Caja de escribir: borde y sombra restaurados */}
+              <div className="bg-white border border-gray-300 rounded-lg shadow-md flex items-center overflow-hidden px-2 py-2 mt-4 mb-4">
                 <input
-                  className="flex-1 px-4 py-2 text-base text-gray-800 focus:outline-none focus:ring-2 focus:ring-sky-400 placeholder-gray-500"
+                  className="flex-1 px-4 py-2 text-base text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-sky-400 placeholder-gray-500"
                   placeholder="Escribe un mensaje..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                 />
                 <button
                   onClick={handleSend}
-                  className="bg-gradient-to-r from-sky-500 to-sky-600 text-white font-semibold w-32 py-2 hover:scale-[1.05] hover:shadow-lg transition text-lg rounded-md"
+                  className="bg-gradient-to-r from-sky-500 to-sky-600 text-white font-semibold w-32 py-2 hover:scale-[1.05] hover:shadow-md transition text-lg rounded-md"
                 >
                   Enviar
                 </button>
               </div>
+
             </aside>
           </div>
           <div className="h-12" />
         </div>
       </main>
 
-      <footer className="bg-black text-white text-center text-[11px] py-3 leading-snug mt-10 border-t border-gray-800 shadow-inner">
+      <footer className="bg-black text-white text-center text-[11px] py-3 leading-snug mt-10 border-t border-gray-800">
         <div className="max-w-7xl mx-auto">
           <Footer />
         </div>

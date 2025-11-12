@@ -103,30 +103,30 @@ const FeaturedCards: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="pokemon-card-back bg-white p-4 min-h-[320px]">
+            <div className="pokemon-card-back bg-white dark:bg-gray-800 p-4 min-h-[320px]">
               <div className="h-full flex flex-col justify-between">
                 <div>
-                  <h3 className="text-2xl font-bold mb-4 text-center text-gray-800">{card.name}</h3>
-                  <div className="bg-blue-50 rounded-lg p-4 mb-4">
-                    <p className="text-sm mb-2 text-gray-700">Su cuerpo arde con una llama eterna.</p>
-                    <p className="text-sm text-gray-700">Cuando se enfurece, vibra como un sol en miniatura.</p>
+                  <h3 className="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-100">{card.name}</h3>
+                  <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
+                    <p className="text-sm mb-2 text-gray-700 dark:text-gray-300">Su cuerpo arde con una llama eterna.</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">Cuando se enfurece, vibra como un sol en miniatura.</p>
                   </div>
                 </div>
 
                 {card.price && (
                   <div className="space-y-3">
-                    <div className="bg-blue-50 rounded-lg p-4 space-y-2">
+                    <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
                       <div className="flex justify-between">
-                        <span className="font-semibold text-gray-700">Debilidad:</span>
-                        <span className="text-blue-600">💧 x2</span>
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">Debilidad:</span>
+                        <span className="text-blue-600 dark:text-blue-400">💧 x2</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="font-semibold text-gray-700">Retirada:</span>
-                        <span className="text-gray-600">⚪ x1</span>
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">Retirada:</span>
+                        <span className="text-gray-600 dark:text-gray-400">⚪ x1</span>
                       </div>
-                      <div className="flex justify-between items-center pt-2 border-t border-blue-200">
-                        <span className="font-bold text-lg text-gray-800">Precio:</span>
-                        <span className="text-2xl font-bold text-blue-600">{card.price.mid}€</span>
+                      <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-gray-600">
+                        <span className="font-bold text-lg text-gray-800 dark:text-gray-100">Precio:</span>
+                        <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{card.price.mid}€</span>
                       </div>
                     </div>
                   </div>

@@ -30,7 +30,7 @@ const PokemonCard: React.FC<CardProps> = ({ card }) => {
       <div className="relative w-full">
         {/* Frente de la carta - Imagen real */}
         {!isFlipped ? (
-          <div className="relative rounded-2xl shadow-xl overflow-hidden cursor-pointer border-4 border-blue-400">
+          <div className="relative rounded-2xl shadow-xl overflow-hidden cursor-pointer border-4 border-blue-400 dark:border-blue-600 hover:shadow-2xl dark:hover:shadow-lg dark:hover:shadow-blue-500/50 transition-all">
             <img 
               src={card.image} 
               alt={card.name}
@@ -43,10 +43,10 @@ const PokemonCard: React.FC<CardProps> = ({ card }) => {
                 e.stopPropagation();
                 setIsFavorite(!isFavorite);
               }}
-              className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg hover:scale-110 transition-transform z-10"
+              className="absolute top-2 right-2 bg-white dark:bg-gray-800 rounded-full p-2 shadow-lg hover:scale-110 transition-transform z-10 dark:shadow-lg dark:shadow-gray-900/50"
             >
               <Heart
-                className={`w-6 h-6 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
+                className={`w-6 h-6 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400 dark:text-gray-500'}`}
               />
             </button>
           </div>

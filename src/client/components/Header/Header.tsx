@@ -11,7 +11,7 @@ const Header: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="bg-gradient-to-r from-sky-600 to-blue-500 shadow-lg fixed top-0 left-0 w-full z-40">
+    <header className="bg-gradient-to-r from-sky-600 to-blue-500 shadow-lg fixed top-0 left-0 w-full z-40 dark:from-gray-800 dark:to-gray-900 dark:border-b dark:border-gray-700 transition-colors duration-300">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3 sm:px-10">
         
         {/* IZQUIERDA: LOGO + NAV */}
@@ -24,10 +24,10 @@ const Header: React.FC = () => {
 
           {/* NAV SOLO EN DESKTOP */}
           <nav className="hidden md:flex items-center gap-4 sm:gap-6">
-            <a href="/coleccion" className="CollectionButton">
+            <a href="/coleccion" className="CollectionButton dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 dark:border-gray-600 transition-colors">
               {t('header.coleccion')}
             </a>
-            <a href="/intercambio" className="CollectionButton">
+            <a href="/intercambio" className="CollectionButton dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 dark:border-gray-600 transition-colors">
               {t('header.intercambio')}
             </a>
           </nav>
@@ -48,9 +48,9 @@ const Header: React.FC = () => {
             placeholder={t('header.buscar')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="header-search pr-10 w-full"
+            className="header-search pr-10 w-full px-4 py-2 rounded-lg border border-sky-300 bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400 dark:focus:ring-sky-500 transition-colors"
           />
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black/70 pointer-events-none" />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black/70 dark:text-gray-300 pointer-events-none" />
         </div>
 
         {/* DERECHA: ICONOS */}

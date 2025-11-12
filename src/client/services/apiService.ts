@@ -1,6 +1,6 @@
 import { PokemonCard, ApiResponse, PaginatedResponse, User, TradeStatus } from '../types';
 
-const API_BASE_URL = 'http://localhost:3000'; // Tu backend Node.js
+const API_BASE_URL = 'http://localhost:3000'; // URL base de la API del servidor
 const TCGDEX_URL = 'https://api.tcgdex.net/v2/en'; // API pública de tcgDex
 class ApiService {
   async fetchFeaturedCards(): Promise<PokemonCard[]> {
@@ -14,7 +14,7 @@ class ApiService {
       return [];
     }
   }
-  
+
   async searchCards(
     query: string,
     page = 1,
@@ -101,6 +101,7 @@ class ApiService {
       return false;
     }
   }
+
   async addFriend(userId: string, friendId: string): Promise<User | null> {
     try {
       const res = await fetch(`${API_BASE_URL}/users/${userId}/friends/${friendId}`, {
@@ -126,6 +127,7 @@ class ApiService {
       return false;
     }
   }
+
   async createTrade(data: {
     initiatorUserId: string;
     receiverUserId: string;

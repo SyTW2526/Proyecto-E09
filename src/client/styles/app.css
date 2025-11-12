@@ -87,8 +87,8 @@ body {
 */
 .header-search {
   width: 100%;
-  max-width: 28rem; /* ✅ tamaño equilibrado */
-  padding: 0.5rem 2.5rem 0.5rem 0.75rem; /* derecha extendida para la lupa */
+  max-width: 28rem; 
+  padding: 0.5rem 2.5rem 0.5rem 0.75rem; 
   border: 2px solid var(--color-blue-dark);
   border-radius: 9999px;
   background: linear-gradient(135deg, var(--color-blue-light) 0%, var(--color-blue-medium) 70%);

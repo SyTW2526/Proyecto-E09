@@ -51,7 +51,7 @@ const Start: React.FC = () => {
 
         {/* Botón principal */}
         <a
-          href="/trade"
+          href="/signup"
           className="inline-block bg-gradient-to-r from-sky-600 to-blue-600 text-white font-semibold py-4 px-12 rounded-lg shadow-md hover:from-sky-700 hover:to-blue-700 transition text-lg"
         >
            Empieza ya  

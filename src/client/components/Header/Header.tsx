@@ -19,7 +19,7 @@ const Header: React.FC = () => {
           {/* NAV desktop */}
           <nav className="hidden md:flex items-center gap-4 sm:gap-6">
             <a href="/coleccion" className="CollectionButton">Colección</a>
-            <a href="/intercambio" className="CollectionButton">Intercambio</a>
+            <a href="/trade" className="CollectionButton">Intercambio</a>
           </nav>
 
           {/* Burger mobile */}

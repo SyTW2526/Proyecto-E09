@@ -32,20 +32,37 @@ io.use((socket, next) => {
 io.on("connection", (socket) => {
   console.log(`Usuario conectado: ${socket.data.username} (${socket.id})`);
 
-  socket.on("joinRoom", (roomCode: string) => {
-    socket.join(roomCode);
-    console.log(`${socket.data.username} se unió a la sala: ${roomCode}`);
+socket.on("joinRoom", (roomCode) => {
+  socket.join(roomCode);
+  console.log(`${socket.data.username} se unió a la sala: ${roomCode}`);
+
+
+  socket.to(roomCode).emit("userJoined", {
+    user: socket.data.username,
+    userId: socket.data.userId,
   });
+
+
+  const usersInRoom = Array.from(io.sockets.adapter.rooms.get(roomCode) || [])
+    .map((id) => io.sockets.sockets.get(id)?.data.username)
+    .filter(Boolean);
+
+  socket.emit("roomUsers", { users: usersInRoom });
+});
+
 
   socket.on("sendMessage", (data) => {
     console.log(`Mensaje de ${socket.data.username}: ${data.text}`);
-    io.to(data.roomCode).emit("receiveMessage", {
+
+
+    socket.to(data.roomCode).emit("receiveMessage", {
       user: socket.data.username,
       userId: socket.data.userId,
       text: data.text,
       roomCode: data.roomCode,
     });
   });
+
 
   socket.on("disconnect", () => {
     console.log(`${socket.data.username} se desconectó`);

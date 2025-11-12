@@ -1,54 +1,78 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { io, Socket } from "socket.io-client";
-import { updateTradeStatus, fetchUserTrades } from "@/features/trades/tradesSlice";
 import Header from "../components/Header/Header";
 import Footer from "@/components/Footer";
-import type { AppDispatch } from "@/store/store";
 
 interface UserCard {
-  id: number;
+  id: string;
   name: string;
   image: string;
   rarity: string;
 }
 
 const TradeRoomPage: React.FC = () => {
-  const dispatch: AppDispatch = useDispatch();
-  const trades = useSelector((state: any) => state.trades.list);
-
   const [socket, setSocket] = useState<Socket | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [roomCode] = useState("sala-demo-123");
 
   const [userCards, setUserCards] = useState<UserCard[]>([]);
-  const tradeId = trades[0]?.id ?? "trade123";
+  const [selectedCard, setSelectedCard] = useState<UserCard | null>(null);
+  const [opponentCard, setOpponentCard] = useState<UserCard | null>(null);
+  const [opponentName, setOpponentName] = useState<string>("Otro usuario");
 
-  useEffect(() => {
-    dispatch(fetchUserTrades("currentUserId"));
-    setUserCards([
-      { id: 1, name: "Pikachu", image: "/cards/card1.png", rarity: "Raro" },
-      { id: 2, name: "Charmander", image: "/cards/card2.png", rarity: "Común" },
-      { id: 3, name: "Bulbasaur", image: "/cards/card3.png", rarity: "Épico" },
-      { id: 4, name: "Squirtle", image: "/cards/card4.png", rarity: "Común" },
-      { id: 5, name: "Jigglypuff", image: "/cards/card5.png", rarity: "Raro" },
-    ]);
-  }, [dispatch]);
+  const username = localStorage.getItem("username");
+useEffect(() => {
+  const token = localStorage.getItem("token") || "";
+  const s = io("http://localhost:3000", { auth: { token }, transports: ["websocket"] });
+  setSocket(s);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token") || "";
-    const s = io("http://localhost:3000", { auth: { token }, transports: ["websocket"] });
-    setSocket(s);
-    s.emit("joinRoom", roomCode);
-    const onReceive = (data: { user?: string; text: string; roomCode: string }) =>
-      setMessages((prev) => [...prev, data]);
-    s.on("receiveMessage", onReceive);
-    return () => {
-      s.off("receiveMessage", onReceive);
-      s.disconnect();
-    };
-  }, [roomCode]);
+  s.emit("joinRoom", roomCode);
+
+  const onReceive = (data: any) => setMessages((prev) => [...prev, data]);
+  const onCardSelected = (data: any) => {
+    setOpponentCard(data.card);
+    setOpponentName(data.user);
+  };
+  const onUserJoined = (data: any) => {
+    if (data.user !== username) {
+      setOpponentName(data.user);
+    }
+  };
+  const onRoomUsers = (data: any) => {
+    const others = data.users.filter((u: string) => u !== username);
+    if (others.length > 0) {
+      setOpponentName(others[0]);
+    }
+  };
+
+  s.on("receiveMessage", onReceive);
+  s.on("cardSelected", onCardSelected);
+  s.on("userJoined", onUserJoined);
+  s.on("roomUsers", onRoomUsers);
+
+  return () => {
+    s.off("receiveMessage", onReceive);
+    s.off("cardSelected", onCardSelected);
+    s.off("userJoined", onUserJoined);
+    s.off("roomUsers", onRoomUsers);
+    s.disconnect();
+  };
+}, [roomCode]);
+
+useEffect(() => {
+  const fetchCards = async () => {
+    try {
+      const res = await fetch(`http://localhost:3000/usercards/${username}?forTrade=true`);
+      const data = await res.json();
+      setUserCards(data.cards || []);
+    } catch (error) {
+      console.error("Error al obtener cartas:", error);
+      setUserCards([]);
+    }
+  };
+  if (username) fetchCards();
+}, [username]);
 
   const handleSend = () => {
     if (!input.trim() || !socket) return;
@@ -58,26 +82,25 @@ const TradeRoomPage: React.FC = () => {
     setInput("");
   };
 
+  const handleSelectCard = (card: UserCard) => {
+    setSelectedCard(card);
+    socket?.emit("selectCard", { roomCode, card, user: username });
+  };
+
   const handleAccept = () => {
-    dispatch(updateTradeStatus({ tradeId, status: "accepted" }));
     socket?.emit("sendMessage", { text: "El intercambio fue aceptado.", roomCode });
   };
 
   const handleReject = () => {
-    dispatch(updateTradeStatus({ tradeId, status: "rejected" }));
     socket?.emit("sendMessage", { text: "El intercambio fue rechazado.", roomCode });
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-sky-100 via-sky-200 to-blue-300 text-gray-900">
       <Header />
-
       <main className="flex-1 w-full flex justify-center px-6 py-12">
         <div className="w-full max-w-7xl bg-white rounded-3xl border border-gray-200 flex flex-col overflow-visible pb-32 mb-28">
-
           <div className="flex flex-col lg:flex-row flex-grow">
-
-            {/* SECCIÓN */}
             <section className="flex-1 p-10 flex flex-col items-center relative pb-40 lg:pb-56">
               <h2 className="text-4xl font-extrabold text-sky-700 mb-4 tracking-tight text-center">
                 SALA PRIVADA
@@ -86,13 +109,20 @@ const TradeRoomPage: React.FC = () => {
                 Código de sala: <b>{roomCode}</b>
               </p>
 
-              {/* CARTAS ENFRENTADAS */}
               <div className="flex flex-row justify-center items-center gap-20 mb-14">
                 <div className="flex flex-col items-center">
                   <div className="w-24 h-24 bg-gradient-to-tr from-sky-300 to-sky-500 rounded-full border-4 border-white shadow-lg mb-3" />
                   <p className="font-bold text-sky-800 text-lg mb-2">Tú</p>
-                  <div className="w-48 h-72 bg-gradient-to-b from-gray-50 to-gray-100 border border-gray-300 rounded-2xl shadow-md flex items-center justify-center hover:shadow-lg hover:scale-[1.03] transition">
-                    <span className="text-gray-400 text-xs">Tu carta seleccionada</span>
+                  <div className="w-48 h-72 bg-gradient-to-b from-gray-50 to-gray-100 border border-gray-300 rounded-2xl shadow-md flex items-center justify-center overflow-hidden">
+                    {selectedCard ? (
+                      <img
+                        src={selectedCard.image}
+                        alt={selectedCard.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-gray-400 text-xs">Tu carta seleccionada</span>
+                    )}
                   </div>
                 </div>
 
@@ -100,37 +130,51 @@ const TradeRoomPage: React.FC = () => {
 
                 <div className="flex flex-col items-center">
                   <div className="w-24 h-24 bg-gradient-to-tr from-blue-400 to-blue-600 rounded-full border-4 border-white shadow-lg mb-3" />
-                  <p className="font-bold text-blue-800 text-lg mb-2">Otro usuario</p>
-                  <div className="w-48 h-72 bg-gradient-to-b from-gray-50 to-gray-100 border border-gray-300 rounded-2xl shadow-md flex items-center justify-center hover:shadow-lg hover:scale-[1.03] transition">
-                    <span className="text-gray-400 text-xs">Carta rival</span>
+                  <p className="font-bold text-blue-800 text-lg mb-2">
+                    {opponentName || "Otro usuario"}
+                  </p>
+                  <div className="w-48 h-72 bg-gradient-to-b from-gray-50 to-gray-100 border border-gray-300 rounded-2xl shadow-md flex items-center justify-center overflow-hidden">
+                    {opponentCard ? (
+                      <img
+                        src={opponentCard.image}
+                        alt={opponentCard.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-gray-400 text-xs">Carta rival</span>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* COLECCIÓN */}
-              <div className="text-center mb-6 w-full">
-                <p className="text-sm font-semibold text-gray-600 mb-4">Tu colección</p>
-                <div className="flex flex-wrap justify-center gap-6">
-                  {userCards.map((card) => (
-                    <div
-                      key={card.id}
-                      className="bg-white rounded-xl border border-gray-200 shadow-md p-3 w-28 hover:shadow-xl hover:scale-105 transition cursor-pointer"
-                    >
-                      <img
-                        src={card.image}
-                        alt={card.name}
-                        className="rounded-md w-full h-32 object-cover mb-1"
-                      />
-                      <p className="text-center text-xs font-semibold text-gray-700 truncate">
-                        {card.name}
-                      </p>
-                      <p className="text-center text-[10px] text-gray-500">{card.rarity}</p>
-                    </div>
-                  ))}
-                </div>
+              <p className="text-sm font-semibold text-gray-600 mb-4">
+                Tus cartas para intercambio
+              </p>
+
+              <div className="flex flex-wrap justify-center gap-6">
+                {userCards.map((card) => (
+                  <div
+                    key={card.id}
+                    onClick={() => handleSelectCard(card)}
+                    className={`cursor-pointer bg-white rounded-xl border-2 shadow-md p-3 w-28 transition ${
+                      selectedCard?.id === card.id
+                        ? "border-sky-500 shadow-lg scale-[1.03]"
+                        : "border-gray-200 hover:border-sky-300"
+                    }`}
+                  >
+                    <img
+                      src={card.image}
+                      alt={card.name}
+                      className="rounded-md w-full h-32 object-cover mb-1"
+                    />
+                    <p className="text-center text-xs font-semibold text-gray-700 truncate">
+                      {card.name}
+                    </p>
+                    <p className="text-center text-[10px] text-gray-500">{card.rarity}</p>
+                  </div>
+                ))}
               </div>
 
-              {/* BOTONES */}
               <div className="absolute right-24 -bottom-2 sm:right-32 sm:-bottom-4 md:right-44 md:-bottom-8 lg:right-56 lg:-bottom-10 z-30">
                 <div className="flex gap-6">
                   <button
@@ -149,7 +193,6 @@ const TradeRoomPage: React.FC = () => {
               </div>
             </section>
 
-            {/* CHAT */}
             <aside
               className="w-full lg:w-[28rem] flex flex-col p-6 rounded-br-3xl"
               style={{ backgroundColor: "#ffffff", boxShadow: "none" }}
@@ -158,50 +201,89 @@ const TradeRoomPage: React.FC = () => {
                 CHAT
               </h3>
 
-              {/* Mensajes: fondo claro y borde (restaurado) */}
-              <div className="flex-1 overflow-y-auto bg-gray-50 border border-gray-200 rounded-xl p-5 pb-8 mb-12 space-y-4">
-                {messages.map((m, i) => (
-                  <div key={i} className={`flex ${m.user === "Tú" ? "justify-end" : "justify-start"}`}>
+              <div
+                className="flex-1 overflow-y-auto border border-gray-200 rounded-xl mb-12 scroll-smooth"
+                style={{
+                  background: "linear-gradient(to bottom right, #f8fafc, #eef4fb)",
+                  padding: "1.25rem 1rem 2.5rem 1rem",
+                  boxShadow: "inset 0 1px 3px rgba(0,0,0,0.05)"
+                }}
+              >
+                <div className="flex flex-col gap-2.5">
+                  {messages.map((m, i) => (
                     <div
-                      className={`px-5 py-3 max-w-[75%] text-sm font-medium leading-snug rounded-lg shadow-sm ${
-                        m.user === "Tú"
-                          ? "bg-gradient-to-r from-sky-500 to-sky-600 text-white"
-                          : "bg-white border border-gray-200 text-gray-800"
+                      key={i}
+                      className={`flex ${
+                        m.user === "Tú" ? "justify-end" : "justify-start"
                       }`}
                     >
-                      {m.user && m.user !== "Tú" && (
-                        <p className="text-xs font-semibold mb-1 text-sky-700 opacity-80">{m.user}</p>
-                      )}
-                      <p className="break-words">{m.text}</p>
+                      <div
+                        className={`flex flex-col justify-center rounded-xl shadow-sm ${
+                          m.user === "Tú"
+                            ? "bg-gradient-to-r from-sky-500 to-sky-600 text-white ml-auto text-right items-end"
+                            : "bg-white border border-gray-200 text-gray-900 mr-auto text-left items-start"
+                        }`}
+                        style={{
+                          display: "inline-block",
+                          maxWidth: "70%",
+                          minWidth: "auto",
+                          padding: "0.3rem 0.7rem",
+                          fontSize: "0.9rem",
+                          lineHeight: "1.2rem",
+                          wordBreak: "break-word",
+                          overflowWrap: "break-word",
+                          whiteSpace: "pre-wrap",
+                          width: "fit-content"
+                        }}
+                      >
+                        {m.user && m.user !== "Tú" && (
+                          <p
+                            className="text-xs font-semibold mb-0.5 text-sky-700 opacity-80 leading-none"
+                            style={{ marginBottom: "0.15rem" }}
+                          >
+                            {m.user}
+                          </p>
+                        )}
+                        <p
+                          className="break-words"
+                          style={{
+                            margin: 0,
+                            width: "100%",
+                            textAlign: m.user === "Tú" ? "right" : "left"
+                          }}
+                        >
+                          {m.text}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
 
-              {/* Espacio antes de la línea separadora (reducido) */}
               <div className="h-2" />
-
-              {/* Línea separadora sutil (margen reducido) */}
               <div className="w-full flex justify-center mb-3">
                 <div className="w-20 h-px bg-gray-100 opacity-40 rounded-full" />
               </div>
 
-              {/* Caja de escribir: borde y sombra restaurados */}
-              <div className="bg-white border border-gray-300 rounded-lg shadow-md flex items-center overflow-hidden px-2 py-2 mt-4 mb-4">
+              <div className="bg-white border border-gray-300 rounded-lg shadow-md flex items-center overflow-hidden px-3 py-2 mt-4 mb-4">
                 <input
-                  className="flex-1 px-4 py-2 text-base text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-sky-400 placeholder-gray-500"
+                  className="flex-1 py-2 text-base text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-sky-400 placeholder-gray-500 rounded-md"
+                  style={{
+                    paddingLeft: "1rem",
+                    paddingRight: "0.75rem",
+                    marginRight: "0.6rem"
+                  }}
                   placeholder="Escribe un mensaje..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                 />
                 <button
                   onClick={handleSend}
-                  className="bg-gradient-to-r from-sky-500 to-sky-600 text-white font-semibold w-32 py-2 hover:scale-[1.05] hover:shadow-md transition text-lg rounded-md"
+                  className="bg-gradient-to-r from-sky-500 to-sky-600 text-white font-semibold px-5 py-2 hover:scale-[1.05] hover:shadow-md transition text-lg rounded-md"
                 >
                   Enviar
                 </button>
               </div>
-
             </aside>
           </div>
           <div className="h-12" />
@@ -218,4 +300,3 @@ const TradeRoomPage: React.FC = () => {
 };
 
 export default TradeRoomPage;
-

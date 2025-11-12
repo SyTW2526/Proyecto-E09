@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { User } from '../models/User.js';
+import { Trade } from '../models/Trade.js';
 
 export const userRouter = express.Router();
 
@@ -168,6 +169,18 @@ userRouter.get('/users/:identifier', async (req, res) => {
     res.status(500).send(error);
   }
 });
+userRouter.get('/users/:id/trades', async (req, res) => {
+  const userId = req.params.id;
+  const trades = await Trade.find({
+    $or: [
+      { initiatorUserId: userId },
+      { receiverUserId: userId }
+    ]
+  }).populate('initiatorUserId receiverUserId');
+  
+  res.send({ data: trades });
+});
+
 /**
  * PATCH /users/:identifier
  * Actualizar un usuario (por id o username)

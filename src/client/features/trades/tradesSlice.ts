@@ -15,58 +15,91 @@ const initialState: TradesState = {
 }
 
 export const fetchUserTrades = createAsyncThunk(
-  'trades/fetch',
-  async (userId: string) => await api.getUserTrades(userId)
-)
+  "trades/fetchUserTrades",
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      return await api.getUserTrades(userId);
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 export const createTrade = createAsyncThunk(
-  'trades/create',
-  async (data: {
-    from: string
-    to: string
-    offeredCards: string[]
-    requestedCards: string[]
-  }) => {
-    const success = await api.createTrade(
-      data.from,
-      data.to,
-      data.offeredCards,
-      data.requestedCards
-    )
-    if (!success) throw new Error('Error creando intercambio')
-    return data
+  "trades/createTrade",
+  async (
+    data: {
+      initiatorUserId: string;
+      receiverUserId: string;
+      initiatorCards?: any[];
+      receiverCards?: any[];
+      tradeType?: "private" | "public";
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const trade = await api.createTrade(data);
+      return trade;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
   }
-)
+);
 
 export const updateTradeStatus = createAsyncThunk(
-  'trades/updateStatus',
-  async ({ tradeId, status }: { tradeId: string; status: TradeStatus}) => {
-    const success = await api.updateTradeStatus(tradeId, status)
-    if (!success) throw new Error('Error actualizando estado')
-    return { tradeId, status }
+  "trades/updateStatus",
+  async (
+    { tradeId, status }: { tradeId: string; status: TradeStatus },
+    { rejectWithValue }
+  ) => {
+    try {
+      return await api.updateTradeStatus(tradeId, status);
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
   }
-)
+);
+
 
 const tradesSlice = createSlice({
-  name: 'trades',
+  name: "trades",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchUserTrades.pending, (state) => { state.loading = true })
+      .addCase(fetchUserTrades.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(fetchUserTrades.fulfilled, (state, action) => {
-        state.loading = false
-        state.list = action.payload
+        state.loading = false;
+        state.list = action.payload as Trade[];
       })
       .addCase(fetchUserTrades.rejected, (state, action) => {
-        state.loading = false
-        state.error = action.error.message ?? 'Error al cargar trades'
+        state.loading = false;
+        state.error = (action.payload as string) ?? action.error.message ?? "Error al cargar intercambios";
+      })
+      .addCase(createTrade.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createTrade.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list.push(action.payload as Trade);
+      })
+      .addCase(createTrade.rejected, (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as string) ?? action.error.message ?? "Error creando intercambio";
       })
       .addCase(updateTradeStatus.fulfilled, (state, action) => {
-        const trade = state.list.find(t => t.id === action.payload.tradeId)
-        if (trade) trade.status = action.payload.status
-      })
+        const updated: any = action.payload;
+        const targetId = updated.id ?? updated.tradeId;
+        const trade = state.list.find((t) => t.id === targetId);
+        if (trade && updated.status) {
+          trade.status = updated.status as TradeStatus;
+        }
+      });
   },
-})
+});
 
 export default tradesSlice.reducer

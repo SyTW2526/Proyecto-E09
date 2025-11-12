@@ -6,7 +6,6 @@ const Header: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    // ⬇️ Cambiado de fixed -> sticky (ya no tapa el contenido)
     <header className="bg-gradient-to-r from-sky-600 to-blue-500 shadow-lg sticky top-0 left-0 w-full z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-2 sm:px-10">
         {/* IZQUIERDA */}

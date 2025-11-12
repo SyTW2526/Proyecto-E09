@@ -3,7 +3,7 @@ import { Instagram, Youtube } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="footer-bg text-white py-8 mt-12">
+    <footer className="bg-black text-white text-center text-[10px] py-[2px] leading-none m-0">
       <div className="container mx-auto px-4">
         <div className="footer-grid">
           {/* Redes Sociales */}
@@ -19,13 +19,8 @@ const Footer: React.FC = () => {
                 <Instagram className="w-5 h-5" />
                 <span>Instagram</span>
               </a>
-              <a
-                href="https://tiktok.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="footer-link"
-              >
-                <span className="w-5 h-5 flex items-center justify-center">▶️</span>
+              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-sky-300 transition-colors">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-2.43.05-4.85-.38-6.75-1.77-2.05-1.5-3.08-3.96-3.16-6.46-.09-2.65.43-5.27 1.92-7.12 1.86-2.26 4.7-3.54 7.61-3.54.31 0 .65.01.96.02v4.03c-.31-.01-.62-.02-.93-.02-1.52 0-2.98.57-4.09 1.65-1.11 1.08-1.7 2.58-1.65 4.17.04 1.48.59 2.92 1.61 4.03 1.02 1.11 2.38 1.69 3.84 1.73.04 0 .08.01.12.01 1.48 0 2.9-.59 3.91-1.69 1.02-1.1 1.58-2.56 1.58-4.08-.01-2.93-.01-5.85-.01-8.77z"></path></svg>
                 <span>TikTok</span>
               </a>
               <a

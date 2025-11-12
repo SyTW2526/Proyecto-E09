@@ -1,12 +1,108 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 import { User } from '../models/User.js';
 
 export const userRouter = express.Router();
 
 /**
+ * POST /users/register
+ * Registrar un nuevo usuario con username, email y contraseña
+ */
+userRouter.post('/users/register', async (req: Request, res: Response) => {
+  try {
+    const { username, email, password, confirmPassword } = req.body;
+
+    // Validaciones básicas
+    if (!username || !email || !password || !confirmPassword) {
+      return res.status(400).send({ error: 'Todos los campos son requeridos' });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).send({ error: 'Las contraseñas no coinciden' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).send({ error: 'La contraseña debe tener al menos 6 caracteres' });
+    }
+
+    // Verificar si el usuario ya existe
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser) {
+      return res.status(400).send({ error: 'El usuario o correo ya existen' });
+    }
+
+    // Hashear la contraseña (10 rondas de salt)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Crear nuevo usuario
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword
+    });
+
+    await newUser.save();
+
+    res.status(201).send({
+      message: 'Usuario registrado correctamente',
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email
+      }
+    });
+  } catch (error) {
+    res.status(500).send({ error: (error as Error).message ?? String(error) });
+  }
+});
+
+/**
+ * POST /users/login
+ * Iniciar sesión con username/email y contraseña
+ */
+userRouter.post('/users/login', async (req: Request, res: Response) => {
+  try {
+    const { username, password } = req.body;
+
+    // Validaciones básicas
+    if (!username || !password) {
+      return res.status(400).send({ error: 'Username y contraseña requeridos' });
+    }
+
+    // Buscar usuario por username o email
+    const user = await User.findOne({
+      $or: [{ username }, { email: username }]
+    });
+
+    if (!user) {
+      return res.status(401).send({ error: 'Usuario o contraseña incorrectos' });
+    }
+
+    // Comparar contraseñas
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).send({ error: 'Usuario o contraseña incorrectos' });
+    }
+
+    // Login exitoso: devolver información del usuario
+    res.status(200).send({
+      message: 'Sesión iniciada correctamente',
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email
+      }
+    });
+  } catch (error) {
+    res.status(500).send({ error: (error as Error).message ?? String(error) });
+  }
+});
+
+/**
  * POST /users
- * Crear un nuevo usuario
+ * Crear un nuevo usuario (legacy, deprecated - usar /users/register)
  */
 userRouter.post('/users', async (req, res) => {
   try {
@@ -17,6 +113,7 @@ userRouter.post('/users', async (req, res) => {
     res.status(500).send(error);
   }
 });
+
 /**
  * GET /users
  * Obtener la lista de usuarios

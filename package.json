@@ -48,6 +48,10 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.10.1",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "lucide-react": "^0.469.0",

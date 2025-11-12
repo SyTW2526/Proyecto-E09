@@ -3,7 +3,7 @@ import { Settings } from "lucide-react";
 
 const AuthHeader: React.FC = () => {
   return (
-    <header className="bg-gradient-to-r from-sky-600 to-blue-500 shadow-lg fixed top-0 left-0 w-full z-50 overflow-x-hidden">
+    <header className="bg-linear-to-r from-sky-600 to-blue-500 shadow-lg fixed top-0 left-0 w-full z-50 overflow-x-hidden">
       <div className="flex items-center justify-between w-full px-8 py-4">
         
         {/*LOGO */}

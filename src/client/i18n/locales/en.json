@@ -25,5 +25,26 @@
   "darkMode": {
     "dark": "Switch to dark mode",
     "light": "Switch to light mode"
+  },
+  "start": {
+    "titulo": "Collect, trade and discover your Pokémon world!",
+    "subtitulo": "In Cards AMI you can create your personal collection, discover new cards and trade them with other Pokémon enthusiasts.",
+    "colecciona": "Collect",
+    "coleccionaDesc": "Save your favorite cards, organize your collection and create a wishlist. Your Pokémon library always up to date!",
+    "intercambia": "Trade",
+    "intercambiaDesc": "Connect with other collectors or your friends and make safe trades to get the cards you're missing.",
+    "explora": "Explore",
+    "exploraDesc": "Find the cards you're looking for, discover new expansions and stay updated on the latest news in the Pokémon world."
+  },
+  "signUp": {
+    "titulo": "Join Cards AMI",
+    "subtitulo": "Join Cards AMI and start your collection today."
+  },
+  "footer": {
+    "derechos": "All rights reserved.",
+    "enlaces": "Useful links",
+    "acercaDe": "About",
+    "terminos": "Terms of service",
+    "privacidad": "Privacy policy"
   }
 }

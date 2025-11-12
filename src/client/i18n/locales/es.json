@@ -25,5 +25,26 @@
   "darkMode": {
     "dark": "Cambiar a modo oscuro",
     "light": "Cambiar a modo claro"
+  },
+  "start": {
+    "titulo": "¡Colecciona, intercambia y descubre tu mundo Pokémon!",
+    "subtitulo": "En Cards AMI puedes crear tu colección personal, descubrir nuevas cartas e intercambiarlas con otros aficionados al mundo Pokémon.",
+    "colecciona": "Colecciona",
+    "coleccionaDesc": "Guarda tus cartas favoritas, organiza tu colección y crea una lista de deseos. ¡Tu biblioteca Pokémon siempre al día!",
+    "intercambia": "Intercambia",
+    "intercambiaDesc": "Conecta con otros coleccionistas o con tus amigos y realiza intercambios seguros para conseguir las cartas que te faltan.",
+    "explora": "Explora",
+    "exploraDesc": "Encuentra las cartas que buscas, descubre nuevas expansiones y mantente al tanto de las últimas novedades en el mundo Pokémon."
+  },
+  "signUp": {
+    "titulo": "Únete a Cards AMI",
+    "subtitulo": "Únete a Cards AMI y empieza tu colección hoy mismo."
+  },
+  "footer": {
+    "derechos": "Todos los derechos reservados.",
+    "enlaces": "Enlaces útiles",
+    "acercaDe": "Acerca de",
+    "terminos": "Términos de servicio",
+    "privacidad": "Política de privacidad"
   }
 }

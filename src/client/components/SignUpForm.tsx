@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
-import React from "react";
 import { useTranslation } from "react-i18next";
 import "../styles/form.css";
 

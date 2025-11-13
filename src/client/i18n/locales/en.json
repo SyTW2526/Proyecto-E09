@@ -36,15 +36,67 @@
     "explora": "Explore",
     "exploraDesc": "Find the cards you're looking for, discover new expansions and stay updated on the latest news in the Pokémon world."
   },
-  "signUp": {
-    "titulo": "Join Cards AMI",
-    "subtitulo": "Join Cards AMI and start your collection today."
+  "signIn": {
+    "titulo": "Sign in",
+    "subtitulo": "Access your account to manage your collection.",
+
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "John123",
+
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "**********",
+
+    "botonEntrar": "Sign in",
+    "botonCargando": "Signing in...",
+
+    "noCuenta": "Don't have an account?",
+    "registrate": "Create account"
   },
+
+  "signUp": {
+    "titulo": "Create your account",
+    "subtitulo": "Join Cards AMI and start your collection today.",
+
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "John123",
+
+    "emailLabel": "Email",
+    "emailPlaceholder": "example@email.com",
+
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "**********",
+
+    "confirmPasswordLabel": "Repeat password",
+    "confirmPasswordPlaceholder": "**********",
+
+    "botonCrear": "Create account",
+    "botonCargando": "Registering...",
+
+    "yaTengoCuenta": "Already have an account?",
+    "iniciarSesion": "Sign in"
+  },
+
   "footer": {
     "derechos": "All rights reserved.",
     "enlaces": "Useful links",
     "acercaDe": "About",
     "terminos": "Terms of service",
     "privacidad": "Privacy policy"
+  },
+  "tradeRoom": {
+  "titulo": "PRIVATE ROOM",
+  "codigoSala": "Room code:",
+  "tu": "You",
+  "tuCartaSel": "Your selected card",
+  "otroUsuario": "Other user",
+  "cartaRival": "Opponent card",
+  "tusCartas": "Your cards for trading",
+  "aceptar": "ACCEPT",
+  "rechazar": "REJECT",
+  "chat": "CHAT",
+  "enviar": "Send",
+  "escribeMensaje": "Write a message...",
+  "mensajeAceptado": "The trade was accepted.",
+  "mensajeRechazado": "The trade was rejected."
   }
 }

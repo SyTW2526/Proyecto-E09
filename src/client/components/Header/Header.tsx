@@ -27,7 +27,7 @@ const Header: React.FC = () => {
             <a href="/coleccion" className="CollectionButton dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 dark:border-gray-600 transition-colors">
               {t('header.coleccion')}
             </a>
-            <a href="/intercambio" className="CollectionButton dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 dark:border-gray-600 transition-colors">
+            <a href="/trade" className="CollectionButton dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 dark:border-gray-600 transition-colors">
               {t('header.intercambio')}
             </a>
           </nav>

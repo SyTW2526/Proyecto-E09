@@ -248,4 +248,3 @@ Una vez implementado JWT, podremos:
 
 ---
 
-¿Listo? Voy a implementar todos estos cambios ahora mismo 🚀

@@ -1,9 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Instagram, Youtube } from 'lucide-react';
 
 const Footer: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
-    <footer className="bg-black text-white text-center text-[10px] py-[2px] leading-none m-0">
+    <footer className="footer-bg text-white py-8 mt-12 dark:bg-gray-900">
       <div className="container mx-auto px-4">
         <div className="footer-grid">
           {/* Redes Sociales */}

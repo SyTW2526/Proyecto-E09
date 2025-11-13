@@ -1,4 +1,26 @@
 @import "tailwindcss";
+
+/* Dark mode styles */
+@layer base {
+  :root {
+    color-scheme: light;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f3f4f6;
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --border-color: #e5e7eb;
+  }
+
+  html.dark {
+    color-scheme: dark;
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-primary: #e5e5e5;
+    --text-secondary: #b0b0b0;
+    --border-color: #404040;
+  }
+}
+
 /* Variables globales */
 :root {
   --color-blue-light: #a8d5f7;
@@ -19,12 +41,31 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+html.dark body {
+  background-color: #1a1a1a;
+  color: #e5e5e5;
+}
+
+/* Dark mode global para todos los elementos */
+html.dark {
+  background-color: #0d0d0d;
+  color: #e5e5e5;
 }
 
 /* Fondo degradado de la página */
 #root {
   min-height: 100vh;
   background: linear-gradient(to bottom, #8ac4ed 0%, #ffffff 50%);
+  transition: background 0.3s ease;
+}
+
+html.dark #root {
+  background: linear-gradient(to bottom, #0d0d0d 0%, #1a1a1a 50%) !important;
 }
 
 /* Header */
@@ -390,6 +431,192 @@ body {
   .footer-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* Dark mode para elementos específicos */
+
+/* Header en dark mode */
+html.dark header {
+  background: linear-gradient(to right, #1a1a1a, #2d2d2d) !important;
+  border-bottom: 1px solid #404040 !important;
+}
+
+html.dark header a,
+html.dark header button {
+  color: #e5e5e5 !important;
+}
+
+/* Footer */
+html.dark .footer-bg {
+  background-color: #1a1a1a;
+}
+
+html.dark .signup-background {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+/* Collection buttons */
+html.dark .CollectionButton {
+  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%) !important;
+  color: #e5e5e5 !important;
+  border-color: #404040 !important;
+}
+
+html.dark .CollectionButton:hover {
+  background: linear-gradient(135deg, #3d3d3d 0%, #2d2d2d 100%) !important;
+}
+
+html.dark input[type="text"],
+html.dark input[type="email"],
+html.dark input[type="password"],
+html.dark input[type="number"],
+html.dark textarea,
+html.dark select {
+  background-color: #2d2d2d;
+  color: #e5e5e5;
+  border-color: #404040;
+}
+
+html.dark input[type="text"]::placeholder,
+html.dark input[type="email"]::placeholder,
+html.dark input[type="password"]::placeholder,
+html.dark textarea::placeholder {
+  color: #808080;
+}
+
+html.dark input:focus,
+html.dark textarea:focus,
+html.dark select:focus {
+  border-color: #7bb8e8;
+  box-shadow: 0 0 0 3px rgba(123, 184, 232, 0.1);
+}
+
+html.dark button {
+  transition: all 0.3s ease;
+}
+
+html.dark .header-search {
+  background-color: #2d2d2d;
+  border-color: #404040;
+  color: #e5e5e5;
+}
+
+html.dark .header-search::placeholder {
+  color: #808080;
+}
+
+/* Dark mode para hero y featured section */
+html.dark .hero-text {
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+html.dark .featured-section {
+  background-color: #1a1a1a !important;
+  color: #e5e5e5;
+}
+
+html.dark .featured-title {
+  background: linear-gradient(to right, #0d0d0d, #1a1a1a) !important;
+  color: #e5e5e5 !important;
+  border-color: #404040 !important;
+}
+
+/* Dark mode para tarjetas */
+html.dark .pokemon-card {
+  border-color: #2d2d2d !important;
+  background-color: #1a1a1a;
+}
+
+html.dark .pokemon-card-back {
+  background-color: #1a1a1a !important;
+  border-color: #2d2d2d !important;
+  color: #e5e5e5;
+}
+
+html.dark .pokemon-card-back h3 {
+  color: #ffffff !important;
+}
+
+html.dark .pokemon-card-back p {
+  color: #b0b0b0 !important;
+}
+
+html.dark .pokemon-card-back .bg-blue-50 {
+  background-color: #0d0d0d !important;
+  border-color: #2d2d2d;
+}
+
+/* Dark mode para botones slider */
+html.dark .slider-button {
+  background-color: #2d2d2d !important;
+  color: #e5e5e5 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8) !important;
+}
+
+html.dark .slider-button:hover {
+  background-color: #3d3d3d !important;
+}
+
+/* Dark mode para footer */
+html.dark .footer-bg {
+  background-color: #0d0d0d !important;
+  color: #e5e5e5;
+}
+
+html.dark .footer-title {
+  color: #ffffff !important;
+}
+
+html.dark .footer-link {
+  color: #b0b0b0 !important;
+}
+
+html.dark .footer-link:hover {
+  color: #7bb8e8 !important;
+}
+
+html.dark .footer-link-email {
+  color: #7bb8e8 !important;
+}
+
+html.dark .footer-link-email:hover {
+  color: #a8d5f7 !important;
+}
+
+html.dark .footer-link-simple {
+  color: #b0b0b0 !important;
+}
+
+html.dark .footer-link-simple:hover {
+  color: #7bb8e8 !important;
+}
+
+/* Dark mode para formularios */
+html.dark .signup-background {
+  background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%) !important;
+}
+
+html.dark label {
+  color: #e5e5e5 !important;
+}
+
+html.dark form {
+  color: #e5e5e5;
+}
+
+/* Dark mode para enlaces */
+html.dark a {
+  color: #7bb8e8;
+}
+
+html.dark a:hover {
+  color: #a8d5f7;
+}
+
+/* Dark mode para texto general */
+html.dark {
+  color: #e5e5e5;
 }
 
 @media (max-width: 640px) {

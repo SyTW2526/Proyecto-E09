@@ -1,6 +1,9 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const Hero: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="container mx-auto px-6 py-12">
       <div className="flex items-center justify-between gap-12">
@@ -20,7 +23,9 @@ const Hero: React.FC = () => {
 
         {/* Texto derecho */}
         <div className="flex-1 flex justify-end">
-          <h2 className="hero-text text-right">NUNCA ES TARDE PARA JUGAR</h2>
+          <h1 className="text-5xl font-extrabold text-sky-700 text-center dark:text-sky-400">
+            {t("start.titulo")}
+          </h1>
         </div>
       </div>
     </section>

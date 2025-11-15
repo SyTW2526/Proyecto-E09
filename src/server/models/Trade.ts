@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { nanoid } from 'nanoid';
 
 const tradeSchema = new mongoose.Schema({
   initiatorUserId: {
@@ -80,15 +81,19 @@ const tradeSchema = new mongoose.Schema({
 });
 
 tradeSchema.pre('save', function (next) {
-  if (this.initiatorTotalValue && this.receiverTotalValue) {
+  if (this.tradeType === 'private' && !this.privateRoomCode) {
+    this.privateRoomCode = nanoid(10);
+  }
+  if (this.tradeType === 'public' && this.initiatorTotalValue && this.receiverTotalValue) {
     const diff = Math.abs(this.initiatorTotalValue - this.receiverTotalValue);
     const maxValue = Math.max(this.initiatorTotalValue, this.receiverTotalValue);
     this.valueDifferencePercentage = (diff / maxValue) * 100;
 
     if (this.valueDifferencePercentage > 10) {
-      return next(new Error('La diferencia de valor no puede superar el 10%'));
+      return next(new Error('La diferencia de valor no puede superar el 10% en intercambios públicos'));
     }
   }
+
   next();
 });
 

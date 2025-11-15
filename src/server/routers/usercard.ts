@@ -1,8 +1,72 @@
 import express from 'express';
 import { UserCard } from '../models/UserCard.js';
 import { User } from '../models/User.js';
-
+import { Card } from '../models/Card.js';
+import { getCardsByName } from '../services/pokemon.js';
 export const userCardRouter = express.Router();
+
+userCardRouter.post("/usercards/import", async (req, res) => {
+  try {
+    const { username, query = "", limit = 5, forTrade = true } = req.body;
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+    const apiResult = await getCardsByName(query);
+    const rawCards = apiResult.data || [];
+
+    if (!rawCards.length)
+      return res.status(404).json({ error: "No se encontraron cartas en la API" });
+
+    const cards = rawCards
+      .filter((c:any) => c.images && (c.images.small || c.images.large))
+      .slice(0, limit);
+
+    if (!cards.length)
+      return res
+        .status(404)
+        .json({ error: "No se encontraron cartas con imagen disponible" });
+
+    const createdUserCards = [];
+
+    for (const c of cards) {
+      const image = c.images.small || c.images.large;
+
+      let localCard = await Card.findOne({ pokemonTcgId: c.id });
+      if (!localCard) {
+        localCard = await Card.create({
+          name: c.name,
+          imageUrl: image,
+          rarity: c.rarity || "Common",
+          pokemonTcgId: c.id,
+          series: c.set?.series || "",
+          set: c.set?.name || "",
+          types: c.types || [],
+        });
+      }
+
+      const userCard = await UserCard.findOneAndUpdate(
+        { userId: user._id, cardId: localCard._id },
+        {
+          $setOnInsert: {
+            forTrade,
+            collectionType: "collection",
+            pokemonTcgId: localCard.pokemonTcgId,
+          },
+        },
+        { upsert: true, new: true }
+      );
+
+      createdUserCards.push(userCard);
+    }
+
+    res.json({
+      message: ` ${createdUserCards.length} cartas importadas para ${username}`,
+      cards: createdUserCards,
+    });
+  } catch (error) {
+    console.error("Error al importar cartas:", error);
+    res.status(500).json({ error: "Error al importar cartas desde la API" });
+  }
+});
 
 /**
  * POST /usercards/:username/:type

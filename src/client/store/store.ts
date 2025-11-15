@@ -4,6 +4,8 @@ import collectionReducer from '../features/collection/collectionSlice'
 import tradesReducer from '../features/trades/tradesSlice'
 import usersReducer from '../features/users/usersSlice'
 import wishlistReducer from '../features/whislist/whislistSlice'
+import notificationsReducer from '../features/notifications/notificationsSlice'
+import preferencesReducer from '../features/preferences/preferencesSlice'
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +14,8 @@ export const store = configureStore({
     collection: collectionReducer,
     trades: tradesReducer,
     wishlist: wishlistReducer,
+    notifications: notificationsReducer,
+    preferences: preferencesReducer,
   },
 })
 

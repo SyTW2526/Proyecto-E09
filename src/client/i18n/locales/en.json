@@ -9,7 +9,9 @@
     "settings": "Settings",
     "perfil": "Profile",
     "iniciarSesion": "Sign in",
-    "crearCuenta": "Create account"
+    "crearCuenta": "Create account",
+    "ajustes": "Settings",
+    "cerrarSesion": "Log out"
   },
   "notifications": {
     "titulo": "Notifications",
@@ -36,6 +38,7 @@
     "explora": "Explore",
     "exploraDesc": "Find the cards you're looking for, discover new expansions and stay updated on the latest news in the Pokémon world."
   },
+  
   "signIn": {
     "titulo": "Sign in",
     "subtitulo": "Access your account to manage your collection.",
@@ -83,20 +86,51 @@
     "terminos": "Terms of service",
     "privacidad": "Privacy policy"
   },
+
   "tradeRoom": {
-  "titulo": "PRIVATE ROOM",
-  "codigoSala": "Room code:",
-  "tu": "You",
-  "tuCartaSel": "Your selected card",
-  "otroUsuario": "Other user",
-  "cartaRival": "Opponent card",
-  "tusCartas": "Your cards for trading",
-  "aceptar": "ACCEPT",
-  "rechazar": "REJECT",
-  "chat": "CHAT",
-  "enviar": "Send",
-  "escribeMensaje": "Write a message...",
-  "mensajeAceptado": "The trade was accepted.",
-  "mensajeRechazado": "The trade was rejected."
+    "titulo": "PRIVATE ROOM",
+    "codigoSala": "Room code:",
+    "tu": "You",
+    "tuCartaSel": "Your selected card",
+    "otroUsuario": "Waiting for the other user...",
+    "cartaRival": "Opponent card",
+    "tusCartas": "Your cards for trading",
+    "aceptar": "ACCEPT",
+    "rechazar": "REJECT",
+    "chat": "CHAT",
+    "enviar": "Send",
+    "escribeMensaje": "Write a message...",
+    "mensajeAceptado": "The trade was accepted.",
+    "mensajeRechazado": "The trade was rejected.",
+    "rival": "Opponent",
+    "tuSeleccion": "Your selection"
+  },
+
+  "profile": {
+    "loading": "Loading profile...",
+    "title": "User Profile",
+    "username": "Username",
+    "email": "Email",
+    "changePhoto": "Change photo",
+    "deletePhoto": "Delete photo",
+    "confirmDeletePhoto": "Are you sure you want to delete your photo?",
+    "photoUpdated": "Photo updated successfully",
+    "errorUpdatingPhoto": "Error updating photo",
+    "photoDeleted": "Photo deleted",
+    "errorDeletePhoto": "Could not delete the photo",
+    "edit": "Edit profile",
+    "editProfile": "Edit Profile",
+    "saved": "Profile updated successfully",
+    "saveError": "Error saving changes",
+    "deleteAccount": "Delete account",
+    "confirmDeleteAccount": "Are you sure you want to DELETE YOUR ACCOUNT?",
+    "accountDeleted": "Account deleted",
+    "errorDeleteAccount": "Error deleting account",
+    "wishlist": "Wishlist",
+    "noWishlist": "You have no cards in your wishlist.",
+    "tradeList": "Trade List",
+    "noTrade": "You have no cards marked for trade.",
+    "cancel": "Cancel",
+    "save": "Save"
   }
 }

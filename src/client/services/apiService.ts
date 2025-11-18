@@ -1,4 +1,4 @@
-import { PokemonCard, ApiResponse, PaginatedResponse, User, TradeStatus } from '../types';
+import { PokemonCard, ApiResponse, PaginatedResponse, User, TradeStatus, UserOwnedCard } from '../types';
 
 const API_BASE_URL = 'http://localhost:3000'; // URL base de la API del servidor
 const TCGDEX_URL = 'https://api.tcgdex.net/v2/en'; // API pública de tcgDex
@@ -61,18 +61,6 @@ class ApiService {
 
   async getTcgDexCard(setId: string, cardId: string): Promise<any> {
     return this.fetchFromTcgDex(`sets/${setId}/${cardId}`);
-  }
-
-  async getUserCollection(userId: string): Promise<PokemonCard[]> {
-    try {
-      const res = await fetch(`${API_BASE_URL}/users/${userId}/collection`);
-      if (!res.ok) throw new Error("Error al obtener la colección");
-      const data: ApiResponse<PokemonCard[]> = await res.json();
-      return data.data;
-    } catch (err) {
-      console.error("Error:", err);
-      return [];
-    }
   }
 
   async addToCollection(userId: string, cardId: string): Promise<boolean> {
@@ -240,6 +228,47 @@ class ApiService {
       return false;
     }
   }
+
+  async getUserWishlist(username: string): Promise<UserOwnedCard[]> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/usercards/${username}/wishlist`);
+      if (!res.ok) throw new Error("Error obteniendo wishlist del usuario");
+
+      const data = await res.json();
+
+      return data.cards.map((item: any) => ({
+        id: item._id,
+        name: item.cardId?.name,
+        image: item.cardId?.imageUrl,
+        rarity: item.cardId?.rarity,
+        forTrade: item.forTrade
+      }));
+    } catch (err) {
+      console.error("Error wishlist:", err);
+      return [];
+    }
+  }
+  
+  async getUserCollection(username: string): Promise<UserOwnedCard[]> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/usercards/${username}/collection`);
+      if (!res.ok) throw new Error("Error obteniendo colección del usuario");
+
+      const data = await res.json();
+
+      return data.cards.map((item: any) => ({
+        id: item._id,
+        name: item.cardId?.name,
+        image: item.cardId?.imageUrl,
+        rarity: item.cardId?.rarity,
+        forTrade: item.forTrade
+      }));
+    } catch (err) {
+      console.error("Error colección:", err);
+      return [];
+    }
+  }
 }
+
 
 export default new ApiService();

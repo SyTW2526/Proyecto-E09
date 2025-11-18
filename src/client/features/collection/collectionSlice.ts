@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import api from '../../services/apiService'
-import { PokemonCard } from '../../types'
+import { UserOwnedCard } from "../../types";
 
 interface CollectionState {
-  cards: PokemonCard[]
+  cards: UserOwnedCard[]
   loading: boolean
   error: string | null
 }
@@ -16,7 +16,7 @@ const initialState: CollectionState = {
 
 export const fetchUserCollection = createAsyncThunk(
   'collection/fetch',
-  async (userId: string) => await api.getUserCollection(userId)
+  async (username: string) => await api.getUserCollection(username)
 )
 
 export const addToCollection = createAsyncThunk(

@@ -236,13 +236,50 @@ class ApiService {
 
       const data = await res.json();
 
-      return data.cards.map((item: any) => ({
-        id: item._id,
-        name: item.cardId?.name,
-        image: item.cardId?.imageUrl,
-        rarity: item.cardId?.rarity,
-        forTrade: item.forTrade
-      }));
+      const results = [] as any[];
+      for (const item of data.cards) {
+        let card = item.cardId || {};
+
+        // If card object is missing but we have pokemonTcgId, try to fetch cached card from our API
+        if ((!card || Object.keys(card).length === 0) && item.pokemonTcgId) {
+          try {
+            const resp = await fetch(`${API_BASE_URL}/cards/tcg/${item.pokemonTcgId}`);
+            if (resp.ok) {
+              const payload = await resp.json();
+              // endpoint returns { source, card } when found in cache
+              card = payload.card ?? payload;
+            }
+          } catch (e) {
+            // ignore - we'll fallback to constructing an image URL below
+          }
+        }
+
+        // derive image from multiple possible shapes
+        let image = card.imageUrl || card.imageUrlHiRes || card.image || '';
+        if (!image && card.images) {
+          image = card.images.large || card.images.small || '';
+        }
+
+        // fallback: construct tcgdex asset url from pokemonTcgId if present
+        const tcgId = item.pokemonTcgId || card.pokemonTcgId || '';
+        if (!image && tcgId) {
+          const [setCode, number] = tcgId.split('-');
+          const series = setCode ? setCode.slice(0, 2) : '';
+          if (setCode && number) {
+            image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+          }
+        }
+
+        results.push({
+          id: item._id,
+          name: card.name,
+          image,
+          rarity: card.rarity,
+          forTrade: item.forTrade
+        });
+      }
+
+      return results;
     } catch (err) {
       console.error("Error wishlist:", err);
       return [];
@@ -256,13 +293,44 @@ class ApiService {
 
       const data = await res.json();
 
-      return data.cards.map((item: any) => ({
-        id: item._id,
-        name: item.cardId?.name,
-        image: item.cardId?.imageUrl,
-        rarity: item.cardId?.rarity,
-        forTrade: item.forTrade
-      }));
+      const results = [] as any[];
+      for (const item of data.cards) {
+        let card = item.cardId || {};
+
+        if ((!card || Object.keys(card).length === 0) && item.pokemonTcgId) {
+          try {
+            const resp = await fetch(`${API_BASE_URL}/cards/tcg/${item.pokemonTcgId}`);
+            if (resp.ok) {
+              const payload = await resp.json();
+              card = payload.card ?? payload;
+            }
+          } catch (e) {}
+        }
+
+        let image = card.imageUrl || card.imageUrlHiRes || card.image || '';
+        if (!image && card.images) {
+          image = card.images.large || card.images.small || '';
+        }
+
+        const tcgId = item.pokemonTcgId || card.pokemonTcgId || '';
+        if (!image && tcgId) {
+          const [setCode, number] = tcgId.split('-');
+          const series = setCode ? setCode.slice(0, 2) : '';
+          if (setCode && number) {
+            image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+          }
+        }
+
+        results.push({
+          id: item._id,
+          name: card.name,
+          image,
+          rarity: card.rarity,
+          forTrade: item.forTrade
+        });
+      }
+
+      return results;
     } catch (err) {
       console.error("Error colección:", err);
       return [];

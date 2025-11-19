@@ -167,20 +167,32 @@ userRouter.patch(
 userRouter.patch('/users/:username', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const { username } = req.params;
+    const { username: newUsername, email: newEmail } = req.body;
 
-    const user = await User.findOneAndUpdate(
-      { username },
-      req.body,
-      { new: true }
-    );
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).send({ error: "USER_NOT_FOUND" });
 
-    if (!user) return res.status(404).send({ error: "Usuario no encontrado" });
+    if (newUsername && newUsername !== user.username) {
+      const existsUser = await User.findOne({ username: newUsername });
+      if (existsUser) {
+        return res.status(400).send({ error: "USERNAME_EXISTS" });
+      }
+    }
+
+    if (newEmail && newEmail !== user.email) {
+      const existsEmail = await User.findOne({ email: newEmail });
+      if (existsEmail) {
+        return res.status(400).send({ error: "EMAIL_EXISTS" });
+      }
+    }
+
+    if (newUsername) user.username = newUsername;
+    if (newEmail) user.email = newEmail;
+
+    await user.save();
     const secret = process.env.JWT_SECRET || "tu-clave-secreta";
     const token = jwt.sign(
-      {
-        userId: user._id.toString(),
-        username: user.username
-      },
+      { userId: user._id.toString(), username: user.username },
       secret,
       { expiresIn: "7d" }
     );

@@ -19,6 +19,7 @@ const ProfilePage: React.FC = () => {
   const wishlist = useSelector((s: RootState) => s.wishlist.cards);
   const collection = useSelector((s: RootState) => s.collection.cards);
 
+  // TOAST
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const showToast = (type: "success" | "error", message: string) => {
     setToast({ type, message });
@@ -42,12 +43,12 @@ const ProfilePage: React.FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // FOTO PERFIL
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-
     reader.onloadend = async () => {
       const base64Image = reader.result as string;
 
@@ -56,6 +57,7 @@ const ProfilePage: React.FC = () => {
           user.username,
           base64Image
         );
+
         setUser(updatedUser);
         authService.saveUser(updatedUser);
         showToast("success", t("profile.photoUpdated"));
@@ -67,6 +69,7 @@ const ProfilePage: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
+  // EDITAR PERFIL
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     username: user.username,
@@ -75,16 +78,26 @@ const ProfilePage: React.FC = () => {
 
   const saveProfile = async () => {
     try {
-      const updatedUser = await authService.updateProfile(
-        user.username,
-        editData
-      );
+      const updatedUser = await authService.updateProfile(user.username, editData);
 
       setUser(updatedUser);
       authService.saveUser(updatedUser);
       setIsEditing(false);
       showToast("success", t("profile.saved"));
-    } catch {
+
+    } catch (err: any) {
+      const code = err?.message;
+
+      if (code === "USERNAME_EXISTS") {
+        showToast("error", t("profile.usernameExists"));
+        return;
+      }
+
+      if (code === "EMAIL_EXISTS") {
+        showToast("error", t("profile.emailExists"));
+        return;
+      }
+
       showToast("error", t("profile.saveError"));
     }
   };
@@ -108,26 +121,18 @@ const ProfilePage: React.FC = () => {
 
           {/* FOTO PERFIL */}
           <div className="profile-photo-section">
-            <img
-              src={user.profileImage || DEFAULT_AVATAR}
-              alt="Avatar"
-              className="profile-photo"
-            />
+            <img src={user.profileImage || DEFAULT_AVATAR} className="profile-photo" />
 
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
               className="hidden"
+              accept="image/*"
               onChange={handlePhotoUpload}
             />
 
             <div className="profile-photo-buttons">
-
-              <button
-                className="profile-btn"
-                onClick={() => fileInputRef.current?.click()}
-              >
+              <button className="profile-btn" onClick={() => fileInputRef.current?.click()}>
                 {t("profile.changePhoto")}
               </button>
 
@@ -150,14 +155,11 @@ const ProfilePage: React.FC = () => {
             </div>
           </div>
 
-          {/* TARJETA INFO */}
+          {/* INFO */}
           <div className="profile-info-card">
-            <p>
-              <strong>{t("profile.username")}:</strong> {user.username}
-            </p>
-            <p className="mt-4">
-              <strong>{t("profile.email")}:</strong> {user.email}
-            </p>
+
+            <p><strong>{t("profile.username")}:</strong> {user.username}</p>
+            <p className="mt-4"><strong>{t("profile.email")}:</strong> {user.email}</p>
 
             <div className="profile-info-buttons">
               <button className="profile-btn" onClick={() => setIsEditing(true)}>
@@ -167,8 +169,7 @@ const ProfilePage: React.FC = () => {
               <button
                 className="profile-btn-red profile-delete-account"
                 onClick={async () => {
-                  const confirmed = confirm(t("profile.confirmDeleteAccount"));
-                  if (!confirmed) return;
+                  if (!confirm(t("profile.confirmDeleteAccount"))) return;
 
                   try {
                     await authService.deleteAccount(user.username);
@@ -182,6 +183,7 @@ const ProfilePage: React.FC = () => {
                 {t("profile.deleteAccount")}
               </button>
             </div>
+
           </div>
         </div>
 
@@ -196,14 +198,14 @@ const ProfilePage: React.FC = () => {
           <div className="cards-grid">
             {wishlist.map((card) => (
               <div key={card.id} className="card-item">
-                <img src={card.image} alt="" className="card-image" />
+                <img src={card.image} className="card-image" />
                 <p className="card-title">{card.name}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* INTERCAMBIO */}
+        {/* TRADE LIST */}
         <section className="profile-section">
           <h2 className="section-title">{t("profile.tradeList")}</h2>
 
@@ -214,22 +216,24 @@ const ProfilePage: React.FC = () => {
           <div className="cards-grid">
             {tradeList.map((card) => (
               <div key={card.id} className="card-item-yellow">
-                <img src={card.image} alt="" className="card-image" />
+                <img src={card.image} className="card-image" />
                 <p className="card-title">{card.name}</p>
               </div>
             ))}
           </div>
         </section>
+
       </main>
 
       <footer className="profile-footer">
         <Footer />
       </footer>
 
-      {/* EDITAR PERFIL */}
+      {/* MODAL */}
       {isEditing && (
         <div className="modal-overlay">
           <div className="modal-card">
+
             <h2 className="modal-title">{t("profile.editProfile")}</h2>
 
             <label className="modal-label">{t("profile.username")}</label>
@@ -250,15 +254,19 @@ const ProfilePage: React.FC = () => {
               <button className="profile-btn bg-gray-400" onClick={() => setIsEditing(false)}>
                 {t("profile.cancel")}
               </button>
+
               <button className="profile-btn" onClick={saveProfile}>
                 {t("profile.save")}
               </button>
             </div>
+
           </div>
         </div>
       )}
+
     </div>
   );
 };
 
 export default ProfilePage;
+

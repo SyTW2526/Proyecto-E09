@@ -36,7 +36,8 @@
     "intercambia": "Intercambia",
     "intercambiaDesc": "Conecta con otros coleccionistas o con tus amigos y realiza intercambios seguros para conseguir las cartas que te faltan.",
     "explora": "Explora",
-    "exploraDesc": "Encuentra las cartas que buscas, descubre nuevas expansiones y mantente al tanto de las últimas novedades en el mundo Pokémon."
+    "exploraDesc": "Encuentra las cartas que buscas, descubre nuevas expansiones y mantente al tanto de las últimas novedades en el mundo Pokémon.",
+    "empezar": "Empieza ya"
   },
   "signIn": {
     "titulo": "Iniciar sesión",
@@ -77,11 +78,33 @@
     "iniciarSesion": "Inicia sesión"
   },
   "footer": {
-    "derechos": "Todos los derechos reservados.",
-    "enlaces": "Enlaces útiles",
-    "acercaDe": "Acerca de",
-    "terminos": "Términos de servicio",
-    "privacidad": "Política de privacidad"
+    "redes": "Redes Sociales",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "youtube": "YouTube",
+
+    "contacto": "Contacto",
+    "email": "Correo",
+
+    "aspectosLegales": "Aspectos legales",
+    "privacidad": "Política de privacidad",
+    "terminos": "Términos de uso",
+    "avisoLegal": "Aviso legal",
+
+    "accesibilidad": "Accesibilidad",
+    "declaracionAcc": "Declaración de accesibilidad",
+    "herramientasAcc": "Herramientas de accesibilidad",
+
+    "derechos": "2025 - CardsAMI. Todos los derechos reservados"
+  },
+
+  "featured": {
+    "title": "CARTAS DESTACADAS",
+    "desc1": "Su cuerpo arde con una llama eterna.",
+    "desc2": "Cuando se enfurece, vibra como un sol en miniatura.",
+    "weakness": "Debilidad",
+    "retreat": "Retirada",
+    "price": "Precio"
   },
   "tradeRoom": {
     "titulo": "SALA PRIVADA",
@@ -127,6 +150,8 @@
     "tradeList": "Lista de Intercambio",
     "noTrade": "No tienes cartas marcadas para intercambio.",
     "cancel": "Cancelar",
-    "save": "Guardar"
+    "save": "Guardar",
+    "usernameExists": "El nombre de usuario ya está en uso",
+    "emailExists": "El correo ya está registrado"
   }
 }

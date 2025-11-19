@@ -99,10 +99,10 @@ export const authService = {
    * Actualiza el perfil del usuario
    */
   async updateProfile(
-    username: string,
+    currentUsername: string,
     changes: { username?: string; email?: string }
   ): Promise<User> {
-    const response = await fetch(`${API_URL}/users/${username}`, {
+    const response = await fetch(`${API_URL}/users/${currentUsername}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -110,10 +110,9 @@ export const authService = {
       },
       body: JSON.stringify(changes),
     });
-
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || "Error al actualizar perfil");
+      throw new Error(errorData.error || "UPDATE_ERROR");
     }
 
     const data: AuthResponse = await response.json();
@@ -124,6 +123,7 @@ export const authService = {
 
     return data.user;
   },
+
   /**
    * Elimina la imagen de perfil del usuario
    */

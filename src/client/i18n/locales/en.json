@@ -29,14 +29,15 @@
     "light": "Switch to light mode"
   },
   "start": {
-    "titulo": "Collect, trade and discover your Pokémon world!",
+    "titulo": "Collect, trade and discover your Pokemon world!",
     "subtitulo": "In Cards AMI you can create your personal collection, discover new cards and trade them with other Pokémon enthusiasts.",
     "colecciona": "Collect",
     "coleccionaDesc": "Save your favorite cards, organize your collection and create a wishlist. Your Pokémon library always up to date!",
     "intercambia": "Trade",
     "intercambiaDesc": "Connect with other collectors or your friends and make safe trades to get the cards you're missing.",
     "explora": "Explore",
-    "exploraDesc": "Find the cards you're looking for, discover new expansions and stay updated on the latest news in the Pokémon world."
+    "exploraDesc": "Find the cards you're looking for, discover new expansions and stay updated on the latest news in the Pokémon world.",
+    "empezar": "Start now"
   },
   
   "signIn": {
@@ -80,12 +81,36 @@
   },
 
   "footer": {
-    "derechos": "All rights reserved.",
-    "enlaces": "Useful links",
-    "acercaDe": "About",
-    "terminos": "Terms of service",
-    "privacidad": "Privacy policy"
+    "redes": "Social Media",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "youtube": "YouTube",
+
+    "contacto": "Contact",
+    "email": "Email",
+
+    "aspectosLegales": "Legal",
+    "privacidad": "Privacy Policy",
+    "terminos": "Terms of Use",
+    "avisoLegal": "Legal Notice",
+
+    "accesibilidad": "Accessibility",
+    "declaracionAcc": "Accessibility Statement",
+    "herramientasAcc": "Accessibility Tools",
+
+    "derechos": "2025 - CardsAMI. All rights reserved"
   },
+
+
+  "featured": {
+    "title": "FEATURED CARDS",
+    "desc1": "Its body burns with an eternal flame.",
+    "desc2": "When enraged, it pulses like a miniature sun.",
+    "weakness": "Weakness",
+    "retreat": "Retreat",
+    "price": "Price"
+  },
+
 
   "tradeRoom": {
     "titulo": "PRIVATE ROOM",
@@ -131,6 +156,8 @@
     "tradeList": "Trade List",
     "noTrade": "You have no cards marked for trade.",
     "cancel": "Cancel",
-    "save": "Save"
+    "save": "Save",
+    "usernameExists": "This username is already taken",
+    "emailExists": "This email is already registered"
   }
 }

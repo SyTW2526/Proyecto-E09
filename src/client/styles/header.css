@@ -23,11 +23,11 @@
 }
 
 .header-logo {
-  width: 85px;
-  height: 85px;
+  width: 130px;
+  height: 130px;
   object-fit: contain;
-  filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));
 }
+
 
 .nav-desktop {
   display: none;

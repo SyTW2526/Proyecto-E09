@@ -198,15 +198,15 @@ const FeaturedCards: React.FC = () => {
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
                       <div className="text-xs text-gray-600 dark:text-gray-300">Rareza</div>
-                      <div className="font-semibold">{card.rarity || '—'}</div>
+                      <div className="font-semibold text-gray-600 dark:text-gray-100">{card.rarity || '—'}</div>
                     </div>
                     <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
                       <div className="text-xs text-gray-600 dark:text-gray-300">Set</div>
-                      <div className="font-semibold">{card.set || '—'}</div>
+                      <div className="font-semibold text-gray-600 dark:text-gray-100">{card.set || '—'}</div>
                     </div>
                     <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
                       <div className="text-xs text-gray-600 dark:text-gray-300">HP</div>
-                      <div className="font-semibold">{card.hp || '—'}</div>
+                      <div className="font-semibold text-gray-600 dark:text-gray-100">{card.hp || '—'}</div>
                     </div>
                   </div>
 

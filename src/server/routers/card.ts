@@ -4,7 +4,7 @@ import { PokemonCard } from '../models/PokemonCard.js';
 import { TrainerCard } from '../models/TrainerCard.js';
 import { EnergyCard } from '../models/EnergyCard.js';
 import { getCardById } from '../services/pokemon.js';
-import { sanitizeBriefCard, getCardCategory } from '../services/tcgdx.js';
+import { sanitizeBriefCard, getCardCategory, normalizeImageUrl } from '../services/tcgdx.js';
 
 export const cardRouter = express.Router();
 
@@ -129,7 +129,7 @@ cardRouter.post('/cards', async (req, res) => {
           series: c.set?.series || '',
           set: c.set?.name || '',
           rarity: c.rarity || '',
-          images: { small: c.images?.small || '', large: c.images?.large || '' },
+          images: { small: normalizeImageUrl(c.images?.small || ''), large: normalizeImageUrl(c.images?.large || '') },
           nationalPokedexNumber: c.nationalPokedexNumbers?.[0] || null,
           artist: c.artist || '',
           cardNumber: c.number || '',
@@ -148,7 +148,7 @@ cardRouter.post('/cards', async (req, res) => {
           series: c.set?.series || '',
           set: c.set?.name || '',
           rarity: c.rarity || '',
-          images: { small: c.images?.small || '', large: c.images?.large || '' },
+          images: { small: normalizeImageUrl(c.images?.small || ''), large: normalizeImageUrl(c.images?.large || '') },
           text: Array.isArray(c.text) ? c.text.join('\n') : c.text || '',
           effect: c.effect || '',
           artist: c.artist || '',
@@ -169,7 +169,7 @@ cardRouter.post('/cards', async (req, res) => {
           series: c.set?.series || '',
           set: c.set?.name || '',
           rarity: c.rarity || '',
-          images: { small: c.images?.small || '', large: c.images?.large || '' },
+          images: { small: normalizeImageUrl(c.images?.small || ''), large: normalizeImageUrl(c.images?.large || '') },
           text: Array.isArray(c.text) ? c.text.join('\n') : c.text || '',
           artist: c.artist || '',
           cardNumber: c.number || '',
@@ -187,8 +187,8 @@ cardRouter.post('/cards', async (req, res) => {
           set: c.set?.name || '',
           rarity: c.rarity || '',
           types: c.types || [],
-          imageUrl: c.images?.small || '',
-          imageUrlHiRes: c.images?.large || '',
+          imageUrl: normalizeImageUrl(c.images?.small || ''),
+          imageUrlHiRes: normalizeImageUrl(c.images?.large || ''),
           nationalPokedexNumber: c.nationalPokedexNumbers?.[0] || null,
           artist: c.artist || '',
           cardNumber: c.number || '',

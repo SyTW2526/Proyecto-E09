@@ -50,3 +50,24 @@ export function getCardCategory(card: Record<string, any>): 'pokemon' | 'trainer
   if (Array.isArray(card?.types) && card.types.length > 0) return 'pokemon';
   return 'unknown';
 }
+
+/**
+ * Normalize an image base URL to point to the high resolution PNG.
+ * Examples:
+ * - https://.../178 -> https://.../178/high.png
+ * - https://.../178/large.png -> https://.../178/high.png
+ */
+export function normalizeImageUrl(url?: string | null): string {
+  if (!url) return '';
+  const s = String(url);
+  // if already ends with /high.png (case-insensitive)
+  if (/\/high\.png$/i.test(s)) return s;
+  // replace known size suffixes
+  if (/\/(?:small|large|low)\.png$/i.test(s)) {
+    return s.replace(/\/(?:small|large|low)\.png$/i, '/high.png');
+  }
+  // if ends with an image extension, keep as-is
+  if (/\.(png|jpe?g|gif|webp)$/i.test(s)) return s;
+  // otherwise append /high.png
+  return s.endsWith('/') ? `${s}high.png` : `${s}/high.png`;
+}

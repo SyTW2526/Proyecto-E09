@@ -20,53 +20,94 @@ const FeaturedCards: React.FC = () => {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const trackRef = React.useRef<HTMLDivElement | null>(null);
 
-  const featuredCards: Card[] = [
-    {
-      id: '1',
-      name: 'Mega Gardevoir',
-      image: 'https://assets.tcgdex.net/en/me/me01/178/high.png',
-      hp: '360',
-      type: 'Psychic',
-      rarity: 'Mega Hyper Rare',
-      price: { low: 429.99, mid: 555, high: 1299 }
-    },
-    {
-      id: '2',
-      name: 'PEPE',
-      image: '/carta2.png',
-      hp: '110',
-      type: 'Psychic',
-      rarity: 'Common',
-      price: { low: 5, mid: 10, high: 15 }
-    },
-    {
-      id: '3',
-      name: 'PEPE',
-      image: '/carta3.png',
-      hp: '110',
-      type: 'Psychic',
-      rarity: 'Uncommon',
-      price: { low: 8, mid: 12, high: 18 }
-    },
-    {
-      id: '4',
-      name: 'PEPE',
-      image: '/carta4.png',
-      hp: '110',
-      type: 'Psychic',
-      rarity: 'Rare',
-      price: { low: 20, mid: 25, high: 35 }
-    },
-    {
-      id: '5',
-      name: 'PEPE',
-      image: '/carta5.png',
-      hp: '110',
-      type: 'Psychic',
-      rarity: 'Holo Rare',
-      price: { low: 30, mid: 40, high: 60 }
-    },
+  // TCGdex IDs provided by the user to show in featured section
+  const featuredIds = [
+    'me01-178',
+    'me01-180',
+    'me02-125',
+    'me02-129',
+    'sv10.5b-166',
+    'sv10.5b-172',
+    'sv10.5w-173'
   ];
+
+  const [featuredCards, setFeaturedCards] = React.useState<Card[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const normalizeImageUrl = (url: string | undefined) => {
+    if (!url) return '';
+    // If URL already ends with a known size png, prefer the high.png variant
+    if (/\/(?:small|large|high|low)\.png$/i.test(url)) {
+      return url.replace(/\/(?:small|large|high|low)\.png$/i, '/high.png');
+    }
+    // If it's a direct image (ends with png/jpg) keep it
+    if (/\.(png|jpg|jpeg|gif|webp)$/i.test(url)) return url;
+    // Otherwise append /high.png (handle trailing slash)
+    return url.endsWith('/') ? `${url}high.png` : `${url}/high.png`;
+  };
+
+  // Fetch card data from backend (cache-first POST /cards)
+  React.useEffect(() => {
+    let mounted = true;
+
+    async function fetchCards() {
+      try {
+        setLoading(true);
+        const base = 'http://localhost:3000';
+        const promises = featuredIds.map(async (tcgId) => {
+          const resp = await fetch(`${base}/cards`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: tcgId })
+          });
+          if (!resp.ok) throw new Error(`Failed to fetch ${tcgId}: ${resp.statusText}`);
+          const data = await resp.json();
+          // the API returns { source, card }
+          return data.card;
+        });
+
+        const results = await Promise.all(promises);
+        if (!mounted) return;
+
+        // normalize into Card[] shape used by this component
+        const normalized: Card[] = results.map((c: any) => {
+          const id = c.pokemonTcgId || c._id || c.id || '';
+          // prefer server-provided images, fall back to constructed TCGdex path using id
+          let rawImage = (c.images && (c.images.large || c.images.small)) || c.imageUrl || c.image || '';
+          if (!rawImage && id) {
+            const [setCode, number] = id.split('-');
+            const series = setCode ? setCode.slice(0, 2) : '';
+            if (setCode && number) {
+              rawImage = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+            }
+          }
+
+          return {
+            id,
+            name: c.name || 'Unknown',
+            image: normalizeImageUrl(rawImage),
+            hp: c.hp || '',
+            type: Array.isArray(c.types) ? c.types[0] || '' : c.type || '',
+            rarity: c.rarity || '',
+            price: c.marketPrice ? { low: c.marketPrice, mid: c.marketPrice, high: c.marketPrice } : undefined
+          };
+        });
+
+        setFeaturedCards(normalized);
+        setError(null);
+      } catch (err: any) {
+        console.error('Error fetching featured cards:', err);
+        if (mounted) setError(err.message ?? String(err));
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    fetchCards();
+    return () => { mounted = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Triple list to enable infinite scroll illusion (copy - original - copy)
   const tripleList = React.useMemo(() => [...featuredCards, ...featuredCards, ...featuredCards], [featuredCards]);
@@ -103,7 +144,7 @@ const FeaturedCards: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="pokemon-card-back bg-white dark:bg-gray-800 p-4 min-h-[320px]">
+                <div className="pokemon-card-back bg-white dark:bg-gray-800 p-4 min-h-80">
               <div className="h-full flex flex-col justify-between">
                 <div>
                   <h3 className="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-100">{card.name}</h3>

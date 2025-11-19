@@ -3,7 +3,7 @@ import { PokemonCard } from '../models/PokemonCard.js';
 import { TrainerCard } from '../models/TrainerCard.js';
 import { EnergyCard } from '../models/EnergyCard.js';
 import { getAllSets, getCardsBySet } from './pokemon.js';
-import { sanitizeBriefCard, getCardCategory } from '../services/tcgdx.js';
+import { sanitizeBriefCard, getCardCategory, extractPrices } from '../services/tcgdx.js';
 
 /**
  * Sincroniza todas las cartas desde la API externa hacia la base de datos local
@@ -31,6 +31,8 @@ export async function syncAllCards() {
 
         try {
           if (category === 'pokemon') {
+            // extract prices from the original raw API object to avoid losing nested pricing
+            const prices = extractPrices(raw);
             await PokemonCard.findOneAndUpdate(
               { pokemonTcgId: c.id },
               {
@@ -50,6 +52,12 @@ export async function syncAllCards() {
                 set: c.set?.name || '',
                 rarity: c.rarity || '',
                 images: { small: c.images?.small || '', large: c.images?.large || '' },
+                illustrator: c.illustrator || c.artist || '',
+                price: {
+                  cardmarketAvg: prices.cardmarketAvg,
+                  tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
+                  avg: prices.avg ?? 0
+                },
                 nationalPokedexNumber: c.nationalPokedexNumbers?.[0] || null,
                 artist: c.artist || '',
                 cardNumber: c.number || '',
@@ -58,6 +66,7 @@ export async function syncAllCards() {
               { upsert: true, new: true, setDefaultsOnInsert: true }
             );
           } else if (category === 'trainer') {
+            const prices = extractPrices(raw);
             await TrainerCard.findOneAndUpdate(
               { pokemonTcgId: c.id },
               {
@@ -69,6 +78,12 @@ export async function syncAllCards() {
                 set: c.set?.name || '',
                 rarity: c.rarity || '',
                 images: { small: c.images?.small || '', large: c.images?.large || '' },
+                illustrator: c.illustrator || c.artist || '',
+                price: {
+                  cardmarketAvg: prices.cardmarketAvg,
+                  tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
+                  avg: prices.avg ?? 0
+                },
                 text: Array.isArray(c.text) ? c.text.join('\n') : c.text || '',
                 effect: c.effect || '',
                 artist: c.artist || '',
@@ -78,6 +93,7 @@ export async function syncAllCards() {
               { upsert: true, new: true, setDefaultsOnInsert: true }
             );
           } else if (category === 'energy') {
+            const prices = extractPrices(raw);
             await EnergyCard.findOneAndUpdate(
               { pokemonTcgId: c.id },
               {
@@ -90,6 +106,12 @@ export async function syncAllCards() {
                 set: c.set?.name || '',
                 rarity: c.rarity || '',
                 images: { small: c.images?.small || '', large: c.images?.large || '' },
+                illustrator: c.illustrator || c.artist || '',
+                price: {
+                  cardmarketAvg: prices.cardmarketAvg,
+                  tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
+                  avg: prices.avg ?? 0
+                },
                 text: Array.isArray(c.text) ? c.text.join('\n') : c.text || '',
                 artist: c.artist || '',
                 cardNumber: c.number || '',
@@ -99,6 +121,7 @@ export async function syncAllCards() {
             );
           } else {
             // fallback to existing generic Card model for unknown types
+            const prices = extractPrices(raw);
             await Card.findOneAndUpdate(
               { pokemonTcgId: c.id },
               {
@@ -110,6 +133,12 @@ export async function syncAllCards() {
                 types: c.types || [],
                 imageUrl: c.images?.small || '',
                 imageUrlHiRes: c.images?.large || '',
+                illustrator: c.illustrator || c.artist || '',
+                price: {
+                  cardmarketAvg: prices.cardmarketAvg,
+                  tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
+                  avg: prices.avg ?? 0
+                },
                 nationalPokedexNumber: c.nationalPokedexNumbers?.[0] || null,
                 artist: c.artist || '',
                 cardNumber: c.number || '',

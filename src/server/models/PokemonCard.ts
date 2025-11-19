@@ -38,6 +38,12 @@ const pokemonCardSchema = new mongoose.Schema({
     small: String,
     large: String
   },
+  illustrator: { type: String },
+  price: {
+    cardmarketAvg: { type: Number, default: null },
+    tcgplayerMarketPrice: { type: Number, default: null },
+    avg: { type: Number, default: 0 }
+  },
   nationalPokedexNumber: { type: Number },
   artist: { type: String },
   cardNumber: { type: String },

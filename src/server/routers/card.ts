@@ -4,7 +4,7 @@ import { PokemonCard } from '../models/PokemonCard.js';
 import { TrainerCard } from '../models/TrainerCard.js';
 import { EnergyCard } from '../models/EnergyCard.js';
 import { getCardById } from '../services/pokemon.js';
-import { sanitizeBriefCard, getCardCategory, normalizeImageUrl } from '../services/tcgdx.js';
+import { sanitizeBriefCard, getCardCategory, normalizeImageUrl, extractPrices } from '../services/tcgdx.js';
 
 export const cardRouter = express.Router();
 
@@ -106,8 +106,10 @@ cardRouter.post('/cards', async (req, res) => {
     const brief = Array.isArray(raw) ? raw[0] : raw;
     if (!brief) return res.status(404).send({ error: 'Card not found in external API' });
 
-    const c = sanitizeBriefCard(brief);
-    const category = getCardCategory(c);
+  // extract prices from the raw API response (avoid losing nested fields during sanitization)
+  const prices = extractPrices(brief);
+  const c = sanitizeBriefCard(brief);
+  const category = getCardCategory(c);
 
     let saved: any = null;
     if (category === 'pokemon') {
@@ -130,8 +132,13 @@ cardRouter.post('/cards', async (req, res) => {
           set: c.set?.name || '',
           rarity: c.rarity || '',
           images: { small: normalizeImageUrl(c.images?.small || ''), large: normalizeImageUrl(c.images?.large || '') },
+          illustrator: c.illustrator || '',
           nationalPokedexNumber: c.nationalPokedexNumbers?.[0] || null,
-          artist: c.artist || '',
+          price: {
+            cardmarketAvg: prices.cardmarketAvg,
+            tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
+            avg: prices.avg ?? 0
+          },
           cardNumber: c.number || '',
           lastPriceUpdate: new Date()
         },
@@ -149,9 +156,14 @@ cardRouter.post('/cards', async (req, res) => {
           set: c.set?.name || '',
           rarity: c.rarity || '',
           images: { small: normalizeImageUrl(c.images?.small || ''), large: normalizeImageUrl(c.images?.large || '') },
+          illustrator: c.illustrator || '',
+          price: {
+            cardmarketAvg: prices.cardmarketAvg,
+            tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
+            avg: prices.avg ?? 0
+          },
           text: Array.isArray(c.text) ? c.text.join('\n') : c.text || '',
           effect: c.effect || '',
-          artist: c.artist || '',
           cardNumber: c.number || '',
           lastPriceUpdate: new Date()
         },
@@ -170,8 +182,13 @@ cardRouter.post('/cards', async (req, res) => {
           set: c.set?.name || '',
           rarity: c.rarity || '',
           images: { small: normalizeImageUrl(c.images?.small || ''), large: normalizeImageUrl(c.images?.large || '') },
+          illustrator: c.illustrator || '',
+          price: {
+            cardmarketAvg: prices.cardmarketAvg,
+            tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
+            avg: prices.avg ?? 0
+          },
           text: Array.isArray(c.text) ? c.text.join('\n') : c.text || '',
-          artist: c.artist || '',
           cardNumber: c.number || '',
           lastPriceUpdate: new Date()
         },
@@ -189,8 +206,13 @@ cardRouter.post('/cards', async (req, res) => {
           types: c.types || [],
           imageUrl: normalizeImageUrl(c.images?.small || ''),
           imageUrlHiRes: normalizeImageUrl(c.images?.large || ''),
+          illustrator: c.illustrator || '',
+          price: {
+            cardmarketAvg: prices.cardmarketAvg,
+            tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
+            avg: prices.avg ?? 0
+          },
           nationalPokedexNumber: c.nationalPokedexNumbers?.[0] || null,
-          artist: c.artist || '',
           cardNumber: c.number || '',
           lastPriceUpdate: new Date()
         },

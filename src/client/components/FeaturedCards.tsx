@@ -6,13 +6,16 @@ interface Card {
   name: string;
   image: string;
   hp: string;
-  type: string;
+  set?: string;
   rarity: string;
   price?: {
     low: number;
     mid: number;
     high: number;
   };
+  illustrator?: string;
+  cardNumber?: string;
+  series?: string;
 }
 
 const FeaturedCards: React.FC = () => {
@@ -83,14 +86,44 @@ const FeaturedCards: React.FC = () => {
             }
           }
 
+          // derive set name
+          const setName = c.set?.name || c.set?.series || c.set || c.series || '';
+
+          // derive price object from server or API shapes
+          let priceObj: { low?: number; mid?: number; high?: number } | undefined = undefined;
+          if (c.price) {
+            priceObj = {
+              low: c.price.cardmarketAvg ?? c.price.tcgplayerMarketPrice ?? undefined,
+              mid: c.price.avg ?? c.price.tcgplayerMarketPrice ?? c.price.cardmarketAvg ?? undefined,
+              high: c.price.cardmarketAvg ?? c.price.tcgplayerMarketPrice ?? undefined
+            };
+          } else if (c.prices) {
+            priceObj = {
+              low: c.prices.low ?? c.prices.mid ?? c.prices.high,
+              mid: c.prices.mid ?? c.prices.low ?? c.prices.high,
+              high: c.prices.high ?? c.prices.mid ?? c.prices.low
+            };
+          } else if (c.tcg?.prices) {
+            priceObj = {
+              low: c.tcg.prices.low ?? c.tcg.prices.mid ?? c.tcg.prices.high,
+              mid: c.tcg.prices.mid ?? c.tcg.prices.low ?? c.tcg.prices.high,
+              high: c.tcg.prices.high ?? c.tcg.prices.mid ?? c.tcg.prices.low
+            };
+          } else if (typeof c.marketPrice === 'number') {
+            priceObj = { low: c.marketPrice, mid: c.marketPrice, high: c.marketPrice };
+          }
+
           return {
             id,
             name: c.name || 'Unknown',
             image: normalizeImageUrl(rawImage),
             hp: c.hp || '',
-            type: Array.isArray(c.types) ? c.types[0] || '' : c.type || '',
+            set: setName,
             rarity: c.rarity || '',
-            price: c.marketPrice ? { low: c.marketPrice, mid: c.marketPrice, high: c.marketPrice } : undefined
+            price: priceObj as any,
+            illustrator: c.illustrator || undefined,
+            cardNumber: c.number || c.cardNumber || undefined,
+            series: c.set?.series || c.series || undefined
           };
         });
 
@@ -130,6 +163,14 @@ const FeaturedCards: React.FC = () => {
                 alt={card.name}
                 className="pokemon-card-image"
               />
+              {/* overlay with name, type and rarity */}
+              <div className="absolute left-0 right-0 bottom-0 p-3 bg-linear-to-t from-black/70 to-transparent text-white">
+                <div className="flex justify-between items-center">
+                  <div className="text-sm font-semibold truncate">{card.name}</div>
+                  <div className="text-xs opacity-90">{card.rarity || '—'}</div>
+                </div>
+                <div className="mt-1 text-xs opacity-80">{card.set || '—'}</div>
+              </div>
               
               <button
                 onClick={(e) => {
@@ -144,34 +185,40 @@ const FeaturedCards: React.FC = () => {
               </button>
             </div>
           ) : (
-                <div className="pokemon-card-back bg-white dark:bg-gray-800 p-4 min-h-80">
+            <div className="pokemon-card-back text-gray-100 dark:bg-gray-800 p-4 min-h-80">
               <div className="h-full flex flex-col justify-between">
                 <div>
                   <h3 className="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-100">{card.name}</h3>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
+                      <div className="text-xs text-gray-600 dark:text-gray-300">Rareza</div>
+                      <div className="font-semibold">{card.rarity || '—'}</div>
+                    </div>
+                    <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
+                      <div className="text-xs text-gray-600 dark:text-gray-300">Set</div>
+                      <div className="font-semibold">{card.set || '—'}</div>
+                    </div>
+                    <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
+                      <div className="text-xs text-gray-600 dark:text-gray-300">HP</div>
+                      <div className="font-semibold">{card.hp || '—'}</div>
+                    </div>
+                  </div>
+
                   <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
-                    <p className="text-sm mb-2 text-gray-700 dark:text-gray-300">Su cuerpo arde con una llama eterna.</p>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">Cuando se enfurece, vibra como un sol en miniatura.</p>
+                    <div className="text-sm text-gray-700 dark:text-gray-300">Ilustrador: {card.illustrator || '—'}</div>
                   </div>
                 </div>
 
-                {card.price && (
+                <div>
                   <div className="space-y-3">
                     <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
-                      <div className="flex justify-between">
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">Debilidad:</span>
-                        <span className="text-blue-600 dark:text-blue-400">💧 x2</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">Retirada:</span>
-                        <span className="text-gray-600 dark:text-gray-400">⚪ x1</span>
-                      </div>
                       <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-gray-600">
                         <span className="font-bold text-lg text-gray-800 dark:text-gray-100">Precio:</span>
-                        <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{card.price.mid}€</span>
+                        <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{card.price?.mid ? `${Number(card.price.mid).toFixed(2)}€` : '—'}</span>
                       </div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           )}

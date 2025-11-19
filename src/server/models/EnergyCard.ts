@@ -14,6 +14,12 @@ const energyCardSchema = new mongoose.Schema({
     large: String
   },
   text: { type: String },
+  illustrator: { type: String },
+  price: {
+    cardmarketAvg: { type: Number, default: null },
+    tcgplayerMarketPrice: { type: Number, default: null },
+    avg: { type: Number, default: 0 }
+  },
   artist: { type: String },
   cardNumber: { type: String },
   marketPrice: { type: Number, default: 0 },

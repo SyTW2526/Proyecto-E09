@@ -71,3 +71,48 @@ export function normalizeImageUrl(url?: string | null): string {
   // otherwise append /high.png
   return s.endsWith('/') ? `${s}high.png` : `${s}/high.png`;
 }
+
+/**
+ * Extract price information from a TCGdex brief card object.
+ * Tries multiple common shapes and returns cardmarketAvg, tcgplayerMarketPrice and a chosen avg.
+ */
+export function extractPrices(card: Record<string, any>) {
+  let cardmarketAvg: number | null = null;
+  let tcgplayerMarketPrice: number | null = null;
+
+  // TCGdex 'pricing' structure (observed): pricing.cardmarket.avg, pricing.tcgplayer.holofoil.marketPrice
+  if (card?.pricing?.cardmarket) {
+    const cm = card.pricing.cardmarket;
+    cardmarketAvg = cm?.avg ?? cm?.average ?? cm?.avg ?? null;
+  }
+
+  // tcgplayer nested under pricing.tcgplayer.holofoil or pricing.tcgplayer
+  if (card?.pricing?.tcgplayer) {
+    const t = card.pricing.tcgplayer;
+    // try holofoil.marketPrice, then midPrice or marketPrice
+    tcgplayerMarketPrice = t?.holofoil?.marketPrice ?? t?.holofoil?.midPrice ?? t?.marketPrice ?? t?.midPrice ?? null;
+  }
+
+  // older/other shapes
+  if (card?.cardmarket) {
+    const cm = card.cardmarket;
+    cardmarketAvg = cardmarketAvg ?? (cm?.prices?.avg ?? cm?.prices?.average ?? cm?.avg ?? cm?.average ?? null);
+  }
+
+  if (card?.tcg) {
+    const t = card.tcg;
+    tcgplayerMarketPrice = tcgplayerMarketPrice ?? (t?.prices?.market ?? t?.marketPrice ?? t?.prices?.mid ?? null);
+  }
+
+  if (card?.prices && typeof card.prices === 'object') {
+    cardmarketAvg = cardmarketAvg ?? (card.prices?.avg ?? card.prices?.average ?? null);
+  }
+
+  if (typeof card.marketPrice === 'number') {
+    tcgplayerMarketPrice = tcgplayerMarketPrice ?? card.marketPrice;
+  }
+
+  const avg = cardmarketAvg ?? tcgplayerMarketPrice ?? null;
+
+  return { cardmarketAvg, tcgplayerMarketPrice, avg };
+}

@@ -146,10 +146,10 @@ const FeaturedCards: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const tripleList = React.useMemo(
-    () => [...featuredCards, ...featuredCards, ...featuredCards],
-    []
-  );
+  const tripleList = React.useMemo(() => {
+    if (!featuredCards || featuredCards.length <= 1) return featuredCards;
+    return [...featuredCards, ...featuredCards, ...featuredCards];
+  }, [featuredCards]);
 
   const PokemonCard = ({ card }: { card: Card }) => {
     const [isFlipped, setIsFlipped] = React.useState(false);
@@ -251,14 +251,17 @@ const FeaturedCards: React.FC = () => {
   };
 
   React.useEffect(() => {
+    if (!featuredCards || featuredCards.length <= 1) return;
     const id = setInterval(() => scrollByCard("next"), 5000);
     return () => clearInterval(id);
-  }, []);
+  }, [featuredCards]);
 
   React.useEffect(() => {
     const container = containerRef.current;
     const track = trackRef.current;
     if (!container || !track) return;
+
+    if (!featuredCards || featuredCards.length <= 1) return;
 
     const timer = setTimeout(() => {
       const singleWidth = track.scrollWidth / 3;
@@ -266,7 +269,7 @@ const FeaturedCards: React.FC = () => {
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [tripleList]);
+  }, [tripleList, featuredCards]);
 
   return (
     <section className="featured-wrapper">

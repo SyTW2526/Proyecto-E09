@@ -76,12 +76,10 @@ userRouter.post('/users/login', async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
 
-    // Validaciones básicas
     if (!username || !password) {
       return res.status(400).send({ error: 'Username y contraseña requeridos' });
     }
 
-    // Buscar usuario por username o email
     const user = await User.findOne({
       $or: [{ username }, { email: username }]
     });
@@ -90,14 +88,13 @@ userRouter.post('/users/login', async (req: Request, res: Response) => {
       return res.status(401).send({ error: 'Usuario o contraseña incorrectos' });
     }
 
-    // Comparar contraseñas
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       return res.status(401).send({ error: 'Usuario o contraseña incorrectos' });
     }
 
-    // Generar JWT
+
     const secret: string = process.env.JWT_SECRET || 'tu-clave-secreta';
     const expiresIn: string = process.env.JWT_EXPIRY || '7d';
     const token = jwt.sign(
@@ -115,7 +112,8 @@ userRouter.post('/users/login', async (req: Request, res: Response) => {
       user: {
         id: user._id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        profileImage: user.profileImage || ""
       },
       token  // JWT para mantener sesión segura
     });
@@ -125,73 +123,108 @@ userRouter.post('/users/login', async (req: Request, res: Response) => {
 });
 
 /**
- * POST /users
- * Crear un nuevo usuario (legacy, deprecated - usar /users/register)
+ * PATCH /users/:username/profile-image
+ * Actualiza la imagen de perfil
  */
-userRouter.post('/users', async (req, res) => {
-  try {
-    const user = new User(req.body);
-    await user.save();
-    res.status(201).send(user);
-  } catch (error) {
-    res.status(500).send(error);
+userRouter.patch(
+  '/users/:username/profile-image',
+  authMiddleware,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { username } = req.params;
+      const { profileImage } = req.body;
+
+      if (!profileImage) {
+        return res.status(400).send({ error: "No se envió ninguna imagen" });
+      }
+
+      if (req.username !== username) {
+        return res.status(403).send({ error: "No puedes modificar otro usuario" });
+      }
+
+      const user = await User.findOneAndUpdate(
+        { username },
+        { profileImage },
+        { new: true }
+      );
+
+      if (!user) return res.status(404).send({ error: "Usuario no encontrado" });
+
+      res.send({
+        message: "Imagen actualizada",
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          profileImage: user.profileImage,
+        },
+      });
+    } catch (err: any) {
+      res.status(500).send({ error: err.message });
+    }
   }
-});
+);
+
+
 
 /**
- * GET /users
- * Obtener la lista de usuarios
+ * PATCH /users/:identifier
+ * Actualizar un usuario (por id o username)
  */
-userRouter.get('/users', async (req, res) => {
+userRouter.patch('/users/:username', authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const { page = 1, limit = 20 } = req.query;
-    const skip = (Number(page) - 1) * Number(limit);
+    const { username } = req.params;
+    const { username: newUsername, email: newEmail } = req.body;
 
-    const users = await User.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(Number(limit));
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).send({ error: "USER_NOT_FOUND" });
 
-    const total = await User.countDocuments();
-    const totalPages = Math.ceil(total / Number(limit));
-
-    if (users.length === 0) {
-      return res.status(404).send({ error: 'No se encontraron usuarios' });
+    if (newUsername && newUsername !== user.username) {
+      const existsUser = await User.findOne({ username: newUsername });
+      if (existsUser) {
+        return res.status(400).send({ error: "USERNAME_EXISTS" });
+      }
     }
+
+    if (newEmail && newEmail !== user.email) {
+      const existsEmail = await User.findOne({ email: newEmail });
+      if (existsEmail) {
+        return res.status(400).send({ error: "EMAIL_EXISTS" });
+      }
+    }
+
+    if (newUsername) user.username = newUsername;
+    if (newEmail) user.email = newEmail;
+
+    await user.save();
+    const secret = process.env.JWT_SECRET || "tu-clave-secreta";
+    const token = jwt.sign(
+      { userId: user._id.toString(), username: user.username },
+      secret,
+      { expiresIn: "7d" }
+    );
 
     res.send({
-      page: Number(page),
-      totalPages,
-      totalResults: total,
-      resultsPerPage: Number(limit),
-      users,
+      message: "Perfil actualizado",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        profileImage: user.profileImage
+      },
+      token
     });
-  } catch (error) {
-  res.status(500).send({ error: (error as Error).message ?? String(error) });
-}
-});
-/**
- * GET /users/:identifier
- * Obtener un usuario (por id o username)
- */
-userRouter.get('/users/:identifier', async (req, res) => {
-  try {
-    const { identifier } = req.params;
-    const filter = mongoose.Types.ObjectId.isValid(identifier)
-      ? { _id: identifier }
-      : { username: identifier };
-    const user = await User.findOne(filter)
-      .populate('friends', 'username email')
-      .populate('blockedUsers', 'username email');
-    if (user) {
-      res.send(user);
-    } else {
-      res.status(404).send({ error: 'Usuario no encontrado' });
-    }
-  } catch (error) {
-    res.status(500).send(error);
+
+  } catch (err: any) {
+    res.status(500).send({ error: err.message });
   }
 });
+
+
+
+/**
+ * GET /users/:id/trades
+ */
 userRouter.get('/users/:id/trades', async (req, res) => {
   const userId = req.params.id;
   const trades = await Trade.find({
@@ -200,7 +233,7 @@ userRouter.get('/users/:id/trades', async (req, res) => {
       { receiverUserId: userId }
     ]
   }).populate('initiatorUserId receiverUserId');
-  
+
   res.send({ data: trades });
 });
 
@@ -393,58 +426,55 @@ userRouter.delete('/users/:identifier/cards/:userCardId', authMiddleware, async 
 });
 
 /**
- * PATCH /users/:identifier
- * Actualizar un usuario (por id o username)
+ * GET /users/:identifier
  */
-userRouter.patch('/users/:identifier', async (req, res) => {
-  const allowedUpdates = [
-    'username',
-    'email',
-    'password',
-    'profileImage',
-    'settings',
-    'friends',
-    'blockedUsers'
-  ];
-  const updates = Object.keys(req.body);
-  const isValid = updates.every((key) => allowedUpdates.includes(key));
-  if (!isValid) {
-    return res.status(400).send({ error: 'Actualización no permitida' });
-  }
+userRouter.get('/users/:identifier', async (req, res) => {
+  try {
+    const { identifier } = req.params;
 
-  try {
-    const { identifier } = req.params;
-    const filter = mongoose.Types.ObjectId.isValid(identifier)? { _id: identifier }: { username: identifier };
-    const user = await User.findOneAndUpdate(filter, req.body, {
-      new: true,
-      runValidators: true
-    });
-    if (!user) {
-      return res.status(404).send({ error: 'Usuario no encontrado' });
-    }
+    const filter = mongoose.Types.ObjectId.isValid(identifier)
+      ? { _id: identifier }
+      : { username: identifier };
+
+    const user = await User.findOne(filter)
+      .populate('friends', 'username email')
+      .populate('blockedUsers', 'username email');
+
+    if (!user) return res.status(404).send({ error: 'Usuario no encontrado' });
+
     res.send(user);
-  } catch (error) {
-    res.status(400).send(error);
-  }
-});
-/**
- * DELETE /users/:identifier
- * Eliminar un usuario (por id o username)
- */
-userRouter.delete('/users/:identifier', async (req, res) => {
-  try {
-    const { identifier } = req.params;
-    const filter = mongoose.Types.ObjectId.isValid(identifier)? { _id: identifier }: { username: identifier };
-    const user = await User.findOneAndDelete(filter);
-    if (user) {
-      res.send({ message: 'Usuario eliminado correctamente', user });
-    } else {
-      res.status(404).send({ error: 'Usuario no encontrado' });
-    }
+
   } catch (error) {
     res.status(500).send(error);
   }
 });
+
+
+/**
+ * DELETE /users/:username
+ * Eliminar cuenta de usuario
+ */
+userRouter.delete('/users/:username', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { username } = req.params;
+
+    if (req.username !== username) {
+      return res.status(403).send({ error: "No puedes eliminar otra cuenta" });
+    }
+
+    const user = await User.findOneAndDelete({ username });
+
+    if (!user) {
+      return res.status(404).send({ error: "Usuario no encontrado" });
+    }
+
+    res.send({ message: "Cuenta eliminada correctamente" });
+
+  } catch (err: any) {
+    res.status(500).send({ error: err.message });
+  }
+});
+
 
 /**
  * POST /users/:identifier/friends/:friendIdentifier
@@ -530,3 +560,36 @@ userRouter.delete('/users/:identifier/block/:blockedIdentifier', async (req, res
   }
 });
 
+/**
+ * DELETE /users/:username/profile-image
+ * Elimina la foto de perfil (la deja vacía)
+ */
+userRouter.delete('/users/:username/profile-image', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { username } = req.params;
+
+    if (req.username !== username) {
+      return res.status(403).send({ error: "No puedes modificar otro usuario" });
+    }
+
+    const user = await User.findOneAndUpdate(
+      { username },
+      { profileImage: "" },
+      { new: true }
+    );
+
+    if (!user) return res.status(404).send({ error: "Usuario no encontrado" });
+
+    res.send({
+      message: "Foto eliminada",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        profileImage: ""
+      }
+    });
+  } catch (err: any) {
+    res.status(500).send({ error: err.message });
+  }
+});

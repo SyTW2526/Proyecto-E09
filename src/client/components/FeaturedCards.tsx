@@ -1,5 +1,7 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from "react-i18next";
+import "../styles/feature.css"
 
 interface Card {
   id: string;
@@ -19,7 +21,9 @@ interface Card {
 }
 
 const FeaturedCards: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const { t } = useTranslation();
+
+  const [currentIndex] = React.useState(0);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const trackRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -142,8 +146,10 @@ const FeaturedCards: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Triple list to enable infinite scroll illusion (copy - original - copy)
-  const tripleList = React.useMemo(() => [...featuredCards, ...featuredCards, ...featuredCards], [featuredCards]);
+  const tripleList = React.useMemo(
+    () => [...featuredCards, ...featuredCards, ...featuredCards],
+    []
+  );
 
   const PokemonCard = ({ card }: { card: Card }) => {
     const [isFlipped, setIsFlipped] = React.useState(false);
@@ -151,7 +157,7 @@ const FeaturedCards: React.FC = () => {
 
     return (
       <div
-        className="relative"
+        className="relative featured-card"
         onMouseEnter={() => setIsFlipped(true)}
         onMouseLeave={() => setIsFlipped(false)}
       >
@@ -227,100 +233,72 @@ const FeaturedCards: React.FC = () => {
     );
   };
 
-  const scrollByCard = (direction: 'next' | 'prev') => {
+  const scrollByCard = (direction: "next" | "prev") => {
     const container = containerRef.current;
     const track = trackRef.current;
     if (!container || !track) return;
 
-    const firstCard = track.querySelector<HTMLElement>('.card-item');
+    const firstCard = track.querySelector<HTMLElement>(".featured-card");
     if (!firstCard) return;
 
-    const gap = parseInt(getComputedStyle(track).gap || '16', 10) || 16;
+    const gap = 24;
     const cardWidth = firstCard.offsetWidth + gap;
 
-    const offset = direction === 'next' ? cardWidth : -cardWidth;
-    container.scrollBy({ left: offset, behavior: 'smooth' });
+    container.scrollBy({
+      left: direction === "next" ? cardWidth : -cardWidth,
+      behavior: "smooth",
+    });
   };
 
-  // Optional autoplay (every 5s)
   React.useEffect(() => {
-    const id = setInterval(() => scrollByCard('next'), 5000);
+    const id = setInterval(() => scrollByCard("next"), 5000);
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Setup initial scroll position to the middle copy and handle wrapping
   React.useEffect(() => {
     const container = containerRef.current;
     const track = trackRef.current;
     if (!container || !track) return;
 
-    // Wait a tick so images/layout can settle
-    const init = () => {
+    const timer = setTimeout(() => {
       const singleWidth = track.scrollWidth / 3;
-      if (singleWidth && Number.isFinite(singleWidth)) {
-        container.scrollLeft = singleWidth;
-      }
-    };
+      container.scrollLeft = singleWidth;
+    }, 150);
 
-    const t = window.setTimeout(init, 150);
-
-    const onScroll = () => {
-      const singleWidth = track.scrollWidth / 3;
-      if (!singleWidth) return;
-
-      const threshold = Math.max(8, singleWidth * 0.02); // small buffer
-
-      // If we've scrolled into the last copy (near the end), jump back one copy (no animation)
-      if (container.scrollLeft >= singleWidth * 2 - threshold) {
-        // compute equivalent position in the middle copy
-        container.scrollLeft = container.scrollLeft - singleWidth;
-      }
-
-      // If we've scrolled into the first copy (near the start), jump forward one copy
-      if (container.scrollLeft <= threshold) {
-        container.scrollLeft = container.scrollLeft + singleWidth;
-      }
-    };
-
-    container.addEventListener('scroll', onScroll, { passive: true });
-
-    return () => {
-      window.clearTimeout(t);
-      container.removeEventListener('scroll', onScroll);
-    };
+    return () => clearTimeout(timer);
   }, [tripleList]);
 
   return (
-    <section className="container mx-auto px-4 py-8">
-      <div className="featured-section py-12">
-        {/* Título */}
-        <div className="text-center mb-8">
-          <h2 className="featured-title">
-            CARTAS DESTACADAS
-          </h2>
-        </div>
+    <section className="featured-wrapper">
+      {/* TÍTULO */}
+      <div className="text-center mb-8">
+        <h2 className="featured-title">{t("featured.title")}</h2>
+      </div>
 
-        {/* Slider de cartas (responsive, scroll-based) */}
-        <div className="relative">
-          <div ref={containerRef} className="overflow-x-auto no-scrollbar">
-            <div ref={trackRef} className="flex gap-6 items-stretch py-4 featured-slider">
-              {tripleList.map((card, i) => (
-                <div key={`${card.id}-${i}`} className="card-item px-2">
-                  <PokemonCard card={card} />
-                </div>
-              ))}
-            </div>
+      {/* CONTENEDOR FULL WIDTH */}
+      <div className="featured-inner">
+        <div ref={containerRef} className="overflow-x-auto no-scrollbar">
+          <div ref={trackRef} className="featured-slider">
+            {tripleList.map((card, i) => (
+              <PokemonCard key={`${card.id}-${i}`} card={card} />
+            ))}
           </div>
-
-          {/* Botones de navegación */}
-          <button onClick={() => scrollByCard('prev')} aria-label="Anterior" className="slider-button slider-button-left z-20">
-            <ChevronLeft className="w-6 h-6 text-gray-700" />
-          </button>
-          <button onClick={() => scrollByCard('next')} aria-label="Siguiente" className="slider-button slider-button-right z-20">
-            <ChevronRight className="w-6 h-6 text-gray-700" />
-          </button>
         </div>
+
+        {/* BOTONES */}
+        <button
+          onClick={() => scrollByCard("prev")}
+          className="slider-button slider-button-left"
+        >
+          <ChevronLeft className="w-6 h-6 text-gray-700" />
+        </button>
+
+        <button
+          onClick={() => scrollByCard("next")}
+          className="slider-button slider-button-right"
+        >
+          <ChevronRight className="w-6 h-6 text-gray-700" />
+        </button>
       </div>
     </section>
   );

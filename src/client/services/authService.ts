@@ -21,6 +21,7 @@ interface User {
   id: string;
   username: string;
   email: string;
+  profileImage?: string; 
 }
 
 interface AuthResponse {
@@ -71,10 +72,114 @@ export const authService = {
   },
 
   /**
+   * Actualiza la imagen de perfil del usuario
+   */
+  async updateProfileImage(username: string, profileImage: string): Promise<User> {
+    const response = await fetch(`${API_URL}/users/${username}/profile-image`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify({ profileImage }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "Error al actualizar imagen de perfil");
+    }
+
+    const data: AuthResponse = await response.json();
+    this.saveUser(data.user);
+
+    return data.user;
+  },
+
+  /**
+   * Actualiza el perfil del usuario
+   */
+  async updateProfile(
+    currentUsername: string,
+    changes: { username?: string; email?: string }
+  ): Promise<User> {
+    const response = await fetch(`${API_URL}/users/${currentUsername}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify(changes),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "UPDATE_ERROR");
+    }
+
+    const data: AuthResponse = await response.json();
+    if (data.token) {
+      this.saveToken(data.token);
+    }
+    this.saveUser(data.user);
+
+    return data.user;
+  },
+
+  /**
+   * Elimina la imagen de perfil del usuario
+   */
+  async deleteProfileImage(username: string): Promise<User> {
+    const response = await fetch(`${API_URL}/users/${username}/profile-image`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        ...this.getAuthHeaders()
+      }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error al eliminar foto de perfil");
+    }
+
+    this.saveUser(data.user);
+    return data.user;
+  },
+  /**
+   * Elimina la cuenta del usuario
+   */
+  async deleteAccount(username: string): Promise<void> {
+    const response = await fetch(`${API_URL}/users/${username}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        ...this.getAuthHeaders(),
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error eliminando cuenta");
+    }
+
+    // Eliminar usuario del localStorage
+    this.logout();
+  },
+
+
+  /**
    * Guarda el usuario en localStorage
    */
   saveUser(user: User): void {
-    localStorage.setItem("user", JSON.stringify(user));
+    const savedUser = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      profileImage: user.profileImage ?? ""
+    };
+
+    localStorage.setItem("user", JSON.stringify(savedUser));
     localStorage.setItem("isAuthenticated", "true");
   },
 

@@ -69,9 +69,18 @@ export interface User {
   id: string;
   username: string;
   email: string;
+  profileImage?: string;
   collection: string[];
   wishlist: string[];
   trades: Trade[];
+}
+// Tipo para las cartas del usuario
+export interface UserOwnedCard {
+  id: string;
+  name: string;
+  image: string;
+  rarity: string;
+  forTrade: boolean;       
 }
 
 export type TradeStatus = 'pending' | 'accepted' | 'rejected' | 'completed';

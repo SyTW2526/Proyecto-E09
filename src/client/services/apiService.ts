@@ -1,4 +1,5 @@
-import { PokemonCard, ApiResponse, PaginatedResponse, User, TradeStatus } from '../types';
+import { PokemonCard, ApiResponse, PaginatedResponse, User, TradeStatus, UserOwnedCard } from '../types';
+import { authService } from './authService';
 
 const API_BASE_URL = 'http://localhost:3000'; // URL base de la API del servidor
 const TCGDEX_URL = 'https://api.tcgdex.net/v2/en'; // API pública de tcgDex
@@ -61,18 +62,6 @@ class ApiService {
 
   async getTcgDexCard(setId: string, cardId: string): Promise<any> {
     return this.fetchFromTcgDex(`sets/${setId}/${cardId}`);
-  }
-
-  async getUserCollection(userId: string): Promise<PokemonCard[]> {
-    try {
-      const res = await fetch(`${API_BASE_URL}/users/${userId}/collection`);
-      if (!res.ok) throw new Error("Error al obtener la colección");
-      const data: ApiResponse<PokemonCard[]> = await res.json();
-      return data.data;
-    } catch (err) {
-      console.error("Error:", err);
-      return [];
-    }
   }
 
   async addToCollection(userId: string, cardId: string): Promise<boolean> {
@@ -217,10 +206,11 @@ class ApiService {
 
   async addToWishlist(userId: string, cardId: string): Promise<boolean> {
     try {
-      const res = await fetch(`${API_BASE_URL}/users/${userId}/wishlist`, {
+      // Add card to user's cards with collectionType=wishlist.
+      const res = await fetch(`${API_BASE_URL}/users/${userId}/cards`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cardId }),
+        headers: { "Content-Type": "application/json", ...authService.getAuthHeaders() },
+        body: JSON.stringify({ pokemonTcgId: cardId, collectionType: 'wishlist', autoFetch: true }),
       });
       return res.ok;
     } catch (err) {
@@ -233,6 +223,7 @@ class ApiService {
     try {
       const res = await fetch(`${API_BASE_URL}/users/${userId}/wishlist/${cardId}`, {
         method: "DELETE",
+        headers: { ...authService.getAuthHeaders() },
       });
       return res.ok;
     } catch (err) {
@@ -240,6 +231,115 @@ class ApiService {
       return false;
     }
   }
+
+  async getUserWishlist(username: string): Promise<UserOwnedCard[]> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/usercards/${username}/wishlist`);
+      if (!res.ok) throw new Error("Error obteniendo wishlist del usuario");
+
+      const data = await res.json();
+
+      const results = [] as any[];
+      for (const item of data.cards) {
+        let card = item.cardId || {};
+
+        // If card object is missing but we have pokemonTcgId, try to fetch cached card from our API
+        if ((!card || Object.keys(card).length === 0) && item.pokemonTcgId) {
+          try {
+            const resp = await fetch(`${API_BASE_URL}/cards/tcg/${item.pokemonTcgId}`);
+            if (resp.ok) {
+              const payload = await resp.json();
+              // endpoint returns { source, card } when found in cache
+              card = payload.card ?? payload;
+            }
+          } catch (e) {
+            // ignore - we'll fallback to constructing an image URL below
+          }
+        }
+
+        // derive image from multiple possible shapes
+        let image = card.imageUrl || card.imageUrlHiRes || card.image || '';
+        if (!image && card.images) {
+          image = card.images.large || card.images.small || '';
+        }
+
+        // fallback: construct tcgdex asset url from pokemonTcgId if present
+        const tcgId = item.pokemonTcgId || card.pokemonTcgId || '';
+        if (!image && tcgId) {
+          const [setCode, number] = tcgId.split('-');
+          const series = setCode ? setCode.slice(0, 2) : '';
+          if (setCode && number) {
+            image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+          }
+        }
+
+        results.push({
+          id: item._id,
+          name: card.name,
+          image,
+          rarity: card.rarity,
+          forTrade: item.forTrade
+        });
+      }
+
+      return results;
+    } catch (err) {
+      console.error("Error wishlist:", err);
+      return [];
+    }
+  }
+  
+  async getUserCollection(username: string): Promise<UserOwnedCard[]> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/usercards/${username}/collection`);
+      if (!res.ok) throw new Error("Error obteniendo colección del usuario");
+
+      const data = await res.json();
+
+      const results = [] as any[];
+      for (const item of data.cards) {
+        let card = item.cardId || {};
+
+        if ((!card || Object.keys(card).length === 0) && item.pokemonTcgId) {
+          try {
+            const resp = await fetch(`${API_BASE_URL}/cards/tcg/${item.pokemonTcgId}`);
+            if (resp.ok) {
+              const payload = await resp.json();
+              card = payload.card ?? payload;
+            }
+          } catch (e) {}
+        }
+
+        let image = card.imageUrl || card.imageUrlHiRes || card.image || '';
+        if (!image && card.images) {
+          image = card.images.large || card.images.small || '';
+        }
+
+        const tcgId = item.pokemonTcgId || card.pokemonTcgId || '';
+        if (!image && tcgId) {
+          const [setCode, number] = tcgId.split('-');
+          const series = setCode ? setCode.slice(0, 2) : '';
+          if (setCode && number) {
+            image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+          }
+        }
+
+        results.push({
+          id: item._id,
+          name: card.name,
+          image,
+          rarity: card.rarity,
+          forTrade: item.forTrade
+        });
+      }
+
+      return results;
+    } catch (err) {
+      console.error("Error colección:", err);
+      return [];
+    }
+  }
 }
+
 
 export default new ApiService();

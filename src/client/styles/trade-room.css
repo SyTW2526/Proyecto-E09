@@ -1,0 +1,354 @@
+.trade-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  color: #111;
+}
+
+/* MAIN */
+.trade-main {
+  flex: 1;
+  width: 100%;
+  padding: 40px;
+}
+
+.trade-container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+@media (min-width: 1024px) {
+  .trade-container {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+/* LEFT SIDE */
+.trade-left {
+  flex: 1;
+  text-align: center;
+}
+
+.trade-title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #0284c7;
+}
+
+.trade-room-code {
+  font-size: 0.9rem;
+  color: #444;
+  margin-top: -6px;
+  margin-bottom: 20px;
+}
+
+.trade-fight {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin-bottom: 20px;
+}
+
+/* PLAYER BLOCK */
+.player-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.player-avatar {
+  width: 95px;
+  height: 95px;
+  border-radius: 50%;
+  border: 4px solid white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  object-fit: cover;
+}
+
+.player-name {
+  font-weight: 700;
+  margin-top: 6px;
+  color: #075985;
+}
+
+.player-name.opponent {
+  color: #1d4ed8;
+}
+
+.player-card {
+  width: 180px;
+  height: 260px;
+  border-radius: 18px;
+  background: linear-gradient(to bottom, #f8fafc, #e5e7eb);
+  border: 2px solid #cbd5e1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.1),
+    inset 0 1px 3px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.no-card {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.selected-card {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.trade-icon {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: #0284c7;
+}
+
+/* CARDS GRID */
+.trade-subtitle {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #555;
+}
+
+.trade-cards-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.trade-card {
+  width: 130px;
+  padding: 6px;
+  background: white;
+  border: 2px solid #7dd3fc;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.trade-card:hover {
+  transform: scale(1.05);
+}
+
+.trade-card-img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.trade-card-title {
+  text-align: center;
+  margin-top: 5px;
+  font-weight: 600;
+}
+
+/* CHAT */
+.trade-chat {
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .trade-chat {
+    width: 28rem;
+  }
+}
+
+.chat-title {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0284c7;
+  margin-bottom: 12px;
+}
+
+.chat-box {
+  height: 28rem;
+  overflow-y: auto;
+  background: linear-gradient(to bottom right, #f8fafc, #eef4fb);
+  border: 1px solid #ddd;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chat-msg {
+  background: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-left: 4px solid #38bdf8;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+
+.chat-input-box {
+  display: flex;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-top: 14px;
+  overflow: hidden;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  outline: none;
+}
+
+.chat-send {
+  padding: 10px 18px;
+  background: linear-gradient(to right, #0ea5e9, #0284c7);
+  color: white;
+  font-weight: 600;
+}
+
+/* ACTION BUTTONS */
+.trade-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 22px;
+  gap: 20px;
+}
+
+.btn-accept, .btn-reject {
+  width: 180px;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 800;
+  border-radius: 14px;
+  color: white;
+  transition: 0.15s ease;
+}
+
+.btn-accept {
+  background: linear-gradient(to right, #16a34a, #15803d);
+}
+
+.btn-reject {
+  background: linear-gradient(to right, #dc2626, #b91c1c);
+}
+
+.btn-accept:hover,
+.btn-reject:hover {
+  transform: scale(1.03);
+}
+
+/* FOOTER */
+.trade-footer {
+  background: black;
+  padding: 12px;
+  text-align: center;
+  margin-top: 40px;
+}
+
+/* MODO OSCURO*/
+.dark .trade-page {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .trade-title {
+  color: #93c5fd !important;
+}
+
+.dark .trade-room-code {
+  color: #cbd5e1 !important;
+}
+
+.dark .player-avatar {
+  border-color: #1e293b !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6) !important;
+}
+
+.dark .player-name {
+  color: #bae6fd !important;
+}
+.dark .player-name.opponent {
+  color: #93c5fd !important;
+}
+
+.dark .player-card {
+  background: linear-gradient(to bottom, #1e293b, #0f172a) !important;
+  border-color: #475569 !important;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.3),
+    inset 0 1px 3px rgba(255,255,255,0.04) !important;
+}
+
+.dark .no-card {
+  color: #64748b !important;
+}
+
+.dark .trade-icon {
+  color: #60a5fa !important;
+}
+
+.dark .trade-subtitle {
+  color: #cbd5e1 !important;
+}
+
+.dark .trade-card {
+  background: #1e293b !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35) !important;
+}
+
+.dark .trade-card-title {
+  color: #e2e8f0 !important;
+}
+
+.dark .chat-title {
+  color: #93c5fd !important;
+}
+
+.dark .chat-box {
+  background: linear-gradient(to bottom right, #1e293b, #0f172a) !important;
+  border-color: #334155 !important;
+  box-shadow: inset 0 1px 3px rgba(255,255,255,0.04) !important;
+}
+
+.dark .chat-msg {
+  background: #1e293b !important;
+  border-left-color: #38bdf8 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .chat-input-box {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+.dark .chat-input {
+  background: transparent !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .chat-send {
+  background: linear-gradient(to right, #0284c7, #0ea5e9) !important;
+}
+
+.dark .btn-accept {
+  background: linear-gradient(to right, #16a34a, #15803d) !important;
+}
+.dark .btn-reject {
+  background: linear-gradient(to right, #dc2626, #b91c1c) !important;
+}
+
+.dark .trade-footer {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+}

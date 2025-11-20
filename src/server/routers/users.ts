@@ -4,7 +4,14 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
 import { Trade } from '../models/Trade.js';
-import { authMiddleware } from '../middleware/authMiddleware.js';
+import { UserCard } from '../models/UserCard.js';
+import { Card } from '../models/Card.js';
+import { PokemonCard } from '../models/PokemonCard.js';
+import { TrainerCard } from '../models/TrainerCard.js';
+import { EnergyCard } from '../models/EnergyCard.js';
+import { getCardById } from '../services/pokemon.js';
+import { upsertCardFromRaw } from '../services/cards.js';
+import { authMiddleware, AuthRequest, optionalAuthMiddleware } from '../middleware/authMiddleware.js';
 
 export const userRouter = express.Router();
 
@@ -69,12 +76,10 @@ userRouter.post('/users/login', async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
 
-    // Validaciones básicas
     if (!username || !password) {
       return res.status(400).send({ error: 'Username y contraseña requeridos' });
     }
 
-    // Buscar usuario por username o email
     const user = await User.findOne({
       $or: [{ username }, { email: username }]
     });
@@ -83,14 +88,13 @@ userRouter.post('/users/login', async (req: Request, res: Response) => {
       return res.status(401).send({ error: 'Usuario o contraseña incorrectos' });
     }
 
-    // Comparar contraseñas
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       return res.status(401).send({ error: 'Usuario o contraseña incorrectos' });
     }
 
-    // Generar JWT
+
     const secret: string = process.env.JWT_SECRET || 'tu-clave-secreta';
     const expiresIn: string = process.env.JWT_EXPIRY || '7d';
     const token = jwt.sign(
@@ -108,7 +112,8 @@ userRouter.post('/users/login', async (req: Request, res: Response) => {
       user: {
         id: user._id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        profileImage: user.profileImage || ""
       },
       token  // JWT para mantener sesión segura
     });
@@ -118,73 +123,108 @@ userRouter.post('/users/login', async (req: Request, res: Response) => {
 });
 
 /**
- * POST /users
- * Crear un nuevo usuario (legacy, deprecated - usar /users/register)
+ * PATCH /users/:username/profile-image
+ * Actualiza la imagen de perfil
  */
-userRouter.post('/users', async (req, res) => {
-  try {
-    const user = new User(req.body);
-    await user.save();
-    res.status(201).send(user);
-  } catch (error) {
-    res.status(500).send(error);
+userRouter.patch(
+  '/users/:username/profile-image',
+  authMiddleware,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { username } = req.params;
+      const { profileImage } = req.body;
+
+      if (!profileImage) {
+        return res.status(400).send({ error: "No se envió ninguna imagen" });
+      }
+
+      if (req.username !== username) {
+        return res.status(403).send({ error: "No puedes modificar otro usuario" });
+      }
+
+      const user = await User.findOneAndUpdate(
+        { username },
+        { profileImage },
+        { new: true }
+      );
+
+      if (!user) return res.status(404).send({ error: "Usuario no encontrado" });
+
+      res.send({
+        message: "Imagen actualizada",
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          profileImage: user.profileImage,
+        },
+      });
+    } catch (err: any) {
+      res.status(500).send({ error: err.message });
+    }
   }
-});
+);
+
+
 
 /**
- * GET /users
- * Obtener la lista de usuarios
+ * PATCH /users/:identifier
+ * Actualizar un usuario (por id o username)
  */
-userRouter.get('/users', async (req, res) => {
+userRouter.patch('/users/:username', authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const { page = 1, limit = 20 } = req.query;
-    const skip = (Number(page) - 1) * Number(limit);
+    const { username } = req.params;
+    const { username: newUsername, email: newEmail } = req.body;
 
-    const users = await User.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(Number(limit));
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).send({ error: "USER_NOT_FOUND" });
 
-    const total = await User.countDocuments();
-    const totalPages = Math.ceil(total / Number(limit));
-
-    if (users.length === 0) {
-      return res.status(404).send({ error: 'No se encontraron usuarios' });
+    if (newUsername && newUsername !== user.username) {
+      const existsUser = await User.findOne({ username: newUsername });
+      if (existsUser) {
+        return res.status(400).send({ error: "USERNAME_EXISTS" });
+      }
     }
+
+    if (newEmail && newEmail !== user.email) {
+      const existsEmail = await User.findOne({ email: newEmail });
+      if (existsEmail) {
+        return res.status(400).send({ error: "EMAIL_EXISTS" });
+      }
+    }
+
+    if (newUsername) user.username = newUsername;
+    if (newEmail) user.email = newEmail;
+
+    await user.save();
+    const secret = process.env.JWT_SECRET || "tu-clave-secreta";
+    const token = jwt.sign(
+      { userId: user._id.toString(), username: user.username },
+      secret,
+      { expiresIn: "7d" }
+    );
 
     res.send({
-      page: Number(page),
-      totalPages,
-      totalResults: total,
-      resultsPerPage: Number(limit),
-      users,
+      message: "Perfil actualizado",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        profileImage: user.profileImage
+      },
+      token
     });
-  } catch (error) {
-  res.status(500).send({ error: (error as Error).message ?? String(error) });
-}
-});
-/**
- * GET /users/:identifier
- * Obtener un usuario (por id o username)
- */
-userRouter.get('/users/:identifier', async (req, res) => {
-  try {
-    const { identifier } = req.params;
-    const filter = mongoose.Types.ObjectId.isValid(identifier)
-      ? { _id: identifier }
-      : { username: identifier };
-    const user = await User.findOne(filter)
-      .populate('friends', 'username email')
-      .populate('blockedUsers', 'username email');
-    if (user) {
-      res.send(user);
-    } else {
-      res.status(404).send({ error: 'Usuario no encontrado' });
-    }
-  } catch (error) {
-    res.status(500).send(error);
+
+  } catch (err: any) {
+    res.status(500).send({ error: err.message });
   }
 });
+
+
+
+/**
+ * GET /users/:id/trades
+ */
 userRouter.get('/users/:id/trades', async (req, res) => {
   const userId = req.params.id;
   const trades = await Trade.find({
@@ -193,63 +233,248 @@ userRouter.get('/users/:id/trades', async (req, res) => {
       { receiverUserId: userId }
     ]
   }).populate('initiatorUserId receiverUserId');
-  
+
   res.send({ data: trades });
 });
 
 /**
- * PATCH /users/:identifier
- * Actualizar un usuario (por id o username)
+ * GET /users/:identifier/cards
+ * Obtiene cartas de la colección o wishlist de un usuario.
+ * Query params: collection=collection|wishlist, page, limit
+ * Si el requester no es el propio usuario, sólo devolverá las cartas publicadas (isPublic=true).
  */
-userRouter.patch('/users/:identifier', async (req, res) => {
-  const allowedUpdates = [
-    'username',
-    'email',
-    'password',
-    'profileImage',
-    'settings',
-    'friends',
-    'blockedUsers'
-  ];
-  const updates = Object.keys(req.body);
-  const isValid = updates.every((key) => allowedUpdates.includes(key));
-  if (!isValid) {
-    return res.status(400).send({ error: 'Actualización no permitida' });
-  }
-
+userRouter.get('/users/:identifier/cards', optionalAuthMiddleware, async (req: any, res) => {
   try {
     const { identifier } = req.params;
-    const filter = mongoose.Types.ObjectId.isValid(identifier)? { _id: identifier }: { username: identifier };
-    const user = await User.findOneAndUpdate(filter, req.body, {
-      new: true,
-      runValidators: true
-    });
-    if (!user) {
-      return res.status(404).send({ error: 'Usuario no encontrado' });
+    const { collection = 'collection', page = 1, limit = 20 } = req.query as any;
+    const filterUser = mongoose.Types.ObjectId.isValid(identifier) ? { _id: identifier } : { username: identifier };
+    const user = await User.findOne(filterUser);
+    if (!user) return res.status(404).send({ error: 'Usuario no encontrado' });
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const filter: any = { userId: user._id, collectionType: collection };
+
+    // si el requester no es el owner, mostrar sólo públicas
+    const requesterId = (req as AuthRequest).userId;
+    if (!requesterId || requesterId.toString() !== user._id.toString()) {
+      filter.isPublic = true;
     }
-    res.send(user);
+
+    const total = await UserCard.countDocuments(filter);
+    const cards = await UserCard.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .populate('cardId');
+
+    res.send({ page: Number(page), totalResults: total, resultsPerPage: Number(limit), cards });
   } catch (error) {
-    res.status(400).send(error);
+    res.status(500).send({ error: (error as Error).message ?? String(error) });
   }
 });
+
 /**
- * DELETE /users/:identifier
- * Eliminar un usuario (por id o username)
+ * POST /users/:identifier/cards
+ * Agregar una carta a la colección o wishlist del usuario.
+ * Body: { pokemonTcgId?, cardId?, autoFetch?, quantity?, condition?, isPublic?, isFavorite?, collectionType?, notes?, forTrade? }
  */
-userRouter.delete('/users/:identifier', async (req, res) => {
+userRouter.post('/users/:identifier/cards', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const { identifier } = req.params;
-    const filter = mongoose.Types.ObjectId.isValid(identifier)? { _id: identifier }: { username: identifier };
-    const user = await User.findOneAndDelete(filter);
-    if (user) {
-      res.send({ message: 'Usuario eliminado correctamente', user });
-    } else {
-      res.status(404).send({ error: 'Usuario no encontrado' });
+    const filterUser = mongoose.Types.ObjectId.isValid(identifier) ? { _id: identifier } : { username: identifier };
+    const user = await User.findOne(filterUser);
+    if (!user) return res.status(404).send({ error: 'Usuario no encontrado' });
+
+    // sólo el propio usuario puede modificar su colección
+    if (req.userId?.toString() !== user._id.toString()) return res.status(403).send({ error: 'No autorizado' });
+
+    const {
+      pokemonTcgId,
+      cardId,
+      autoFetch = false,
+      quantity = 1,
+      condition = 'Near Mint',
+      isPublic = false,
+      isFavorite = false,
+      collectionType = 'collection',
+      notes = '',
+      forTrade = false
+    } = req.body;
+
+    let cardRefId = cardId;
+
+    // buscar por pokemonTcgId si no se proporcionó cardId
+    if (!cardRefId && pokemonTcgId) {
+      const found = await Promise.any([
+        PokemonCard.findOne({ pokemonTcgId }).lean(),
+        TrainerCard.findOne({ pokemonTcgId }).lean(),
+        EnergyCard.findOne({ pokemonTcgId }).lean(),
+        Card.findOne({ pokemonTcgId }).lean()
+      ]).catch(() => null);
+
+      if (found) {
+        cardRefId = (found as any)._id;
+      } else if (autoFetch && pokemonTcgId) {
+        // traer de la API externa y persistir con el helper
+        const apiResp = await getCardById(pokemonTcgId);
+        const raw = apiResp.data ?? apiResp;
+        const saved = await upsertCardFromRaw(raw);
+        cardRefId = saved?._id;
+      }
     }
+
+    if (!cardRefId) return res.status(404).send({ error: 'Card not found. Provide cardId or pokemonTcgId (use autoFetch=true to fetch)' });
+
+    // si ya existe una entrada idéntica (mismo user, misma carta, mismo tipo de colección y condición), aumentar cantidad
+    const existingFilter: any = {
+      userId: user._id,
+      cardId: cardRefId,
+      collectionType,
+      condition
+    };
+
+    const existing = await UserCard.findOne(existingFilter);
+    if (existing) {
+      // incrementar cantidad de forma atómica
+      const updated = await UserCard.findOneAndUpdate(
+        existingFilter,
+        {
+          $inc: { quantity: Number(quantity) || 1 },
+          $set: {
+            // actualizar flags si se pasan en la petición
+            isPublic: typeof isPublic === 'boolean' ? isPublic : existing.isPublic,
+            isFavorite: typeof isFavorite === 'boolean' ? isFavorite : existing.isFavorite,
+            forTrade: typeof forTrade === 'boolean' ? forTrade : existing.forTrade,
+            // sólo sobreescribir notas si se envían
+            notes: notes !== '' ? notes : existing.notes
+          }
+        },
+        { new: true }
+      );
+
+      return res.status(200).send({ message: 'Existing card quantity incremented', userCard: updated });
+    }
+
+    const userCard = new UserCard({
+      userId: user._id,
+      cardId: cardRefId,
+      pokemonTcgId: pokemonTcgId || '',
+      condition,
+      isPublic,
+      isFavorite,
+      acquisitionDate: new Date(),
+      notes,
+      quantity,
+      forTrade,
+      collectionType
+    });
+
+    await userCard.save();
+    return res.status(201).send({ message: 'Card added to user collection', userCard });
+  } catch (error) {
+    res.status(500).send({ error: (error as Error).message ?? String(error) });
+  }
+});
+
+/**
+ * PATCH /users/:identifier/cards/:userCardId
+ * Actualiza campos de una UserCard (quantity, condition, forTrade, isFavorite, isPublic, notes)
+ */
+userRouter.patch('/users/:identifier/cards/:userCardId', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { identifier, userCardId } = req.params;
+    const filterUser = mongoose.Types.ObjectId.isValid(identifier) ? { _id: identifier } : { username: identifier };
+    const user = await User.findOne(filterUser);
+    if (!user) return res.status(404).send({ error: 'Usuario no encontrado' });
+    if (req.userId?.toString() !== user._id.toString()) return res.status(403).send({ error: 'No autorizado' });
+
+    const allowed = ['quantity', 'condition', 'forTrade', 'isFavorite', 'isPublic', 'notes', 'collectionType'];
+    const updates = Object.keys(req.body);
+    const valid = updates.every((k) => allowed.includes(k));
+    if (!valid) return res.status(400).send({ error: 'Actualización no permitida' });
+
+    const userCard = await UserCard.findOne({ _id: userCardId, userId: user._id });
+    if (!userCard) return res.status(404).send({ error: 'UserCard no encontrada' });
+
+    updates.forEach((k) => (userCard as any)[k] = req.body[k]);
+    await userCard.save();
+    res.send({ message: 'UserCard actualizada', userCard });
+  } catch (error) {
+    res.status(500).send({ error: (error as Error).message ?? String(error) });
+  }
+});
+
+/**
+ * DELETE /users/:identifier/cards/:userCardId
+ * Elimina una UserCard
+ */
+userRouter.delete('/users/:identifier/cards/:userCardId', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { identifier, userCardId } = req.params;
+    const filterUser = mongoose.Types.ObjectId.isValid(identifier) ? { _id: identifier } : { username: identifier };
+    const user = await User.findOne(filterUser);
+    if (!user) return res.status(404).send({ error: 'Usuario no encontrado' });
+    if (req.userId?.toString() !== user._id.toString()) return res.status(403).send({ error: 'No autorizado' });
+
+    const removed = await UserCard.findOneAndDelete({ _id: userCardId, userId: user._id });
+    if (!removed) return res.status(404).send({ error: 'UserCard no encontrada' });
+    res.send({ message: 'UserCard eliminada', removed });
+  } catch (error) {
+    res.status(500).send({ error: (error as Error).message ?? String(error) });
+  }
+});
+
+/**
+ * GET /users/:identifier
+ */
+userRouter.get('/users/:identifier', async (req, res) => {
+  try {
+    const { identifier } = req.params;
+
+    const filter = mongoose.Types.ObjectId.isValid(identifier)
+      ? { _id: identifier }
+      : { username: identifier };
+
+    const user = await User.findOne(filter)
+      .populate('friends', 'username email')
+      .populate('blockedUsers', 'username email');
+
+    if (!user) return res.status(404).send({ error: 'Usuario no encontrado' });
+
+    res.send(user);
+
   } catch (error) {
     res.status(500).send(error);
   }
 });
+
+
+/**
+ * DELETE /users/:username
+ * Eliminar cuenta de usuario
+ */
+userRouter.delete('/users/:username', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { username } = req.params;
+
+    if (req.username !== username) {
+      return res.status(403).send({ error: "No puedes eliminar otra cuenta" });
+    }
+
+    const user = await User.findOneAndDelete({ username });
+
+    if (!user) {
+      return res.status(404).send({ error: "Usuario no encontrado" });
+    }
+
+    res.send({ message: "Cuenta eliminada correctamente" });
+
+  } catch (err: any) {
+    res.status(500).send({ error: err.message });
+  }
+});
+
 
 /**
  * POST /users/:identifier/friends/:friendIdentifier
@@ -335,3 +560,36 @@ userRouter.delete('/users/:identifier/block/:blockedIdentifier', async (req, res
   }
 });
 
+/**
+ * DELETE /users/:username/profile-image
+ * Elimina la foto de perfil (la deja vacía)
+ */
+userRouter.delete('/users/:username/profile-image', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { username } = req.params;
+
+    if (req.username !== username) {
+      return res.status(403).send({ error: "No puedes modificar otro usuario" });
+    }
+
+    const user = await User.findOneAndUpdate(
+      { username },
+      { profileImage: "" },
+      { new: true }
+    );
+
+    if (!user) return res.status(404).send({ error: "Usuario no encontrado" });
+
+    res.send({
+      message: "Foto eliminada",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        profileImage: ""
+      }
+    });
+  } catch (err: any) {
+    res.status(500).send({ error: err.message });
+  }
+});

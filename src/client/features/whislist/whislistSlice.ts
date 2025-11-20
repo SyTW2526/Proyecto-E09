@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import api from '../../services/apiService'
-import { PokemonCard } from '../../types'
+import { UserOwnedCard } from "../../types";
 
 interface WishlistState {
-  cards: PokemonCard[]
+  cards: UserOwnedCard[]
   loading: boolean
   error: string | null
 }
@@ -13,13 +13,9 @@ const initialState: WishlistState = {
   loading: false,
   error: null,
 }
-
-
 export const fetchWishlist = createAsyncThunk(
   'wishlist/fetch',
-  async (userId: string) => {
-    return await api.getWishlist(userId)
-  }
+  async (username: string) => await api.getUserWishlist(username)
 )
 
 export const addToWishlist = createAsyncThunk(
@@ -59,7 +55,7 @@ const wishlistSlice = createSlice({
       })
       .addCase(addToWishlist.fulfilled, (state, action) => {
         if (!state.cards.some(card => card.id === action.payload)) {
-          state.cards.push({ id: action.payload } as PokemonCard)
+          state.cards.push({ id: action.payload } as UserOwnedCard);
         }
       })
       .addCase(removeFromWishlist.fulfilled, (state, action) => {

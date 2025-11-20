@@ -11,7 +11,8 @@
     "iniciarSesion": "Sign in",
     "crearCuenta": "Create account",
     "ajustes": "Settings",
-    "cerrarSesion": "Log out"
+    "cerrarSesion": "Log out",
+    "amigos": "Friends"
   },
   "notifications": {
     "titulo": "Notifications",

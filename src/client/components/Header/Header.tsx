@@ -41,7 +41,7 @@ const Header: React.FC = () => {
           </Link>
 
           <nav className="nav-desktop">
-            <Link to="/coleccion" className="CollectionButton">
+            <Link to="/home" className="CollectionButton">
               {t("header.coleccion")}
             </Link>
             <Link to="/trade" className="CollectionButton">
@@ -82,6 +82,15 @@ const Header: React.FC = () => {
             {/* DROPDOWN */}
             {profileOpen && (
               <div className="profile-dropdown fadeIn">
+                <button
+                  onClick={() => {
+                    setProfileOpen(false);
+                    navigate("/friends");
+                  }}
+                  className="dropdown-item"
+                >
+                  {t("header.amigos")}
+                </button>
                 <button
                   onClick={() => {
                     setProfileOpen(false);

@@ -18,12 +18,11 @@ const TradeRoomPage: React.FC = () => {
 
   const user = authService.getUser();
   const userImage = user?.profileImage || "/icono.png";
+  const username = user?.username;
 
   const [socket, setSocket] = useState<Socket | null>(null);
-
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
-
   const [roomCode] = useState("sala-demo-123");
 
   const [userCards, setUserCards] = useState<UserCard[]>([]);
@@ -33,15 +32,16 @@ const TradeRoomPage: React.FC = () => {
   const [opponentName, setOpponentName] = useState<string>("");
   const [opponentImage, setOpponentImage] = useState<string>("/icono.png");
 
-  const username = user?.username;
   useEffect(() => {
     const token = localStorage.getItem("token") || "";
-    const s = io("http://localhost:3000", { 
+
+    const s = io("http://localhost:3000", {
       auth: { token },
-      transports: ["websocket"]
+      transports: ["websocket"],
     });
 
     setSocket(s);
+
     s.emit("joinRoom", roomCode);
 
     s.on("receiveMessage", (data: any) => {
@@ -76,6 +76,7 @@ const TradeRoomPage: React.FC = () => {
         }
       }
     });
+
     return () => {
       s.disconnect();
     };
@@ -84,11 +85,12 @@ const TradeRoomPage: React.FC = () => {
   useEffect(() => {
     const fetchCards = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/usercards/${username}?forTrade=true`);
+        const res = await fetch(
+          `http://localhost:3000/usercards/${username}?forTrade=true`
+        );
         const data = await res.json();
         setUserCards(data.cards || []);
-      } catch (error) {
-        console.error("Error al obtener cartas:", error);
+      } catch {
         setUserCards([]);
       }
     };
@@ -99,10 +101,15 @@ const TradeRoomPage: React.FC = () => {
   const handleSend = () => {
     if (!input.trim() || !socket) return;
 
-    const message = { text: input, roomCode };
+    const message = {
+      text: input,
+      roomCode,
+      user: username,
+    };
+
     socket.emit("sendMessage", message);
 
-    setMessages((prev) => [...prev, { ...message, user: t("tradeRoom.tu") }]);
+    setMessages((prev) => [...prev, message]);
     setInput("");
   };
 
@@ -117,20 +124,14 @@ const TradeRoomPage: React.FC = () => {
 
       <main className="trade-main">
         <div className="trade-container">
-
           {/* LEFT SECTION */}
           <section className="trade-left">
-
-            {/* TITLE */}
             <h2 className="trade-title">{t("tradeRoom.titulo")}</h2>
             <p className="trade-room-code">
               {t("tradeRoom.codigoSala")} <b>{roomCode}</b>
             </p>
 
-            {/* PLAYER CARDS */}
             <div className="trade-fight">
-
-              {/* YOU */}
               <div className="player-block">
                 <img src={userImage} className="player-avatar" />
                 <p className="player-name">{t("tradeRoom.tu")}</p>
@@ -146,7 +147,6 @@ const TradeRoomPage: React.FC = () => {
 
               <div className="trade-icon">⚡</div>
 
-              {/* OPPONENT */}
               <div className="player-block">
                 <img src={opponentImage} className="player-avatar" />
                 <p className="player-name opponent">
@@ -161,12 +161,10 @@ const TradeRoomPage: React.FC = () => {
                   )}
                 </div>
               </div>
-
             </div>
 
             <p className="trade-subtitle">{t("tradeRoom.tusCartas")}</p>
 
-            {/* USER CARDS */}
             <div className="trade-cards-grid">
               {userCards.map((card) => (
                 <div
@@ -179,26 +177,39 @@ const TradeRoomPage: React.FC = () => {
                 </div>
               ))}
             </div>
-
           </section>
 
           {/* CHAT */}
           <aside className="trade-chat">
-
             <h3 className="chat-title">{t("tradeRoom.chat")}</h3>
 
-            <div className="chat-box">
-              <div className="chat-messages">
+            <div className="chat-window">
+              <div className="messages-list">
                 {messages.map((m, i) => (
-                  <div key={i} className="chat-msg">
-                    <strong>{m.user || t("tradeRoom.otroUsuario")}:</strong> {m.text}
+                  <div
+                    key={i}
+                    className={`chat-message-row ${
+                      m.user === username ? "self" : "other"
+                    }`}
+                  >
+                    <div
+                      className={`chat-bubble-2 ${
+                        m.user === username ? "self" : "other"
+                      }`}
+                    >
+                      {m.user !== username && (
+                        <p className="sender-name">
+                          {opponentName || t("tradeRoom.otroUsuario")}
+                        </p>
+                      )}
+                      <p>{m.text}</p>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* INPUT */}
-            <div className="chat-input-box">
+            <div className="chat-input-row">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -210,14 +221,11 @@ const TradeRoomPage: React.FC = () => {
               </button>
             </div>
 
-            {/* BUTTONS */}
             <div className="trade-actions">
               <button className="btn-accept">{t("tradeRoom.aceptar")}</button>
               <button className="btn-reject">{t("tradeRoom.rechazar")}</button>
             </div>
-
           </aside>
-
         </div>
       </main>
 

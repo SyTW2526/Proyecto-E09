@@ -13,6 +13,7 @@ import { EnergyCard } from '../models/EnergyCard.js';
 import { getCardById } from '../services/pokemon.js';
 import { upsertCardFromRaw } from '../services/cards.js';
 import { authMiddleware, AuthRequest, optionalAuthMiddleware } from '../middleware/authMiddleware.js';
+import { Notification } from '../models/Notification.js';
 
 export const userRouter = express.Router();
 
@@ -353,7 +354,7 @@ userRouter.get("/friends/requests/user/:id", authMiddleware, async (req: AuthReq
 /**
  * POST /friends/request/:friendIdentifier
  * Enviar solicitud de amistad (por id o username)
- */
+ *//*
 userRouter.post("/friends/request/:friendIdentifier", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const { friendIdentifier } = req.params;
@@ -389,7 +390,7 @@ userRouter.post("/friends/request/:friendIdentifier", authMiddleware, async (req
   } catch (error: any) {
     res.status(500).send({ error: error.message });
   }
-});
+});*/
 
 /**
  * POST /friends/accept/:friendIdentifier
@@ -752,5 +753,104 @@ userRouter.get('/users/:identifier', async (req, res) => {
     res.status(500).send(error);
   }
 });
+/**
+ * GET /friends/requests/sent/:userId
+ * Ver solicitudes de amistad enviadas
+ */
+userRouter.get("/friends/requests/sent/:userId", authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { userId } = req.params;
+
+    const users = await User.find({
+      friendRequests: { $elemMatch: { from: userId } }
+    }).select("username _id");
+
+    res.send({ sent: users });
+  } catch (error: any) {
+    res.status(500).send({ error: error.message });
+  }
+});
+/**
+ * DELETE /friends/requests/cancel/:friendIdentifier
+ * Cancelar solicitud de amistad enviada (por id o username)
+ */
+userRouter.delete("/friends/requests/cancel/:friendIdentifier", authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { friendIdentifier } = req.params;
+    const currentUserId = req.userId;
+
+    const friend = await (
+      mongoose.Types.ObjectId.isValid(friendIdentifier)
+        ? User.findById(friendIdentifier)
+        : User.findOne({ username: friendIdentifier })
+    );
+
+    if (!friend) return res.status(404).send({ error: "Usuario no encontrado" });
+
+    friend.friendRequests = (friend.friendRequests as any).filter(
+      (r: any) => r.from.toString() !== currentUserId!.toString()
+    );
 
 
+    await friend.save();
+
+    res.send({ message: "Solicitud enviada cancelada correctamente" });
+
+  } catch (error: any) {
+    res.status(500).send({ error: error.message });
+  }
+});
+/**
+ * POST /friends/request/:friendIdentifier
+ * Enviar solicitud de amistad (por id o username)
+ */
+userRouter.post("/friends/request/:friendIdentifier", authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { friendIdentifier } = req.params;
+    const currentUserId = req.userId;
+
+    const me = await User.findById(currentUserId);
+    if (!me) return res.status(404).send({ error: "Usuario actual no encontrado" });
+
+    const friend = await (
+      mongoose.Types.ObjectId.isValid(friendIdentifier)
+        ? User.findById(friendIdentifier)
+        : User.findOne({ username: friendIdentifier })
+    );
+
+    if (!friend) return res.status(404).send({ error: "Usuario no encontrado" });
+
+    if (friend._id.equals(me._id)) {
+      return res.status(400).send({ error: "No puedes enviarte solicitud a ti mismo" });
+    }
+
+    if (me.friends.includes(friend._id)) {
+      return res.status(400).send({ error: "Ya sois amigos" });
+    }
+
+    const already = friend.friendRequests.some(
+      (r: any) => r.from.toString() === me._id.toString()
+    );
+
+    if (already) {
+      return res.status(400).send({ error: "La solicitud ya está pendiente" });
+    }
+
+    friend.friendRequests.push({ from: me._id });
+    await friend.save();
+
+    const notification = await Notification.create({
+      userId: friend._id,
+      title: "Nueva solicitud de amistad",
+      message: `${me.username} te ha enviado una solicitud de amistad.`,
+      isRead: false,
+    });
+
+    req.io.to(`user:${friend._id}`).emit("notification", notification);
+
+    res.send({ message: "Solicitud enviada correctamente" });
+
+  } catch (error) {
+    res.status(500).send({ error: "Error procesando solicitud" });
+  }
+});

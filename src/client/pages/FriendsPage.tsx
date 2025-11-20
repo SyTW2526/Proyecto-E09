@@ -12,6 +12,7 @@ const FriendsPage: React.FC = () => {
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [friendRequests, setFriendRequests] = useState<any[]>([]);
+  const [sentRequests, setSentRequests] = useState<any[]>([]);
   const [friends, setFriends] = useState<any[]>([]);
   const [selectedFriend, setSelectedFriend] = useState<any | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
@@ -25,17 +26,18 @@ const FriendsPage: React.FC = () => {
     setUser(u);
 
     const storedToken = localStorage.getItem("token") || "";
-    if (!storedToken) return;
+    let newSocket: any = null;
 
-    const newSocket = io("http://localhost:3000", {
-      auth: { token: storedToken },
-      transports: ["websocket"],
-    });
-
-    setSocket(newSocket);
+    if (storedToken) {
+      newSocket = io("http://localhost:3000", {
+        auth: { token: storedToken },
+        transports: ["websocket"],
+      });
+      setSocket(newSocket);
+    }
 
     return () => {
-      newSocket.disconnect();
+      if (newSocket) newSocket.disconnect();
     };
   }, []);
 
@@ -45,23 +47,26 @@ const FriendsPage: React.FC = () => {
     const storedToken = localStorage.getItem("token") || "";
 
     const fetchData = async () => {
-      try {
-        const r1 = await fetch(`http://localhost:3000/friends/user/${userId}`, {
-          headers: { Authorization: `Bearer ${storedToken}` },
-        });
-        const friendsData = await r1.json();
+      const r1 = await fetch(`http://localhost:3000/friends/user/${userId}`, {
+        headers: { Authorization: `Bearer ${storedToken}` },
+      });
+      const friendsData = await r1.json();
 
-        const r2 = await fetch(
-          `http://localhost:3000/friends/requests/user/${userId}`,
-          {
-            headers: { Authorization: `Bearer ${storedToken}` },
-          }
-        );
-        const reqData = await r2.json();
+      const r2 = await fetch(
+        `http://localhost:3000/friends/requests/user/${userId}`,
+        { headers: { Authorization: `Bearer ${storedToken}` } }
+      );
+      const reqData = await r2.json();
 
-        setFriends(friendsData.friends || []);
-        setFriendRequests(reqData.requests || []);
-      } catch (err) {}
+      const r3 = await fetch(
+        `http://localhost:3000/friends/requests/sent/${userId}`,
+        { headers: { Authorization: `Bearer ${storedToken}` } }
+      );
+      const sentData = await r3.json();
+
+      setFriends(friendsData.friends || []);
+      setFriendRequests(reqData.requests || []);
+      setSentRequests(sentData.sent || []);
     };
 
     fetchData();
@@ -72,38 +77,37 @@ const FriendsPage: React.FC = () => {
 
     const storedToken = localStorage.getItem("token") || "";
 
-    try {
-      const r1 = await fetch(`http://localhost:3000/friends/user/${userId}`, {
-        headers: { Authorization: `Bearer ${storedToken}` },
-      });
-      const friendsData = await r1.json();
+    const r1 = await fetch(`http://localhost:3000/friends/user/${userId}`, {
+      headers: { Authorization: `Bearer ${storedToken}` },
+    });
+    const friendsData = await r1.json();
 
-      const r2 = await fetch(
-        `http://localhost:3000/friends/requests/user/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${storedToken}` },
-        }
-      );
-      const reqData = await r2.json();
+    const r2 = await fetch(
+      `http://localhost:3000/friends/requests/user/${userId}`,
+      { headers: { Authorization: `Bearer ${storedToken}` } }
+    );
+    const reqData = await r2.json();
 
-      setFriends(friendsData.friends || []);
-      setFriendRequests(reqData.requests || []);
-    } catch (err) {}
+    const r3 = await fetch(
+      `http://localhost:3000/friends/requests/sent/${userId}`,
+      { headers: { Authorization: `Bearer ${storedToken}` } }
+    );
+    const sentData = await r3.json();
+
+    setFriends(friendsData.friends || []);
+    setFriendRequests(reqData.requests || []);
+    setSentRequests(sentData.sent || []);
   };
 
   const loadChatHistory = async (friendId: string) => {
-    try {
-      const r = await fetch(
-        `http://localhost:3000/friends/messages/${friendId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const data = await r.json();
-      setMessages(data.messages || []);
-    } catch (err) {
-      setMessages([]);
-    }
+    const r = await fetch(
+      `http://localhost:3000/friends/messages/${friendId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    const data = await r.json();
+    setMessages(data.messages || []);
   };
 
   useEffect(() => {
@@ -137,7 +141,7 @@ const FriendsPage: React.FC = () => {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
     });
-    alert("Solicitud enviada");
+    reloadFriends();
   };
 
   const acceptFriendRequest = async (otherUserId: string) => {
@@ -145,7 +149,7 @@ const FriendsPage: React.FC = () => {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
     });
-    await reloadFriends();
+    reloadFriends();
   };
 
   const rejectFriendRequest = async (otherUserId: string) => {
@@ -153,21 +157,29 @@ const FriendsPage: React.FC = () => {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
     });
-    await reloadFriends();
+    reloadFriends();
   };
 
-  const removeFriend = async (friendIdentifier: string) => {
-    if (!confirm("¿Eliminar a este amigo?")) return;
-
+  const cancelSentRequest = async (friendIdentifier: string) => {
     await fetch(
-      `http://localhost:3000/friends/remove/${friendIdentifier}`,
+      `http://localhost:3000/friends/requests/cancel/${friendIdentifier}`,
       {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       }
     );
+    reloadFriends();
+  };
 
-    await reloadFriends();
+  const removeFriend = async (friendIdentifier: string) => {
+    if (!confirm("¿Eliminar a este amigo?")) return;
+
+    await fetch(`http://localhost:3000/friends/remove/${friendIdentifier}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    reloadFriends();
   };
 
   const sendPrivateMessage = () => {
@@ -192,38 +204,9 @@ const FriendsPage: React.FC = () => {
       <main className="friends-main">
         <h1 className="friends-title">Amigos</h1>
 
-        <div className="friends-columns">
-          <div className="col-left">
-            <section className="friends-panel">
-              <h2 className="panel-title">Solicitudes</h2>
+        <div className="friends-columns-4">
 
-              {friendRequests.length === 0 ? (
-                <p className="no-requests">No tienes solicitudes.</p>
-              ) : (
-                friendRequests.map((req) => (
-                  <div key={req.requestId} className="result-row">
-                    <span>{req.username}</span>
-
-                    <div className="request-actions">
-                      <button
-                        className="btn-blue-small"
-                        onClick={() => acceptFriendRequest(req.userId)}
-                      >
-                        Aceptar
-                      </button>
-
-                      <button
-                        className="btn-gray-small"
-                        onClick={() => rejectFriendRequest(req.userId)}
-                      >
-                        Rechazar
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </section>
-
+          <div className="col-search">
             <section className="friends-panel">
               <h2 className="panel-title">Buscar usuarios</h2>
 
@@ -254,7 +237,59 @@ const FriendsPage: React.FC = () => {
             </section>
           </div>
 
-          <div className="col-center">
+          <div className="col-requests">
+            <section className="friends-panel">
+              <h2 className="panel-title">Solicitudes recibidas</h2>
+
+              {friendRequests.length === 0 ? (
+                <p className="no-requests">No tienes solicitudes.</p>
+              ) : (
+                friendRequests.map((req) => (
+                  <div key={req.requestId} className="result-row">
+                    <span>{req.username}</span>
+
+                    <div className="request-actions">
+                      <button
+                        className="btn-blue-small"
+                        onClick={() => acceptFriendRequest(req.userId)}
+                      >
+                        Aceptar
+                      </button>
+
+                      <button
+                        className="btn-gray-small"
+                        onClick={() => rejectFriendRequest(req.userId)}
+                      >
+                        Rechazar
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </section>
+
+            <section className="friends-panel">
+              <h2 className="panel-title">Solicitudes enviadas</h2>
+
+              {sentRequests.length === 0 ? (
+                <p className="no-requests">Ninguna solicitud enviada.</p>
+              ) : (
+                sentRequests.map((req) => (
+                  <div key={req._id} className="result-row">
+                    <span>{req.username}</span>
+                    <button
+                      className="btn-gray-small"
+                      onClick={() => cancelSentRequest(req._id)}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                ))
+              )}
+            </section>
+          </div>
+
+          <div className="col-friends">
             <section className="friends-panel">
               <h2 className="panel-title">Mis amigos</h2>
 
@@ -279,7 +314,7 @@ const FriendsPage: React.FC = () => {
             </section>
           </div>
 
-          <div className="col-right">
+          <div className="col-chat">
             <section className="friends-panel chat-panel">
               <h2 className="panel-title">Chat</h2>
 
@@ -338,18 +373,22 @@ const FriendsPage: React.FC = () => {
                     onChange={(e) => setMessage(e.target.value)}
                   />
 
-                  <button className="btn-blue-small" onClick={sendPrivateMessage}>
-                    Enviar
-                  </button>
+                <button className="btn-send" onClick={sendPrivateMessage}>
+                  Enviar
+                </button>
+
                 </div>
               )}
             </section>
           </div>
+
         </div>
       </main>
+
       <Footer />
     </div>
   );
 };
 
 export default FriendsPage;
+

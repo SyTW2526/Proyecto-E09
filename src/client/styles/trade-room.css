@@ -87,9 +87,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow:
-    0 2px 4px rgba(0,0,0,0.1),
-    inset 0 1px 3px rgba(0,0,0,0.05);
   overflow: hidden;
 }
 
@@ -131,27 +128,10 @@
   background: white;
   border: 2px solid #7dd3fc;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
   cursor: pointer;
-  transition: 0.15s ease;
 }
 
-.trade-card:hover {
-  transform: scale(1.05);
-}
-
-.trade-card-img {
-  width: 100%;
-  border-radius: 10px;
-}
-
-.trade-card-title {
-  text-align: center;
-  margin-top: 5px;
-  font-weight: 600;
-}
-
-/* CHAT */
+/* CHAT SECTION */
 .trade-chat {
   width: 100%;
 }
@@ -170,53 +150,91 @@
   margin-bottom: 12px;
 }
 
-.chat-box {
-  height: 28rem;
+/* NUEVO CHAT CON BURBUJAS */
+.chat-window {
+  height: 35rem;
   overflow-y: auto;
-  background: linear-gradient(to bottom right, #f8fafc, #eef4fb);
-  border: 1px solid #ddd;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
   border-radius: 14px;
-  padding: 18px;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+  padding: 12px;
 }
 
-.chat-messages {
+.messages-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
-.chat-msg {
-  background: white;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border-left: 4px solid #38bdf8;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-}
-
-.chat-input-box {
+.chat-message-row {
   display: flex;
+}
+
+.chat-message-row.self {
+  justify-content: flex-end;
+}
+
+.chat-message-row.other {
+  justify-content: flex-start;
+}
+
+.chat-bubble-2 {
+  padding: 12px 16px;      
+  max-width: 75%;
+  border-radius: 14px;
+  font-size: 16px;         
+  line-height: 1.4;
+}
+
+.chat-bubble-2.self {
+  background: linear-gradient(to right, #0284c7, #0369a1);
+  color: white;
+}
+
+.chat-bubble-2.other {
   background: white;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  margin-top: 14px;
-  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+}
+
+.sender-name {
+  font-size: 13px;      
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .chat-input {
   flex: 1;
-  padding: 10px;
-  border: none;
-  outline: none;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
 }
 
 .chat-send {
-  padding: 10px 18px;
-  background: linear-gradient(to right, #0ea5e9, #0284c7);
+  background: #0284c7;
+  padding: 14px 22px;     
+  font-weight: 700;
+  font-size: 17px;        
   color: white;
-  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.2s ease;
 }
 
+.chat-send:hover {
+  background: #0369a1;
+}
+
+.chat-send:active {
+  transform: scale(0.90);   
+  background: #075985;
+}
 /* ACTION BUTTONS */
 .trade-actions {
   display: flex;
@@ -225,14 +243,14 @@
   gap: 20px;
 }
 
-.btn-accept, .btn-reject {
+.btn-accept,
+.btn-reject {
   width: 180px;
   padding: 14px;
   font-size: 1rem;
   font-weight: 800;
   border-radius: 14px;
   color: white;
-  transition: 0.15s ease;
 }
 
 .btn-accept {
@@ -243,112 +261,22 @@
   background: linear-gradient(to right, #dc2626, #b91c1c);
 }
 
-.btn-accept:hover,
-.btn-reject:hover {
-  transform: scale(1.03);
-}
-
-/* FOOTER */
-.trade-footer {
-  background: black;
-  padding: 12px;
-  text-align: center;
-  margin-top: 40px;
-}
-
-/* MODO OSCURO*/
-.dark .trade-page {
-  background: #0f172a !important;
-  color: #e2e8f0 !important;
-}
-
-.dark .trade-title {
-  color: #93c5fd !important;
-}
-
-.dark .trade-room-code {
-  color: #cbd5e1 !important;
-}
-
-.dark .player-avatar {
-  border-color: #1e293b !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6) !important;
-}
-
-.dark .player-name {
-  color: #bae6fd !important;
-}
-.dark .player-name.opponent {
-  color: #93c5fd !important;
-}
-
-.dark .player-card {
-  background: linear-gradient(to bottom, #1e293b, #0f172a) !important;
-  border-color: #475569 !important;
-  box-shadow:
-    0 2px 4px rgba(0,0,0,0.3),
-    inset 0 1px 3px rgba(255,255,255,0.04) !important;
-}
-
-.dark .no-card {
-  color: #64748b !important;
-}
-
-.dark .trade-icon {
-  color: #60a5fa !important;
-}
-
-.dark .trade-subtitle {
-  color: #cbd5e1 !important;
-}
-
-.dark .trade-card {
+/* DARK MODE */
+.dark .chat-window {
   background: #1e293b !important;
-  border-color: #38bdf8 !important;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35) !important;
-}
-
-.dark .trade-card-title {
-  color: #e2e8f0 !important;
-}
-
-.dark .chat-title {
-  color: #93c5fd !important;
-}
-
-.dark .chat-box {
-  background: linear-gradient(to bottom right, #1e293b, #0f172a) !important;
-  border-color: #334155 !important;
-  box-shadow: inset 0 1px 3px rgba(255,255,255,0.04) !important;
-}
-
-.dark .chat-msg {
-  background: #1e293b !important;
-  border-left-color: #38bdf8 !important;
-  color: #e2e8f0 !important;
-}
-
-.dark .chat-input-box {
-  background: #0f172a !important;
   border-color: #334155 !important;
 }
-.dark .chat-input {
-  background: transparent !important;
+
+.dark .chat-bubble.other {
+  background: #1e293b !important;
+  border: 1px solid #475569 !important;
   color: #e2e8f0 !important;
 }
 
-.dark .chat-send {
-  background: linear-gradient(to right, #0284c7, #0ea5e9) !important;
+.dark .chat-bubble.self {
+  background: linear-gradient(to right, #0ea5e9, #0284c7) !important;
 }
 
-.dark .btn-accept {
-  background: linear-gradient(to right, #16a34a, #15803d) !important;
-}
-.dark .btn-reject {
-  background: linear-gradient(to right, #dc2626, #b91c1c) !important;
-}
-
-.dark .trade-footer {
-  background: #0f172a !important;
-  color: #e2e8f0 !important;
+.dark .sender-name {
+  color: #93c5fd !important;
 }

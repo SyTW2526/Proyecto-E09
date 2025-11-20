@@ -661,3 +661,13 @@ html.dark {
 .profile-btn:active {
   transform: translateY(0px);
 }
+.ring {
+  animation: bellRing 0.7s ease;
+}
+
+@keyframes bellRing {
+  0% { transform: rotate(0); }
+  30% { transform: rotate(10deg); }
+  60% { transform: rotate(-10deg); }
+  100% { transform: rotate(0); }
+}

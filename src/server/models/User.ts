@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
+const { Schema } = mongoose;
 
+const friendRequestSchema = new Schema({
+  from: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  createdAt: { type: Date, default: Date.now },
+});
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -52,7 +57,8 @@ const userSchema = new mongoose.Schema({
   ],
   blockedUsers: [
     { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-  ]
+  ],
+  friendRequests: [friendRequestSchema],
 }, {
   timestamps: true
 });

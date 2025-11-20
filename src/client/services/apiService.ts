@@ -1,4 +1,5 @@
 import { PokemonCard, ApiResponse, PaginatedResponse, User, TradeStatus, UserOwnedCard } from '../types';
+import { authService } from './authService';
 
 const API_BASE_URL = 'http://localhost:3000'; // URL base de la API del servidor
 const TCGDEX_URL = 'https://api.tcgdex.net/v2/en'; // API pública de tcgDex
@@ -205,10 +206,11 @@ class ApiService {
 
   async addToWishlist(userId: string, cardId: string): Promise<boolean> {
     try {
-      const res = await fetch(`${API_BASE_URL}/users/${userId}/wishlist`, {
+      // Add card to user's cards with collectionType=wishlist.
+      const res = await fetch(`${API_BASE_URL}/users/${userId}/cards`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cardId }),
+        headers: { "Content-Type": "application/json", ...authService.getAuthHeaders() },
+        body: JSON.stringify({ pokemonTcgId: cardId, collectionType: 'wishlist', autoFetch: true }),
       });
       return res.ok;
     } catch (err) {
@@ -221,6 +223,7 @@ class ApiService {
     try {
       const res = await fetch(`${API_BASE_URL}/users/${userId}/wishlist/${cardId}`, {
         method: "DELETE",
+        headers: { ...authService.getAuthHeaders() },
       });
       return res.ok;
     } catch (err) {

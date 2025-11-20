@@ -23,12 +23,7 @@ const CardsSlider: React.FC<{ title?: string; cards: SimpleCard[] }> = ({ title,
     return url.endsWith('/') ? `${url}high.png` : `${url}/high.png`;
   };
 
-  const triple = React.useMemo(() => {
-    // For a single card, don't duplicate — show it once.
-    if (!cards || cards.length <= 1) return cards;
-    // For multiple cards, duplicate to create the infinite-loop effect.
-    return [...cards, ...cards, ...cards];
-  }, [cards]);
+  const displayCards = React.useMemo(() => cards || [], [cards]);
 
   const CardView = ({ card }: { card: SimpleCard }) => (
     <div className="relative featured-card">
@@ -46,7 +41,9 @@ const CardsSlider: React.FC<{ title?: string; cards: SimpleCard[] }> = ({ title,
     </div>
   );
 
-  const scrollByCard = (direction: 'next' | 'prev') => {
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+
+  const scrollToIndex = (index: number) => {
     const container = containerRef.current;
     const track = trackRef.current;
     if (!container || !track) return;
@@ -54,30 +51,38 @@ const CardsSlider: React.FC<{ title?: string; cards: SimpleCard[] }> = ({ title,
     if (!firstCard) return;
     const gap = 24;
     const cardWidth = firstCard.offsetWidth + gap;
-    container.scrollBy({ left: direction === 'next' ? cardWidth : -cardWidth, behavior: 'smooth' });
+    const left = index * cardWidth;
+    container.scrollTo({ left, behavior: 'smooth' });
+  };
+
+  const scrollByCard = (direction: 'next' | 'prev') => {
+    if (!displayCards || displayCards.length === 0) return;
+    const nextIndex = direction === 'next'
+      ? (currentIndex + 1) % displayCards.length
+      : (currentIndex - 1 + displayCards.length) % displayCards.length;
+    setCurrentIndex(nextIndex);
+    scrollToIndex(nextIndex);
   };
 
   React.useEffect(() => {
-    if (!cards || cards.length <= 1) return;
-    const id = setInterval(() => scrollByCard('next'), 5000);
+    if (!displayCards || displayCards.length <= 1) return;
+    const id = setInterval(() => {
+      setCurrentIndex((prev) => {
+        const next = (prev + 1) % displayCards.length;
+        scrollToIndex(next);
+        return next;
+      });
+    }, 5000);
     return () => clearInterval(id);
-  }, [cards]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displayCards]);
 
   React.useEffect(() => {
-    const container = containerRef.current;
-    const track = trackRef.current;
-    if (!container || !track) return;
-
-    // Only center the scroll if we duplicated the list (i.e., cards.length > 1)
-    if (cards && cards.length > 1) {
-      const t = setTimeout(() => {
-        const singleWidth = track.scrollWidth / 3;
-        container.scrollLeft = singleWidth;
-      }, 150);
-      return () => clearTimeout(t);
-    }
-    return;
-  }, [triple, cards]);
+    // ensure we start at index 0 when cards change
+    setCurrentIndex(0);
+    setTimeout(() => scrollToIndex(0), 100);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displayCards]);
 
   return (
     <section className="featured-wrapper">
@@ -85,7 +90,7 @@ const CardsSlider: React.FC<{ title?: string; cards: SimpleCard[] }> = ({ title,
       <div className="featured-inner">
         <div ref={containerRef} className="overflow-x-auto no-scrollbar">
           <div ref={trackRef} className="featured-slider">
-            {triple.map((c, i) => (
+            {displayCards.map((c, i) => (
               <CardView key={`${c.id}-${i}`} card={c} />
             ))}
           </div>

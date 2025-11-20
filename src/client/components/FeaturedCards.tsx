@@ -1,4 +1,8 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import type { AppDispatch } from '../store/store';
+import { addToWishlist } from '../features/whislist/whislistSlice';
+import { authService } from '../services/authService';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from "react-i18next";
 import "../styles/feature.css"
@@ -41,6 +45,7 @@ const FeaturedCards: React.FC = () => {
   const [featuredCards, setFeaturedCards] = React.useState<Card[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [wishlistSet, setWishlistSet] = React.useState<Set<string>>(new Set());
 
   const normalizeImageUrl = (url: string | undefined) => {
     if (!url) return '';
@@ -146,6 +151,33 @@ const FeaturedCards: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // load user's wishlist (pokemonTcgIds) so hearts reflect current state
+  React.useEffect(() => {
+    const loadWishlist = async () => {
+      const user = authService.getUser();
+      if (!user || !authService.isAuthenticated()) return;
+      try {
+        const base = 'http://localhost:3000';
+        const resp = await fetch(`${base}/users/${user.username}/cards?collection=wishlist`, {
+          headers: { ...authService.getAuthHeaders(), 'Content-Type': 'application/json' }
+        });
+        if (!resp.ok) return;
+        const payload = await resp.json();
+        const ids = new Set<string>();
+        const cards = payload.cards || payload.results || [];
+        for (const item of cards) {
+          if (item.pokemonTcgId) ids.add(item.pokemonTcgId);
+          else if (item.cardId && item.cardId.pokemonTcgId) ids.add(item.cardId.pokemonTcgId);
+        }
+        setWishlistSet(ids);
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    loadWishlist();
+  }, [featuredCards]);
+
   const tripleList = React.useMemo(() => {
     if (!featuredCards || featuredCards.length <= 1) return featuredCards;
     return [...featuredCards, ...featuredCards, ...featuredCards];
@@ -154,6 +186,11 @@ const FeaturedCards: React.FC = () => {
   const PokemonCard = ({ card }: { card: Card }) => {
     const [isFlipped, setIsFlipped] = React.useState(false);
     const [isFavorite, setIsFavorite] = React.useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+
+    React.useEffect(() => {
+      setIsFavorite(wishlistSet.has(card.id));
+    }, [wishlistSet, card.id]);
 
     return (
       <div
@@ -178,20 +215,42 @@ const FeaturedCards: React.FC = () => {
                 <div className="mt-1 text-xs opacity-80">{card.set || '—'}</div>
               </div>
               
+            </div>
+          ) : (
+            <div className="pokemon-card-back text-gray-100 dark:bg-gray-800 p-4 min-h-80">
+              {/* heart button moved to back side so it is clickable when flipped */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setIsFavorite(!isFavorite);
+                  const user = authService.getUser();
+                  if (!user || !authService.isAuthenticated()) {
+                    window.alert('Debes iniciar sesión para añadir a la wishlist');
+                    return;
+                  }
+
+                  const next = !isFavorite;
+                  setIsFavorite(next);
+
+                  if (next) {
+                    const promise = dispatch(addToWishlist({ userId: user.username || user.id, cardId: card.id } as any));
+                    // update local wishlist set on success, rollback on failure
+                    promise.then((res: any) => {
+                      if (res?.meta?.requestStatus === 'fulfilled') {
+                        setWishlistSet((prev) => new Set(prev).add(card.id));
+                      } else {
+                        setIsFavorite(false);
+                      }
+                    }).catch(() => setIsFavorite(false));
+                  } else {
+                    // removeFromWishlist could be dispatched here if implemented
+                  }
                 }}
-                className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg hover:scale-110 transition-transform z-10"
+                className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg hover:scale-110 transition-transform z-30"
               >
                 <span className={`text-2xl ${isFavorite ? '❤️' : '🤍'}`}>
                   {isFavorite ? '❤️' : '🤍'}
                 </span>
               </button>
-            </div>
-          ) : (
-            <div className="pokemon-card-back text-gray-100 dark:bg-gray-800 p-4 min-h-80">
               <div className="h-full flex flex-col justify-between">
                 <div>
                   <h3 className="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-100">{card.name}</h3>

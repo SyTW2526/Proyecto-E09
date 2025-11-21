@@ -103,7 +103,7 @@ userCardRouter.post('/usercards/:username/:type', async (req, res) => {
 userCardRouter.get('/usercards/:username', async (req, res) => {
   try {
     const { username } = req.params;
-    const { page = 1, limit = 20 } = req.query;
+    const { page = 1, limit = 20, forTrade } = req.query;
 
     const user = await User.findOne({ username });
     if (!user) {
@@ -112,13 +112,20 @@ userCardRouter.get('/usercards/:username', async (req, res) => {
 
     const skip = (Number(page) - 1) * Number(limit);
 
-    const cards = await UserCard.find({ userId: user._id })
+    const filter: any = { userId: user._id };
+    if (forTrade !== undefined) {
+      // accept 'true' or '1' (from query string) as boolean true
+      const ft = String(forTrade);
+      filter.forTrade = ft === 'true' || ft === '1';
+    }
+
+    const cards = await UserCard.find(filter)
       .populate('cardId', 'name imageUrl rarity')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit));
 
-    const total = await UserCard.countDocuments({ userId: user._id });
+  const total = await UserCard.countDocuments(filter);
     const totalPages = Math.ceil(total / Number(limit));
 
     return res.status(200).send({
@@ -153,6 +160,14 @@ userCardRouter.get('/usercards/:username/:type', async (req, res) => {
 
     const filter = { userId: user._id, collectionType: type };
     const skip = (Number(page) - 1) * Number(limit);
+
+    // support optional forTrade query param to filter only trade-eligible cards
+    const { forTrade } = req.query;
+    if (forTrade !== undefined) {
+      // coerce strings like 'true' or '1' to boolean true
+      const ft = String(forTrade);
+      (filter as any).forTrade = ft === 'true' || ft === '1';
+    }
 
     const cards = await UserCard.find(filter)
       .populate('cardId', 'name imageUrl rarity')

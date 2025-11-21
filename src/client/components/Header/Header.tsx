@@ -41,7 +41,7 @@ const Header: React.FC = () => {
           </Link>
 
           <nav className="nav-desktop">
-            <Link to="/home" className="CollectionButton">
+            <Link to="/coleccion" className="CollectionButton">
               {t("header.coleccion")}
             </Link>
             <Link to="/trade" className="CollectionButton">

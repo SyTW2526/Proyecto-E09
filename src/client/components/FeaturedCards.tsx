@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '../store/store';
-import { addToWishlist } from '../features/whislist/whislistSlice';
+import { addToWishlist, removeFromWishlist } from '../features/whislist/whislistSlice';
 import { authService } from '../services/authService';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from "react-i18next";
@@ -242,7 +242,19 @@ const FeaturedCards: React.FC = () => {
                       }
                     }).catch(() => setIsFavorite(false));
                   } else {
-                    // removeFromWishlist could be dispatched here if implemented
+                    const promise = dispatch(removeFromWishlist({ userId: user.username || user.id, cardId: card.id } as any));
+                    promise.then((res: any) => {
+                      if (res?.meta?.requestStatus === 'fulfilled') {
+                        setWishlistSet((prev) => {
+                          const copy = new Set(prev);
+                          copy.delete(card.id);
+                          return copy;
+                        });
+                      } else {
+                        // rollback
+                        setIsFavorite(true);
+                      }
+                    }).catch(() => setIsFavorite(true));
                   }
                 }}
                 className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg hover:scale-110 transition-transform z-30"

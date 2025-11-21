@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { io } from "socket.io-client";
+import { initSocket, getSocket } from "../socket";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer";
 import "../styles/friends.css";
@@ -25,19 +25,12 @@ const FriendsPage: React.FC = () => {
     const u = authService.getUser();
     setUser(u);
 
-    const storedToken = localStorage.getItem("token") || "";
-    let newSocket: any = null;
+    const s = initSocket();
+    if (s) setSocket(s);
 
-    if (storedToken) {
-      newSocket = io("http://localhost:3000", {
-        auth: { token: storedToken },
-        transports: ["websocket"],
-      });
-      setSocket(newSocket);
-    }
-
+    // do not disconnect shared socket on unmount; remove listeners elsewhere when necessary
     return () => {
-      if (newSocket) newSocket.disconnect();
+      setSocket(null);
     };
   }, []);
 

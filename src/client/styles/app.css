@@ -95,8 +95,6 @@ html.dark #root {
   cursor: pointer;
   transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
   -webkit-tap-highlight-color: transparent;
-  /* Separación exterior para dar espacio respecto a otros componentes */
-  margin: 1rem 2rem 1rem 0;
 }
 
 .CollectionButton:hover {

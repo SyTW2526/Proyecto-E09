@@ -221,13 +221,37 @@ class ApiService {
 
   async removeFromWishlist(userId: string, cardId: string): Promise<boolean> {
     try {
-      const res = await fetch(`${API_BASE_URL}/users/${userId}/wishlist/${cardId}`, {
-        method: "DELETE",
+      // The server exposes deletion by userCard id under /usercards/:username/cards/:userCardId
+      // We need to lookup the user's wishlist entries, find the matching userCard (by pokemonTcgId or cardId.pokemonTcgId)
+      // and then call the existing delete route.
+      const listRes = await fetch(`${API_BASE_URL}/usercards/${userId}/wishlist`);
+      if (!listRes.ok) {
+        // fallback: try the user-scoped endpoint
+        const fallback = await fetch(`${API_BASE_URL}/users/${userId}/cards?collection=wishlist`);
+        if (!fallback.ok) return false;
+        const fallbackPayload = await fallback.json();
+        const items = fallbackPayload.cards || fallbackPayload.results || [];
+        const found = items.find((it: any) => (it.pokemonTcgId === cardId) || (it.cardId && it.cardId.pokemonTcgId === cardId));
+        if (!found) return false;
+        const delRes = await fetch(`${API_BASE_URL}/users/${userId}/cards/${found._id}`, {
+          method: 'DELETE',
+          headers: { ...authService.getAuthHeaders() }
+        });
+        return delRes.ok;
+      }
+
+      const payload = await listRes.json();
+      const items = payload.cards || payload.results || [];
+      const found = items.find((it: any) => (it.pokemonTcgId === cardId) || (it.cardId && it.cardId.pokemonTcgId === cardId));
+      if (!found) return false;
+
+      const delRes = await fetch(`${API_BASE_URL}/usercards/${userId}/cards/${found._id}`, {
+        method: 'DELETE',
         headers: { ...authService.getAuthHeaders() },
       });
-      return res.ok;
+      return delRes.ok;
     } catch (err) {
-      console.error("Error:", err);
+      console.error('Error:', err);
       return false;
     }
   }
@@ -240,21 +264,46 @@ class ApiService {
       const data = await res.json();
 
       const results = [] as any[];
-      for (const item of data.cards) {
-        let card = item.cardId || {};
-
-        // If card object is missing but we have pokemonTcgId, try to fetch cached card from our API
+      // Collect items and batch-fetch missing cached cards with limited concurrency
+      const items = data.cards || [];
+      // build list of tcgIds we need to fetch
+      const missingIds: string[] = [];
+      const itemCardMap = new Map<number, any>();
+      items.forEach((item: any, idx: number) => {
+        const card = item.cardId || {};
         if ((!card || Object.keys(card).length === 0) && item.pokemonTcgId) {
-          try {
-            const resp = await fetch(`${API_BASE_URL}/cards/tcg/${item.pokemonTcgId}`);
-            if (resp.ok) {
-              const payload = await resp.json();
-              // endpoint returns { source, card } when found in cache
-              card = payload.card ?? payload;
-            }
-          } catch (e) {
-            // ignore - we'll fallback to constructing an image URL below
-          }
+          missingIds.push(item.pokemonTcgId);
+        }
+        itemCardMap.set(idx, card);
+      });
+
+      // helper: fetch cached cards in batches to avoid opening too many simultaneous connections
+      const fetchCached = async (ids: string[]) => {
+        const map: Record<string, any> = {};
+        const concurrency = 8;
+        for (let i = 0; i < ids.length; i += concurrency) {
+          const batch = ids.slice(i, i + concurrency);
+          const promises = batch.map((id) =>
+            fetch(`${API_BASE_URL}/cards/tcg/${id}`)
+              .then((r) => (r.ok ? r.json().catch(() => null) : null))
+              .catch(() => null)
+          );
+          const resolved = await Promise.all(promises);
+          resolved.forEach((payload, j) => {
+            const id = batch[j];
+            if (payload) map[id] = payload.card ?? payload;
+          });
+        }
+        return map;
+      };
+
+      const cachedById = missingIds.length ? await fetchCached(Array.from(new Set(missingIds))) : {};
+
+      for (let idx = 0; idx < items.length; idx++) {
+        const item = items[idx];
+        let card = itemCardMap.get(idx) || {};
+        if ((!card || Object.keys(card).length === 0) && item.pokemonTcgId) {
+          card = cachedById[item.pokemonTcgId] || {};
         }
 
         // derive image from multiple possible shapes
@@ -263,7 +312,6 @@ class ApiService {
           image = card.images.large || card.images.small || '';
         }
 
-        // fallback: construct tcgdex asset url from pokemonTcgId if present
         const tcgId = item.pokemonTcgId || card.pokemonTcgId || '';
         if (!image && tcgId) {
           const [setCode, number] = tcgId.split('-');
@@ -278,7 +326,7 @@ class ApiService {
           name: card.name,
           image,
           rarity: card.rarity,
-          forTrade: item.forTrade
+          forTrade: item.forTrade,
         });
       }
 
@@ -297,17 +345,42 @@ class ApiService {
       const data = await res.json();
 
       const results = [] as any[];
-      for (const item of data.cards) {
-        let card = item.cardId || {};
+      // Batch-fetch missing cached cards to avoid sequential fetches per item
+      const items = data.cards || [];
+      const missingIds: string[] = [];
+      const itemCardMap = new Map<number, any>();
+      items.forEach((item: any, idx: number) => {
+        const card = item.cardId || {};
+        if ((!card || Object.keys(card).length === 0) && item.pokemonTcgId) missingIds.push(item.pokemonTcgId);
+        itemCardMap.set(idx, card);
+      });
 
+      const fetchCached = async (ids: string[]) => {
+        const map: Record<string, any> = {};
+        const concurrency = 8;
+        for (let i = 0; i < ids.length; i += concurrency) {
+          const batch = ids.slice(i, i + concurrency);
+          const promises = batch.map((id) =>
+            fetch(`${API_BASE_URL}/cards/tcg/${id}`)
+              .then((r) => (r.ok ? r.json().catch(() => null) : null))
+              .catch(() => null)
+          );
+          const resolved = await Promise.all(promises);
+          resolved.forEach((payload, j) => {
+            const id = batch[j];
+            if (payload) map[id] = payload.card ?? payload;
+          });
+        }
+        return map;
+      };
+
+      const cachedById = missingIds.length ? await fetchCached(Array.from(new Set(missingIds))) : {};
+
+      for (let idx = 0; idx < items.length; idx++) {
+        const item = items[idx];
+        let card = itemCardMap.get(idx) || {};
         if ((!card || Object.keys(card).length === 0) && item.pokemonTcgId) {
-          try {
-            const resp = await fetch(`${API_BASE_URL}/cards/tcg/${item.pokemonTcgId}`);
-            if (resp.ok) {
-              const payload = await resp.json();
-              card = payload.card ?? payload;
-            }
-          } catch (e) {}
+          card = cachedById[item.pokemonTcgId] || {};
         }
 
         let image = card.imageUrl || card.imageUrlHiRes || card.image || '';
@@ -329,7 +402,7 @@ class ApiService {
           name: card.name,
           image,
           rarity: card.rarity,
-          forTrade: item.forTrade
+          forTrade: item.forTrade,
         });
       }
 

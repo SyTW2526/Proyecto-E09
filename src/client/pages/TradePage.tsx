@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
+import { initSocket, getSocket } from "../socket";
 import Header from "../components/Header/Header";
 import Footer from "@/components/Footer";
 import { useTranslation } from "react-i18next";
@@ -33,33 +34,24 @@ const TradeRoomPage: React.FC = () => {
   const [opponentImage, setOpponentImage] = useState<string>("/icono.png");
 
   useEffect(() => {
-    const token = localStorage.getItem("token") || "";
-
-    const s = io("http://localhost:3000", {
-      auth: { token },
-      transports: ["websocket"],
-    });
+    // Use shared socket instance so navigation between routes doesn't disconnect the user.
+    const s = initSocket() as Socket | null;
+    if (!s) return;
 
     setSocket(s);
 
+    // join room only once per mount
     s.emit("joinRoom", roomCode);
 
-    s.on("receiveMessage", (data: any) => {
-      setMessages((prev) => [...prev, data]);
-    });
-
-    s.on("cardSelected", (data: any) => {
+    const onReceiveMessage = (data: any) => setMessages((prev) => [...prev, data]);
+    const onCardSelected = (data: any) => {
       setOpponentCard(data.card);
       setOpponentName(data.user);
-    });
-
-    s.on("userJoined", (data: any) => {
-      if (data.user !== username) {
-        setOpponentName(data.user);
-      }
-    });
-
-    s.on("roomUsers", async (data: any) => {
+    };
+    const onUserJoined = (data: any) => {
+      if (data.user !== username) setOpponentName(data.user);
+    };
+    const onRoomUsers = async (data: any) => {
       if (!data || !Array.isArray(data.users)) return;
 
       const others = data.users.filter((u: string) => u !== username);
@@ -75,10 +67,20 @@ const TradeRoomPage: React.FC = () => {
           setOpponentImage("/icono.png");
         }
       }
-    });
+    };
+
+    s.on("receiveMessage", onReceiveMessage);
+    s.on("cardSelected", onCardSelected);
+    s.on("userJoined", onUserJoined);
+    s.on("roomUsers", onRoomUsers);
 
     return () => {
-      s.disconnect();
+      // remove listeners but do not disconnect shared socket on navigation
+      s.off("receiveMessage", onReceiveMessage);
+      s.off("cardSelected", onCardSelected);
+      s.off("userJoined", onUserJoined);
+      s.off("roomUsers", onRoomUsers);
+      setSocket(null);
     };
   }, [username, roomCode]);
 

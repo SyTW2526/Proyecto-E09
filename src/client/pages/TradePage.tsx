@@ -86,10 +86,38 @@ const TradeRoomPage: React.FC = () => {
     const fetchCards = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/usercards/${username}?forTrade=true`
+          `http://localhost:3000/usercards/${username}/collection?forTrade=true`
         );
         const data = await res.json();
-        setUserCards(data.cards || []);
+
+        // normalize card shapes to { id, name, image, rarity }
+        const normalized = (data.cards || []).map((item: any) => {
+          // item may have .cardId populated or may only have pokemonTcgId
+          const card = item.cardId || {};
+
+          // try multiple image shapes
+          let image = card.imageUrl || card.imageUrlHiRes || card.image || '';
+          if (!image && card.images) {
+            image = card.images.large || card.images.small || '';
+          }
+
+          // fallback to constructing tcgdex asset from pokemonTcgId
+          const tcgId = item.pokemonTcgId || card.pokemonTcgId || '';
+          if (!image && tcgId) {
+            const [setCode, number] = tcgId.split('-');
+            const series = setCode ? setCode.slice(0, 2) : '';
+            if (setCode && number) image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+          }
+
+          return {
+            id: item._id || (card._id || card.id) || tcgId || '' ,
+            name: card.name || item.name || '',
+            image,
+            rarity: card.rarity || item.rarity || ''
+          } as UserCard;
+        });
+
+        setUserCards(normalized);
       } catch {
         setUserCards([]);
       }

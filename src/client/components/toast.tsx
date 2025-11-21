@@ -25,9 +25,9 @@ export default function ToastContainer() {
   }, []);
 
   return (
-    <div className="toast-container">
+    <div className="app-toast-container">
       {toasts.map((t, i) => (
-        <div key={i} className="toast">
+        <div key={i} className="app-toast">
           <h4>{t.title}</h4>
           <p>{t.message}</p>
         </div>

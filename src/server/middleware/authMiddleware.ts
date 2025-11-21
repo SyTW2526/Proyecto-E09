@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 export interface AuthRequest extends Request {
   userId?: string;
   username?: string;
+  io?: any;
 }
 
 /**
@@ -52,6 +53,36 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
     } else {
       res.status(500).send({ error: (error as Error).message ?? 'Error al validar token' });
     }
+  }
+};
+
+/**
+ * Middleware opcional de autenticación.
+ * Si viene un token válido en Authorization lo decodifica y pone req.userId/username.
+ * Si no viene token o es inválido, no bloquea la petición — simplemente continúa sin user info.
+ */
+export const optionalAuthMiddleware = (req: AuthRequest, _res: Response, next: NextFunction): void => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return next();
+    }
+    const parts = authHeader.split(' ');
+    if (parts.length !== 2 || parts[0] !== 'Bearer') {
+      return next();
+    }
+    const token = parts[1];
+    const secret = process.env.JWT_SECRET || 'tu-clave-secreta';
+    try {
+      const decoded = jwt.verify(token, secret) as { userId: string; username: string };
+      req.userId = decoded.userId;
+      req.username = decoded.username;
+    } catch (e) {
+      // token inválido: no bloqueamos, solo no seteamos userId
+    }
+    return next();
+  } catch (error) {
+    return next();
   }
 };
 

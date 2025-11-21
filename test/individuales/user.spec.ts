@@ -2,10 +2,142 @@ import { describe, it, beforeEach, expect } from 'vitest';
 import request from 'supertest';
 import { app } from '../../src/server/api';
 import { User } from '../../src/server/models/User';
+import { Trade } from '../../src/server/models/Trade';
+import mongoose from 'mongoose';
 
 beforeEach(async () => {
   await User.deleteMany();
+  await Trade.deleteMany();
 });
+
+// describe('POST /users/register', () => {
+//   it('registra un usuario correctamente', async () => {
+//     const res = await request(app)
+//       .post('/users/register')
+//       .send({
+//         username: 'newuser',
+//         email: 'newuser@example.com',
+//         password: 'secure123',
+//       })
+//       .expect(201);
+//
+//     expect(res.body).toHaveProperty('_id');
+//     expect(res.body.username).toBe('newuser');
+//     expect(res.body.email).toBe('newuser@example.com');
+//   });
+//
+//   it('rechaza username duplicado', async () => {
+//     await request(app).post('/users/register').send({
+//       username: 'pepe',
+//       email: 'pepe@example.com',
+//       password: 'pass123',
+//     });
+//
+//     const res = await request(app)
+//       .post('/users/register')
+//       .send({
+//         username: 'pepe',
+//         email: 'other@example.com',
+//         password: 'pass123',
+//       })
+//       .expect(500);
+//
+//     expect(res.body).toHaveProperty('error');
+//   });
+//
+//   it('rechaza email duplicado', async () => {
+//     await request(app).post('/users/register').send({
+//       username: 'user1',
+//       email: 'same@example.com',
+//       password: 'pass123',
+//     });
+//
+//     const res = await request(app)
+//       .post('/users/register')
+//       .send({
+//         username: 'user2',
+//         email: 'same@example.com',
+//         password: 'pass123',
+//       })
+//       .expect(500);
+//
+//     expect(res.body).toHaveProperty('error');
+//   });
+//
+//   it('falla sin credenciales completas', async () => {
+//     const res = await request(app)
+//       .post('/users/register')
+//       .send({
+//         username: 'pepe',
+//       })
+//       .expect(500);
+//
+//     expect(res.body).toHaveProperty('error');
+//   });
+// });
+
+// describe('POST /users/login', () => {
+//   it('login correctamente con email y password', async () => {
+//     await User.create({
+//       username: 'pepe',
+//       email: 'pepe@example.com',
+//       password: 'pass123',
+//     });
+//
+//     const res = await request(app)
+//       .post('/users/login')
+//       .send({
+//         email: 'pepe@example.com',
+//         password: 'pass123',
+//       })
+//       .expect(200);
+//
+//     expect(res.body).toHaveProperty('token');
+//     expect(res.body).toHaveProperty('user');
+//   });
+//
+//   it('falla con email incorrecto', async () => {
+//     const res = await request(app)
+//       .post('/users/login')
+//       .send({
+//         email: 'nonexistent@example.com',
+//         password: 'pass123',
+//       })
+//       .expect(401);
+//
+//     expect(res.body).toHaveProperty('error');
+//   });
+//
+//   it('falla con password incorrecto', async () => {
+//     await User.create({
+//       username: 'pepe',
+//       email: 'pepe@example.com',
+//       password: 'correct',
+//     });
+//
+//     const res = await request(app)
+//       .post('/users/login')
+//       .send({
+//         email: 'pepe@example.com',
+//         password: 'wrong',
+//       })
+//       .expect(401);
+//
+//     expect(res.body).toHaveProperty('error');
+//   });
+//
+//   it('falta email o password', async () => {
+//     const res = await request(app)
+//       .post('/users/login')
+//       .send({
+//         email: 'test@example.com',
+//       })
+//       .expect(400);
+//
+//     expect(res.body).toHaveProperty('error');
+//   });
+// });
+
 describe('GET /users', () => {
   it('devuelve la lista de usuarios paginada', async () => {
     await User.insertMany([
@@ -128,14 +260,14 @@ describe('GET /users', () => {
 });
 
 describe('GET /users/:identifier', () => {
-  it('por username', async () => {
+  it('devuelve un usuario por username', async () => {
     await new User({ username: 'pepe', email: 'pepe@example.com', password: '123' }).save();
     const res = await request(app).get('/users/pepe');
     expect(res.status).toBe(200);
     expect(res.body.username).toBe('pepe');
   });
 
-  it('por id', async () => {
+  it('devuelve un usuario por id', async () => {
     const user = await new User({ username: 'pepa', email: 'pepa@example.com', password: '123' }).save();
     const res = await request(app).get(`/users/${user._id}`);
     expect(res.status).toBe(200);
@@ -147,6 +279,89 @@ describe('GET /users/:identifier', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// describe('GET /users/:id/trades', () => {
+//   it('devuelve los intercambios de un usuario', async () => {
+//     const user = await User.create({
+//       username: 'pepe',
+//       email: 'pepe@example.com',
+//       password: 'pass123',
+//     });
+//
+//     await Trade.insertMany([
+//       {
+//         initiatorUserId: user._id,
+//         receiverUserId: new mongoose.Types.ObjectId(),
+//         tradeType: 'public',
+//         initiatorCards: [
+//           {
+//             userCardId: new mongoose.Types.ObjectId(),
+//             cardId: new mongoose.Types.ObjectId(),
+//             estimatedValue: 50,
+//           },
+//         ],
+//         receiverCards: [
+//           {
+//             userCardId: new mongoose.Types.ObjectId(),
+//             cardId: new mongoose.Types.ObjectId(),
+//             estimatedValue: 45,
+//           },
+//         ],
+//         status: 'pending',
+//       },
+//       {
+//         initiatorUserId: new mongoose.Types.ObjectId(),
+//         receiverUserId: user._id,
+//         tradeType: 'private',
+//         initiatorCards: [
+//           {
+//             userCardId: new mongoose.Types.ObjectId(),
+//             cardId: new mongoose.Types.ObjectId(),
+//             estimatedValue: 30,
+//           },
+//         ],
+//         receiverCards: [
+//           {
+//             userCardId: new mongoose.Types.ObjectId(),
+//             cardId: new mongoose.Types.ObjectId(),
+//             estimatedValue: 28,
+//           },
+//         ],
+//         status: 'completed',
+//       },
+//     ]);
+//
+//     const res = await request(app)
+//       .get(`/users/${user._id}/trades`)
+//       .expect(200);
+//
+//     expect(Array.isArray(res.body.trades)).toBe(true);
+//     expect(res.body.trades.length).toBeGreaterThan(0);
+//   });
+//
+//   it('devuelve [] si el usuario no tiene intercambios', async () => {
+//     const user = await User.create({
+//       username: 'pepe',
+//       email: 'pepe@example.com',
+//       password: 'pass123',
+//     });
+//
+//     const res = await request(app)
+//       .get(`/users/${user._id}/trades`)
+//       .expect(200);
+//
+//     expect(Array.isArray(res.body.trades)).toBe(true);
+//     expect(res.body.trades.length).toBe(0);
+//   });
+//
+//   it('devuelve 404 si el usuario no existe', async () => {
+//     const res = await request(app)
+//       .get(`/users/${new mongoose.Types.ObjectId()}/trades`)
+//       .expect(404);
+//
+//     expect(res.body).toHaveProperty('error');
+//   });
+// });
 
 describe('PATCH /users/:identifier', () => {
   it('actualiza usuario por id', async () => {

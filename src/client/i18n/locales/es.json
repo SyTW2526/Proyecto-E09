@@ -9,7 +9,10 @@
     "settings": "Ajustes",
     "perfil": "Perfil",
     "iniciarSesion": "Iniciar sesión",
-    "crearCuenta": "Crear cuenta"
+    "crearCuenta": "Crear cuenta",
+    "ajustes": "Ajustes",
+    "cerrarSesion": "Cerrar sesión",
+    "amigos": "Amigos"
   },
   "notifications": {
     "titulo": "Notificaciones",
@@ -34,7 +37,8 @@
     "intercambia": "Intercambia",
     "intercambiaDesc": "Conecta con otros coleccionistas o con tus amigos y realiza intercambios seguros para conseguir las cartas que te faltan.",
     "explora": "Explora",
-    "exploraDesc": "Encuentra las cartas que buscas, descubre nuevas expansiones y mantente al tanto de las últimas novedades en el mundo Pokémon."
+    "exploraDesc": "Encuentra las cartas que buscas, descubre nuevas expansiones y mantente al tanto de las últimas novedades en el mundo Pokémon.",
+    "empezar": "Empieza ya"
   },
   "signIn": {
     "titulo": "Iniciar sesión",
@@ -75,26 +79,80 @@
     "iniciarSesion": "Inicia sesión"
   },
   "footer": {
-    "derechos": "Todos los derechos reservados.",
-    "enlaces": "Enlaces útiles",
-    "acercaDe": "Acerca de",
-    "terminos": "Términos de servicio",
-    "privacidad": "Política de privacidad"
+    "redes": "Redes Sociales",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "youtube": "YouTube",
+
+    "contacto": "Contacto",
+    "email": "Correo",
+
+    "aspectosLegales": "Aspectos legales",
+    "privacidad": "Política de privacidad",
+    "terminos": "Términos de uso",
+    "avisoLegal": "Aviso legal",
+
+    "accesibilidad": "Accesibilidad",
+    "declaracionAcc": "Declaración de accesibilidad",
+    "herramientasAcc": "Herramientas de accesibilidad",
+
+    "derechos": "2025 - CardsAMI. Todos los derechos reservados"
+  },
+
+  "featured": {
+    "title": "CARTAS DESTACADAS",
+    "desc1": "Su cuerpo arde con una llama eterna.",
+    "desc2": "Cuando se enfurece, vibra como un sol en miniatura.",
+    "weakness": "Debilidad",
+    "retreat": "Retirada",
+    "price": "Precio"
   },
   "tradeRoom": {
-  "titulo": "SALA PRIVADA",
-  "codigoSala": "Código de sala:",
-  "tu": "Tú",
-  "tuCartaSel": "Tu carta seleccionada",
-  "otroUsuario": "Otro usuario",
-  "cartaRival": "Carta rival",
-  "tusCartas": "Tus cartas para intercambio",
-  "aceptar": "ACEPTAR",
-  "rechazar": "RECHAZAR",
-  "chat": "CHAT",
-  "enviar": "Enviar",
-  "escribeMensaje": "Escribe un mensaje...",
-  "mensajeAceptado": "El intercambio fue aceptado.",
-  "mensajeRechazado": "El intercambio fue rechazado."
+    "titulo": "SALA PRIVADA",
+    "codigoSala": "Código de sala:",
+    "tu": "Tú",
+    "tuCartaSel": "Tu carta seleccionada",
+    "otroUsuario": "Esperando al otro usuario...",
+    "cartaRival": "Carta rival",
+    "tusCartas": "Tus cartas para intercambio",
+    "aceptar": "ACEPTAR",
+    "rechazar": "RECHAZAR",
+    "chat": "CHAT",
+    "enviar": "Enviar",
+    "escribeMensaje": "Escribe un mensaje...",
+    "mensajeAceptado": "El intercambio fue aceptado.",
+    "mensajeRechazado": "El intercambio fue rechazado.",
+    "rival": "Rival",
+    "tuSeleccion": "Tu selección"
+  },
+
+  "profile": {
+    "loading": "Cargando perfil...",
+    "title": "Perfil de Usuario",
+    "username": "Nombre de usuario",
+    "email": "Correo",
+    "changePhoto": "Cambiar foto",
+    "deletePhoto": "Eliminar foto",
+    "confirmDeletePhoto": "¿Seguro que quieres eliminar tu foto?",
+    "photoUpdated": "Foto actualizada correctamente",
+    "errorUpdatingPhoto": "Error al actualizar la foto",
+    "photoDeleted": "Foto eliminada",
+    "errorDeletePhoto": "No se pudo eliminar la foto",
+    "edit": "Editar perfil",
+    "editProfile": "Editar Perfil",
+    "saved": "Perfil actualizado correctamente",
+    "saveError": "Error al guardar los cambios",
+    "deleteAccount": "Eliminar cuenta",
+    "confirmDeleteAccount": "¿Seguro que quieres ELIMINAR TU CUENTA?",
+    "accountDeleted": "Cuenta eliminada",
+    "errorDeleteAccount": "Error eliminando la cuenta",
+    "wishlist": "Lista de Deseados",
+    "noWishlist": "No tienes cartas en la lista de deseados.",
+    "tradeList": "Lista de Intercambio",
+    "noTrade": "No tienes cartas marcadas para intercambio.",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "usernameExists": "El nombre de usuario ya está en uso",
+    "emailExists": "El correo ya está registrado"
   }
 }

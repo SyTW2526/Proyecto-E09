@@ -9,7 +9,10 @@
     "settings": "Settings",
     "perfil": "Profile",
     "iniciarSesion": "Sign in",
-    "crearCuenta": "Create account"
+    "crearCuenta": "Create account",
+    "ajustes": "Settings",
+    "cerrarSesion": "Log out",
+    "amigos": "Friends"
   },
   "notifications": {
     "titulo": "Notifications",
@@ -27,15 +30,17 @@
     "light": "Switch to light mode"
   },
   "start": {
-    "titulo": "Collect, trade and discover your Pokémon world!",
+    "titulo": "Collect, trade and discover your Pokemon world!",
     "subtitulo": "In Cards AMI you can create your personal collection, discover new cards and trade them with other Pokémon enthusiasts.",
     "colecciona": "Collect",
     "coleccionaDesc": "Save your favorite cards, organize your collection and create a wishlist. Your Pokémon library always up to date!",
     "intercambia": "Trade",
     "intercambiaDesc": "Connect with other collectors or your friends and make safe trades to get the cards you're missing.",
     "explora": "Explore",
-    "exploraDesc": "Find the cards you're looking for, discover new expansions and stay updated on the latest news in the Pokémon world."
+    "exploraDesc": "Find the cards you're looking for, discover new expansions and stay updated on the latest news in the Pokémon world.",
+    "empezar": "Start now"
   },
+  
   "signIn": {
     "titulo": "Sign in",
     "subtitulo": "Access your account to manage your collection.",
@@ -77,26 +82,83 @@
   },
 
   "footer": {
-    "derechos": "All rights reserved.",
-    "enlaces": "Useful links",
-    "acercaDe": "About",
-    "terminos": "Terms of service",
-    "privacidad": "Privacy policy"
+    "redes": "Social Media",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "youtube": "YouTube",
+
+    "contacto": "Contact",
+    "email": "Email",
+
+    "aspectosLegales": "Legal",
+    "privacidad": "Privacy Policy",
+    "terminos": "Terms of Use",
+    "avisoLegal": "Legal Notice",
+
+    "accesibilidad": "Accessibility",
+    "declaracionAcc": "Accessibility Statement",
+    "herramientasAcc": "Accessibility Tools",
+
+    "derechos": "2025 - CardsAMI. All rights reserved"
   },
+
+
+  "featured": {
+    "title": "FEATURED CARDS",
+    "desc1": "Its body burns with an eternal flame.",
+    "desc2": "When enraged, it pulses like a miniature sun.",
+    "weakness": "Weakness",
+    "retreat": "Retreat",
+    "price": "Price"
+  },
+
+
   "tradeRoom": {
-  "titulo": "PRIVATE ROOM",
-  "codigoSala": "Room code:",
-  "tu": "You",
-  "tuCartaSel": "Your selected card",
-  "otroUsuario": "Other user",
-  "cartaRival": "Opponent card",
-  "tusCartas": "Your cards for trading",
-  "aceptar": "ACCEPT",
-  "rechazar": "REJECT",
-  "chat": "CHAT",
-  "enviar": "Send",
-  "escribeMensaje": "Write a message...",
-  "mensajeAceptado": "The trade was accepted.",
-  "mensajeRechazado": "The trade was rejected."
+    "titulo": "PRIVATE ROOM",
+    "codigoSala": "Room code:",
+    "tu": "You",
+    "tuCartaSel": "Your selected card",
+    "otroUsuario": "Waiting for the other user...",
+    "cartaRival": "Opponent card",
+    "tusCartas": "Your cards for trading",
+    "aceptar": "ACCEPT",
+    "rechazar": "REJECT",
+    "chat": "CHAT",
+    "enviar": "Send",
+    "escribeMensaje": "Write a message...",
+    "mensajeAceptado": "The trade was accepted.",
+    "mensajeRechazado": "The trade was rejected.",
+    "rival": "Opponent",
+    "tuSeleccion": "Your selection"
+  },
+
+  "profile": {
+    "loading": "Loading profile...",
+    "title": "User Profile",
+    "username": "Username",
+    "email": "Email",
+    "changePhoto": "Change photo",
+    "deletePhoto": "Delete photo",
+    "confirmDeletePhoto": "Are you sure you want to delete your photo?",
+    "photoUpdated": "Photo updated successfully",
+    "errorUpdatingPhoto": "Error updating photo",
+    "photoDeleted": "Photo deleted",
+    "errorDeletePhoto": "Could not delete the photo",
+    "edit": "Edit profile",
+    "editProfile": "Edit Profile",
+    "saved": "Profile updated successfully",
+    "saveError": "Error saving changes",
+    "deleteAccount": "Delete account",
+    "confirmDeleteAccount": "Are you sure you want to DELETE YOUR ACCOUNT?",
+    "accountDeleted": "Account deleted",
+    "errorDeleteAccount": "Error deleting account",
+    "wishlist": "Wishlist",
+    "noWishlist": "You have no cards in your wishlist.",
+    "tradeList": "Trade List",
+    "noTrade": "You have no cards marked for trade.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "usernameExists": "This username is already taken",
+    "emailExists": "This email is already registered"
   }
 }

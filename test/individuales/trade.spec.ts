@@ -150,6 +150,41 @@ describe("GET /trades/:id", () => {
   });
 });
 
+// describe('GET /trades/room/:code', () => {
+//   it('devuelve un intercambio por código de sala', async () => {
+//     const initiator = await User.create(baseUser1);
+//     const receiver = await User.create(baseUser2);
+//
+//     const trade = await Trade.create({
+//       initiatorUserId: initiator._id,
+//       receiverUserId: receiver._id,
+//       tradeType: "public",
+//       roomCode: "ABC123",
+//       initiatorCards: [
+//         { userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 10 },
+//       ],
+//       receiverCards: [
+//         { userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 9 },
+//       ],
+//       status: "pending",
+//     });
+//
+//     const res = await request(app)
+//       .get(`/trades/room/${trade.roomCode}`)
+//       .expect(200);
+//
+//     expect(res.body.roomCode).toBe("ABC123");
+//   });
+//
+//   it("devuelve 404 si el código no existe", async () => {
+//     const res = await request(app)
+//       .get(`/trades/room/NONEXISTENT`)
+//       .expect(404);
+//
+//     expect(res.body).toHaveProperty("error");
+//   });
+// });
+
 describe("PATCH /trades/:id", () => {
   it("actualiza el estado de un intercambio", async () => {
     const initiator = await User.create(baseUser1);

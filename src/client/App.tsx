@@ -1,28 +1,28 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import AppRouter from "./routes/AppRouter";
-import { RootState } from './store/store';
-import { setDarkMode, setLanguage } from './features/preferences/preferencesSlice';
+import { RootState } from "./store/store";
+import { setDarkMode, setLanguage } from "./features/preferences/preferencesSlice";
+import { addNotification } from "./features/notifications/notificationsSlice";
+import { initSocket, getSocket } from "./socket";
+import ToastContainer from "./components/toast";
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
-  const darkMode = useSelector((state: RootState) => state.preferences.preferences.darkMode);
+  const darkMode = useSelector(
+    (state: RootState) => state.preferences.preferences.darkMode
+  );
 
-  // Cargar preferencias del localStorage al montar
+
   useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    const savedLanguage = localStorage.getItem('language') as 'es' | 'en' | null;
+    const savedDarkMode = localStorage.getItem("darkMode");
+    const savedLanguage = localStorage.getItem("language") as "es" | "en" | null;
 
     if (savedDarkMode !== null) {
-      const isDark = savedDarkMode === 'true';
+      const isDark = savedDarkMode === "true";
       dispatch(setDarkMode(isDark));
-      if (isDark) {
-        document.documentElement.classList.add('dark');
-        document.body.style.colorScheme = 'dark';
-      } else {
-        document.documentElement.classList.remove('dark');
-        document.body.style.colorScheme = 'light';
-      }
+      document.documentElement.classList.toggle("dark", isDark);
+      document.body.style.colorScheme = isDark ? "dark" : "light";
     }
 
     if (savedLanguage) {
@@ -30,18 +30,44 @@ const App: React.FC = () => {
     }
   }, [dispatch]);
 
-  // Actualizar clase del HTML cuando cambia el darkMode
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      document.body.style.colorScheme = 'dark';
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.body.style.colorScheme = 'light';
-    }
+    initSocket();
+  }, []);
+
+
+  useEffect(() => {
+    const s = getSocket();
+    if (!s) return;
+    const handler = (notification: any) => {
+      dispatch(addNotification(notification));
+      window.dispatchEvent(
+        new CustomEvent("toast", {
+          detail: {
+            title: notification.title,
+            message: notification.message,
+          },
+        })
+      );
+    };
+
+    s.on("notification", handler);
+    return () => {
+      s.off("notification", handler);
+    };
+  }, [dispatch]);
+
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+    document.body.style.colorScheme = darkMode ? "dark" : "light";
   }, [darkMode]);
 
-  return <AppRouter />;
+  return (
+    <>
+      <AppRouter />
+      <ToastContainer />
+    </>
+  );
 };
 
 export default App;

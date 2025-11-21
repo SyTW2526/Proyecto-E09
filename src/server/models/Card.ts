@@ -26,12 +26,20 @@ const cardSchema = new mongoose.Schema({
   imageUrl: {
     type: String
   },
+  illustrator: {
+    type: String
+  },
   imageUrlHiRes: {
     type: String
   },
   marketPrice: {
     type: Number,
     default: 0
+  },
+  price: {
+    cardmarketAvg: { type: Number, default: null },
+    tcgplayerMarketPrice: { type: Number, default: null },
+    avg: { type: Number, default: 0 }
   },
   lastPriceUpdate: {
     type: Date

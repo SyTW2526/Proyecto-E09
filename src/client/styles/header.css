@@ -1,0 +1,157 @@
+.header-wrapper {
+  background: linear-gradient(to right, #0284c7, #2563eb);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 40;
+}
+
+.header-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.header-logo {
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+}
+
+
+.nav-desktop {
+  display: none;
+}
+
+@media(min-width: 768px) {
+  .nav-desktop {
+    display: flex;
+    gap: 12px;
+  }
+}
+
+.burger-button {
+  background: none;
+  color: white;
+}
+
+.search-container {
+  display: none;
+}
+
+@media(min-width: 640px) {
+  .search-container {
+    display: flex;
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+  }
+}
+
+.header-search {
+  width: 100%;
+  padding: 8px 12px;
+  padding-right: 38px;
+  border-radius: 8px;
+  border: 1px solid #7dd3fc;
+}
+
+.search-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-button {
+  padding: 6px;
+  border-radius: 50%;
+  background: transparent;
+  transition: 0.2s;
+}
+
+.profile-button:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+.profile-icon {
+  width: 28px;
+  height: 28px;
+  color: white;
+}
+
+/* DROPDOWN */
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: 48px;
+  width: 160px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  overflow: hidden;
+  border: 1px solid #ddd;
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 12px;
+  text-align: left;
+  transition: 0.2s;
+}
+
+.dropdown-item:hover {
+  background: #f3f4f6;
+}
+
+.logout {
+  color: #dc2626;
+}
+
+/* MOBILE MENU */
+.mobile-menu {
+  background: #0369a1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  gap: 16px;
+}
+
+.mobile-logo {
+  width: 100px;
+  margin-bottom: 10px;
+}
+
+.mobile-link {
+  color: white;
+  font-weight: bold;
+  padding: 8px 18px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 8px;
+}
+
+.fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

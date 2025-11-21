@@ -36,9 +36,8 @@ const AuthHeader: React.FC = () => {
             </a>
           </div>
 
-          {/* Nuevos controles: Notificaciones, Idioma, Modo Oscuro */}
+          {/* Nuevos controles: Idioma, Modo Oscuro */}
           <div className="flex items-center gap-2">
-            <NotificationBell />
             <LanguageSelector />
             <DarkModeToggle />
           </div>

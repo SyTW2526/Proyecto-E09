@@ -3,22 +3,29 @@ import { Bell, X, CheckCheck } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { RootState } from '../../store/store';
-import {
-  markAsRead,
-  markAllAsRead,
-  removeNotification,
-  Notification,
-} from '../../features/notifications/notificationsSlice';
+import {markAsRead,markAllAsRead,removeNotification, Notification } from '../../features/notifications/notificationsSlice';
 
 const NotificationBell: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
   const dispatch = useDispatch();
+
   const notifications = useSelector(
     (state: RootState) => state.notifications.notifications
   );
+
   const unread = notifications.filter((n: Notification) => !n.isRead).length;
+
+  useEffect(() => {
+    if (unread > 0) {
+      const bell = document.getElementById("bell-icon");
+      if (bell) {
+        bell.classList.add("ring");
+        setTimeout(() => bell.classList.remove("ring"), 800);
+      }
+    }
+  }, [unread]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -32,8 +39,10 @@ const NotificationBell: React.FC = () => {
 
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
     }
+
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+
   }, [isOpen]);
 
   const handleMarkAsRead = (notificationId: string) => {
@@ -50,26 +59,34 @@ const NotificationBell: React.FC = () => {
 
   return (
     <div className="relative" ref={dropdownRef}>
+      {/* BOTÓN CAMPANA */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 hover:bg-white/20 rounded-full transition"
         aria-label={t('notifications.titulo')}
       >
-        <Bell className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+        <Bell
+          id="bell-icon"
+          className="w-6 h-6 sm:w-7 sm:h-7 text-white transition-all"
+        />
+
         {unread > 0 && (
-          <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+          <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
             {unread > 9 ? '9+' : unread}
           </span>
         )}
       </button>
 
+      {/* DROPDOWN */}
       {isOpen && (
         <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white rounded-lg shadow-2xl z-[9999] border border-gray-200">
-          {/* Header */}
+          
+          {/* HEADER */}
           <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex justify-between items-center">
             <h3 className="font-bold text-gray-800">
               {t('notifications.titulo')}
             </h3>
+
             {unread > 0 && (
               <button
                 onClick={handleMarkAllAsRead}
@@ -81,7 +98,7 @@ const NotificationBell: React.FC = () => {
             )}
           </div>
 
-          {/* Notifications List */}
+          {/* LISTA DE NOTIFICACIONES */}
           <div>
             {notifications.length === 0 ? (
               <div className="p-8 text-center">
@@ -102,13 +119,16 @@ const NotificationBell: React.FC = () => {
                       <h4 className="font-medium text-gray-800 text-sm">
                         {notification.title}
                       </h4>
+
                       <p className="text-gray-600 text-xs mt-1">
                         {notification.message}
                       </p>
+
                       <p className="text-gray-400 text-xs mt-2">
                         {new Date(notification.createdAt).toLocaleDateString()}
                       </p>
                     </div>
+
                     <div className="flex items-start gap-1">
                       {!notification.isRead && (
                         <button
@@ -119,6 +139,7 @@ const NotificationBell: React.FC = () => {
                           <CheckCheck className="w-4 h-4" />
                         </button>
                       )}
+
                       <button
                         onClick={() => handleRemoveNotification(notification._id)}
                         className="text-gray-400 hover:text-red-600 p-1"
@@ -127,11 +148,13 @@ const NotificationBell: React.FC = () => {
                         <X className="w-4 h-4" />
                       </button>
                     </div>
+
                   </div>
                 </div>
               ))
             )}
           </div>
+
         </div>
       )}
     </div>

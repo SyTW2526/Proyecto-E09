@@ -1,83 +1,200 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import type { AppDispatch } from '../store/store';
+import { addToWishlist } from '../features/whislist/whislistSlice';
+import { authService } from '../services/authService';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from "react-i18next";
+import "../styles/feature.css"
 
 interface Card {
   id: string;
   name: string;
   image: string;
   hp: string;
-  type: string;
+  set?: string;
   rarity: string;
   price?: {
     low: number;
     mid: number;
     high: number;
   };
+  illustrator?: string;
+  cardNumber?: string;
+  series?: string;
 }
 
 const FeaturedCards: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const { t } = useTranslation();
+
+  const [currentIndex] = React.useState(0);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const trackRef = React.useRef<HTMLDivElement | null>(null);
 
-  const featuredCards: Card[] = [
-    {
-      id: '1',
-      name: 'Mega Gardevoir',
-      image: 'https://assets.tcgdex.net/en/me/me01/178/high.png',
-      hp: '360',
-      type: 'Psychic',
-      rarity: 'Mega Hyper Rare',
-      price: { low: 429.99, mid: 555, high: 1299 }
-    },
-    {
-      id: '2',
-      name: 'PEPE',
-      image: '/carta2.png',
-      hp: '110',
-      type: 'Psychic',
-      rarity: 'Common',
-      price: { low: 5, mid: 10, high: 15 }
-    },
-    {
-      id: '3',
-      name: 'PEPE',
-      image: '/carta3.png',
-      hp: '110',
-      type: 'Psychic',
-      rarity: 'Uncommon',
-      price: { low: 8, mid: 12, high: 18 }
-    },
-    {
-      id: '4',
-      name: 'PEPE',
-      image: '/carta4.png',
-      hp: '110',
-      type: 'Psychic',
-      rarity: 'Rare',
-      price: { low: 20, mid: 25, high: 35 }
-    },
-    {
-      id: '5',
-      name: 'PEPE',
-      image: '/carta5.png',
-      hp: '110',
-      type: 'Psychic',
-      rarity: 'Holo Rare',
-      price: { low: 30, mid: 40, high: 60 }
-    },
+  // TCGdex IDs provided by the user to show in featured section
+  const featuredIds = [
+    'me01-178',
+    'me01-180',
+    'me02-125',
+    'me02-129',
+    'sv10.5b-166',
+    'sv10.5b-172',
+    'sv10.5w-173'
   ];
 
-  // Triple list to enable infinite scroll illusion (copy - original - copy)
-  const tripleList = React.useMemo(() => [...featuredCards, ...featuredCards, ...featuredCards], [featuredCards]);
+  const [featuredCards, setFeaturedCards] = React.useState<Card[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [wishlistSet, setWishlistSet] = React.useState<Set<string>>(new Set());
+
+  const normalizeImageUrl = (url: string | undefined) => {
+    if (!url) return '';
+    // If URL already ends with a known size png, prefer the high.png variant
+    if (/\/(?:small|large|high|low)\.png$/i.test(url)) {
+      return url.replace(/\/(?:small|large|high|low)\.png$/i, '/high.png');
+    }
+    // If it's a direct image (ends with png/jpg) keep it
+    if (/\.(png|jpg|jpeg|gif|webp)$/i.test(url)) return url;
+    // Otherwise append /high.png (handle trailing slash)
+    return url.endsWith('/') ? `${url}high.png` : `${url}/high.png`;
+  };
+
+  // Fetch card data from backend (cache-first POST /cards)
+  React.useEffect(() => {
+    let mounted = true;
+
+    async function fetchCards() {
+      try {
+        setLoading(true);
+        const base = 'http://localhost:3000';
+        const promises = featuredIds.map(async (tcgId) => {
+          const resp = await fetch(`${base}/cards`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: tcgId })
+          });
+          if (!resp.ok) throw new Error(`Failed to fetch ${tcgId}: ${resp.statusText}`);
+          const data = await resp.json();
+          // the API returns { source, card }
+          return data.card;
+        });
+
+        const results = await Promise.all(promises);
+        if (!mounted) return;
+
+        // normalize into Card[] shape used by this component
+        const normalized: Card[] = results.map((c: any) => {
+          const id = c.pokemonTcgId || c._id || c.id || '';
+          // prefer server-provided images, fall back to constructed TCGdex path using id
+          let rawImage = (c.images && (c.images.large || c.images.small)) || c.imageUrl || c.image || '';
+          if (!rawImage && id) {
+            const [setCode, number] = id.split('-');
+            const series = setCode ? setCode.slice(0, 2) : '';
+            if (setCode && number) {
+              rawImage = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+            }
+          }
+
+          // derive set name
+          const setName = c.set?.name || c.set?.series || c.set || c.series || '';
+
+          // derive price object from server or API shapes
+          let priceObj: { low?: number; mid?: number; high?: number } | undefined = undefined;
+          if (c.price) {
+            priceObj = {
+              low: c.price.cardmarketAvg ?? c.price.tcgplayerMarketPrice ?? undefined,
+              mid: c.price.avg ?? c.price.tcgplayerMarketPrice ?? c.price.cardmarketAvg ?? undefined,
+              high: c.price.cardmarketAvg ?? c.price.tcgplayerMarketPrice ?? undefined
+            };
+          } else if (c.prices) {
+            priceObj = {
+              low: c.prices.low ?? c.prices.mid ?? c.prices.high,
+              mid: c.prices.mid ?? c.prices.low ?? c.prices.high,
+              high: c.prices.high ?? c.prices.mid ?? c.prices.low
+            };
+          } else if (c.tcg?.prices) {
+            priceObj = {
+              low: c.tcg.prices.low ?? c.tcg.prices.mid ?? c.tcg.prices.high,
+              mid: c.tcg.prices.mid ?? c.tcg.prices.low ?? c.tcg.prices.high,
+              high: c.tcg.prices.high ?? c.tcg.prices.mid ?? c.tcg.prices.low
+            };
+          } else if (typeof c.marketPrice === 'number') {
+            priceObj = { low: c.marketPrice, mid: c.marketPrice, high: c.marketPrice };
+          }
+
+          return {
+            id,
+            name: c.name || 'Unknown',
+            image: normalizeImageUrl(rawImage),
+            hp: c.hp || '',
+            set: setName,
+            rarity: c.rarity || '',
+            price: priceObj as any,
+            illustrator: c.illustrator || undefined,
+            cardNumber: c.number || c.cardNumber || undefined,
+            series: c.set?.series || c.series || undefined
+          };
+        });
+
+        setFeaturedCards(normalized);
+        setError(null);
+      } catch (err: any) {
+        console.error('Error fetching featured cards:', err);
+        if (mounted) setError(err.message ?? String(err));
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    fetchCards();
+    return () => { mounted = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // load user's wishlist (pokemonTcgIds) so hearts reflect current state
+  React.useEffect(() => {
+    const loadWishlist = async () => {
+      const user = authService.getUser();
+      if (!user || !authService.isAuthenticated()) return;
+      try {
+        const base = 'http://localhost:3000';
+        const resp = await fetch(`${base}/users/${user.username}/cards?collection=wishlist`, {
+          headers: { ...authService.getAuthHeaders(), 'Content-Type': 'application/json' }
+        });
+        if (!resp.ok) return;
+        const payload = await resp.json();
+        const ids = new Set<string>();
+        const cards = payload.cards || payload.results || [];
+        for (const item of cards) {
+          if (item.pokemonTcgId) ids.add(item.pokemonTcgId);
+          else if (item.cardId && item.cardId.pokemonTcgId) ids.add(item.cardId.pokemonTcgId);
+        }
+        setWishlistSet(ids);
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    loadWishlist();
+  }, [featuredCards]);
+
+  const tripleList = React.useMemo(() => {
+    if (!featuredCards || featuredCards.length <= 1) return featuredCards;
+    return [...featuredCards, ...featuredCards, ...featuredCards];
+  }, [featuredCards]);
 
   const PokemonCard = ({ card }: { card: Card }) => {
     const [isFlipped, setIsFlipped] = React.useState(false);
     const [isFavorite, setIsFavorite] = React.useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+
+    React.useEffect(() => {
+      setIsFavorite(wishlistSet.has(card.id));
+    }, [wishlistSet, card.id]);
 
     return (
       <div
-        className="relative"
+        className="relative featured-card"
         onMouseEnter={() => setIsFlipped(true)}
         onMouseLeave={() => setIsFlipped(false)}
       >
@@ -89,48 +206,84 @@ const FeaturedCards: React.FC = () => {
                 alt={card.name}
                 className="pokemon-card-image"
               />
+              {/* overlay with name, type and rarity */}
+              <div className="absolute left-0 right-0 bottom-0 p-3 bg-linear-to-t from-black/70 to-transparent text-white">
+                <div className="flex justify-between items-center">
+                  <div className="text-sm font-semibold truncate">{card.name}</div>
+                  <div className="text-xs opacity-90">{card.rarity || '—'}</div>
+                </div>
+                <div className="mt-1 text-xs opacity-80">{card.set || '—'}</div>
+              </div>
               
+            </div>
+          ) : (
+            <div className="pokemon-card-back text-gray-100 dark:bg-gray-800 p-4 min-h-80">
+              {/* heart button moved to back side so it is clickable when flipped */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setIsFavorite(!isFavorite);
+                  const user = authService.getUser();
+                  if (!user || !authService.isAuthenticated()) {
+                    window.alert('Debes iniciar sesión para añadir a la wishlist');
+                    return;
+                  }
+
+                  const next = !isFavorite;
+                  setIsFavorite(next);
+
+                  if (next) {
+                    const promise = dispatch(addToWishlist({ userId: user.username || user.id, cardId: card.id } as any));
+                    // update local wishlist set on success, rollback on failure
+                    promise.then((res: any) => {
+                      if (res?.meta?.requestStatus === 'fulfilled') {
+                        setWishlistSet((prev) => new Set(prev).add(card.id));
+                      } else {
+                        setIsFavorite(false);
+                      }
+                    }).catch(() => setIsFavorite(false));
+                  } else {
+                    // removeFromWishlist could be dispatched here if implemented
+                  }
                 }}
-                className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg hover:scale-110 transition-transform z-10"
+                className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg hover:scale-110 transition-transform z-30"
               >
                 <span className={`text-2xl ${isFavorite ? '❤️' : '🤍'}`}>
                   {isFavorite ? '❤️' : '🤍'}
                 </span>
               </button>
-            </div>
-          ) : (
-            <div className="pokemon-card-back bg-white dark:bg-gray-800 p-4 min-h-[320px]">
               <div className="h-full flex flex-col justify-between">
                 <div>
                   <h3 className="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-100">{card.name}</h3>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
+                      <div className="text-xs text-gray-600 dark:text-gray-300">Rareza</div>
+                      <div className="font-semibold text-gray-600 dark:text-gray-100">{card.rarity || '—'}</div>
+                    </div>
+                    <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
+                      <div className="text-xs text-gray-600 dark:text-gray-300">Set</div>
+                      <div className="font-semibold text-gray-600 dark:text-gray-100">{card.set || '—'}</div>
+                    </div>
+                    <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
+                      <div className="text-xs text-gray-600 dark:text-gray-300">HP</div>
+                      <div className="font-semibold text-gray-600 dark:text-gray-100">{card.hp || '—'}</div>
+                    </div>
+                  </div>
+
                   <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
-                    <p className="text-sm mb-2 text-gray-700 dark:text-gray-300">Su cuerpo arde con una llama eterna.</p>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">Cuando se enfurece, vibra como un sol en miniatura.</p>
+                    <div className="text-sm text-gray-700 dark:text-gray-300">Ilustrador: {card.illustrator || '—'}</div>
                   </div>
                 </div>
 
-                {card.price && (
+                <div>
                   <div className="space-y-3">
                     <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
-                      <div className="flex justify-between">
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">Debilidad:</span>
-                        <span className="text-blue-600 dark:text-blue-400">💧 x2</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">Retirada:</span>
-                        <span className="text-gray-600 dark:text-gray-400">⚪ x1</span>
-                      </div>
                       <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-gray-600">
                         <span className="font-bold text-lg text-gray-800 dark:text-gray-100">Precio:</span>
-                        <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{card.price.mid}€</span>
+                        <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{card.price?.mid ? `${Number(card.price.mid).toFixed(2)}€` : '—'}</span>
                       </div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           )}
@@ -139,100 +292,75 @@ const FeaturedCards: React.FC = () => {
     );
   };
 
-  const scrollByCard = (direction: 'next' | 'prev') => {
+  const scrollByCard = (direction: "next" | "prev") => {
     const container = containerRef.current;
     const track = trackRef.current;
     if (!container || !track) return;
 
-    const firstCard = track.querySelector<HTMLElement>('.card-item');
+    const firstCard = track.querySelector<HTMLElement>(".featured-card");
     if (!firstCard) return;
 
-    const gap = parseInt(getComputedStyle(track).gap || '16', 10) || 16;
+    const gap = 24;
     const cardWidth = firstCard.offsetWidth + gap;
 
-    const offset = direction === 'next' ? cardWidth : -cardWidth;
-    container.scrollBy({ left: offset, behavior: 'smooth' });
+    container.scrollBy({
+      left: direction === "next" ? cardWidth : -cardWidth,
+      behavior: "smooth",
+    });
   };
 
-  // Optional autoplay (every 5s)
   React.useEffect(() => {
-    const id = setInterval(() => scrollByCard('next'), 5000);
+    if (!featuredCards || featuredCards.length <= 1) return;
+    const id = setInterval(() => scrollByCard("next"), 5000);
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [featuredCards]);
 
-  // Setup initial scroll position to the middle copy and handle wrapping
   React.useEffect(() => {
     const container = containerRef.current;
     const track = trackRef.current;
     if (!container || !track) return;
 
-    // Wait a tick so images/layout can settle
-    const init = () => {
+    if (!featuredCards || featuredCards.length <= 1) return;
+
+    const timer = setTimeout(() => {
       const singleWidth = track.scrollWidth / 3;
-      if (singleWidth && Number.isFinite(singleWidth)) {
-        container.scrollLeft = singleWidth;
-      }
-    };
+      container.scrollLeft = singleWidth;
+    }, 150);
 
-    const t = window.setTimeout(init, 150);
-
-    const onScroll = () => {
-      const singleWidth = track.scrollWidth / 3;
-      if (!singleWidth) return;
-
-      const threshold = Math.max(8, singleWidth * 0.02); // small buffer
-
-      // If we've scrolled into the last copy (near the end), jump back one copy (no animation)
-      if (container.scrollLeft >= singleWidth * 2 - threshold) {
-        // compute equivalent position in the middle copy
-        container.scrollLeft = container.scrollLeft - singleWidth;
-      }
-
-      // If we've scrolled into the first copy (near the start), jump forward one copy
-      if (container.scrollLeft <= threshold) {
-        container.scrollLeft = container.scrollLeft + singleWidth;
-      }
-    };
-
-    container.addEventListener('scroll', onScroll, { passive: true });
-
-    return () => {
-      window.clearTimeout(t);
-      container.removeEventListener('scroll', onScroll);
-    };
-  }, [tripleList]);
+    return () => clearTimeout(timer);
+  }, [tripleList, featuredCards]);
 
   return (
-    <section className="container mx-auto px-4 py-8">
-      <div className="featured-section py-12">
-        {/* Título */}
-        <div className="text-center mb-8">
-          <h2 className="featured-title">
-            CARTAS DESTACADAS
-          </h2>
-        </div>
+    <section className="featured-wrapper">
+      {/* TÍTULO */}
+      <div className="text-center mb-8">
+        <h2 className="featured-title">{t("featured.title")}</h2>
+      </div>
 
-        {/* Slider de cartas (responsive, scroll-based) */}
-        <div className="relative">
-          <div ref={containerRef} className="overflow-x-auto no-scrollbar">
-            <div ref={trackRef} className="flex gap-6 items-stretch py-4 featured-slider">
-              {tripleList.map((card, i) => (
-                <div key={`${card.id}-${i}`} className="card-item px-2">
-                  <PokemonCard card={card} />
-                </div>
-              ))}
-            </div>
+      {/* CONTENEDOR FULL WIDTH */}
+      <div className="featured-inner">
+        <div ref={containerRef} className="overflow-x-auto no-scrollbar">
+          <div ref={trackRef} className="featured-slider">
+            {tripleList.map((card, i) => (
+              <PokemonCard key={`${card.id}-${i}`} card={card} />
+            ))}
           </div>
-
-          {/* Botones de navegación */}
-          <button onClick={() => scrollByCard('prev')} aria-label="Anterior" className="slider-button slider-button-left z-20">
-            <ChevronLeft className="w-6 h-6 text-gray-700" />
-          </button>
-          <button onClick={() => scrollByCard('next')} aria-label="Siguiente" className="slider-button slider-button-right z-20">
-            <ChevronRight className="w-6 h-6 text-gray-700" />
-          </button>
         </div>
+
+        {/* BOTONES */}
+        <button
+          onClick={() => scrollByCard("prev")}
+          className="slider-button slider-button-left"
+        >
+          <ChevronLeft className="w-6 h-6 text-gray-700" />
+        </button>
+
+        <button
+          onClick={() => scrollByCard("next")}
+          className="slider-button slider-button-right"
+        >
+          <ChevronRight className="w-6 h-6 text-gray-700" />
+        </button>
       </div>
     </section>
   );

@@ -16,6 +16,24 @@ beforeEach(async () => {
   await UserCard.deleteMany();
 });
 
+// describe("POST /usercards/import", () => {
+//   it("importa cartas correctamente", async () => {
+//     const res = await request(app)
+//       .post("/usercards/import")
+//       .send({
+//         cards: [
+//           {
+//             pokemonTcgId: "base1-1",
+//             collectionType: "collection",
+//           },
+//         ],
+//       })
+//       .expect(201);
+//
+//     expect(res.body).toHaveProperty("message");
+//   });
+// });
+
 describe("POST /usercards/:username/:type", () => {
   it("crea una carta en la colección de un usuario válido", async () => {
     const user = await User.create(baseUser);
@@ -31,6 +49,32 @@ describe("POST /usercards/:username/:type", () => {
 
     expect(res.body.collectionType).toBe("collection");
     expect(res.body.userId).toBe(String(user._id));
+  });
+
+  it("rechaza tipo inválido", async () => {
+    const user = await User.create(baseUser);
+
+    const res = await request(app)
+      .post(`/usercards/${user.username}/invalid`)
+      .send({
+        cardId: new mongoose.Types.ObjectId().toString(),
+        pokemonTcgId: "xy7-54",
+      })
+      .expect(400);
+
+    expect(res.body.error).toContain("inválido");
+  });
+
+  it("devuelve 404 si el usuario no existe", async () => {
+    const res = await request(app)
+      .post(`/usercards/nonexistent/collection`)
+      .send({
+        cardId: new mongoose.Types.ObjectId().toString(),
+        pokemonTcgId: "xy7-54",
+      })
+      .expect(404);
+
+    expect(res.body.error).toBe("Usuario no encontrado");
   });
 });
 
@@ -59,6 +103,26 @@ describe("GET /usercards/:username", () => {
     expect(Array.isArray(res.body.cards)).toBe(true);
     expect(res.body.cards.length).toBe(2);
     expect(res.body.totalResults).toBe(2);
+  });
+
+  it("devuelve cartas paginadas correctamente", async () => {
+    const user = await User.create(baseUser);
+
+    await UserCard.insertMany(
+      Array.from({ length: 5 }, (_, i) => ({
+        userId: user._id,
+        cardId: new mongoose.Types.ObjectId(),
+        pokemonTcgId: `base1-${i}`,
+        collectionType: "collection",
+      }))
+    );
+
+    const res = await request(app)
+      .get(`/usercards/${user.username}?page=1&limit=2`)
+      .expect(200);
+
+    expect(res.body.cards.length).toBe(2);
+    expect(res.body.totalResults).toBe(5);
   });
 
   it("devuelve 404 si el usuario no existe", async () => {
@@ -94,12 +158,45 @@ describe("GET /usercards/:username/:type", () => {
     expect(res.body.cards[0].collectionType).toBe("collection");
   });
 
+  it("devuelve solo cartas de wishlist", async () => {
+    const user = await User.create(baseUser);
+
+    await UserCard.insertMany([
+      {
+        userId: user._id,
+        cardId: new mongoose.Types.ObjectId(),
+        pokemonTcgId: "base1-1",
+        collectionType: "collection",
+      },
+      {
+        userId: user._id,
+        cardId: new mongoose.Types.ObjectId(),
+        pokemonTcgId: "base1-2",
+        collectionType: "wishlist",
+      },
+    ]);
+
+    const res = await request(app)
+      .get(`/usercards/${user.username}/wishlist`)
+      .expect(200);
+
+    expect(res.body.cards.length).toBe(1);
+    expect(res.body.cards[0].collectionType).toBe("wishlist");
+  });
+
   it("devuelve 400 si el tipo es inválido", async () => {
     const user = await User.create(baseUser);
     const res = await request(app)
       .get(`/usercards/${user.username}/invalid`)
       .expect(400);
     expect(res.body.error).toBe("Tipo inválido");
+  });
+
+  it("devuelve 404 si el usuario no existe", async () => {
+    const res = await request(app)
+      .get(`/usercards/nonexistent/collection`)
+      .expect(404);
+    expect(res.body.error).toBe("Usuario no encontrado");
   });
 });
 
@@ -122,12 +219,38 @@ describe("PATCH /usercards/:username/cards/:userCardId", () => {
     expect(res.body.notes).toBe("actualizada");
   });
 
+  it("actualiza el tipo de colección", async () => {
+    const user = await User.create(baseUser);
+    const card = await UserCard.create({
+      userId: user._id,
+      cardId: new mongoose.Types.ObjectId(),
+      pokemonTcgId: "base1-3",
+      collectionType: "collection",
+    });
+
+    const res = await request(app)
+      .patch(`/usercards/${user.username}/cards/${card._id}`)
+      .send({ collectionType: "wishlist" })
+      .expect(200);
+
+    expect(res.body.collectionType).toBe("wishlist");
+  });
+
   it("devuelve 404 si el usuario no existe", async () => {
     const res = await request(app)
       .patch(`/usercards/unknown/cards/${new mongoose.Types.ObjectId()}`)
       .send({ notes: "test" })
       .expect(404);
     expect(res.body.error).toBe("Usuario no encontrado");
+  });
+
+  it("devuelve 404 si la carta no existe", async () => {
+    const user = await User.create(baseUser);
+    const res = await request(app)
+      .patch(`/usercards/${user.username}/cards/${new mongoose.Types.ObjectId()}`)
+      .send({ notes: "test" })
+      .expect(404);
+    expect(res.body.error).toBe("Carta no encontrada");
   });
 });
 
@@ -151,10 +274,34 @@ describe("DELETE /usercards/:username/cards/:userCardId", () => {
     expect(check).toBeNull();
   });
 
+  it("puede eliminar cartas de collection", async () => {
+    const user = await User.create(baseUser);
+    const card = await UserCard.create({
+      userId: user._id,
+      cardId: new mongoose.Types.ObjectId(),
+      pokemonTcgId: "base1-5",
+      collectionType: "collection",
+    });
+
+    const res = await request(app)
+      .delete(`/usercards/${user.username}/cards/${card._id}`)
+      .expect(200);
+
+    expect(res.body.message).toBe("Carta eliminada correctamente");
+  });
+
   it("devuelve 404 si el usuario no existe", async () => {
     const res = await request(app)
       .delete(`/usercards/fake/cards/${new mongoose.Types.ObjectId()}`)
       .expect(404);
     expect(res.body.error).toBe("Usuario no encontrado");
+  });
+
+  it("devuelve 404 si la carta no existe", async () => {
+    const user = await User.create(baseUser);
+    const res = await request(app)
+      .delete(`/usercards/${user.username}/cards/${new mongoose.Types.ObjectId()}`)
+      .expect(404);
+    expect(res.body.error).toBe("Carta no encontrada");
   });
 });

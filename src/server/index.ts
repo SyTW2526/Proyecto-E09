@@ -1,25 +1,65 @@
+import express from "express";
 import http from "http";
-import { Server } from "socket.io";
+import cors from "cors";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { app } from "./api.js";
+import { Server } from "socket.io";
+import "./db/mongoose.js"; 
 
-const port = process.env.PORT || 3000;
+import { defaultRouter } from "./routers/default.js";
+import { userRouter } from "./routers/users.js";
+import { pokemonRouter } from "./routers/pokemon.js";
+import { userCardRouter } from "./routers/usercard.js";
+import { tradeRouter } from "./routers/trade.js";
+import { cardRouter } from "./routers/card.js";
+import { syncRouter } from "./routers/api.js";
+import { notificationRouter } from "./routers/notification.js";
+import { preferencesRouter } from "./routers/preferences.js";
+
+import { ChatMessage } from "./models/Chat.js";
+
+
+const app = express();
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+
 const server = http.createServer(app);
 
-const io = new Server(server, {
+export const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
     credentials: true,
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
   },
 });
+
+
+app.use((req: any, res, next) => {
+  req.io = io;
+  next();
+});
+
 
 io.use((socket, next) => {
   try {
     const token = socket.handshake.auth?.token;
     if (!token) return next(new Error("No token provided"));
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu-clave-secreta') as JwtPayload;
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "tu-clave-secreta"
+    ) as JwtPayload;
+
     socket.data.userId = decoded.userId;
     socket.data.username = decoded.username;
 
@@ -29,46 +69,77 @@ io.use((socket, next) => {
   }
 });
 
+
 io.on("connection", (socket) => {
-  console.log(`Usuario conectado: ${socket.data.username} (${socket.id})`);
+  console.log(`Usuario conectado: ${socket.data.username}`);
 
-socket.on("joinRoom", (roomCode) => {
-  socket.join(roomCode);
-  console.log(`${socket.data.username} se unió a la sala: ${roomCode}`);
+  const privateRoom = `user:${socket.data.userId}`;
+  socket.join(privateRoom);
 
 
-  socket.to(roomCode).emit("userJoined", {
-    user: socket.data.username,
-    userId: socket.data.userId,
+  socket.on("joinRoom", (roomCode) => {
+    socket.join(roomCode);
+    console.log(`${socket.data.username} se unió a sala ${roomCode}`);
+
+    socket.to(roomCode).emit("userJoined", {
+      user: socket.data.username,
+      userId: socket.data.userId,
+    });
+
+    const usersInRoom = Array.from(
+      io.sockets.adapter.rooms.get(roomCode) || []
+    )
+      .map((id) => io.sockets.sockets.get(id)?.data.username)
+      .filter(Boolean);
+
+    socket.emit("roomUsers", { users: usersInRoom });
   });
 
 
-  const usersInRoom = Array.from(io.sockets.adapter.rooms.get(roomCode) || [])
-    .map((id) => io.sockets.sockets.get(id)?.data.username)
-    .filter(Boolean);
-
-  socket.emit("roomUsers", { users: usersInRoom });
-});
-
-
   socket.on("sendMessage", (data) => {
-    console.log(`Mensaje de ${socket.data.username}: ${data.text}`);
-
-
     socket.to(data.roomCode).emit("receiveMessage", {
       user: socket.data.username,
       userId: socket.data.userId,
       text: data.text,
-      roomCode: data.roomCode,
     });
   });
 
 
+  socket.on("privateMessage", async (msg) => {
+    const { from, to, text } = msg;
+    console.log(`Mensaje privado de ${from} a ${to}: ${text}`);
+
+    try {
+      await ChatMessage.create({ from, to, text });
+
+      io.to(`user:${to}`).emit("privateMessage", {
+        from,
+        to,
+        text,
+        createdAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error("Error guardando mensaje privado:", err);
+    }
+  });
+
   socket.on("disconnect", () => {
-    console.log(`${socket.data.username} se desconectó`);
+    console.log(` Usuario desconectado: ${socket.data.username}`);
   });
 });
 
+app.use(userRouter);
+app.use(notificationRouter);
+app.use(preferencesRouter);
+app.use(syncRouter);
+app.use(cardRouter);
+app.use(tradeRouter);
+app.use(userCardRouter);
+app.use(pokemonRouter);
+app.use(defaultRouter);
+
+
+const port = process.env.PORT || 3000;
 server.listen(port, () => {
-  console.log(`Servidor HTTP corriendo en http://localhost:${port}`);
+  console.log(`Servidor listo en http://localhost:${port}`);
 });

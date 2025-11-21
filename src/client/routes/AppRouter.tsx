@@ -4,6 +4,8 @@ import SignUpPage from "../pages/SignUpPage";
 import SignInPage from "../pages/SignInPage";
 import HomePage from "../pages/HomePage";
 import TradeRoomPage from "../pages/TradePage";
+import ProfilePage from "../pages/ProfilePage";
+import FriendsPage from "../pages/FriendsPage";
 
 const AppRouter = () => {
   return (
@@ -14,6 +16,8 @@ const AppRouter = () => {
         <Route path="/login" element={<SignInPage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/trade" element={<TradeRoomPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/friends" element={<FriendsPage />} />
       </Routes>
     </BrowserRouter>
   );

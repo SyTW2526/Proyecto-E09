@@ -15,7 +15,9 @@
     "type-check:server": "tsc --noEmit --project tsconfig.server.json",
     "dev": "tsc-watch --onSuccess \"env-cmd -f ./config/dev.env node dist/server/index.js\"",
     "start": "node dist/server/index.js",
-    "test": "env-cmd -f ./config/test.env vitest run test/index.spec.ts"
+    "test": "env-cmd -f ./config/test.env vitest run test/index.spec.ts",
+    "test:selenium": "npx vitest run --config vitest.selenium.config.ts",
+    "test:all": "npm test && npm run test:selenium"
   },
   "repository": {
     "type": "git",

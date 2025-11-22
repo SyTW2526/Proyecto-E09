@@ -1,10 +1,10 @@
 import { describe, it, beforeEach, expect } from 'vitest';
 import request from 'supertest';
 import mongoose from 'mongoose';
-import { app } from '../../src/server/api.js';
-import { User } from '../../src/server/models/User.js';
-import { Card } from '../../src/server/models/Card.js';
-import { UserCard } from '../../src/server/models/UserCard.js';
+import { app } from '../../src/server/api.ts';
+import { User } from '../../src/server/models/User.ts';
+import { Card } from '../../src/server/models/Card.ts';
+import { UserCard } from '../../src/server/models/UserCard.ts';
 
 beforeEach(async () => {
   await User.deleteMany();

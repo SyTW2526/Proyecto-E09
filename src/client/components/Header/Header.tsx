@@ -6,6 +6,8 @@ import LanguageSelector from "./LanguageSelector";
 import DarkModeToggle from "./DarkModeToggle";
 import { Link, useNavigate } from "react-router-dom";
 import { authService } from "../../services/authService";
+import apiService from "../../services/apiService";
+import { PokemonCard } from "../../types";
 import "../../styles/header.css";
 
 const Header: React.FC = () => {
@@ -13,21 +15,53 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<PokemonCard[]>([]);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [menuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
   const user = authService.getUser();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const searchRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setSearchOpen(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setSearchLoading(true);
+      const results = await apiService.quickSearchCards(searchQuery);
+      setSearchResults(results);
+      setSearchLoading(false);
+      setSearchOpen(true);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => {
     const clickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setProfileOpen(false);
       }
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+      }
     };
     document.addEventListener("mousedown", clickOutside);
     return () => document.removeEventListener("mousedown", clickOutside);
   }, []);
+
+  const handleCardSelect = (card: any) => {
+    navigate(`/card/${card._id || card.id}`);
+    setSearchQuery("");
+    setSearchOpen(false);
+    setSearchResults([]);
+  };
 
   return (
     <header className="header-wrapper">
@@ -53,15 +87,65 @@ const Header: React.FC = () => {
         </div>
 
         {/* BUSCADOR */}
-        <div className="search-container">
+        <div className="search-container" ref={searchRef}>
           <input
             type="text"
             placeholder={t("header.buscar")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setSearchOpen(true)}
             className="header-search"
           />
           <Search className="search-icon" />
+          
+          {/* DROPDOWN DE BÚSQUEDA */}
+          {searchOpen && searchQuery.trim() && (
+            <div className="search-dropdown">
+              {searchLoading && (
+                <div className="search-dropdown-loading">
+                  <div className="spinner"></div>
+                  Buscando...
+                </div>
+              )}
+              
+              {!searchLoading && searchResults.length === 0 && (
+                <div className="search-dropdown-empty">
+                  No se encontraron cartas
+                </div>
+              )}
+              
+              {!searchLoading && searchResults.length > 0 && (
+                <div className="search-dropdown-list">
+                  {searchResults.map((card) => (
+                    <div
+                      key={card.id}
+                      className="search-dropdown-item"
+                      onClick={() => handleCardSelect(card)}
+                    >
+                      <div className="dropdown-item-image">
+                        {card.image && (
+                          <img
+                            src={card.image}
+                            alt={card.name}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        )}
+                      </div>
+                      <div className="dropdown-item-info">
+                        <div className="dropdown-item-name">{card.name}</div>
+                        <div className="dropdown-item-details">
+                          {card.set && <span className="set-badge">{card.set}</span>}
+                          {card.rarity && <span className="rarity-badge">{card.rarity}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* DERECHA */}

@@ -49,6 +49,8 @@ const pokemonCardSchema = new mongoose.Schema({
   cardNumber: { type: String },
   marketPrice: { type: Number, default: 0 },
   lastPriceUpdate: { type: Date }
+  ,
+  category: { type: String, enum: ['pokemon','trainer','energy','unknown'], default: 'pokemon' }
 }, { timestamps: true });
 
 export const PokemonCard = mongoose.model('PokemonCard', pokemonCardSchema);

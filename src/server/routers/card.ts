@@ -117,6 +117,7 @@ cardRouter.post('/cards', async (req, res) => {
         { pokemonTcgId: c.id },
         {
           pokemonTcgId: c.id,
+          category: 'pokemon',
           name: c.name,
           supertype: c.supertype || '',
           subtype: c.subtype || '',
@@ -149,6 +150,7 @@ cardRouter.post('/cards', async (req, res) => {
         { pokemonTcgId: c.id },
         {
           pokemonTcgId: c.id,
+          category: 'trainer',
           name: c.name,
           supertype: c.supertype || '',
           subtype: c.subtype || '',
@@ -174,6 +176,7 @@ cardRouter.post('/cards', async (req, res) => {
         { pokemonTcgId: c.id },
         {
           pokemonTcgId: c.id,
+          category: 'energy',
           name: c.name,
           supertype: c.supertype || '',
           subtype: c.subtype || '',
@@ -199,6 +202,7 @@ cardRouter.post('/cards', async (req, res) => {
         { pokemonTcgId: c.id },
         {
           pokemonTcgId: c.id,
+          category: category || 'unknown',
           name: c.name,
           series: c.set?.series || '',
           set: c.set?.name || '',

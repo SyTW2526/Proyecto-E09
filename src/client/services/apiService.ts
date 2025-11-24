@@ -1,3 +1,4 @@
+import { types } from 'util';
 import { PokemonCard, ApiResponse, PaginatedResponse, User, TradeStatus, UserOwnedCard } from '../types';
 import { authService } from './authService';
 
@@ -402,6 +403,8 @@ class ApiService {
           name: card.name,
           image,
           set: card.set,
+          types: card.types,
+          category: card.category,
           rarity: card.rarity,
           forTrade: item.forTrade,
         });
@@ -411,6 +414,24 @@ class ApiService {
     } catch (err) {
       console.error("Error colección:", err);
       return [];
+    }
+  }
+
+  /**
+   * Update a userCard fields (PATCH /users/:username/cards/:userCardId)
+   * Returns true on success
+   */
+  async updateUserCard(username: string, userCardId: string, updates: Record<string, any>): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/${username}/cards/${userCardId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...authService.getAuthHeaders() },
+        body: JSON.stringify(updates)
+      });
+      return res.ok;
+    } catch (err) {
+      console.error('Error updating userCard:', err);
+      return false;
     }
   }
 }

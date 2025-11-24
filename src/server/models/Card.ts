@@ -53,6 +53,12 @@ const cardSchema = new mongoose.Schema({
   cardNumber: {
     type: String
   }
+  ,
+  category: {
+    type: String,
+    enum: ['pokemon', 'trainer', 'energy', 'unknown'],
+    default: 'unknown'
+  }
 }, {
   timestamps: true
 });

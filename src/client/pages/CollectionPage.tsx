@@ -8,7 +8,50 @@ import { RootState, AppDispatch } from '../store/store';
 import { authService } from '../services/authService';
 import { useTranslation } from 'react-i18next';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 12;
+
+// Canonical rarity order (used for filter dropdown and sorting)
+const RARITY_ORDER = [
+  'Common',
+  'Uncommon',
+  'Rare',
+  'Holo Rare',
+  'Rare Holo',
+  'Double rare',
+  'ACE SPEC Rare',
+  'Amazing Rare',
+  'Illustration rare',
+  'Special illustration rare',
+  'Ultra Rare',
+  'Holo Rare V',
+  'Holo Rare VMAX',
+  'Holo Rare VSTAR',
+  'Shiny rare',
+  'Shiny Ultra Rare',
+  'Shiny rare V',
+  'Shiny rare VMAX',
+  'Radiant Rare',
+  'Hyper rare',
+  'Mega Hyper Rare',
+  'Secret Rare',
+  'Rare PRIME',
+  'Rare Holo LV.X',
+  'LEGEND',
+  'Full Art Trainer',
+  'Classic Collection',
+  'Black White Rare',
+  'Crown',
+  'One Diamond',
+  'Two Diamond',
+  'Three Diamond',
+  'Four Diamond',
+  'One Star',
+  'Two Star',
+  'Three Star',
+  'One Shiny',
+  'Two Shiny',
+  'None'
+];
 
 const CollectionPage: React.FC = () => {
   const { t } = useTranslation();
@@ -18,6 +61,7 @@ const CollectionPage: React.FC = () => {
   const [query, setQuery] = useState('');
   const [selectedSet, setSelectedSet] = useState('');
   const [selectedRarity, setSelectedRarity] = useState('');
+  const [selectedSort, setSelectedSort] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [page, setPage] = useState(1);
 
@@ -39,7 +83,19 @@ const CollectionPage: React.FC = () => {
   const rarities = useMemo(() => {
     const s = new Set<string>();
     (collection || []).forEach((c: any) => { if (c.rarity) s.add(c.rarity); });
-    return Array.from(s).filter(Boolean).sort();
+    const present = Array.from(s).filter(Boolean);
+
+    // create a map for case-insensitive matching to prefer original casing from data
+    const presentMap = new Map<string,string>();
+    present.forEach(p => presentMap.set(p.toString().toLowerCase(), p));
+
+    // first include rarities that are in the canonical list, in that order
+    const orderedFromCanonical: string[] = RARITY_ORDER.filter(r => presentMap.has(r.toLowerCase())).map(r => presentMap.get(r.toLowerCase())!);
+
+    // then include any extras not in the canonical list, sorted alphabetically
+    const extras = present.filter(p => !RARITY_ORDER.some(r => r.toLowerCase() === p.toString().toLowerCase())).sort((a,b) => a.toString().localeCompare(b.toString()));
+
+    return [...orderedFromCanonical, ...extras];
   }, [collection]);
 
   const types = useMemo(() => {
@@ -57,13 +113,32 @@ const CollectionPage: React.FC = () => {
   if (selectedSet) items = items.filter((c:any) => (c.set === selectedSet) || (c.series === selectedSet));
   if (selectedRarity) items = items.filter((c:any) => c.rarity === selectedRarity);
   if (selectedType) items = items.filter((c:any) => c.types?.includes(selectedType));
+  // apply sorting if requested
+  if (selectedSort === 'name') {
+    items.sort((a:any,b:any) => (a.name||'').toString().localeCompare((b.name||'').toString()));
+  } else if (selectedSort === 'rarity') {
+    // sort by canonical rarity order; unknown rarities go to the end and are sorted alphabetically among themselves
+    const orderMap = new Map<string, number>();
+    RARITY_ORDER.forEach((r, i) => orderMap.set(r.toLowerCase(), i));
+    const INF = 1e6;
+    items.sort((a:any,b:any) => {
+      const ar = (a.rarity || '').toString().toLowerCase();
+      const br = (b.rarity || '').toString().toLowerCase();
+      const ai = orderMap.has(ar) ? (orderMap.get(ar) as number) : INF;
+      const bi = orderMap.has(br) ? (orderMap.get(br) as number) : INF;
+      if (ai !== bi) return ai - bi;
+      if (ai === INF && bi === INF) return (a.rarity||'').toString().localeCompare((b.rarity||'').toString());
+      // fallback: stable compare by name
+      return (a.name||'').toString().localeCompare((b.name||'').toString());
+    });
+  }
     return items;
-  }, [collection, query, selectedSet, selectedRarity, selectedType]);
+  }, [collection, query, selectedSet, selectedRarity, selectedType, selectedSort]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
 
-  useEffect(() => { setPage(1); }, [query, selectedSet, selectedRarity, selectedType]);
+  useEffect(() => { setPage(1); }, [query, selectedSet, selectedRarity, selectedType, selectedSort]);
 
   return (
     <div className="collection-page">
@@ -91,6 +166,12 @@ const CollectionPage: React.FC = () => {
             <select value={selectedType} onChange={(e)=>setSelectedType(e.target.value)}>
               <option value="">{t('Tipo')||'Type'}</option>
               {types.map(ti=> <option key={ti} value={ti}>{ti}</option>)}
+            </select>
+
+            <select value={selectedSort} onChange={(e)=>setSelectedSort(e.target.value)}>
+              <option value="">{t('Ordenar')||'Ordenar'}</option>
+              <option value="name">{t('Nombre (A-Z)')||'Nombre (A-Z)'}</option>
+              <option value="rarity">{t('Rareza')||'Rareza'}</option>
             </select>
           </div>
         </div>

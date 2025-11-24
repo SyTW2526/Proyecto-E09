@@ -18,6 +18,7 @@ const CollectionPage: React.FC = () => {
   const [query, setQuery] = useState('');
   const [selectedSet, setSelectedSet] = useState('');
   const [selectedRarity, setSelectedRarity] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [page, setPage] = useState(1);
 
@@ -48,6 +49,12 @@ const CollectionPage: React.FC = () => {
     return Array.from(s).filter(Boolean).sort();
   }, [collection]);
 
+  const categories = useMemo(() => {
+    const s = new Set<string>();
+    (collection || []).forEach((c: any) => { if (c.category) s.add(c.category); });
+    return Array.from(s).filter(Boolean).sort();
+  }, [collection]);
+
   const filtered = useMemo(() => {
   let items = (collection || []).slice();
     if (query) {
@@ -57,13 +64,14 @@ const CollectionPage: React.FC = () => {
   if (selectedSet) items = items.filter((c:any) => (c.set === selectedSet) || (c.series === selectedSet));
   if (selectedRarity) items = items.filter((c:any) => c.rarity === selectedRarity);
   if (selectedType) items = items.filter((c:any) => c.types?.includes(selectedType));
+  if (selectedCategory) items = items.filter((c:any) => (c.category || c.type || '').toString() === selectedCategory);
     return items;
   }, [collection, query, selectedSet, selectedRarity, selectedType]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
 
-  useEffect(() => { setPage(1); }, [query, selectedSet, selectedRarity, selectedType]);
+  useEffect(() => { setPage(1); }, [query, selectedSet, selectedRarity, selectedType, selectedCategory]);
 
   return (
     <div className="collection-page">
@@ -79,18 +87,22 @@ const CollectionPage: React.FC = () => {
             <input placeholder={t('buscar')} value={query} onChange={(e)=>setQuery(e.target.value)} className="header-search" />
 
             <select value={selectedSet} onChange={(e)=>setSelectedSet(e.target.value)}>
-              <option value="">{t('filters.sets')||'Set'}</option>
+              <option value="">{t('Sets')||'Set'}</option>
               {sets.map(s=> <option key={s} value={s}>{s}</option>)}
             </select>
 
             <select value={selectedRarity} onChange={(e)=>setSelectedRarity(e.target.value)}>
-              <option value="">{t('filters.rarity')||'Rarity'}</option>
+              <option value="">{t('Rareza')||'Rarity'}</option>
               {rarities.map(r=> <option key={r} value={r}>{r}</option>)}
             </select>
 
             <select value={selectedType} onChange={(e)=>setSelectedType(e.target.value)}>
-              <option value="">{t('filters.type')||'Type'}</option>
+              <option value="">{t('Tipo')||'Type'}</option>
               {types.map(ti=> <option key={ti} value={ti}>{ti}</option>)}
+            </select>
+            <select value={selectedCategory} onChange={(e)=>setSelectedCategory(e.target.value)}>
+              <option value="">{t('Categoría')||'Category'}</option>
+              {categories.map(c=> <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
         </div>

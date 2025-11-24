@@ -1,3 +1,4 @@
+import { types } from 'util';
 import { PokemonCard, ApiResponse, PaginatedResponse, User, TradeStatus, UserOwnedCard } from '../types';
 import { authService } from './authService';
 
@@ -402,6 +403,8 @@ class ApiService {
           name: card.name,
           image,
           set: card.set,
+          types: card.types,
+          category: card.category,
           rarity: card.rarity,
           forTrade: item.forTrade,
         });

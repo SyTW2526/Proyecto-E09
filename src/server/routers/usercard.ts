@@ -103,14 +103,17 @@ userCardRouter.post('/usercards/:username/:type', async (req, res) => {
 userCardRouter.get('/usercards/:username', async (req, res) => {
   try {
     const { username } = req.params;
-    const { page = 1, limit = 20, forTrade } = req.query;
+    // when client omits `limit`, return all results (no DB limit)
+    const { page = '1', limit, forTrade } = req.query as any;
 
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(404).send({ error: 'Usuario no encontrado' });
     }
 
-    const skip = (Number(page) - 1) * Number(limit);
+    const pageNum = Number(page) || 1;
+    const limitNum = limit !== undefined ? Number(limit) : null;
+    const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
     const filter: any = { userId: user._id };
     if (forTrade !== undefined) {
@@ -119,20 +122,20 @@ userCardRouter.get('/usercards/:username', async (req, res) => {
       filter.forTrade = ft === 'true' || ft === '1';
     }
 
-    const cards = await UserCard.find(filter)
-      .populate('cardId', 'name imageUrl rarity')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(Number(limit));
+    let query = UserCard.find(filter).populate('cardId', 'name imageUrl rarity').sort({ createdAt: -1 });
+    if (skip) query = query.skip(skip);
+    if (limitNum) query = query.limit(limitNum);
 
-  const total = await UserCard.countDocuments(filter);
-    const totalPages = Math.ceil(total / Number(limit));
+    const cards = await query.exec();
+
+    const total = await UserCard.countDocuments(filter);
+    const totalPages = limitNum ? Math.ceil(total / limitNum) : 1;
 
     return res.status(200).send({
-      page: Number(page),
+      page: pageNum,
       totalPages,
       totalResults: total,
-      resultsPerPage: Number(limit),
+      resultsPerPage: limitNum ?? total,
       cards: cards || [],
     });
   } catch (error: any) {
@@ -147,7 +150,7 @@ userCardRouter.get('/usercards/:username', async (req, res) => {
 userCardRouter.get('/usercards/:username/:type', async (req, res) => {
   try {
     const { username, type } = req.params;
-    const { page = 1, limit = 20 } = req.query;
+    const { page = '1', limit } = req.query as any;
 
     const user = await User.findOne({ username });
     if (!user) { 
@@ -158,8 +161,11 @@ userCardRouter.get('/usercards/:username/:type', async (req, res) => {
       return res.status(400).send({ error: 'Tipo inválido' });
     }
 
-    const filter = { userId: user._id, collectionType: type };
-    const skip = (Number(page) - 1) * Number(limit);
+    const pageNum = Number(page) || 1;
+    const limitNum = limit !== undefined ? Number(limit) : null;
+    const skip = limitNum ? (pageNum - 1) * limitNum : 0;
+
+    const filter: any = { userId: user._id, collectionType: type };
 
     // support optional forTrade query param to filter only trade-eligible cards
     const { forTrade } = req.query;
@@ -169,20 +175,20 @@ userCardRouter.get('/usercards/:username/:type', async (req, res) => {
       (filter as any).forTrade = ft === 'true' || ft === '1';
     }
 
-    const cards = await UserCard.find(filter)
-      .populate('cardId', 'name imageUrl rarity')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(Number(limit));
+    let query = UserCard.find(filter).populate('cardId', 'name imageUrl rarity').sort({ createdAt: -1 });
+    if (skip) query = query.skip(skip);
+    if (limitNum) query = query.limit(limitNum);
+
+    const cards = await query.exec();
 
     const total = await UserCard.countDocuments(filter);
-    const totalPages = Math.ceil(total / Number(limit));
+    const totalPages = limitNum ? Math.ceil(total / limitNum) : 1;
 
     res.send({
-      page: Number(page),
+      page: pageNum,
       totalPages,
       totalResults: total,
-      resultsPerPage: Number(limit),
+      resultsPerPage: limitNum ?? total,
       cards,
     });
   } catch (error: any) {

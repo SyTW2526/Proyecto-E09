@@ -122,6 +122,40 @@
   margin-top: 10px;
 }
 
+.trade-cards-inner {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.trade-pager {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.pager-btn {
+  background: #0284c7;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pager-btn[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.pager-info {
+  font-weight: 700;
+  color: #075985;
+}
+
 .trade-card {
   width: 130px;
   padding: 6px;

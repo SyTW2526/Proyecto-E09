@@ -4,6 +4,13 @@ import { authService } from './authService';
 
 const API_BASE_URL = 'http://localhost:3000'; // URL base de la API del servidor
 const TCGDEX_URL = 'https://api.tcgdex.net/v2/en'; // API pública de tcgDex
+
+function alphaPrefix(setCode: string | undefined) {
+  if (!setCode) return '';
+  const m = String(setCode).match(/^[a-zA-Z]+/);
+  if (m) return m[0];
+  return String(setCode).slice(0, 2);
+}
 class ApiService {
   async fetchFeaturedCards(): Promise<PokemonCard[]> {
     try {
@@ -59,6 +66,27 @@ class ApiService {
 
   async getTcgDexSets(): Promise<any[]> {
     return this.fetchFromTcgDex("sets");
+  }
+
+  async getCardsFromTcgDexSet(setId: string): Promise<any | null> {
+    try {
+      const res = await this.fetchFromTcgDex(`sets/${setId}`);
+      if (!res) return null;
+      // normalize response shape
+      let payload = res.data ?? res;
+      // some responses nest under `set`
+      if (payload.set) payload = payload.set;
+
+      const cards = payload.cards ?? payload.data?.cards ?? payload.set?.cards ?? [];
+      const images = payload.images ?? payload.image ?? payload.logo ?? {};
+      const name = payload.name ?? payload.title ?? payload.setName ?? '';
+      const id = payload.id ?? setId;
+
+      return { id, name, images, cards, raw: res };
+    } catch (err) {
+      console.error('Error fetching set from TCGdex:', err);
+      return null;
+    }
   }
 
   async getTcgDexCard(setId: string, cardId: string): Promise<any> {
@@ -220,6 +248,20 @@ class ApiService {
     }
   }
 
+  async addCardToUserCollectionByTcgId(userId: string, pokemonTcgId: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/${userId}/cards`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authService.getAuthHeaders() },
+        body: JSON.stringify({ pokemonTcgId, collectionType: 'collection', autoFetch: true })
+      });
+      return res.ok;
+    } catch (err) {
+      console.error('Error adding card to collection:', err);
+      return false;
+    }
+  }
+
   async removeFromWishlist(userId: string, cardId: string): Promise<boolean> {
     try {
       // The server exposes deletion by userCard id under /usercards/:username/cards/:userCardId
@@ -316,7 +358,7 @@ class ApiService {
         const tcgId = item.pokemonTcgId || card.pokemonTcgId || '';
         if (!image && tcgId) {
           const [setCode, number] = tcgId.split('-');
-          const series = setCode ? setCode.slice(0, 2) : '';
+          const series = alphaPrefix(setCode);
           if (setCode && number) {
             image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
           }
@@ -392,7 +434,7 @@ class ApiService {
         const tcgId = item.pokemonTcgId || card.pokemonTcgId || '';
         if (!image && tcgId) {
           const [setCode, number] = tcgId.split('-');
-          const series = setCode ? setCode.slice(0, 2) : '';
+          const series = alphaPrefix(setCode);
           if (setCode && number) {
             image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
           }

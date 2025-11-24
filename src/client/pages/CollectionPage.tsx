@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserCollection } from '../features/collection/collectionSlice';
 import { RootState, AppDispatch } from '../store/store';
 import { authService } from '../services/authService';
+import api from '../services/apiService';
 import { useTranslation } from 'react-i18next';
 
 const PAGE_SIZE = 12;
@@ -64,6 +65,7 @@ const CollectionPage: React.FC = () => {
   const [selectedSort, setSelectedSort] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [page, setPage] = useState(1);
+  const [optimisticTrades, setOptimisticTrades] = useState<Record<string, boolean>>({});
 
   const user = authService.getUser();
   const username = user?.username;
@@ -184,7 +186,37 @@ const CollectionPage: React.FC = () => {
           <div className="collection-grid">
             {pageItems.map((c:any)=> (
               <div key={c.id} className="collection-card">
-                <img src={c.image} alt={c.name} />
+                <div style={{position:'relative', width:'100%'}}>
+                  <img src={c.image} alt={c.name} />
+                  {/* trade toggle button top-right */}
+                  <button
+                    title={ (optimisticTrades[c.id] ?? c.forTrade) ? 'Marked for trade' : 'Mark for trade' }
+                    onClick={async (e)=>{
+                      e.stopPropagation();
+                      const user = authService.getUser();
+                      if (!user || !authService.isAuthenticated()) {
+                        window.alert('Debes iniciar sesión para marcar cartas para intercambio');
+                        return;
+                      }
+                      const current = optimisticTrades[c.id] ?? c.forTrade;
+                      const next = !current;
+                      // optimistic update
+                      setOptimisticTrades(prev=> ({ ...prev, [c.id]: next }));
+                      const ok = await api.updateUserCard(user.username || user.id, c.id, { forTrade: next });
+                      if (!ok) {
+                        // rollback
+                        setOptimisticTrades(prev=> ({ ...prev, [c.id]: current }));
+                        window.alert('No se pudo actualizar el estado de intercambio');
+                      } else {
+                        // refresh collection to keep server in sync (keeps other fields updated)
+                        dispatch(fetchUserCollection(user.username || user.id));
+                      }
+                    }}
+                    style={{ position:'absolute', top:8, right:8, zIndex:1, background:'white', borderRadius:8, padding:'6px' }}
+                  >
+                    <span style={{fontSize:'18px'}}>{(optimisticTrades[c.id] ?? c.forTrade) ? '✅' : '⭕'}</span>
+                  </button>
+                </div>
                 <div className="card-name">{c.name}</div>
               </div>
             ))}

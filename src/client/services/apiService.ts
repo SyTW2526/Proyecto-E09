@@ -401,6 +401,7 @@ class ApiService {
           id: item._id,
           name: card.name,
           image,
+          set: card.set,
           rarity: card.rarity,
           forTrade: item.forTrade,
         });

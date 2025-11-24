@@ -26,4 +26,7 @@ const trainerCardSchema = new mongoose.Schema({
   lastPriceUpdate: { type: Date }
 }, { timestamps: true });
 
+// ensure category exists on trainer cards
+trainerCardSchema.add({ category: { type: String, enum: ['pokemon','trainer','energy','unknown'], default: 'trainer' } });
+
 export const TrainerCard = mongoose.model('TrainerCard', trainerCardSchema);

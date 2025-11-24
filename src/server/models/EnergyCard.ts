@@ -26,4 +26,7 @@ const energyCardSchema = new mongoose.Schema({
   lastPriceUpdate: { type: Date }
 }, { timestamps: true });
 
+// ensure category exists on energy cards
+energyCardSchema.add({ category: { type: String, enum: ['pokemon','trainer','energy','unknown'], default: 'energy' } });
+
 export const EnergyCard = mongoose.model('EnergyCard', energyCardSchema);

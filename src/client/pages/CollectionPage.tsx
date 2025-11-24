@@ -18,7 +18,6 @@ const CollectionPage: React.FC = () => {
   const [query, setQuery] = useState('');
   const [selectedSet, setSelectedSet] = useState('');
   const [selectedRarity, setSelectedRarity] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [page, setPage] = useState(1);
 
@@ -49,12 +48,6 @@ const CollectionPage: React.FC = () => {
     return Array.from(s).filter(Boolean).sort();
   }, [collection]);
 
-  const categories = useMemo(() => {
-    const s = new Set<string>();
-    (collection || []).forEach((c: any) => { if (c.category) s.add(c.category); });
-    return Array.from(s).filter(Boolean).sort();
-  }, [collection]);
-
   const filtered = useMemo(() => {
   let items = (collection || []).slice();
     if (query) {
@@ -64,14 +57,13 @@ const CollectionPage: React.FC = () => {
   if (selectedSet) items = items.filter((c:any) => (c.set === selectedSet) || (c.series === selectedSet));
   if (selectedRarity) items = items.filter((c:any) => c.rarity === selectedRarity);
   if (selectedType) items = items.filter((c:any) => c.types?.includes(selectedType));
-  if (selectedCategory) items = items.filter((c:any) => (c.category || c.type || '').toString() === selectedCategory);
     return items;
   }, [collection, query, selectedSet, selectedRarity, selectedType]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
 
-  useEffect(() => { setPage(1); }, [query, selectedSet, selectedRarity, selectedType, selectedCategory]);
+  useEffect(() => { setPage(1); }, [query, selectedSet, selectedRarity, selectedType]);
 
   return (
     <div className="collection-page">
@@ -99,10 +91,6 @@ const CollectionPage: React.FC = () => {
             <select value={selectedType} onChange={(e)=>setSelectedType(e.target.value)}>
               <option value="">{t('Tipo')||'Type'}</option>
               {types.map(ti=> <option key={ti} value={ti}>{ti}</option>)}
-            </select>
-            <select value={selectedCategory} onChange={(e)=>setSelectedCategory(e.target.value)}>
-              <option value="">{t('Categoría')||'Category'}</option>
-              {categories.map(c=> <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
         </div>

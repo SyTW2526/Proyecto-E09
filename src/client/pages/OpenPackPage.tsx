@@ -8,7 +8,45 @@ import '../styles/collection.css';
 
 // reuse canonical rarity order here (subset is fine; ensure 'Rare' present)
 const RARITY_ORDER = [
-  'Common','Uncommon','Rare','Holo Rare','Rare Holo','Ultra Rare','Secret Rare','None'
+  'Common',
+  'Uncommon',
+  'Rare',
+  'Holo Rare',
+  'Rare Holo',
+  'Double rare',
+  'ACE SPEC Rare',
+  'Amazing Rare',
+  'Illustration rare',
+  'Special illustration rare',
+  'Ultra Rare',
+  'Holo Rare V',
+  'Holo Rare VMAX',
+  'Holo Rare VSTAR',
+  'Shiny rare',
+  'Shiny Ultra Rare',
+  'Shiny rare V',
+  'Shiny rare VMAX',
+  'Radiant Rare',
+  'Hyper rare',
+  'Mega Hyper Rare',
+  'Secret Rare',
+  'Rare PRIME',
+  'Rare Holo LV.X',
+  'LEGEND',
+  'Full Art Trainer',
+  'Classic Collection',
+  'Black White Rare',
+  'Crown',
+  'One Diamond',
+  'Two Diamond',
+  'Three Diamond',
+  'Four Diamond',
+  'One Star',
+  'Two Star',
+  'Three Star',
+  'One Shiny',
+  'Two Shiny',
+  'None'
 ];
 
 const OpenPackPage: React.FC = () => {

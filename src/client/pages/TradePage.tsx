@@ -28,6 +28,8 @@ const TradeRoomPage: React.FC = () => {
 
   const [userCards, setUserCards] = useState<UserCard[]>([]);
   const [selectedCard, setSelectedCard] = useState<UserCard | null>(null);
+  const [cardsPage, setCardsPage] = useState(1);
+  const PAGE_SIZE = 6;
 
   const [opponentCard, setOpponentCard] = useState<UserCard | null>(null);
   const [opponentName, setOpponentName] = useState<string>("");
@@ -107,7 +109,8 @@ const TradeRoomPage: React.FC = () => {
           const tcgId = item.pokemonTcgId || card.pokemonTcgId || '';
           if (!image && tcgId) {
             const [setCode, number] = tcgId.split('-');
-            const series = setCode ? setCode.slice(0, 2) : '';
+            const m = setCode ? String(setCode).match(/^[a-zA-Z]+/) : null;
+            const series = m ? m[0] : (setCode ? setCode.slice(0,2) : '');
             if (setCode && number) image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
           }
 
@@ -127,6 +130,12 @@ const TradeRoomPage: React.FC = () => {
 
     if (username) fetchCards();
   }, [username]);
+
+  // keep current page within bounds when userCards changes
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(userCards.length / PAGE_SIZE));
+    setCardsPage((p) => Math.min(p, totalPages));
+  }, [userCards.length]);
 
   const handleSend = () => {
     if (!input.trim() || !socket) return;
@@ -195,18 +204,35 @@ const TradeRoomPage: React.FC = () => {
 
             <p className="trade-subtitle">{t("tradeRoom.tusCartas")}</p>
 
-            <div className="trade-cards-grid">
-              {userCards.map((card) => (
-                <div
-                  key={card.id}
-                  className="trade-card"
-                  onClick={() => handleSelectCard(card)}
-                >
-                  <img src={card.image} className="trade-card-img" />
-                  <p className="trade-card-title">{card.name}</p>
-                </div>
-              ))}
-            </div>
+            {(() => {
+              const totalPages = Math.max(1, Math.ceil(userCards.length / PAGE_SIZE));
+              const page = Math.min(Math.max(1, cardsPage), totalPages);
+              const pageItems = userCards.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+              return (
+                <>
+                  <div className="trade-cards-grid">
+                    <div className="trade-cards-inner">
+                      {pageItems.map((card) => (
+                        <div
+                          key={card.id}
+                          className="trade-card"
+                          onClick={() => handleSelectCard(card)}
+                        >
+                          <img src={card.image} className="trade-card-img" />
+                          {/* intentionally hide name/title for trade browsing */}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="trade-pager" style={{ marginTop: 12 }}>
+                    <button className="pager-btn" onClick={() => setCardsPage(p => Math.max(1, p - 1))} disabled={page <= 1}>&lt;</button>
+                    <span className="pager-info">{page} / {totalPages}</span>
+                    <button className="pager-btn" onClick={() => setCardsPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>&gt;</button>
+                  </div>
+                </>
+              );
+            })()}
           </section>
 
           {/* CHAT */}

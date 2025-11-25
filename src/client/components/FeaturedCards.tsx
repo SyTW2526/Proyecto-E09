@@ -89,7 +89,8 @@ const FeaturedCards: React.FC = () => {
           let rawImage = (c.images && (c.images.large || c.images.small)) || c.imageUrl || c.image || '';
           if (!rawImage && id) {
             const [setCode, number] = id.split('-');
-            const series = setCode ? setCode.slice(0, 2) : '';
+            const m = setCode ? String(setCode).match(/^[a-zA-Z]+/) : null;
+            const series = m ? m[0] : (setCode ? setCode.slice(0,2) : '');
             if (setCode && number) {
               rawImage = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
             }

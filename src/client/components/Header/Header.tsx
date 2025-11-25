@@ -44,6 +44,9 @@ const Header: React.FC = () => {
             <Link to="/coleccion" className="CollectionButton">
               {t("header.coleccion")}
             </Link>
+            <Link to="/abrir" className="CollectionButton">
+              {t('header.abrir', { defaultValue: 'Abrir' })}
+            </Link>
             <Link to="/trade" className="CollectionButton">
               {t("header.intercambio")}
             </Link>

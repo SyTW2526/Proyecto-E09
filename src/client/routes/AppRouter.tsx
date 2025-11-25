@@ -3,10 +3,13 @@ import StartPage from "../pages/StartPage";
 import SignUpPage from "../pages/SignUpPage";
 import SignInPage from "../pages/SignInPage";
 import HomePage from "../pages/HomePage";
-import TradeRoomPage from "../pages/TradePage";
 import ProfilePage from "../pages/ProfilePage";
 import FriendsPage from "../pages/FriendsPage";
 import CollectionPage from "../pages/CollectionPage";
+import DiscoverTradePage from "../pages/DiscoverTradePage";
+import TradeRequestsPage from "../pages/TradeRequestPage";
+import TradePage from "../pages/TradePage";
+import CreateTradeRoomPage from "../pages/CreateRoomPage";
 import OpenPackPage from "../pages/OpenPackPage";
 
 const AppRouter = () => {
@@ -17,11 +20,14 @@ const AppRouter = () => {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<SignInPage />} />
         <Route path="/home" element={<HomePage />} />
-        <Route path="/coleccion" element={<CollectionPage />} />
+        <Route path="/collection" element={<CollectionPage />} />
         <Route path="/abrir" element={<OpenPackPage />} />
-        <Route path="/trade" element={<TradeRoomPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/friends" element={<FriendsPage />} />
+        <Route path="/discover" element={<DiscoverTradePage />} />
+        <Route path="/trade-requests" element={<TradeRequestsPage />} />
+        <Route path="/trade-room/:code" element={<TradePage />} />
+        <Route path="/trade-room/create" element={<CreateTradeRoomPage />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Socket } from "socket.io-client";
-import { initSocket, getSocket } from "../socket";
+import { initSocket } from "../socket";
 import Header from "../components/Header/Header";
 import Footer from "@/components/Footer";
 import { useTranslation } from "react-i18next";
 import { authService } from "../services/authService";
+import { useParams, useNavigate } from "react-router-dom";
 import "../styles/trade-room.css";
 
 interface UserCard {
@@ -12,19 +13,28 @@ interface UserCard {
   name: string;
   image: string;
   rarity: string;
+  pokemonTcgId?: string;
 }
 
-const TradeRoomPage: React.FC = () => {
+const TradePage: React.FC = () => {
   const { t } = useTranslation();
+  const { code } = useParams<{ code: string }>();
+  const navigate = useNavigate();
 
   const user = authService.getUser();
   const userImage = user?.profileImage || "/icono.png";
   const username = user?.username;
+  const userId = user?.id;
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
-  const [roomCode] = useState("sala-demo-123");
+
+  const [roomCode] = useState(() => code || "sala-demo-123");
+
+  const [trade, setTrade] = useState<any | null>(null);
+  const [loadingTrade, setLoadingTrade] = useState(true);
+  const [tradeError, setTradeError] = useState<string | null>(null);
 
   const [userCards, setUserCards] = useState<UserCard[]>([]);
   const [selectedCard, setSelectedCard] = useState<UserCard | null>(null);
@@ -36,26 +46,64 @@ const TradeRoomPage: React.FC = () => {
   const [opponentImage, setOpponentImage] = useState<string>("/icono.png");
 
   useEffect(() => {
-    // Use shared socket instance so navigation between routes doesn't disconnect the user.
+    const fetchTrade = async () => {
+      try {
+        setLoadingTrade(true);
+        const token = localStorage.getItem("token") || "";
+        const res = await fetch(
+          `http://localhost:3000/trades/room/${roomCode}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await res.json();
+        if (!res.ok) {
+          setTradeError(
+            data?.error || t("tradeRoom.errorSalaNoEncontrada")
+          );
+          return;
+        }
+        setTrade(data);
+      } catch (e) {
+        setTradeError(t("tradeRoom.errorCargarIntercambio"));
+      } finally {
+        setLoadingTrade(false);
+      }
+    };
+
+    if (roomCode) fetchTrade();
+  }, [roomCode, t]);
+
+  const isFriendPrivateRoom =
+    trade?.tradeType === "private" && !trade?.requestId;
+
+  const requestedPokemonTcgId: string | undefined =
+    trade?.requestedPokemonTcgId || undefined;
+
+  useEffect(() => {
     const s = initSocket() as Socket | null;
     if (!s) return;
 
     setSocket(s);
 
-    // join room only once per mount
     s.emit("joinRoom", roomCode);
 
-    const onReceiveMessage = (data: any) => setMessages((prev) => [...prev, data]);
+    const onReceiveMessage = (data: any) =>
+      setMessages((prev) => [...prev, data]);
+
     const onCardSelected = (data: any) => {
       setOpponentCard(data.card);
       setOpponentName(data.user);
     };
+
     const onUserJoined = (data: any) => {
       if (data.user !== username) setOpponentName(data.user);
     };
+
     const onRoomUsers = async (data: any) => {
       if (!data || !Array.isArray(data.users)) return;
-
       const others = data.users.filter((u: string) => u !== username);
       if (others.length > 0) {
         const opponent = others[0];
@@ -71,55 +119,70 @@ const TradeRoomPage: React.FC = () => {
       }
     };
 
+    const onTradeCompleted = () => {
+      window.alert(t("tradeRoom.tradeCompleted"));
+      navigate("/discover");
+    };
+
+    const onTradeRejected = () => {
+      window.alert(t("tradeRoom.tradeRejected"));
+      navigate("/discover");
+    };
+
     s.on("receiveMessage", onReceiveMessage);
     s.on("cardSelected", onCardSelected);
     s.on("userJoined", onUserJoined);
     s.on("roomUsers", onRoomUsers);
+    s.on("tradeCompleted", onTradeCompleted);
+    s.on("tradeRejected", onTradeRejected);
 
     return () => {
-      // remove listeners but do not disconnect shared socket on navigation
       s.off("receiveMessage", onReceiveMessage);
       s.off("cardSelected", onCardSelected);
       s.off("userJoined", onUserJoined);
       s.off("roomUsers", onRoomUsers);
+      s.off("tradeCompleted", onTradeCompleted);
+      s.off("tradeRejected", onTradeRejected);
       setSocket(null);
     };
-  }, [username, roomCode]);
+  }, [username, roomCode, navigate, t]);
 
   useEffect(() => {
     const fetchCards = async () => {
       try {
+        const query = isFriendPrivateRoom ? "" : "?forTrade=true";
+
         const res = await fetch(
-          `http://localhost:3000/usercards/${username}/collection?forTrade=true`
+          `http://localhost:3000/usercards/${username}/collection${query}`
         );
         const data = await res.json();
 
-        // normalize card shapes to { id, name, image, rarity }
-        const normalized = (data.cards || []).map((item: any) => {
-          // item may have .cardId populated or may only have pokemonTcgId
+        const normalized: UserCard[] = (data.cards || []).map((item: any) => {
           const card = item.cardId || {};
 
-          // try multiple image shapes
-          let image = card.imageUrl || card.imageUrlHiRes || card.image || '';
+          let image =
+            card.imageUrl || card.imageUrlHiRes || card.image || "";
           if (!image && card.images) {
-            image = card.images.large || card.images.small || '';
+            image = card.images.large || card.images.small || "";
           }
 
-          // fallback to constructing tcgdex asset from pokemonTcgId
-          const tcgId = item.pokemonTcgId || card.pokemonTcgId || '';
-          if (!image && tcgId) {
-            const [setCode, number] = tcgId.split('-');
-            const m = setCode ? String(setCode).match(/^[a-zA-Z]+/) : null;
-            const series = m ? m[0] : (setCode ? setCode.slice(0,2) : '');
-            if (setCode && number) image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+          const pokemonTcgId = item.pokemonTcgId || card.pokemonTcgId || "";
+
+          if (!image && pokemonTcgId) {
+            const [setCode, number] = pokemonTcgId.split("-");
+            const series = setCode ? setCode.slice(0, 2) : "";
+            if (setCode && number) {
+              image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+            }
           }
 
           return {
-            id: item._id || (card._id || card.id) || tcgId || '' ,
-            name: card.name || item.name || '',
+            id: item._id || card._id || card.id || pokemonTcgId || "",
+            name: card.name || item.name || "",
             image,
-            rarity: card.rarity || item.rarity || ''
-          } as UserCard;
+            rarity: card.rarity || item.rarity || "",
+            pokemonTcgId: pokemonTcgId || undefined,
+          };
         });
 
         setUserCards(normalized);
@@ -129,13 +192,22 @@ const TradeRoomPage: React.FC = () => {
     };
 
     if (username) fetchCards();
-  }, [username]);
+  }, [username, isFriendPrivateRoom]);
+  const forcedCard = useMemo(() => {
+    if (!requestedPokemonTcgId) return null;
+    return (
+      userCards.find((c) => c.pokemonTcgId === requestedPokemonTcgId) || null
+    );
+  }, [userCards, requestedPokemonTcgId]);
 
-  // keep current page within bounds when userCards changes
+  const isOwnerOfRequestedCard = !!forcedCard;
+
   useEffect(() => {
-    const totalPages = Math.max(1, Math.ceil(userCards.length / PAGE_SIZE));
-    setCardsPage((p) => Math.min(p, totalPages));
-  }, [userCards.length]);
+    if (forcedCard && socket && username) {
+      setSelectedCard(forcedCard);
+      socket.emit("selectCard", { roomCode, card: forcedCard, user: username });
+    }
+  }, [forcedCard, socket, username, roomCode]);
 
   const handleSend = () => {
     if (!input.trim() || !socket) return;
@@ -147,15 +219,147 @@ const TradeRoomPage: React.FC = () => {
     };
 
     socket.emit("sendMessage", message);
-
     setMessages((prev) => [...prev, message]);
     setInput("");
   };
 
   const handleSelectCard = (card: UserCard) => {
+    if (forcedCard && card.id !== forcedCard.id) {
+      window.alert(
+        t("tradeRoom.cardForcedOnly")
+      );
+      return;
+    }
+
     setSelectedCard(card);
     socket?.emit("selectCard", { roomCode, card, user: username });
   };
+
+  const handleAccept = async () => {
+    try {
+      if (!trade) {
+        window.alert(t("tradeRoom.noTradeLoaded"));
+        return;
+      }
+      if (!selectedCard || !opponentCard) {
+        window.alert(t("tradeRoom.mustSelectBoth"));
+        return;
+      }
+
+      const token = localStorage.getItem("token") || "";
+      const res = await fetch(
+        `http://localhost:3000/trades/${trade._id}/complete`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            myUserCardId: selectedCard.id,
+            opponentUserCardId: opponentCard.id,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data?.error === "TRADE_VALUE_DIFF_TOO_HIGH") {
+          window.alert(t("tradeRoom.errorValueDiff"));
+        } else if (data?.error === "REQUESTED_CARD_MISMATCH") {
+          window.alert(t("tradeRoom.errorRequestedMismatch"));
+        } else {
+          window.alert(data?.error || t("tradeRoom.errorCompleteTrade"));
+        }
+        return;
+      }
+
+      if (data.message === "WAITING_OTHER_USER") {
+        window.alert(t("tradeRoom.waitingOtherUser"));
+        return;
+      }
+
+      if (data.message === "TRADE_COMPLETED") {
+        window.alert(t("tradeRoom.tradeCompleted"));
+        navigate("/discover");
+        return;
+      }
+
+      window.alert(t("tradeRoom.unexpectedResponse"));
+    } catch {
+      window.alert(t("tradeRoom.errorCompleteTrade"));
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      if (!trade) {
+        window.alert(t("tradeRoom.noTradeLoaded"));
+        return;
+      }
+
+      const token = localStorage.getItem("token") || "";
+      const res = await fetch(`http://localhost:3000/trades/${trade._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: "rejected" }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        window.alert(data?.error || t("tradeRoom.errorReject"));
+        return;
+      }
+
+      window.alert(t("tradeRoom.tradeRejected"));
+      navigate("/discover");
+    } catch {
+      window.alert(t("tradeRoom.errorReject"));
+    }
+  };
+  if (!user || !authService.isAuthenticated()) {
+    return (
+      <div className="trade-page">
+        <Header />
+        <main className="trade-main">
+          <p>{t("tradeRoom.mustLogin")}</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (loadingTrade) {
+    return (
+      <div className="trade-page">
+        <Header />
+        <main className="trade-main">
+          <p>{t("tradeRoom.loadingRoom")}</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (tradeError || !trade) {
+    return (
+      <div className="trade-page">
+        <Header />
+        <main className="trade-main">
+          <p>{tradeError || t("tradeRoom.roomNotFound")}</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const pageTitle = isFriendPrivateRoom
+    ? t("tradeRoom.privateRoom")
+    : t("tradeRoom.publicRoom");
 
   return (
     <div className="trade-page">
@@ -163,23 +367,24 @@ const TradeRoomPage: React.FC = () => {
 
       <main className="trade-main">
         <div className="trade-container">
-          {/* LEFT SECTION */}
           <section className="trade-left">
-            <h2 className="trade-title">{t("tradeRoom.titulo")}</h2>
+            <h2 className="trade-title">{pageTitle}</h2>
             <p className="trade-room-code">
-              {t("tradeRoom.codigoSala")} <b>{roomCode}</b>
+              {t("tradeRoom.roomCode")}: <b>{roomCode}</b>
             </p>
 
             <div className="trade-fight">
               <div className="player-block">
                 <img src={userImage} className="player-avatar" />
-                <p className="player-name">{t("tradeRoom.tu")}</p>
+                <p className="player-name">{t("tradeRoom.you")}</p>
 
                 <div className="player-card">
                   {selectedCard ? (
                     <img src={selectedCard.image} className="selected-card" />
                   ) : (
-                    <span className="no-card">{t("tradeRoom.tuCartaSel")}</span>
+                    <span className="no-card">
+                      {t("tradeRoom.selectYourCard")}
+                    </span>
                   )}
                 </div>
               </div>
@@ -189,55 +394,55 @@ const TradeRoomPage: React.FC = () => {
               <div className="player-block">
                 <img src={opponentImage} className="player-avatar" />
                 <p className="player-name opponent">
-                  {opponentName || t("tradeRoom.otroUsuario")}
+                  {opponentName || t("tradeRoom.otherUser")}
                 </p>
 
                 <div className="player-card">
                   {opponentCard ? (
                     <img src={opponentCard.image} className="selected-card" />
                   ) : (
-                    <span className="no-card">{t("tradeRoom.cartaRival")}</span>
+                    <span className="no-card">
+                      {t("tradeRoom.waitingOpponentCard")}
+                    </span>
                   )}
                 </div>
               </div>
             </div>
 
-            <p className="trade-subtitle">{t("tradeRoom.tusCartas")}</p>
+            <p className="trade-subtitle">
+              {isFriendPrivateRoom
+                ? t("tradeRoom.yourCards")
+                : t("tradeRoom.yourTradeCards")}
+            </p>
+            <div className="trade-cards-grid">
+              {userCards.map((card) => {
+                const disabled =
+                  isOwnerOfRequestedCard &&
+                  forcedCard &&
+                  card.id !== forcedCard.id;
 
-            {(() => {
-              const totalPages = Math.max(1, Math.ceil(userCards.length / PAGE_SIZE));
-              const page = Math.min(Math.max(1, cardsPage), totalPages);
-              const pageItems = userCards.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-              return (
-                <>
-                  <div className="trade-cards-grid">
-                    <div className="trade-cards-inner">
-                      {pageItems.map((card) => (
-                        <div
-                          key={card.id}
-                          className="trade-card"
-                          onClick={() => handleSelectCard(card)}
-                        >
-                          <img src={card.image} className="trade-card-img" />
-                          {/* intentionally hide name/title for trade browsing */}
-                        </div>
-                      ))}
-                    </div>
+                return (
+                  <div
+                    key={card.id}
+                    className={
+                      "trade-card" + (disabled ? " trade-card-disabled" : "")
+                    }
+                    onClick={() => !disabled && handleSelectCard(card)}
+                  >
+                    <img src={card.image} className="trade-card-img" />
+                    <p className="trade-card-title">{card.name}</p>
                   </div>
-
-                  <div className="trade-pager" style={{ marginTop: 12 }}>
-                    <button className="pager-btn" onClick={() => setCardsPage(p => Math.max(1, p - 1))} disabled={page <= 1}>&lt;</button>
-                    <span className="pager-info">{page} / {totalPages}</span>
-                    <button className="pager-btn" onClick={() => setCardsPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>&gt;</button>
-                  </div>
-                </>
-              );
-            })()}
+                );
+              })}
+            </div>
           </section>
 
-          {/* CHAT */}
           <aside className="trade-chat">
-            <h3 className="chat-title">{t("tradeRoom.chat")}</h3>
+            <h3 className="chat-title">
+              {isFriendPrivateRoom
+                ? t("tradeRoom.privateChat")
+                : t("tradeRoom.chat")}
+            </h3>
 
             <div className="chat-window">
               <div className="messages-list">
@@ -255,7 +460,7 @@ const TradeRoomPage: React.FC = () => {
                     >
                       {m.user !== username && (
                         <p className="sender-name">
-                          {opponentName || t("tradeRoom.otroUsuario")}
+                          {opponentName || t("tradeRoom.otherUser")}
                         </p>
                       )}
                       <p>{m.text}</p>
@@ -269,17 +474,25 @@ const TradeRoomPage: React.FC = () => {
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={t("tradeRoom.escribeMensaje")}
+                placeholder={
+                  isFriendPrivateRoom
+                    ? t("tradeRoom.placeholderFriend")
+                    : t("tradeRoom.placeholder")
+                }
                 className="chat-input"
               />
               <button onClick={handleSend} className="chat-send">
-                {t("tradeRoom.enviar")}
+                {t("tradeRoom.send")}
               </button>
             </div>
 
             <div className="trade-actions">
-              <button className="btn-accept">{t("tradeRoom.aceptar")}</button>
-              <button className="btn-reject">{t("tradeRoom.rechazar")}</button>
+              <button className="btn-accept" onClick={handleAccept}>
+                {t("tradeRoom.acceptTrade")}
+              </button>
+              <button className="btn-reject" onClick={handleReject}>
+                {t("tradeRoom.rejectTrade")}
+              </button>
             </div>
           </aside>
         </div>
@@ -292,4 +505,4 @@ const TradeRoomPage: React.FC = () => {
   );
 };
 
-export default TradeRoomPage;
+export default TradePage;

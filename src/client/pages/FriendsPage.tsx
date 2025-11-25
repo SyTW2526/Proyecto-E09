@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { initSocket, getSocket } from "../socket";
+import { initSocket } from "../socket";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer";
 import "../styles/friends.css";
 import { authService } from "../services/authService";
+import { useTranslation } from "react-i18next";
 
 const FriendsPage: React.FC = () => {
+  const { t } = useTranslation();
+  const tt = (key: string, fallback: string) => {
+    const v = t(key);
+    return v === key ? fallback : v;
+  };
+
   const [user, setUser] = useState<any>(null);
   const [socket, setSocket] = useState<any>(null);
 
@@ -28,7 +35,6 @@ const FriendsPage: React.FC = () => {
     const s = initSocket();
     if (s) setSocket(s);
 
-    // do not disconnect shared socket on unmount; remove listeners elsewhere when necessary
     return () => {
       setSocket(null);
     };
@@ -165,7 +171,15 @@ const FriendsPage: React.FC = () => {
   };
 
   const removeFriend = async (friendIdentifier: string) => {
-    if (!confirm("¿Eliminar a este amigo?")) return;
+    if (
+      !confirm(
+        tt(
+          "friends.confirmRemove",
+          "¿Eliminar a este amigo?"
+        )
+      )
+    )
+      return;
 
     await fetch(`http://localhost:3000/friends/remove/${friendIdentifier}`, {
       method: "DELETE",
@@ -195,23 +209,29 @@ const FriendsPage: React.FC = () => {
       <Header />
 
       <main className="friends-main">
-        <h1 className="friends-title">Amigos</h1>
+        <h1 className="friends-title">
+          {tt("friends.title", "Amigos")}
+        </h1>
 
         <div className="friends-columns-4">
-
           <div className="col-search">
             <section className="friends-panel">
-              <h2 className="panel-title">Buscar usuarios</h2>
+              <h2 className="panel-title">
+                {tt("friends.searchTitle", "Buscar usuarios")}
+              </h2>
 
               <input
                 className="input-box"
-                placeholder="Buscar por nombre..."
+                placeholder={tt(
+                  "friends.searchPlaceholder",
+                  "Buscar por nombre..."
+                )}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
 
               <button className="btn-blue" onClick={handleSearch}>
-                Buscar
+                {tt("friends.searchButton", "Buscar")}
               </button>
 
               <div className="results-list">
@@ -222,7 +242,7 @@ const FriendsPage: React.FC = () => {
                       className="btn-blue-small"
                       onClick={() => sendFriendRequest(u._id)}
                     >
-                      Añadir
+                      {tt("friends.addButton", "Añadir")}
                     </button>
                   </div>
                 ))}
@@ -232,10 +252,20 @@ const FriendsPage: React.FC = () => {
 
           <div className="col-requests">
             <section className="friends-panel">
-              <h2 className="panel-title">Solicitudes recibidas</h2>
+              <h2 className="panel-title">
+                {tt(
+                  "friends.receivedTitle",
+                  "Solicitudes recibidas"
+                )}
+              </h2>
 
               {friendRequests.length === 0 ? (
-                <p className="no-requests">No tienes solicitudes.</p>
+                <p className="no-requests">
+                  {tt(
+                    "friends.noReceivedRequests",
+                    "No tienes solicitudes."
+                  )}
+                </p>
               ) : (
                 friendRequests.map((req) => (
                   <div key={req.requestId} className="result-row">
@@ -244,16 +274,20 @@ const FriendsPage: React.FC = () => {
                     <div className="request-actions">
                       <button
                         className="btn-blue-small"
-                        onClick={() => acceptFriendRequest(req.userId)}
+                        onClick={() =>
+                          acceptFriendRequest(req.userId)
+                        }
                       >
-                        Aceptar
+                        {tt("friends.accept", "Aceptar")}
                       </button>
 
                       <button
                         className="btn-gray-small"
-                        onClick={() => rejectFriendRequest(req.userId)}
+                        onClick={() =>
+                          rejectFriendRequest(req.userId)
+                        }
                       >
-                        Rechazar
+                        {tt("friends.reject", "Rechazar")}
                       </button>
                     </div>
                   </div>
@@ -262,19 +296,34 @@ const FriendsPage: React.FC = () => {
             </section>
 
             <section className="friends-panel">
-              <h2 className="panel-title">Solicitudes enviadas</h2>
+              <h2 className="panel-title">
+                {tt(
+                  "friends.sentTitle",
+                  "Solicitudes enviadas"
+                )}
+              </h2>
 
               {sentRequests.length === 0 ? (
-                <p className="no-requests">Ninguna solicitud enviada.</p>
+                <p className="no-requests">
+                  {tt(
+                    "friends.noSentRequests",
+                    "Ninguna solicitud enviada."
+                  )}
+                </p>
               ) : (
                 sentRequests.map((req) => (
                   <div key={req._id} className="result-row">
                     <span>{req.username}</span>
                     <button
                       className="btn-gray-small"
-                      onClick={() => cancelSentRequest(req._id)}
+                      onClick={() =>
+                        cancelSentRequest(req._id)
+                      }
                     >
-                      Cancelar
+                      {tt(
+                        "friends.cancelRequest",
+                        "Cancelar"
+                      )}
                     </button>
                   </div>
                 ))
@@ -284,10 +333,14 @@ const FriendsPage: React.FC = () => {
 
           <div className="col-friends">
             <section className="friends-panel">
-              <h2 className="panel-title">Mis amigos</h2>
+              <h2 className="panel-title">
+                {tt("friends.myFriends", "Mis amigos")}
+              </h2>
 
               {friends.length === 0 ? (
-                <p className="no-requests">No tienes amigos.</p>
+                <p className="no-requests">
+                  {tt("friends.noFriends", "No tienes amigos.")}
+                </p>
               ) : (
                 friends.map((friend) => (
                   <div key={friend._id} className="result-row">
@@ -296,9 +349,11 @@ const FriendsPage: React.FC = () => {
                     <div className="request-actions">
                       <button
                         className="btn-gray-small"
-                        onClick={() => removeFriend(friend._id)}
+                        onClick={() =>
+                          removeFriend(friend._id)
+                        }
                       >
-                        Eliminar
+                        {tt("friends.remove", "Eliminar")}
                       </button>
                     </div>
                   </div>
@@ -309,7 +364,9 @@ const FriendsPage: React.FC = () => {
 
           <div className="col-chat">
             <section className="friends-panel chat-panel">
-              <h2 className="panel-title">Chat</h2>
+              <h2 className="panel-title">
+                {tt("friends.chatTitle", "Chat")}
+              </h2>
 
               <div className="friends-list">
                 {friends.map((friend) => (
@@ -329,7 +386,12 @@ const FriendsPage: React.FC = () => {
 
               <div className="chat-window">
                 {!selectedFriend ? (
-                  <p className="no-friend-selected">Selecciona un amigo</p>
+                  <p className="no-friend-selected">
+                    {tt(
+                      "friends.selectFriend",
+                      "Selecciona un amigo"
+                    )}
+                  </p>
                 ) : (
                   <div className="messages-list">
                     {messages.map((msg, i) => (
@@ -361,20 +423,24 @@ const FriendsPage: React.FC = () => {
                 <div className="chat-input-row">
                   <input
                     className="input-box"
-                    placeholder="Escribe un mensaje..."
+                    placeholder={tt(
+                      "friends.writeMessage",
+                      "Escribe un mensaje..."
+                    )}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                   />
 
-                <button className="btn-send" onClick={sendPrivateMessage}>
-                  Enviar
-                </button>
-
+                  <button
+                    className="btn-send"
+                    onClick={sendPrivateMessage}
+                  >
+                    {tt("friends.send", "Enviar")}
+                  </button>
                 </div>
               )}
             </section>
           </div>
-
         </div>
       </main>
 
@@ -384,4 +450,3 @@ const FriendsPage: React.FC = () => {
 };
 
 export default FriendsPage;
-

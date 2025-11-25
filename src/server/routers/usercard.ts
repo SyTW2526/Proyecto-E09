@@ -95,6 +95,49 @@ userCardRouter.post('/usercards/:username/:type', async (req, res) => {
     res.status(400).send({ error: (error as Error).message ?? String(error) });
   }
 });
+/**
+ * GET /usercards/discover
+ * Obtiene cartas de otros usuarios marcadas para intercambio
+ */
+userCardRouter.get('/usercards/discover', async (req, res) => {
+  try {
+    const { page = 1, limit = 20, excludeUsername } = req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const filter = {
+      forTrade: true,
+      collectionType: 'collection',
+    };
+    if (excludeUsername) {
+      const owner = await User.findOne({ username: excludeUsername });
+      if (owner) {
+        (filter as any).userId = { $ne: owner._id };
+      }
+    }
+
+    const total = await UserCard.countDocuments(filter);
+
+    const cards = await UserCard.find(filter)
+      .populate('userId', 'username profileImage')
+      .populate('cardId')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    res.send({
+      page: Number(page),
+      totalResults: total,
+      totalPages: Math.ceil(total / Number(limit)),
+      resultsPerPage: Number(limit),
+      cards,
+    });
+  } catch (error: any) {
+    console.error('Error en /usercards/discover:', error);
+    res.status(500).send({ error: error.message });
+  }
+});
+
 
 /**
  * GET /usercards/:username
@@ -167,10 +210,8 @@ userCardRouter.get('/usercards/:username/:type', async (req, res) => {
 
     const filter: any = { userId: user._id, collectionType: type };
 
-    // support optional forTrade query param to filter only trade-eligible cards
     const { forTrade } = req.query;
     if (forTrade !== undefined) {
-      // coerce strings like 'true' or '1' to boolean true
       const ft = String(forTrade);
       (filter as any).forTrade = ft === 'true' || ft === '1';
     }

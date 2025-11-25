@@ -3,7 +3,7 @@ import http from "http";
 import cors from "cors";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Server } from "socket.io";
-import "./db/mongoose.js"; 
+import "./db/mongoose.js";
 
 import { defaultRouter } from "./routers/default.js";
 import { userRouter } from "./routers/users.js";
@@ -14,9 +14,9 @@ import { cardRouter } from "./routers/card.js";
 import { syncRouter } from "./routers/api.js";
 import { notificationRouter } from "./routers/notification.js";
 import { preferencesRouter } from "./routers/preferences.js";
-
+import { tradeRequestRouter } from "./routers/trade_request.js";
+import { friendTradeRoomsRouter } from "./routers/friend_trade.js";
 import { ChatMessage } from "./models/Chat.js";
-
 
 const app = express();
 
@@ -32,23 +32,20 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-
 const server = http.createServer(app);
 
 export const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
     credentials: true,
-    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
   },
 });
 
-
-app.use((req: any, res, next) => {
+app.use((req: any, _res, next) => {
   req.io = io;
   next();
 });
-
 
 io.use((socket, next) => {
   try {
@@ -69,15 +66,13 @@ io.use((socket, next) => {
   }
 });
 
-
 io.on("connection", (socket) => {
   console.log(`Usuario conectado: ${socket.data.username}`);
 
   const privateRoom = `user:${socket.data.userId}`;
   socket.join(privateRoom);
 
-
-  socket.on("joinRoom", (roomCode) => {
+  socket.on("joinRoom", (roomCode: string) => {
     socket.join(roomCode);
     console.log(`${socket.data.username} se unió a sala ${roomCode}`);
 
@@ -90,13 +85,12 @@ io.on("connection", (socket) => {
       io.sockets.adapter.rooms.get(roomCode) || []
     )
       .map((id) => io.sockets.sockets.get(id)?.data.username)
-      .filter(Boolean);
+      .filter(Boolean) as string[];
 
     socket.emit("roomUsers", { users: usersInRoom });
   });
 
-
-  socket.on("sendMessage", (data) => {
+  socket.on("sendMessage", (data: any) => {
     socket.to(data.roomCode).emit("receiveMessage", {
       user: socket.data.username,
       userId: socket.data.userId,
@@ -104,8 +98,25 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("selectCard", (data: any) => {
+    const { roomCode, card } = data;
+    socket.to(roomCode).emit("cardSelected", {
+      user: socket.data.username,
+      userId: socket.data.userId,
+      card,
+    });
+  });
 
-  socket.on("privateMessage", async (msg) => {
+  socket.on("tradeReady", (data: any) => {
+    const { roomCode, accepted } = data;
+    socket.to(roomCode).emit("tradeReady", {
+      user: socket.data.username,
+      userId: socket.data.userId,
+      accepted: !!accepted,
+    });
+  });
+
+  socket.on("privateMessage", async (msg: any) => {
     const { from, to, text } = msg;
     console.log(`Mensaje privado de ${from} a ${to}: ${text}`);
 
@@ -124,7 +135,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log(` Usuario desconectado: ${socket.data.username}`);
+    console.log(`Usuario desconectado: ${socket.data.username}`);
   });
 });
 
@@ -136,8 +147,9 @@ app.use(cardRouter);
 app.use(tradeRouter);
 app.use(userCardRouter);
 app.use(pokemonRouter);
+app.use(tradeRequestRouter);
+app.use(friendTradeRoomsRouter);
 app.use(defaultRouter);
-
 
 const port = process.env.PORT || 3000;
 server.listen(port, () => {

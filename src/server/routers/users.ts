@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
-import { Trade } from '../models/Trade.js';
+import { ChatMessage } from "../models/Chat.js";
 import { UserCard } from '../models/UserCard.js';
 import { Card } from '../models/Card.js';
 import { PokemonCard } from '../models/PokemonCard.js';
@@ -11,6 +11,7 @@ import { TrainerCard } from '../models/TrainerCard.js';
 import { EnergyCard } from '../models/EnergyCard.js';
 import { getCardById } from '../services/pokemon.js';
 import { upsertCardFromRaw } from '../services/cards.js';
+import { Notification } from '../models/Notification.js';
 import { authMiddleware, AuthRequest, optionalAuthMiddleware } from '../middleware/authMiddleware.js';
 
 export const userRouter = express.Router();
@@ -122,53 +123,115 @@ userRouter.post('/users/login', async (req: Request, res: Response) => {
   }
 });
 
+
+/**
+ * GET /users/:identifier
+ * Devuelve info básica de un usuario (por id o username)
+ */
+userRouter.get("/users/:identifier",optionalAuthMiddleware,async (req: any, res: Response) => {
+  try {
+    const { identifier } = req.params;
+
+    const filter = mongoose.Types.ObjectId.isValid(identifier)
+      ? { _id: identifier }
+      : { username: identifier };
+
+    const user = await User.findOne(filter).select(
+      "username email profileImage"
+    );
+
+    if (!user) {
+      return res.status(404).send({ error: "Usuario no encontrado" });
+    }
+
+    res.send({
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      profileImage: user.profileImage || "",
+    });
+  } catch (error: any) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
 /**
  * PATCH /users/:username/profile-image
  * Actualiza la imagen de perfil
  */
-userRouter.patch(
-  '/users/:username/profile-image',
-  authMiddleware,
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const { username } = req.params;
-      const { profileImage } = req.body;
+userRouter.patch('/users/:username/profile-image',authMiddleware,async (req: AuthRequest, res: Response) => {
+  try {
+    const { username } = req.params;
+    const { profileImage } = req.body;
 
-      if (!profileImage) {
-        return res.status(400).send({ error: "No se envió ninguna imagen" });
-      }
-
-      if (req.username !== username) {
-        return res.status(403).send({ error: "No puedes modificar otro usuario" });
-      }
-
-      const user = await User.findOneAndUpdate(
-        { username },
-        { profileImage },
-        { new: true }
-      );
-
-      if (!user) return res.status(404).send({ error: "Usuario no encontrado" });
-
-      res.send({
-        message: "Imagen actualizada",
-        user: {
-          id: user._id,
-          username: user.username,
-          email: user.email,
-          profileImage: user.profileImage,
-        },
-      });
-    } catch (err: any) {
-      res.status(500).send({ error: err.message });
+    if (!profileImage) {
+      return res.status(400).send({ error: "No se envió ninguna imagen" });
     }
+
+    if (req.username !== username) {
+      return res.status(403).send({ error: "No puedes modificar otro usuario" });
+    }
+
+    const user = await User.findOneAndUpdate(
+      { username },
+      { profileImage },
+      { new: true }
+    );
+
+    if (!user) return res.status(404).send({ error: "Usuario no encontrado" });
+
+    res.send({
+      message: "Imagen actualizada",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        profileImage: user.profileImage,
+      },
+    });
+  } catch (err: any) {
+    res.status(500).send({ error: err.message });
   }
-);
+});
+
+/**
+ * DELETE /users/:username/profile-image
+ * Elimina la foto de perfil (la deja vacía)
+ */
+userRouter.delete('/users/:username/profile-image', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { username } = req.params;
+
+    if (req.username !== username) {
+      return res.status(403).send({ error: "No puedes modificar otro usuario" });
+    }
+
+    const user = await User.findOneAndUpdate(
+      { username },
+      { profileImage: "" },
+      { new: true }
+    );
+
+    if (!user) return res.status(404).send({ error: "Usuario no encontrado" });
+
+    res.send({
+      message: "Foto eliminada",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        profileImage: ""
+      }
+    });
+  } catch (err: any) {
+    res.status(500).send({ error: err.message });
+  }
+});
 
 
 
 /**
- * PATCH /users/:identifier
+ * PATCH /users/:username
  * Actualizar un usuario (por id o username)
  */
 userRouter.patch('/users/:username', authMiddleware, async (req: AuthRequest, res) => {
@@ -220,21 +283,29 @@ userRouter.patch('/users/:username', authMiddleware, async (req: AuthRequest, re
   }
 });
 
-
-
 /**
- * GET /users/:id/trades
+ * DELETE /users/:username
+ * Eliminar cuenta de usuario
  */
-userRouter.get('/users/:id/trades', async (req, res) => {
-  const userId = req.params.id;
-  const trades = await Trade.find({
-    $or: [
-      { initiatorUserId: userId },
-      { receiverUserId: userId }
-    ]
-  }).populate('initiatorUserId receiverUserId');
+userRouter.delete('/users/:username', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { username } = req.params;
 
-  res.send({ data: trades });
+    if (req.username !== username) {
+      return res.status(403).send({ error: "No puedes eliminar otra cuenta" });
+    }
+
+    const user = await User.findOneAndDelete({ username });
+
+    if (!user) {
+      return res.status(404).send({ error: "Usuario no encontrado" });
+    }
+
+    res.send({ message: "Cuenta eliminada correctamente" });
+
+  } catch (err: any) {
+    res.status(500).send({ error: err.message });
+  }
 });
 
 /**
@@ -426,31 +497,6 @@ userRouter.delete('/users/:identifier/cards/:userCardId', authMiddleware, async 
 });
 
 /**
- * GET /users/:identifier
- */
-userRouter.get('/users/:identifier', async (req, res) => {
-  try {
-    const { identifier } = req.params;
-
-    const filter = mongoose.Types.ObjectId.isValid(identifier)
-      ? { _id: identifier }
-      : { username: identifier };
-
-    const user = await User.findOne(filter)
-      .populate('friends', 'username email')
-      .populate('blockedUsers', 'username email');
-
-    if (!user) return res.status(404).send({ error: 'Usuario no encontrado' });
-
-    res.send(user);
-
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-
-
-/**
  * DELETE /users/:username
  * Eliminar cuenta de usuario
  */
@@ -477,119 +523,350 @@ userRouter.delete('/users/:username', authMiddleware, async (req: AuthRequest, r
 
 
 /**
- * POST /users/:identifier/friends/:friendIdentifier
- * Agregar un amigo (por id o username)
+ * GET /users/search/:query
+ * Buscar usuarios por username 
  */
-userRouter.post('/users/:identifier/friends/:friendIdentifier', async (req, res) => {
+userRouter.get("/users/search/:query", authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const { identifier, friendIdentifier } = req.params;
-    const user = await (mongoose.Types.ObjectId.isValid(identifier)? User.findById(identifier) : User.findOne({ username: identifier }));
-    const friend = await (mongoose.Types.ObjectId.isValid(friendIdentifier)? User.findById(friendIdentifier) : User.findOne({ username: friendIdentifier }));
-    if (!user || !friend) {
-      return res.status(404).send({ error: 'Usuario o amigo no encontrado' });
-    }
-    if (!user.friends.includes(friend._id)) {
-      user.friends.push(friend._id);
-      await user.save();
-    }
-    res.send({ message: 'Amigo agregado', user });
-  } catch (error) {
-  res.status(500).send({ error: (error as Error).message ?? String(error) });
-}
-});
+    const { query } = req.params;
+    const currentUsername = req.username;
 
-/**
- * DELETE /users/:identifier/friends/:friendIdentifier
- * Eliminar un amigo (por id o username)
- */
-userRouter.delete('/users/:identifier/friends/:friendIdentifier', async (req, res) => {
-  try {
-    const { identifier, friendIdentifier } = req.params;
-    const user = await (mongoose.Types.ObjectId.isValid(identifier)? User.findById(identifier) : User.findOne({ username: identifier }));
-    const friend = await (mongoose.Types.ObjectId.isValid(friendIdentifier)? User.findById(friendIdentifier) : User.findOne({ username: friendIdentifier }));
-    if (!user || !friend) {
-      return res.status(404).send({ error: 'Usuario o amigo no encontrado' });
-    }
-    user.friends = user.friends.filter((id) => id.toString() !== friend._id.toString());
-    await user.save();
-    res.send({ message: 'Amigo eliminado', user });
-  } catch (error) {
-    res.status(500).send({ error: (error as Error).message ?? String(error) });
+    const users = await User.find({
+      $and: [
+        { username: { $regex: query, $options: "i" } },
+        { username: { $ne: currentUsername } }
+      ]
+    }).select("username email profileImage");
+
+    res.send(users);
+  } catch (error: any) {
+    res.status(500).send({ error: error.message });
   }
 });
 
 /**
- * POST /users/:identifier/block/:blockedIdentifier
- * Bloquear un usuario (por id o username)
+ * GET /friends/:username
+ * Devuelve la lista de amigos del usuario
  */
-userRouter.post('/users/:identifier/block/:blockedIdentifier', async (req, res) => {
+userRouter.get("/friends/user/:id", authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const { identifier, blockedIdentifier } = req.params;
-    const user = await (mongoose.Types.ObjectId.isValid(identifier)? User.findById(identifier) : User.findOne({ username: identifier }));
-    const blockedUser = await (mongoose.Types.ObjectId.isValid(blockedIdentifier)? User.findById(blockedIdentifier) : User.findOne({ username: blockedIdentifier }));
-    if (!user || !blockedUser) {
-      return res.status(404).send({ error: 'Usuario no encontrado' });
+    const { id } = req.params;
+
+    if (req.userId !== id) {
+      return res.status(403).send({ error: "No puedes ver los amigos de otro usuario" });
     }
-    if (!user.blockedUsers.includes(blockedUser._id)) {
-      user.blockedUsers.push(blockedUser._id);
-      await user.save();
-    }
-    res.send({ message: 'Usuario bloqueado', user });
-  } catch (error) {
-    res.status(500).send({ error: (error as Error).message ?? String(error) });
+
+    const user = await User.findById(id)
+      .populate("friends", "username email profileImage");
+
+    if (!user) return res.status(404).send({ error: "Usuario no encontrado" });
+
+    res.send({ friends: user.friends });
+  } catch (err: any) {
+    res.status(500).send({ error: err.message });
   }
 });
 
 /**
- * DELETE /users/:identifier/block/:blockedIdentifier
- * Desbloquear un usuario (por id o username)
+ * GET /friends/requests/:username
+ * Ver solicitudes de amistad recibidas
  */
-userRouter.delete('/users/:identifier/block/:blockedIdentifier', async (req, res) => {
+userRouter.get("/friends/requests/user/:id", authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const { identifier, blockedIdentifier } = req.params;
-    const user = await (mongoose.Types.ObjectId.isValid(identifier) ? User.findById(identifier) : User.findOne({ username: identifier }));
-    const blockedUser = await (mongoose.Types.ObjectId.isValid(blockedIdentifier) ? User.findById(blockedIdentifier) : User.findOne({ username: blockedIdentifier }));
-    if (!user || !blockedUser) {
-      return res.status(404).send({ error: 'Usuario no encontrado' });
-    }
-    user.blockedUsers = user.blockedUsers.filter((id) => id.toString() !== blockedUser._id.toString());
-    await user.save();
-    res.send({ message: 'Usuario desbloqueado', user });
-  } catch (error) {
-    res.status(500).send({ error: (error as Error).message ?? String(error) });
-  }
-});
-
-/**
- * DELETE /users/:username/profile-image
- * Elimina la foto de perfil (la deja vacía)
- */
-userRouter.delete('/users/:username/profile-image', authMiddleware, async (req: AuthRequest, res) => {
-  try {
-    const { username } = req.params;
-
-    if (req.username !== username) {
-      return res.status(403).send({ error: "No puedes modificar otro usuario" });
+    const { id } = req.params;
+    if (req.userId !== id) {
+      return res.status(403).send({ error: "No puedes ver las solicitudes de otro usuario" });
     }
 
-    const user = await User.findOneAndUpdate(
-      { username },
-      { profileImage: "" },
-      { new: true }
+    const user = await User.findById(id).populate(
+      "friendRequests.from",
+      "username email profileImage"
     );
 
     if (!user) return res.status(404).send({ error: "Usuario no encontrado" });
 
-    res.send({
-      message: "Foto eliminada",
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        profileImage: ""
-      }
-    });
-  } catch (err: any) {
+    const requests = user.friendRequests.map((req: any) => ({
+      requestId: req._id,
+      userId: req.from._id,
+      username: req.from.username,
+      email: req.from.email,
+      profileImage: req.from.profileImage || "",
+      createdAt: req.createdAt,
+    }));
+
+    res.send({ requests });
+  } catch (err : any) {
     res.status(500).send({ error: err.message });
+  }
+});
+
+/**
+ * POST /friends/accept/:friendIdentifier
+ * Aceptar solicitud de amistad
+ */
+userRouter.post("/friends/accept/:friendIdentifier", authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const { friendIdentifier } = req.params;
+    const currentUserId = req.userId;
+    const currentUsername = req.username;
+
+    const me = await User.findById(currentUserId);
+    if (!me) return res.status(404).send({ error: "Usuario actual no encontrado" });
+
+    const friend = await (mongoose.Types.ObjectId.isValid(friendIdentifier)
+      ? User.findById(friendIdentifier)
+      : User.findOne({ username: friendIdentifier }));
+
+    if (!friend) return res.status(404).send({ error: "Usuario no encontrado" });
+
+    const hadRequest = me.friendRequests.some((r: any) => r.from.toString() === friend._id.toString());
+    if (!hadRequest) {
+      return res.status(400).send({ error: "No había solicitud pendiente de este usuario" });
+    }
+    if (!me.friends.includes(friend._id)) {
+      me.friends.push(friend._id);
+    }
+    if (!friend.friends.includes(me._id)) {
+      friend.friends.push(me._id);
+    }
+    (me.friendRequests as any) = (me.friendRequests as any).filter(
+      (r: any) => r.from.toString() !== friend._id.toString()
+    );
+
+    await me.save();
+    await friend.save();
+
+    res.send({ message: "Solicitud aceptada", friends: me.friends });
+  } catch (error: any) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+/**
+ * POST /friends/reject/:friendIdentifier
+ * Rechazar solicitud de amistad
+ */
+userRouter.post("/friends/reject/:friendIdentifier", authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const { friendIdentifier } = req.params;
+    const currentUserId = req.userId;
+
+    const me = await User.findById(currentUserId);
+    if (!me) return res.status(404).send({ error: "Usuario actual no encontrado" });
+
+    const friend = await (mongoose.Types.ObjectId.isValid(friendIdentifier)
+      ? User.findById(friendIdentifier)
+      : User.findOne({ username: friendIdentifier }));
+
+    if (!friend) return res.status(404).send({ error: "Usuario no encontrado" });
+
+    (me.friendRequests as any) = (me.friendRequests as any).filter(
+      (r: any) => r.from.toString() !== friend._id.toString()
+    );
+
+    await me.save();
+
+    res.send({ message: "Solicitud rechazada" });
+  } catch (error: any) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+/**
+ * GET /friends/messages/:otherUserId
+ * Devuelve el historial de chat entre el usuario actual y otro usuario
+ */
+userRouter.get("/friends/messages/:otherUserId", authMiddleware,async (req: AuthRequest, res: Response) => {
+  try {
+    const { otherUserId } = req.params;
+    const currentUserId = req.userId;
+
+    if (!currentUserId) {
+      return res.status(401).send({ error: "No autenticado" });
+    }
+
+    const messages = await ChatMessage.find({
+      $or: [
+        { from: currentUserId, to: otherUserId },
+        { from: otherUserId, to: currentUserId },
+      ],
+    }).sort({ createdAt: 1 }); 
+
+    res.send({ messages });
+  } catch (error: any) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+/**
+ * DELETE /friends/remove/:friendIdentifier
+ * Eliminar un amigo (por id o username)
+ */
+userRouter.delete("/friends/remove/:friendIdentifier", authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const { friendIdentifier } = req.params;
+    const currentUserId = req.userId;
+
+    const me = await User.findById(currentUserId);
+    if (!me) return res.status(404).send({ error: "Usuario actual no encontrado" });
+
+    const friend = await (mongoose.Types.ObjectId.isValid(friendIdentifier)
+      ? User.findById(friendIdentifier)
+      : User.findOne({ username: friendIdentifier }));
+
+    if (!friend) return res.status(404).send({ error: "Usuario no encontrado" });
+
+    me.friends = me.friends.filter(
+      (id: any) => id.toString() !== friend._id.toString()
+    );
+
+    friend.friends = friend.friends.filter(
+      (id: any) => id.toString() !== me._id.toString()
+    );
+
+    await me.save();
+    await friend.save();
+
+    res.send({ message: "Amigo eliminado correctamente" });
+  } catch (error: any) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+
+/**
+ * GET /friends/requests/sent/:userId
+ * Ver solicitudes de amistad enviadas
+ */
+userRouter.get("/friends/requests/sent/:userId", authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { userId } = req.params;
+
+    const users = await User.find({
+      friendRequests: { $elemMatch: { from: userId } }
+    }).select("username _id");
+
+    res.send({ sent: users });
+  } catch (error: any) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+/**
+ * DELETE /friends/requests/cancel/:friendIdentifier
+ * Cancelar solicitud de amistad enviada (por id o username)
+ */
+userRouter.delete("/friends/requests/cancel/:friendIdentifier", authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { friendIdentifier } = req.params;
+    const currentUserId = req.userId;
+
+    const friend = await (
+      mongoose.Types.ObjectId.isValid(friendIdentifier)
+        ? User.findById(friendIdentifier)
+        : User.findOne({ username: friendIdentifier })
+    );
+
+    if (!friend) return res.status(404).send({ error: "Usuario no encontrado" });
+
+    friend.friendRequests = (friend.friendRequests as any).filter(
+      (r: any) => r.from.toString() !== currentUserId!.toString()
+    );
+
+
+    await friend.save();
+
+    res.send({ message: "Solicitud enviada cancelada correctamente" });
+
+  } catch (error: any) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+/**
+ * POST /friends/request/:friendIdentifier
+ * Enviar solicitud de amistad (por id o username)
+ */
+userRouter.post("/friends/request/:friendIdentifier", authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { friendIdentifier } = req.params;
+    const currentUserId = req.userId;
+
+    const me = await User.findById(currentUserId);
+    if (!me) return res.status(404).send({ error: "Usuario actual no encontrado" });
+
+    const friend = await (
+      mongoose.Types.ObjectId.isValid(friendIdentifier)
+        ? User.findById(friendIdentifier)
+        : User.findOne({ username: friendIdentifier })
+    );
+
+    if (!friend) return res.status(404).send({ error: "Usuario no encontrado" });
+
+    if (friend._id.equals(me._id)) {
+      return res.status(400).send({ error: "No puedes enviarte solicitud a ti mismo" });
+    }
+
+    if (me.friends.includes(friend._id)) {
+      return res.status(400).send({ error: "Ya sois amigos" });
+    }
+
+    const already = friend.friendRequests.some(
+      (r: any) => r.from.toString() === me._id.toString()
+    );
+
+    if (already) {
+      return res.status(400).send({ error: "La solicitud ya está pendiente" });
+    }
+
+    friend.friendRequests.push({ from: me._id });
+    await friend.save();
+
+    const notification = await Notification.create({
+      userId: friend._id,
+      title: "Nueva solicitud de amistad",
+      message: `${me.username} te ha enviado una solicitud de amistad.`,
+      isRead: false,
+    });
+
+    req.io.to(`user:${friend._id}`).emit("notification", notification);
+
+    res.send({ message: "Solicitud enviada correctamente" });
+
+  } catch (error) {
+    res.status(500).send({ error: "Error procesando solicitud" });
+  }
+});
+
+/**
+ * GET /friends
+ * Devuelve la lista de amigos del usuario actual
+ */
+userRouter.get("/friends", authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const currentUserId = req.userId;
+    if (!currentUserId) {
+      return res.status(401).send({ error: "No autenticado" });
+    }
+
+    const me = await User.findById(currentUserId).populate(
+      "friends",
+      "username email profileImage"
+    );
+
+    if (!me) {
+      return res
+        .status(404)
+        .send({ error: "Usuario actual no encontrado" });
+    }
+
+    return res.send({
+      friends: me.friends || [],
+    });
+  } catch (error: any) {
+    console.error("Error cargando amigos:", error);
+    return res
+      .status(500)
+      .send({ error: error.message ?? "Error cargando amigos" });
   }
 });

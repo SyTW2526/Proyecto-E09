@@ -2,6 +2,9 @@
   "header": {
     "coleccion": "Colección",
     "intercambio": "Intercambio",
+    "descubrirCartas": "Descubrir cartas",
+    "solicitudes": "Solicitudes de intercambio",
+    "crearSala": "Crear sala privada",
     "buscar": "Buscar cartas...",
     "notificaciones": "Notificaciones",
     "idioma": "Selector de idioma",
@@ -14,6 +17,7 @@
     "cerrarSesion": "Cerrar sesión",
     "amigos": "Amigos"
   },
+
   "notifications": {
     "titulo": "Notificaciones",
     "marcarTodo": "Marcar todo",
@@ -21,14 +25,17 @@
     "marcar": "Marcar como leído",
     "eliminar": "Eliminar"
   },
+
   "language": {
     "espanol": "Español",
     "ingles": "English"
   },
+
   "darkMode": {
     "dark": "Cambiar a modo oscuro",
     "light": "Cambiar a modo claro"
   },
+
   "start": {
     "titulo": "¡Colecciona, intercambia y descubre tu mundo Pokémon!",
     "subtitulo": "En Cards AMI puedes crear tu colección personal, descubrir nuevas cartas e intercambiarlas con otros aficionados al mundo Pokémon.",
@@ -40,62 +47,51 @@
     "exploraDesc": "Encuentra las cartas que buscas, descubre nuevas expansiones y mantente al tanto de las últimas novedades en el mundo Pokémon.",
     "empezar": "Empieza ya"
   },
+
   "signIn": {
     "titulo": "Iniciar sesión",
     "subtitulo": "Accede a tu cuenta para gestionar tu colección.",
-
     "usernameLabel": "Nombre de usuario",
     "usernamePlaceholder": "Pepe123",
-
     "passwordLabel": "Contraseña",
     "passwordPlaceholder": "**********",
-
     "botonEntrar": "Iniciar sesión",
     "botonCargando": "Iniciando sesión...",
-
     "noCuenta": "¿Aún no tienes cuenta?",
     "registrate": "Regístrate"
   },
+
   "signUp": {
     "titulo": "Crea tu cuenta",
     "subtitulo": "Únete a Cards AMI y empieza tu colección hoy mismo.",
-
     "usernameLabel": "Nombre de usuario",
     "usernamePlaceholder": "Pepe123",
-
     "emailLabel": "Correo electrónico",
     "emailPlaceholder": "ejemplo@correo.com",
-
     "passwordLabel": "Contraseña",
     "passwordPlaceholder": "**********",
-
     "confirmPasswordLabel": "Repite la contraseña",
     "confirmPasswordPlaceholder": "**********",
-
     "botonCrear": "Crear cuenta",
     "botonCargando": "Registrando...",
-
     "yaTengoCuenta": "¿Ya tienes una cuenta?",
     "iniciarSesion": "Inicia sesión"
   },
+
   "footer": {
     "redes": "Redes Sociales",
     "instagram": "Instagram",
     "tiktok": "TikTok",
     "youtube": "YouTube",
-
     "contacto": "Contacto",
     "email": "Correo",
-
     "aspectosLegales": "Aspectos legales",
     "privacidad": "Política de privacidad",
     "terminos": "Términos de uso",
     "avisoLegal": "Aviso legal",
-
     "accesibilidad": "Accesibilidad",
     "declaracionAcc": "Declaración de accesibilidad",
     "herramientasAcc": "Herramientas de accesibilidad",
-
     "derechos": "2025 - CardsAMI. Todos los derechos reservados"
   },
 
@@ -106,24 +102,6 @@
     "weakness": "Debilidad",
     "retreat": "Retirada",
     "price": "Precio"
-  },
-  "tradeRoom": {
-    "titulo": "SALA PRIVADA",
-    "codigoSala": "Código de sala:",
-    "tu": "Tú",
-    "tuCartaSel": "Tu carta seleccionada",
-    "otroUsuario": "Esperando al otro usuario...",
-    "cartaRival": "Carta rival",
-    "tusCartas": "Tus cartas para intercambio",
-    "aceptar": "ACEPTAR",
-    "rechazar": "RECHAZAR",
-    "chat": "CHAT",
-    "enviar": "Enviar",
-    "escribeMensaje": "Escribe un mensaje...",
-    "mensajeAceptado": "El intercambio fue aceptado.",
-    "mensajeRechazado": "El intercambio fue rechazado.",
-    "rival": "Rival",
-    "tuSeleccion": "Tu selección"
   },
 
   "profile": {
@@ -154,5 +132,214 @@
     "save": "Guardar",
     "usernameExists": "El nombre de usuario ya está en uso",
     "emailExists": "El correo ya está registrado"
+  },
+
+  "common": {
+    "cancel": "Cancelar"
+  },
+
+  "pagination": {
+    "prev": "Anterior",
+    "next": "Siguiente"
+  },
+
+  "trade": {
+    "available": "Intercambio",
+    "offeredBy": "Ofrecida por",
+    "andOthers": "y",
+    "moreUser": "usuario más",
+    "moreUsers": "usuarios más",
+    "unitsShort": "uds",
+    "rarity": "Rareza",
+    "set": "Set",
+    "totalQuantity": "Total disponible",
+    "illustrator": "Ilustrador",
+    "estimatedPrice": "Precio estimado:",
+    "startTrade": "Proponer intercambio",
+    "otherSet": "Otros",
+    "discoverTitle": "Descubrir cartas de intercambio",
+    "discoverSubtitle": "Explora las cartas que otros usuarios han marcado como disponibles para intercambio.",
+    "searchPlaceholder": "Buscar por carta, set, rareza, usuario o precio…",
+    "filters": "Filtros",
+    "sort": {
+      "label": "Ordenar por precio",
+      "default": "Orden por set / nombre",
+      "priceAsc": "Precio: más bajo primero",
+      "priceDesc": "Precio: más alto primero"
+    },
+    "loadingCards": "Cargando cartas de intercambio...",
+    "empty": "No hay cartas de intercambio con esos filtros.",
+    "oneCard": "carta",
+    "manyCards": "cartas",
+    "modalTitle": "Proponer intercambio",
+    "availableBy": "Disponible por",
+    "users": "usuarios",
+    "targetUserLabel": "Usuario con el que quieres intercambiar",
+    "offerLabel": "Carta que ofreces / mensaje",
+    "offerPlaceholder": "Describe la carta que ofreces o los términos del intercambio…",
+    "sendRequest": "Enviar solicitud",
+    "mustLogin": "Debes iniciar sesión para proponer un intercambio",
+    "sendError": "Error enviando solicitud",
+    "requestSent": "Solicitud de intercambio enviada."
+  },
+
+  "friends": {
+    "confirmRemove": "¿Eliminar a este amigo?",
+    "title": "Amigos",
+    "searchTitle": "Buscar usuarios",
+    "searchPlaceholder": "Buscar por nombre...",
+    "searchButton": "Buscar",
+    "addButton": "Añadir",
+    "receivedTitle": "Solicitudes recibidas",
+    "noReceivedRequests": "No tienes solicitudes.",
+    "sentTitle": "Solicitudes enviadas",
+    "noSentRequests": "Ninguna solicitud enviada.",
+    "accept": "Aceptar",
+    "reject": "Rechazar",
+    "cancelRequest": "Cancelar",
+    "myFriends": "Mis amigos",
+    "noFriends": "No tienes amigos.",
+    "remove": "Eliminar",
+    "chatTitle": "Chat",
+    "selectFriend": "Selecciona un amigo",
+    "writeMessage": "Escribe un mensaje...",
+    "send": "Enviar"
+  },
+
+  "tradeRoom": {
+    "notFound": "No se encontró la sala de intercambio",
+    "loadError": "Error cargando el intercambio",
+    "completedAlert": "El intercambio se ha completado correctamente.",
+    "cancelledAlert": "El intercambio ha sido cancelado.",
+    "onlyRequestedCard": "En este intercambio solo puedes usar la carta solicitada para ti.",
+    "tradeNotLoaded": "No se ha podido cargar el intercambio.",
+    "bothMustSelect": "Cada usuario debe seleccionar una carta antes de aceptar.",
+    "valueTooHigh": "La diferencia de valor entre las cartas es demasiado alta. Revisa el intercambio.",
+    "requestMismatch": "El intercambio no respeta la carta solicitada originalmente.",
+    "unableComplete": "No se pudo completar el intercambio",
+    "waitingOther": "Has aceptado el intercambio. Esperando a que el otro usuario también acepte.",
+    "unexpectedResponse": "Respuesta inesperada del servidor.",
+    "errorCompleting": "Error al completar el intercambio.",
+    "unableReject": "No se pudo rechazar el intercambio",
+    "rejected": "Intercambio rechazado.",
+    "errorRejecting": "Error al rechazar el intercambio.",
+    "mustLogin": "Debes iniciar sesión para acceder a la sala de intercambio.",
+    "loading": "Cargando sala de intercambio...",
+    "notFoundFallback": "No se encontró el intercambio.",
+    "privateTitle": "Sala privada de intercambio",
+    "publicTitle": "Sala de intercambios",
+    "codeLabel": "Código de sala",
+    "you": "Tú",
+    "otherUser": "Otro usuario",
+    "selectYourCard": "Selecciona tu carta para el intercambio",
+    "waitingOtherCard": "Esperando carta del otro usuario",
+    "yourCards": "Tus cartas",
+    "yourTradeCards": "Tus cartas para intercambio",
+    "privateChat": "Chat de sala privada",
+    "chat": "Chat",
+    "writeFriend": "Escribe un mensaje para tu amigo...",
+    "escribeMensaje": "Escribe un mensaje...",
+    "enviar": "Enviar",
+    "acceptTrade": "Aceptar intercambio",
+    "cancelOrReject": "Cancelar / Rechazar"
+  },
+  "tradeReq": {
+    "errorReceived": "Error cargando solicitudes recibidas",
+    "errorSent": "Error cargando solicitudes enviadas",
+    "errorGeneral": "Error cargando solicitudes",
+    "confirmAccept": "¿Aceptar esta solicitud de intercambio?",
+    "errorAccept": "Error aceptando la solicitud",
+    "accepted": "Solicitud aceptada.",
+    "confirmReject": "¿Rechazar esta solicitud de intercambio?",
+    "errorReject": "Error rechazando la solicitud",
+    "rejected": "Solicitud rechazada.",
+    "confirmCancel": "¿Cancelar esta solicitud de intercambio?",
+    "errorCancel": "Error cancelando la solicitud",
+    "cancelled": "Solicitud cancelada.",
+    "roomUnavailable": "Sala no disponible",
+    "goRoom": "Ir a la sala",
+    "title": "Solicitudes de intercambio",
+    "loading": "Cargando solicitudes de intercambio...",
+    "received": "Solicitudes recibidas",
+    "noReceived": "No tienes solicitudes recibidas.",
+    "noImage": "Sin imagen",
+    "from": "De",
+    "to": "Para",
+    "noName": "Carta sin nombre",
+    "message": "Mensaje",
+    "accept": "Aceptar",
+    "reject": "Rechazar",
+    "sent": "Solicitudes enviadas",
+    "noSent": "No has enviado solicitudes.",
+    "cancel": "Cancelar solicitud",
+    "history": "Historial (últimos días)",
+    "noHistory": "No tienes solicitudes en el historial.",
+
+    "status": {
+      "pending": "Pendiente",
+      "accepted": "Aceptada",
+      "rejected": "Rechazada",
+      "cancelled": "Cancelada"
+    },
+    "pending": "Pendiente",
+    "tradeCompleted": "Intercambio completado",
+    "tradeDone": "Intercambio realizado",
+    "acceptedStatus": "Aceptada",
+    "rejectedStatus": "Rechazada",
+    "cancelledStatus": "Cancelada",
+    "completedStatus": "Intercambio realizado",
+
+    "historyCompleted": "Intercambio realizado",
+    "historyCancelled": "Intercambio cancelado"
+  },
+  "createRoom": {
+    "title": "Crear sala privada",
+    "subtitle": "Invita a un amigo y crea una sala privada de intercambio.",
+    
+    "loading": "Cargando datos...",
+    "mustLogin": "Debes iniciar sesión para crear una sala.",
+    
+    "errorLoadingFriends": "Error cargando la lista de amigos.",
+    "errorLoadingInvites": "Error cargando las invitaciones.",
+    "errorSendingInvite": "Error enviando la invitación.",
+    "errorAcceptInvite": "Error aceptando la invitación.",
+    "errorRejectInvite": "Error rechazando la invitación.",
+    "noRoomCode": "No se pudo obtener el código de sala.",
+    
+    "inviteFriend": "Invitar amigo",
+    "clickToSelect": "Haz clic para seleccionar",
+    "searchPlaceholder": "Buscar amigo...",
+    "noFriends": "No tienes amigos agregados.",
+    
+    "createRoomButton": "Crear sala",
+    "mustSelectFriend": "Debes seleccionar un amigo.",
+    "inviteSent": "Invitación enviada.",
+    
+    "receivedInvites": "Invitaciones recibidas",
+    "noReceivedInvites": "No tienes invitaciones recibidas.",
+    
+    "sentInvites": "Invitaciones enviadas",
+    "noSentInvites": "No has enviado invitaciones.",
+    
+    "history": "Historial",
+    "emptyHistory": "No hay elementos en el historial.",
+    
+    "from": "De",
+    "to": "Para",
+    
+    "accept": "Aceptar",
+    "reject": "Rechazar",
+    
+    "confirmAccept": "¿Aceptar esta invitación?",
+    "confirmReject": "¿Rechazar esta invitación?",
+    
+    "goRoom": "Ir a la sala",
+    "roomUnavailable": "Sala no disponible",
+    
+    "pending": "Pendiente",
+    "accepted": "Aceptada",
+    "rejectedStatus": "Rechazada",
+    "cancelledStatus": "Cancelada",
+    "completedStatus": "Intercambio realizado"
   }
 }

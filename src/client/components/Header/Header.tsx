@@ -15,7 +15,9 @@ const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [menuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [isTradeOpen, setIsTradeOpen] = useState(false);
 
+  const tradeDropdownRef = useRef<HTMLDivElement | null>(null);
   const user = authService.getUser();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -27,6 +29,19 @@ const Header: React.FC = () => {
     };
     document.addEventListener("mousedown", clickOutside);
     return () => document.removeEventListener("mousedown", clickOutside);
+  }, []);
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        tradeDropdownRef.current &&
+        !tradeDropdownRef.current.contains(e.target as Node)
+      ) {
+        setIsTradeOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -40,18 +55,58 @@ const Header: React.FC = () => {
             <img src="/logo.png" alt="AMI Logo" className="header-logo" />
           </Link>
 
-          <nav className="nav-desktop">
-            <Link to="/coleccion" className="CollectionButton">
-              {t("header.coleccion")}
-            </Link>
-            <Link to="/trade" className="CollectionButton">
-              {t("header.intercambio")}
-            </Link>
+        <nav className="nav-desktop">
+
+          {/* COLECCIÓN */}
+          <Link to="/collection" className="CollectionButton">
+            {t("header.coleccion")}
+          </Link>
+
+          {/* INTERCAMBIO */}
+            <div className="relative" ref={tradeDropdownRef}>
+              <button
+                className="CollectionButton"
+                onClick={() => setIsTradeOpen(!isTradeOpen)}
+              >
+                {t("header.intercambio")}
+              </button>
+
+              {isTradeOpen && (
+                <div className="profile-dropdown fadeIn" style={{ top: "50px" }}>
+                  <button
+                    onClick={() => {
+                      setIsTradeOpen(false);
+                      navigate("/discover");
+                    }}
+                    className="dropdown-item"
+                  >
+                    {t("header.descubrirCartas")}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setIsTradeOpen(false);
+                      navigate("/trade-requests");
+                    }}
+                    className="dropdown-item"
+                  >
+                    {t("header.solicitudes")}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setIsTradeOpen(false);
+                      navigate("/trade-room/create");
+                    }}
+                    className="dropdown-item"
+                  >
+                    {t("header.crearSala")}
+                  </button>
+                </div>
+              )}
+            </div>
           </nav>
-
-
         </div>
-
         {/* BUSCADOR */}
         <div className="search-container">
           <input

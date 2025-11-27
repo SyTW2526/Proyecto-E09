@@ -214,7 +214,11 @@ const CollectionPage: React.FC = () => {
                   >
                     <div className="card-front">
                       <img src={c.image} alt={c.name} />
-                      <button
+
+                    </div>
+
+                    <div className="card-back">
+                                            <button
                         title={ (optimisticTrades[c.id] ?? c.forTrade) ? 'Marked for trade' : 'Mark for trade' }
                         onClick={async (e)=>{
                           e.stopPropagation();
@@ -238,9 +242,6 @@ const CollectionPage: React.FC = () => {
                       >
                         <span style={{fontSize:'18px'}}>{(optimisticTrades[c.id] ?? c.forTrade) ? '✅' : '⭕'}</span>
                       </button>
-                    </div>
-
-                    <div className="card-back">
                       <div className="card-back-inner collection-back-inner">
                           <h3 className="back-name collection-back-name">{c.name}</h3>
                           <div className="back-row collection-back-row">

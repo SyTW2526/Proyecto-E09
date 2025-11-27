@@ -384,6 +384,7 @@ class ApiService {
           image,
           rarity: card.rarity,
           forTrade: item.forTrade,
+          pokemonTcgId: tcgId,
         });
       }
 
@@ -463,6 +464,7 @@ class ApiService {
           category: card.category,
           rarity: card.rarity,
           forTrade: item.forTrade,
+          pokemonTcgId: tcgId,
         });
       }
 
@@ -488,6 +490,19 @@ class ApiService {
     } catch (err) {
       console.error('Error updating userCard:', err);
       return false;
+    }
+  }
+
+  async getCachedCardByTcgId(pokemonTcgId: string): Promise<any | null> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/cards/tcg/${encodeURIComponent(pokemonTcgId)}`);
+      if (!res.ok) return null;
+      const payload = await res.json().catch(() => null);
+      // the server may return { card } or the card directly
+      return payload?.card ?? payload ?? null;
+    } catch (err) {
+      console.error('Error fetching cached card:', err);
+      return null;
     }
   }
 }

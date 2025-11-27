@@ -63,9 +63,12 @@ const CollectionPage: React.FC = () => {
   const [selectedSet, setSelectedSet] = useState('');
   const [selectedRarity, setSelectedRarity] = useState('');
   const [selectedSort, setSelectedSort] = useState('');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [selectedType, setSelectedType] = useState('');
   const [page, setPage] = useState(1);
   const [optimisticTrades, setOptimisticTrades] = useState<Record<string, boolean>>({});
+  const [hoverDetails, setHoverDetails] = useState<Record<string, any>>({});
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const user = authService.getUser();
   const username = user?.username;
@@ -116,8 +119,9 @@ const CollectionPage: React.FC = () => {
   if (selectedRarity) items = items.filter((c:any) => c.rarity === selectedRarity);
   if (selectedType) items = items.filter((c:any) => c.types?.includes(selectedType));
   // apply sorting if requested
+  const dir = sortDir === 'asc' ? 1 : -1;
   if (selectedSort === 'name') {
-    items.sort((a:any,b:any) => (a.name||'').toString().localeCompare((b.name||'').toString()));
+    items.sort((a:any,b:any) => dir * ( (a.name||'').toString().localeCompare((b.name||'').toString()) ));
   } else if (selectedSort === 'rarity') {
     // sort by canonical rarity order; unknown rarities go to the end and are sorted alphabetically among themselves
     const orderMap = new Map<string, number>();
@@ -128,14 +132,14 @@ const CollectionPage: React.FC = () => {
       const br = (b.rarity || '').toString().toLowerCase();
       const ai = orderMap.has(ar) ? (orderMap.get(ar) as number) : INF;
       const bi = orderMap.has(br) ? (orderMap.get(br) as number) : INF;
-      if (ai !== bi) return ai - bi;
+      if (ai !== bi) return dir * (ai - bi);
       if (ai === INF && bi === INF) return (a.rarity||'').toString().localeCompare((b.rarity||'').toString());
       // fallback: stable compare by name
-      return (a.name||'').toString().localeCompare((b.name||'').toString());
+      return dir * ( (a.name||'').toString().localeCompare((b.name||'').toString()) );
     });
   }
     return items;
-  }, [collection, query, selectedSet, selectedRarity, selectedType, selectedSort]);
+  }, [collection, query, selectedSet, selectedRarity, selectedType, selectedSort, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
@@ -175,6 +179,14 @@ const CollectionPage: React.FC = () => {
               <option value="name">{t('Nombre (A-Z)')||'Nombre (A-Z)'}</option>
               <option value="rarity">{t('Rareza')||'Rareza'}</option>
             </select>
+            <button
+              title={sortDir === 'asc' ? 'Orden ascendente' : 'Orden descendente'}
+              onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
+              style={{marginLeft:8}}
+              className="CollectionButton"
+            >
+              {sortDir === 'asc' ? '↑' : '↓'}
+            </button>
           </div>
         </div>
 
@@ -184,42 +196,87 @@ const CollectionPage: React.FC = () => {
           <div className="collection-empty">{t('collection.empty') || 'No hay cartas con esos filtros'}</div>
         ) : (
           <div className="collection-grid">
-            {pageItems.map((c:any)=> (
-              <div key={c.id} className="collection-card">
-                <div style={{position:'relative', width:'100%'}}>
-                  <img src={c.image} alt={c.name} />
-                  {/* trade toggle button top-right */}
-                  <button
-                    title={ (optimisticTrades[c.id] ?? c.forTrade) ? 'Marked for trade' : 'Mark for trade' }
-                    onClick={async (e)=>{
-                      e.stopPropagation();
-                      const user = authService.getUser();
-                      if (!user || !authService.isAuthenticated()) {
-                        window.alert('Debes iniciar sesión para marcar cartas para intercambio');
-                        return;
-                      }
-                      const current = optimisticTrades[c.id] ?? c.forTrade;
-                      const next = !current;
-                      // optimistic update
-                      setOptimisticTrades(prev=> ({ ...prev, [c.id]: next }));
-                      const ok = await api.updateUserCard(user.username || user.id, c.id, { forTrade: next });
-                      if (!ok) {
-                        // rollback
-                        setOptimisticTrades(prev=> ({ ...prev, [c.id]: current }));
-                        window.alert('No se pudo actualizar el estado de intercambio');
-                      } else {
-                        // refresh collection to keep server in sync (keeps other fields updated)
-                        dispatch(fetchUserCollection(user.username || user.id));
-                      }
+            {pageItems.map((c:any)=> {
+              const isFlipped = hoveredId === c.id;
+              return (
+                <div key={c.id} className="collection-card">
+                  <div
+                    className={`card-flip ${isFlipped ? 'is-flipped' : ''}`}
+                    onMouseEnter={async ()=>{
+                      setHoveredId(c.id);
+                      const tcg = c.pokemonTcgId as string | undefined;
+                      if (!tcg) return;
+                      if (hoverDetails[c.id]) return;
+                      const detail = await api.getCachedCardByTcgId(tcg);
+                      setHoverDetails(prev => ({ ...prev, [c.id]: detail }));
                     }}
-                    style={{ position:'absolute', top:8, right:8, zIndex:1, background:'white', borderRadius:8, padding:'6px' }}
+                    onMouseLeave={() => { setHoveredId(null); }}
                   >
-                    <span style={{fontSize:'18px'}}>{(optimisticTrades[c.id] ?? c.forTrade) ? '✅' : '⭕'}</span>
-                  </button>
+                    <div className="card-front">
+                      <img src={c.image} alt={c.name} />
+                      <button
+                        title={ (optimisticTrades[c.id] ?? c.forTrade) ? 'Marked for trade' : 'Mark for trade' }
+                        onClick={async (e)=>{
+                          e.stopPropagation();
+                          const user = authService.getUser();
+                          if (!user || !authService.isAuthenticated()) {
+                            window.alert('Debes iniciar sesión para marcar cartas para intercambio');
+                            return;
+                          }
+                          const current = optimisticTrades[c.id] ?? c.forTrade;
+                          const next = !current;
+                          setOptimisticTrades(prev=> ({ ...prev, [c.id]: next }));
+                          const ok = await api.updateUserCard(user.username || user.id, c.id, { forTrade: next });
+                          if (!ok) {
+                            setOptimisticTrades(prev=> ({ ...prev, [c.id]: current }));
+                            window.alert('No se pudo actualizar el estado de intercambio');
+                          } else {
+                            dispatch(fetchUserCollection(user.username || user.id));
+                          }
+                        }}
+                        style={{ position:'absolute', top:8, right:8, zIndex:3, background:'white', borderRadius:8, padding:'6px' }}
+                      >
+                        <span style={{fontSize:'18px'}}>{(optimisticTrades[c.id] ?? c.forTrade) ? '✅' : '⭕'}</span>
+                      </button>
+                    </div>
+
+                    <div className="card-back">
+                      <div className="card-back-inner collection-back-inner">
+                          <h3 className="back-name collection-back-name">{c.name}</h3>
+                          <div className="back-row collection-back-row">
+                            <div className="back-label">Rareza</div>
+                            <div className="back-value">{c.rarity || '—'}</div>
+                          </div>
+                          <div className="back-row collection-back-row">
+                            <div className="back-label">Set</div>
+                            <div className="back-value">{c.set || c.series || '—'}</div>
+                          </div>
+                          <div className="back-row collection-back-row">
+                            <div className="back-label">Ilustrador</div>
+                            <div className="back-value">{(hoverDetails[c.id] && (hoverDetails[c.id].illustrator || hoverDetails[c.id].artist)) || c.illustrator || '—'}</div>
+                          </div>
+                          <div className="back-price collection-back-price">
+                            {hoverDetails[c.id] ? (() => {
+                                const d = hoverDetails[c.id];
+                                // Use stored average price from the cached card object (no calculations).
+                                const avg = d?.price?.avg ?? d?.avg ?? d?.price?.cardmarketAvg ?? d?.cardmarketAvg ?? null;
+                                return (
+                                  <div className="price-grid collection-price-grid">
+                                    <div style={{fontWeight:700}}>Average:</div>
+                                    <div>{avg === null || avg === undefined ? '—' : `${Number(avg).toFixed(2)}€`}</div>
+                                  </div>
+                                );
+                              })() : (
+                                <div className="loading">Cargando precios...</div>
+                              )}
+                          </div>
+                        </div>
+                    </div>
+                  </div>
+                  <div className="card-name">{c.name}</div>
                 </div>
-                <div className="card-name">{c.name}</div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

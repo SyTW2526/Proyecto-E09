@@ -578,7 +578,7 @@ const DiscoverTradeCards: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-gray-900">
+    <div className="discover-page min-h-screen flex flex-col">
       <Header />
 
       <main className="flex-1 px-4 py-10 md:px-10 lg:px-16">

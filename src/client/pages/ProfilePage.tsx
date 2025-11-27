@@ -4,7 +4,6 @@ import Footer from "@/components/Footer";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchWishlist } from "../features/whislist/whislistSlice";
 import { fetchUserCollection } from "../features/collection/collectionSlice";
-import CardsSlider from "../components/CardsSlider";
 import { RootState, AppDispatch } from "../store/store";
 import { authService } from "../services/authService";
 import { useTranslation } from "react-i18next";
@@ -20,7 +19,6 @@ const ProfilePage: React.FC = () => {
   const wishlist = useSelector((s: RootState) => s.wishlist.cards);
   const collection = useSelector((s: RootState) => s.collection.cards);
 
-  // TOAST
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const showToast = (type: "success" | "error", message: string) => {
     setToast({ type, message });
@@ -54,11 +52,7 @@ const ProfilePage: React.FC = () => {
       const base64Image = reader.result as string;
 
       try {
-        const updatedUser = await authService.updateProfileImage(
-          user.username,
-          base64Image
-        );
-
+        const updatedUser = await authService.updateProfileImage(user.username, base64Image);
         setUser(updatedUser);
         authService.saveUser(updatedUser);
         showToast("success", t("profile.photoUpdated"));
@@ -80,30 +74,18 @@ const ProfilePage: React.FC = () => {
   const saveProfile = async () => {
     try {
       const updatedUser = await authService.updateProfile(user.username, editData);
-
       setUser(updatedUser);
       authService.saveUser(updatedUser);
       setIsEditing(false);
       showToast("success", t("profile.saved"));
-
     } catch (err: any) {
-      const code = err?.message;
-
-      if (code === "USERNAME_EXISTS") {
-        showToast("error", t("profile.usernameExists"));
-        return;
-      }
-
-      if (code === "EMAIL_EXISTS") {
-        showToast("error", t("profile.emailExists"));
-        return;
-      }
-
+      if (err?.message === "USERNAME_EXISTS") return showToast("error", t("profile.usernameExists"));
+      if (err?.message === "EMAIL_EXISTS") return showToast("error", t("profile.emailExists"));
       showToast("error", t("profile.saveError"));
     }
   };
 
-  const tradeList = collection.filter((card) => card.forTrade === true);
+  const tradeList = collection.filter((c) => c.forTrade);
 
   return (
     <div className="profile-page">
@@ -118,9 +100,8 @@ const ProfilePage: React.FC = () => {
       <main className="profile-main">
         <h1 className="profile-title">{t("profile.title")}</h1>
 
+        {/* FOTO + INFO */}
         <div className="profile-content">
-
-          {/* FOTO PERFIL */}
           <div className="profile-photo-section">
             <img src={user.profileImage || DEFAULT_AVATAR} className="profile-photo" />
 
@@ -156,11 +137,9 @@ const ProfilePage: React.FC = () => {
             </div>
           </div>
 
-          {/* INFO */}
           <div className="profile-info-card">
-
             <p><strong>{t("profile.username")}:</strong> {user.username}</p>
-            <p className="mt-4"><strong>{t("profile.email")}:</strong> {user.email}</p>
+            <p><strong>{t("profile.email")}:</strong> {user.email}</p>
 
             <div className="profile-info-buttons">
               <button className="profile-btn" onClick={() => setIsEditing(true)}>
@@ -184,44 +163,53 @@ const ProfilePage: React.FC = () => {
                 {t("profile.deleteAccount")}
               </button>
             </div>
-
           </div>
         </div>
 
-        {/* WISHLIST */}
-        <section className="profile-section">
-          <h2 className="section-title">{t("profile.wishlist")}</h2>
+        {/* 2 COLUMNAS */}
+        <div className="profile-lists">
 
-          {wishlist.length === 0 && (
-            <p className="section-empty">{t("profile.noWishlist")}</p>
-          )}
+          {/* WISHLIST */}
+          <section className="profile-section">
+            <h2 className="section-title">{t("profile.wishlist")}</h2>
 
-          {wishlist.length > 0 && (
-            <CardsSlider title={t('profile.wishlist')} cards={wishlist.map(c => ({ id: c.id, name: c.name, image: c.image, rarity: c.rarity }))} />
-          )}
-        </section>
+            {wishlist.length === 0 && (
+              <p className="section-empty">{t("profile.noWishlist")}</p>
+            )}
 
-        {/* TRADE LIST */}
-        <section className="profile-section">
-          <h2 className="section-title">{t("profile.tradeList")}</h2>
+            {wishlist.length > 0 && (
+              <div className="cards-grid-two">
+                {wishlist.map((card) => (
+                  <div key={card.id} className="card-item-yellow">
+                    <img src={card.image} className="card-image" />
+                    <p className="card-title">{card.name}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
 
-          {tradeList.length === 0 && (
-            <p className="section-empty">{t("profile.noTrade")}</p>
-          )}
+          {/* TRADE LIST */}
+          <section className="profile-section">
+            <h2 className="section-title">{t("profile.tradeList")}</h2>
 
-          {tradeList.length > 0 ? (
-            <CardsSlider title={t('profile.tradeList')} cards={tradeList.map(c => ({ id: c.id, name: c.name, image: c.image, rarity: c.rarity }))} />
-          ) : (
-            <div className="cards-grid">
-              {tradeList.map((card) => (
-                <div key={card.id} className="card-item-yellow">
-                  <img src={card.image} className="card-image" />
-                  <p className="card-title">{card.name}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+            {tradeList.length === 0 && (
+              <p className="section-empty">{t("profile.noTrade")}</p>
+            )}
+
+            {tradeList.length > 0 && (
+              <div className="cards-grid-two">
+                {tradeList.map((card) => (
+                  <div key={card.id} className="card-item-yellow">
+                    <img src={card.image} className="card-image" />
+                    <p className="card-title">{card.name}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+        </div>
 
       </main>
 
@@ -269,4 +257,3 @@ const ProfilePage: React.FC = () => {
 };
 
 export default ProfilePage;
-

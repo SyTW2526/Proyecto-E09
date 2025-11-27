@@ -41,14 +41,6 @@ const AuthHeader: React.FC = () => {
             <LanguageSelector />
             <DarkModeToggle />
           </div>
-
-          {/* Icono ajustes */}
-          <button
-            aria-label={t('header.settings')}
-            className="p-2 hover:bg-white/20 rounded-full transition"
-          >
-            <Settings className="w-7 h-7 text-white" />
-          </button>
         </div>
       </div>
     </header>

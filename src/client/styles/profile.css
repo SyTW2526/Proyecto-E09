@@ -305,3 +305,36 @@
 .dark .card-title {
   color: #e2e8f0;
 }
+.pagination-controls {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  align-items: center;
+}
+
+.pagination-controls button {
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+  color: white;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+
+.pagination-controls button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pagination-controls button:not(:disabled):hover {
+  transform: scale(1.05);
+}
+
+.pagination-controls span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+}

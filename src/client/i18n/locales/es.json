@@ -131,7 +131,10 @@
     "cancel": "Cancelar",
     "save": "Guardar",
     "usernameExists": "El nombre de usuario ya está en uso",
-    "emailExists": "El correo ya está registrado"
+    "emailExists": "El correo ya está registrado",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "page": "Página"
   },
 
   "common": {
@@ -239,9 +242,16 @@
     "chat": "Chat",
     "writeFriend": "Escribe un mensaje para tu amigo...",
     "escribeMensaje": "Escribe un mensaje...",
-    "enviar": "Enviar",
+    "send": "Enviar",
     "acceptTrade": "Aceptar intercambio",
-    "cancelOrReject": "Cancelar / Rechazar"
+    "cancelOrReject": "Cancelar / Rechazar",
+    "waitingOpponentCard": "Esperando carta del otro usuario",
+    "placeholder": "Escribe un mensaje…",
+    "placeholderFriend": "Escribe un mensaje para tu amigo…",
+    "rejectTrade": "Rechazar",
+    "publicRoom": "Sala de intercambio",
+    "roomCode": "Código de sala",
+    "privateRoom": "Sala privada"
   },
   "tradeReq": {
     "errorReceived": "Error cargando solicitudes recibidas",

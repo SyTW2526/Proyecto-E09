@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import "../styles/profile.css";
 
 const DEFAULT_AVATAR = "/icono.png";
+const ITEMS_PER_PAGE = 6;
 
 const ProfilePage: React.FC = () => {
   const { t } = useTranslation();
@@ -42,7 +43,6 @@ const ProfilePage: React.FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // FOTO PERFIL
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -64,7 +64,6 @@ const ProfilePage: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
-  // EDITAR PERFIL
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     username: user.username,
@@ -87,6 +86,22 @@ const ProfilePage: React.FC = () => {
 
   const tradeList = collection.filter((c) => c.forTrade);
 
+  const [wishlistPage, setWishlistPage] = useState(1);
+  const [tradePage, setTradePage] = useState(1);
+
+  const wishlistTotalPages = Math.ceil(wishlist.length / ITEMS_PER_PAGE);
+  const tradeTotalPages = Math.ceil(tradeList.length / ITEMS_PER_PAGE);
+
+  const wishlistPaginated = wishlist.slice(
+    (wishlistPage - 1) * ITEMS_PER_PAGE,
+    wishlistPage * ITEMS_PER_PAGE
+  );
+
+  const tradePaginated = tradeList.slice(
+    (tradePage - 1) * ITEMS_PER_PAGE,
+    tradePage * ITEMS_PER_PAGE
+  );
+
   return (
     <div className="profile-page">
       <Header />
@@ -100,7 +115,6 @@ const ProfilePage: React.FC = () => {
       <main className="profile-main">
         <h1 className="profile-title">{t("profile.title")}</h1>
 
-        {/* FOTO + INFO */}
         <div className="profile-content">
           <div className="profile-photo-section">
             <img src={user.profileImage || DEFAULT_AVATAR} className="profile-photo" />
@@ -166,10 +180,7 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        {/* 2 COLUMNAS */}
         <div className="profile-lists">
-
-          {/* WISHLIST */}
           <section className="profile-section">
             <h2 className="section-title">{t("profile.wishlist")}</h2>
 
@@ -178,18 +189,35 @@ const ProfilePage: React.FC = () => {
             )}
 
             {wishlist.length > 0 && (
-              <div className="cards-grid-two">
-                {wishlist.map((card) => (
-                  <div key={card.id} className="card-item-yellow">
-                    <img src={card.image} className="card-image" />
-                    <p className="card-title">{card.name}</p>
-                  </div>
-                ))}
-              </div>
+              <>
+                <div className="cards-grid-two">
+                  {wishlistPaginated.map((card) => (
+                    <div key={card.id} className="card-item-yellow">
+                      <img src={card.image} className="card-image" />
+                      <p className="card-title">{card.name}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pagination-controls">
+                  <button
+                    disabled={wishlistPage <= 1}
+                    onClick={() => setWishlistPage((p) => p - 1)}
+                  >
+                    {t("profile.prev")}
+                  </button>
+                  <span>{wishlistPage} / {wishlistTotalPages}</span>
+                  <button
+                    disabled={wishlistPage >= wishlistTotalPages}
+                    onClick={() => setWishlistPage((p) => p + 1)}
+                  >
+                    {t("profile.next")}
+                  </button>
+                </div>
+              </>
             )}
           </section>
 
-          {/* TRADE LIST */}
           <section className="profile-section">
             <h2 className="section-title">{t("profile.tradeList")}</h2>
 
@@ -198,30 +226,44 @@ const ProfilePage: React.FC = () => {
             )}
 
             {tradeList.length > 0 && (
-              <div className="cards-grid-two">
-                {tradeList.map((card) => (
-                  <div key={card.id} className="card-item-yellow">
-                    <img src={card.image} className="card-image" />
-                    <p className="card-title">{card.name}</p>
-                  </div>
-                ))}
-              </div>
+              <>
+                <div className="cards-grid-two">
+                  {tradePaginated.map((card) => (
+                    <div key={card.id} className="card-item-yellow">
+                      <img src={card.image} className="card-image" />
+                      <p className="card-title">{card.name}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pagination-controls">
+                  <button
+                    disabled={tradePage <= 1}
+                    onClick={() => setTradePage((p) => p - 1)}
+                  >
+                    {t("profile.prev")}
+                  </button>
+                  <span>{tradePage} / {tradeTotalPages}</span>
+                  <button
+                    disabled={tradePage >= tradeTotalPages}
+                    onClick={() => setTradePage((p) => p + 1)}
+                  >
+                    {t("profile.next")}
+                  </button>
+                </div>
+              </>
             )}
           </section>
-
         </div>
-
       </main>
 
       <footer className="profile-footer">
         <Footer />
       </footer>
 
-      {/* MODAL */}
       {isEditing && (
         <div className="modal-overlay">
           <div className="modal-card">
-
             <h2 className="modal-title">{t("profile.editProfile")}</h2>
 
             <label className="modal-label">{t("profile.username")}</label>
@@ -247,11 +289,9 @@ const ProfilePage: React.FC = () => {
                 {t("profile.save")}
               </button>
             </div>
-
           </div>
         </div>
       )}
-
     </div>
   );
 };

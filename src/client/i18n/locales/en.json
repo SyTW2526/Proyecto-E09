@@ -131,7 +131,10 @@
     "cancel": "Cancel",
     "save": "Save",
     "usernameExists": "This username is already taken",
-    "emailExists": "This email is already registered"
+    "emailExists": "This email is already registered",
+    "prev": "Previous",
+    "next": "Next",
+    "page": "Page"
   },
 
   "common": {
@@ -241,7 +244,15 @@
     "escribeMensaje": "Write a message...",
     "enviar": "Send",
     "acceptTrade": "Accept trade",
-    "cancelOrReject": "Cancel / Reject"
+    "cancelOrReject": "Cancel / Reject",
+    "waitingOpponentCard": "Waiting for the opponent to choose a card…",
+    "placeholder": "Write a message…",
+    "placeholderFriend": "Write a message to your friend…",
+    "send": "Send",
+    "rejectTrade": "Reject",
+    "publicRoom": "Trade room",
+    "privateRoom": "Private room",
+    "roomCode": "Room code:"
   },
   "tradeReq": {
     "errorReceived": "Error loading received requests",

@@ -6,6 +6,11 @@ import { User } from '../../src/server/models/User.ts';
 import { Card } from '../../src/server/models/Card.ts';
 import { UserCard } from '../../src/server/models/UserCard.ts';
 
+/**
+ * Tests para funcionalidades avanzadas de cartas de usuario
+ * Incluye pruebas de gestión de colecciones, wishlist, notas y operaciones en lotes
+ */
+
 beforeEach(async () => {
   await User.deleteMany();
   await Card.deleteMany();
@@ -14,6 +19,10 @@ beforeEach(async () => {
 
 describe('Advanced UserCard Features', () => {
   describe('Collection vs Wishlist Management', () => {
+    /**
+     * Test: Distinguir entre colección y wishlist
+     * Verifica que una misma carta puede estar en la colección y en la wishlist como registros separados
+     */
     it('debe distinguir correctamente entre collection y wishlist', async () => {
       const user = await User.create({
         username: 'collector',
@@ -66,6 +75,10 @@ describe('Advanced UserCard Features', () => {
       expect(wishlistCheck.body.cards.length).toBe(1);
     });
 
+    /**
+     * Test: Filtrar por tipo de colección
+     * Verifica que se pueden recuperar cartas separadamente por tipo (collection o wishlist)
+     */
     it('debe permitir filtrar por tipo de colección', async () => {
       const user = await User.create({
         username: 'sorter',
@@ -118,6 +131,10 @@ describe('Advanced UserCard Features', () => {
   });
 
   describe('Notes and Metadata', () => {
+    /**
+     * Test: Guardar y recuperar notas
+     * Verifica que se pueden agregar notas personalizadas a las cartas y recuperarlas
+     */
     it('debe guardar y recuperar notas de tarjetas', async () => {
       const user = await User.create({
         username: 'noter',
@@ -154,6 +171,10 @@ describe('Advanced UserCard Features', () => {
       expect(getRes.body.cards[0].notes).toBe(notes);
     });
 
+    /**
+     * Test: Actualizar notas de tarjetas
+     * Verifica que se pueden modificar las notas existentes de una tarjeta
+     */
     it('debe permitir actualizar notas de tarjetas', async () => {
       const user = await User.create({
         username: 'updater',
@@ -191,6 +212,10 @@ describe('Advanced UserCard Features', () => {
   });
 
   describe('Card Deletion and Management', () => {
+    /**
+     * Test: Eliminar tarjeta de la colección
+     * Verifica que se puede eliminar una tarjeta específica de la colección del usuario
+     */
     it('debe permitir eliminar una tarjeta de la colección', async () => {
       const user = await User.create({
         username: 'deleter',
@@ -234,6 +259,10 @@ describe('Advanced UserCard Features', () => {
       expect(getRes.body.cards.length).toBe(0);
     });
 
+    /**
+     * Test: Cambiar tarjeta entre colección y wishlist
+     * Verifica que se puede transferir una tarjeta de la colección a la wishlist (o viceversa)
+     */
     it('debe permitir cambiar tarjeta entre colección y wishlist', async () => {
       const user = await User.create({
         username: 'switcher',
@@ -278,6 +307,10 @@ describe('Advanced UserCard Features', () => {
   });
 
   describe('Bulk Operations', () => {
+    /**
+     * Test: Agregar múltiples tarjetas de forma rápida
+     * Verifica que se pueden agregar varias tarjetas a la colección consecutivamente
+     */
     it('debe permitir agregar múltiples tarjetas de forma rápida', async () => {
       const user = await User.create({
         username: 'bulker',
@@ -328,6 +361,10 @@ describe('Advanced UserCard Features', () => {
       expect(getRes.body.cards.length).toBe(3);
     });
 
+    /**
+     * Test: Paginación de colección
+     * Verifica que la colección se puede paginar correctamente con parámetros limit y page
+     */
     it('debe mostrar la colección paginada', async () => {
       const user = await User.create({
         username: 'paginator',
@@ -375,6 +412,10 @@ describe('Advanced UserCard Features', () => {
   });
 
   describe('Error Handling', () => {
+    /**
+     * Test: Usuario no encontrado
+     * Verifica que retorna 404 cuando se intenta acceder a cartas de un usuario inexistente
+     */
     it('debe retornar 404 cuando el usuario no existe', async () => {
       const res = await request(app)
         .get('/usercards/nonexistent')
@@ -383,6 +424,11 @@ describe('Advanced UserCard Features', () => {
       expect(res.body.error).toContain('Usuario no encontrado');
     });
 
+    /**
+     * Test: Agregar carta sin validación
+     * Verifica que el endpoint permite agregar cartas incluso sin validar que existen en la BD
+     * (comportamiento por diseño para mayor flexibilidad)
+     */
     it('debe permitir agregar carta incluso sin validar existencia en BD', async () => {
       const user = await User.create({
         username: 'errortest',
@@ -402,6 +448,10 @@ describe('Advanced UserCard Features', () => {
       expect(res.body.pokemonTcgId).toBe('nonexistent');
     });
 
+    /**
+     * Test: Actualizar tarjeta inexistente
+     * Verifica que retorna 404 al intentar actualizar una tarjeta que no existe en la colección
+     */
     it('debe retornar 404 al intentar actualizar una tarjeta que no existe', async () => {
       const user = await User.create({
         username: 'errortest2',

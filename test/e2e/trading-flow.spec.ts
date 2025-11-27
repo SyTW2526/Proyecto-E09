@@ -7,6 +7,15 @@ import { Trade } from '../../src/server/models/Trade';
 import { Card } from '../../src/server/models/Card';
 import mongoose from 'mongoose';
 
+/**
+ * E2E Tests - Pruebas de flujo completo de Trading
+ * Estos tests verifican el flujo de negocio completo desde la creación de usuarios
+ * hasta la realización de intercambios.
+ * 
+ * NOTA: Muchos tests están comentados como .skip porque requieren autenticación funcional
+ * que aún no está disponible en modo test. Deberán activarse cuando la autenticación esté lista.
+ */
+
 // Limpieza antes de cada test
 beforeEach(async () => {
   await User.deleteMany();
@@ -16,6 +25,20 @@ beforeEach(async () => {
 });
 
 describe('E2E: Trading Flow - Flujo completo de intercambio de cartas', () => {
+  /**
+   * Test E2E: Flujo completo de intercambio (SKIP - requiere autenticación)
+   * 
+   * Pasos probados:
+   * 1. Crear dos usuarios (Alice y Bob)
+   * 2. Crear cartas de Pokémon en la BD
+   * 3. Alice agrega una carta a su colección
+   * 4. Bob agrega la misma carta a su wishlist y otra a su colección
+   * 5. Ambos usuarios pueden ver sus cartas
+   * 6. Alice crea un intercambio privado con Bob
+   * 7. Bob acepta el intercambio
+   * 8. Las cartas se transfieren correctamente
+   * 9. Se verifican los historiales de intercambios
+   */
   // Comentado: Requiere autenticación que no está funcionando en test mode
   it.skip('Dos usuarios crean cuentas, agregan cartas a su colección y realizan un intercambio', async () => {
     // Paso 1: Crear dos usuarios
@@ -190,6 +213,16 @@ describe('E2E: Trading Flow - Flujo completo de intercambio de cartas', () => {
     console.log(`Historial de intercambios verificado - Total completados: ${completedTrades.length}`);
   });
 
+  /**
+   * Test E2E: Flujo con amistad y trading privado (SKIP - requiere autenticación)
+   * 
+   * Pasos probados:
+   * 1. Crear dos usuarios (Charlie y Diana)
+   * 2. Los usuarios se agregan mutuamente como amigos
+   * 3. Agregan cartas a sus colecciones
+   * 4. Realizan un intercambio privado
+   * 5. Se verifica que el intercambio está completado
+   */
   // Comentado: Requiere autenticación que no está funcionando en test mode
   it.skip('Un usuario puede añadir otro como amigo y luego hacer un intercambio privado', async () => {
     console.log('\n\n=== E2E: Flujo de Amistad y Trading ===');
@@ -308,6 +341,15 @@ describe('E2E: Trading Flow - Flujo completo de intercambio de cartas', () => {
     console.log('\nFlujo de amistad y trading completado exitosamente');
   });
 
+  /**
+   * Test E2E: Flujo de bloqueo (SKIP - requiere autenticación)
+   * 
+   * Pasos probados:
+   * 1. Crear dos usuarios (Eve y Frank)
+   * 2. Eve bloquea a Frank
+   * 3. Se verifica que Frank está en la lista de bloqueados de Eve
+   * 4. Se confirma que el bloqueo es efectivo
+   */
   // Comentado: Requiere autenticación que no está funcionando en test mode
   it.skip('Un usuario puede bloquear a otro y los intercambios son restringidos', async () => {
     console.log('\n\n=== E2E: Flujo de Bloqueo ===');

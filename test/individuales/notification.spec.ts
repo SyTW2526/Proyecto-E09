@@ -5,12 +5,22 @@ import { app } from "../../src/server/api.js";
 import { Notification } from "../../src/server/models/Notification.js";
 import { User } from "../../src/server/models/User.js";
 
+/**
+ * Tests para el sistema de notificaciones
+ * Verifica que las notificaciones se crean, recuperan, marcan como leídas y se eliminan correctamente
+ */
+
 beforeEach(async () => {
   await Notification.deleteMany();
   await User.deleteMany();
 });
 
 describe("GET /notifications/:userId", () => {
+  /**
+   * Test: Obtener notificaciones paginadas del usuario
+   * Verifica que se pueden recuperar todas las notificaciones de un usuario con paginación
+   * y que incluye el conteo de notificaciones no leídas (unread)
+   */
   it("devuelve todas las notificaciones del usuario paginadas", async () => {
     const user = await User.create({
       username: "pepe",
@@ -45,6 +55,10 @@ describe("GET /notifications/:userId", () => {
     expect(res.body.unread).toBe(1);
   });
 
+  /**
+   * Test: Sin notificaciones
+   * Verifica que retorna un array vacío cuando el usuario no tiene notificaciones
+   */
   it("devuelve [] si no hay notificaciones", async () => {
     const user = await User.create({
       username: "pepa",
@@ -61,6 +75,10 @@ describe("GET /notifications/:userId", () => {
     expect(res.body.total).toBe(0);
   });
 
+  /**
+   * Test: ID de usuario inválido
+   * Verifica que retorna error 400 cuando el ID del usuario no es un ObjectId válido
+   */
   it("devuelve 400 si el ID es inválido", async () => {
     const res = await request(app)
       .get(`/notifications/invalid-id`)
@@ -71,6 +89,10 @@ describe("GET /notifications/:userId", () => {
 });
 
 describe("PATCH /notifications/:notificationId/read", () => {
+  /**
+   * Test: Marcar notificación como leída
+   * Verifica que se puede cambiar el estado de una notificación de no leída a leída
+   */
   it("marca una notificación como leída", async () => {
     const user = await User.create({
       username: "pepe",
@@ -93,6 +115,10 @@ describe("PATCH /notifications/:notificationId/read", () => {
     expect(res.body.isRead).toBe(true);
   });
 
+  /**
+   * Test: Notificación no encontrada
+   * Verifica que retorna 404 cuando se intenta marcar como leída una notificación que no existe
+   */
   it("devuelve 404 si la notificación no existe", async () => {
     const res = await request(app)
       .patch(`/notifications/${new mongoose.Types.ObjectId()}/read`)
@@ -101,6 +127,10 @@ describe("PATCH /notifications/:notificationId/read", () => {
     expect(res.body.error).toBe("Notificación no encontrada");
   });
 
+  /**
+   * Test: ID de notificación inválido
+   * Verifica que retorna error 400 cuando el ID de la notificación no es válido
+   */
   it("devuelve 400 si el ID es inválido", async () => {
     const res = await request(app)
       .patch(`/notifications/invalid-id/read`)
@@ -111,6 +141,10 @@ describe("PATCH /notifications/:notificationId/read", () => {
 });
 
 describe("PATCH /notifications/:userId/read-all", () => {
+  /**
+   * Test: Marcar todas las notificaciones como leídas
+   * Verifica que se pueden marcar todas las notificaciones de un usuario como leídas de una vez
+   */
   it("marca todas las notificaciones como leídas", async () => {
     const user = await User.create({
       username: "pepe",
@@ -143,6 +177,10 @@ describe("PATCH /notifications/:userId/read-all", () => {
     expect(res.body.modifiedCount).toBe(2);
   });
 
+  /**
+   * Test: ID de usuario inválido para read-all
+   * Verifica que retorna error 400 cuando se intenta marcar como leídas las notificaciones con un ID inválido
+   */
   it("devuelve 400 si el ID es inválido", async () => {
     const res = await request(app)
       .patch(`/notifications/invalid-id/read-all`)
@@ -153,6 +191,10 @@ describe("PATCH /notifications/:userId/read-all", () => {
 });
 
 describe("DELETE /notifications/:notificationId", () => {
+  /**
+   * Test: Eliminar notificación
+   * Verifica que se puede eliminar una notificación específica de la base de datos
+   */
   it("elimina una notificación correctamente", async () => {
     const user = await User.create({
       username: "pepe",
@@ -178,6 +220,10 @@ describe("DELETE /notifications/:notificationId", () => {
     expect(check).toBeNull();
   });
 
+  /**
+   * Test: Eliminar notificación inexistente
+   * Verifica que retorna 404 cuando se intenta eliminar una notificación que no existe
+   */
   it("devuelve 404 si no existe", async () => {
     const res = await request(app)
       .delete(`/notifications/${new mongoose.Types.ObjectId()}`)
@@ -186,6 +232,10 @@ describe("DELETE /notifications/:notificationId", () => {
     expect(res.body.error).toBe("Notificación no encontrada");
   });
 
+  /**
+   * Test: ID de notificación inválido para delete
+   * Verifica que retorna error 400 cuando se intenta eliminar con un ID inválido
+   */
   it("devuelve 400 si el ID es inválido", async () => {
     const res = await request(app)
       .delete(`/notifications/invalid-id`)

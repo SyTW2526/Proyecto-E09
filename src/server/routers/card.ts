@@ -250,3 +250,29 @@ cardRouter.get('/cards/tcg/:tcgId', async (req, res) => {
     return res.status(500).send({ error: err.message });
   }
 });
+
+/**
+ * GET /cards/search/quick
+ * Búsqueda rápida de cartas por nombre para el desplegable
+ * Retorna máximo 10 resultados sin paginación
+ */
+cardRouter.get('/cards/search/quick', async (req, res) => {
+  try {
+    const { q } = req.query;
+    
+    if (!q || typeof q !== 'string') {
+      return res.status(400).send({ error: 'Query parameter "q" is required' });
+    }
+
+    const filter = { name: { $regex: q, $options: 'i' } };
+
+    const cards = await Card.find(filter)
+      .sort({ name: 1 })
+      .limit(10)
+      .lean();
+
+    res.send({ data: cards, count: cards.length });
+  } catch (error: any) {
+    res.status(500).send({ error: error.message });
+  }
+});

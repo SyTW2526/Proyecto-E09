@@ -41,6 +41,20 @@ class ApiService {
     }
   }
 
+  async quickSearchCards(query: string): Promise<PokemonCard[]> {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/cards/search/quick?q=${encodeURIComponent(query)}`
+      );
+      if (!res.ok) throw new Error("Error buscando cartas rápidamente");
+      const data = await res.json();
+      return data.data || [];
+    } catch (err) {
+      console.error("Error:", err);
+      return [];
+    }
+  }
+
   async getCardById(id: string): Promise<PokemonCard | null> {
     try {
       const res = await fetch(`${API_BASE_URL}/cards/${id}`);

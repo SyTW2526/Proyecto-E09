@@ -77,7 +77,6 @@
   scrollbar-width: none;
 }
 
-
 .discover-header {
   max-width: 1200px;
   margin: 0 auto 1.5rem;
@@ -98,7 +97,6 @@
   align-items: center;
   justify-content: center;
 }
-
 
 .discover-search {
   flex: 0 0 auto;
@@ -132,8 +130,6 @@
   color: #0f172a;
   pointer-events: none;
 }
-
-
 
 .discover-filter-wrapper {
   position: relative;
@@ -183,8 +179,6 @@
   font-size: 0.85rem;
   outline: none;
 }
-
-
 
 .discover-sets {
   width: 100%;
@@ -238,13 +232,11 @@
   box-shadow: none;
 }
 
-
 .discover-card-stat-value {
   font-size: 0.75rem;
   line-height: 1.2;
   word-break: break-word;
 }
-
 
 .discover-price-label {
   font-size: 0.9rem;
@@ -278,7 +270,6 @@
   font-size: 0.85rem;
   color: #0f172a;
 }
-
 
 .trade-request-overlay {
   position: fixed;
@@ -413,8 +404,6 @@
   cursor: pointer;
 }
 
-
-
 @media (max-width: 768px) {
   .trade-request-body {
     grid-template-columns: 1fr;
@@ -425,8 +414,68 @@
   }
 }
 
+.dark .discover-page {
+  background: #020617 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .discover-page * {
+  color: #e2e8f0 !important;
+}
+
+.dark .discover-filter-button,
+.dark .discover-filter-panel,
+.dark .discover-search-input,
+.dark .discover-front-card {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: #334155 !important;
+}
+
+.dark .pokemon-card-back,
+.dark .bg-blue-50 {
+  background: #1e293b !important;
+}
+
+.dark .text-gray-600,
+.dark .text-gray-700,
+.dark .text-gray-800 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-gray-300,
+.dark .text-gray-400,
+.dark .text-gray-500 {
+  color: #cbd5e1 !important;
+}
+
+.dark .discover-search-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.dark .discover-price-value {
+  color: #7dd3fc !important;
+}
+
+.dark .featured-wrapper {
+  background: #0f172a;
+}
 
 .dark .featured-title {
+  color: #f1f5f9;
+  background: linear-gradient(90deg, #0284c7, #0ea5e9);
+}
+
+.dark .pokemon-card {
+  background: radial-gradient(circle at top, #facc15, #020617);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+}
+
+.dark .pokemon-card-back {
+  background: #1e293b;
+}
+
+.dark .discover-header {
   color: #e2e8f0;
 }
 
@@ -436,15 +485,15 @@
 
 .dark .discover-search-input {
   background: #1e293b;
-  color: #f1f5f9;
+  color: #e2e8f0;
 }
 
 .dark .discover-search-input::placeholder {
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .dark .discover-search-icon {
-  color: #f1f5f9;
+  color: #e2e8f0;
 }
 
 .dark .discover-filter-button {
@@ -453,7 +502,8 @@
 }
 
 .dark .discover-filter-panel {
-  background: #1e293b;
+  background: #0f172a;
+  border: 1px solid #1e293b;
 }
 
 .dark .discover-filter-label {
@@ -461,26 +511,70 @@
 }
 
 .dark .discover-filter-select {
-  background: #0f172a;
+  background: #1e293b;
   color: #e2e8f0;
 }
 
 .dark .discover-set-title {
-  color: #e2e8f0;
+  color: #f1f5f9;
 }
 
 .dark .discover-set-count {
   color: #7dd3fc;
 }
 
+.dark .discover-set-grid {
+  background: transparent;
+}
+
+.dark .discover-card-inner {
+  background: transparent;
+}
+
+.dark .discover-front-card {
+  background: #1e293b !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
 .dark .discover-card-stat-value {
-  color: #cbd5e1;
+  color: #e2e8f0;
 }
 
 .dark .discover-price-value {
   color: #f9fafb;
 }
 
+.dark .discover-price-label {
+  color: #cbd5e1;
+}
+
+.dark .discover-empty {
+  color: #94a3b8;
+}
+
 .dark .discover-error {
-  color: #fda4a4;
+  color: #fca5a5;
+}
+
+.dark .discover-pagination-info {
+  color: #e2e8f0;
+}
+
+.dark .discover-card-inner,
+.dark .discover-filter-panel,
+.dark .discover-toolbar,
+.dark .discover-set-section,
+.dark .discover-set-grid {
+  background: transparent !important;
+}
+
+.dark .pokemon-card-back span,
+.dark .pokemon-card span {
+  color: #ffffff !important;
+}
+
+.dark .pokemon-card-back .bg-white\/90,
+.dark .pokemon-card .bg-white\/90 {
+  background: #1e293b !important;
+  color: #ffffff !important;
 }

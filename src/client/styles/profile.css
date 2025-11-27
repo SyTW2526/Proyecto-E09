@@ -36,9 +36,12 @@
 
 .profile-content {
   display: flex;
-  gap: 5rem;
-  margin-left: 5rem;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
+  gap: 4rem;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 900px;
 }
 
 /* FOTO */
@@ -49,8 +52,8 @@
 }
 
 .profile-photo {
-  width: 14rem;
-  height: 14rem;
+  width: 11rem;
+  height: 11rem;
   border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 6px 15px rgba(0,0,0,0.25);
@@ -63,6 +66,26 @@
   gap: 1rem;
   align-items: center;
 }
+.profile-delete-account {
+  padding: 0.75rem 1.8rem !important;
+  background: #dc2626 !important;
+  color: white !important;
+  font-weight: 600;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.35);
+  transition: 0.2s;
+}
+
+.profile-delete-account:hover {
+  background: #b91c1c !important;
+  transform: translateY(-2px);
+}
+
+.profile-delete-account:active {
+  background: #991b1b !important;
+  transform: scale(0.98);
+}
+
 
 /* BUTTONS */
 .profile-btn {
@@ -75,6 +98,16 @@
   box-shadow: 0 3px 8px rgba(0,0,0,0.15);
 }
 
+.profile-btn,
+.profile-delete-account {
+  font-size: 1.15rem !important;   
+}
+.profile-btn,
+.profile-delete-account {
+  padding: 0.55rem 1.4rem !important; 
+  font-size: 1rem !important;
+  border-radius: 0.6rem !important;
+}
 .profile-btn:hover {
   background: #0369a1;
 }
@@ -87,18 +120,21 @@
   background: #b91c1c;
 }
 
-.profile-delete-account {
-  padding: 0.85rem 2.2rem;
-}
-
 /* INFO CARD */
 .profile-info-card {
   background: white;
   border: 2px solid #bae6fd;
   box-shadow: 0 5px 18px rgba(0,0,0,0.12);
   padding: 2.5rem;
-  width: 480px;
+  width: 420px;
   border-radius: 1.5rem;
+  text-align: center;
+}
+
+.profile-info-card p {
+  font-size: 1.45rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
 .profile-info-buttons {
@@ -108,11 +144,25 @@
   margin-top: 2rem;
 }
 
+/* 2 COLUMNAS: WISHLIST + TRADELIST */
+.profile-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;            
+  width: 100%;
+  max-width: 1400px;
+  margin: 4rem auto;
+}
+
+
 /* SECTIONS */
 .profile-section {
-  margin-top: 5rem;
-  margin-left: 5rem;
-  width: 90%;
+  width: 100%;
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1.5rem 1.2rem;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
 }
 
 .section-title {
@@ -120,24 +170,27 @@
   color: #0284c7;
   font-weight: bold;
   margin-bottom: 1rem;
+  text-align: center; 
 }
 
 .section-empty {
   color: #777;
-  margin-left: 0.5rem;
 }
 
-.cards-grid {
+/* CARTAS */
+.cards-grid-two {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
 }
 
-.card-item, .card-item-yellow {
-  padding: 0.8rem;
-  border-radius: 1rem;
+.card-item,
+.card-item-yellow {
+  padding: 0.5rem;
   background: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   border: 2px solid #7dd3fc;
   transition: 0.2s;
 }
@@ -146,19 +199,17 @@
   border-color: #facc15;
 }
 
-.card-item:hover,
-.card-item-yellow:hover {
-  transform: scale(1.05);
-}
-
 .card-image {
   width: 100%;
-  border-radius: 0.8rem;
+  height: 160px;
+  object-fit: contain;
+  border-radius: 0.5rem;
 }
 
 .card-title {
   text-align: center;
-  margin-top: 0.5rem;
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
@@ -215,125 +266,42 @@
   box-shadow: 0 4px 18px rgba(0,0,0,0.2);
 }
 
-.modal-title {
-  font-weight: bold;
-  font-size: 1.4rem;
-  margin-bottom: 1rem;
+/* DARK MODE  */
+.dark .profile-page { background-color: #0f172a; color: #e2e8f0; }
+.dark .profile-title { color: #93c5fd; }
+.dark .profile-info-card { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+.dark .profile-btn { background: #3b82f6; }
+.dark .card-item { background: #1e293b; border-color: #334155; }
+.dark .card-title { color: #e2e8f0; }
+.dark .btn-blue-small {
+  background: #0ea5e9 !important;
+  color: #ffffff !important;
 }
 
-.modal-label {
-  font-weight: 600;
-  margin-top: 1rem;
-  display: block;
+.dark .profile-lists {
+  background: transparent;
 }
 
-.modal-input {
-  width: 100%;
-  padding: 0.6rem;
-  border-radius: 0.5rem;
-  border: 1px solid #ccc;
-  margin-top: 0.2rem;
-}
-
-.modal-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-/* BOTÓN ELIMINAR CUENTA */
-.profile-delete-account {
-  padding: 0.75rem 1.6rem !important;
-  border-radius: 0.75rem !important;
-  background: #dc2626 !important;
-  color: white !important;
-  font-weight: 600;
-  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.35);
-  transition: background 0.2s ease, transform 0.12s ease;
-}
-
-.profile-delete-account:hover {
-  background: #b91c1c !important;
-  transform: translateY(-1px);
-}
-
-.profile-delete-account:active {
-  background: #991b1b !important;
-  transform: translateY(1px);
-}
-/* MODO OSCURO*/
-.dark .profile-page {
-  background-color: #0f172a; 
-  color: #e2e8f0;
-}
-
-.dark .profile-title {
-  color: #93c5fd; 
-}
-
-.dark .profile-info-card {
+.dark .profile-section {
   background: #1e293b;
   border-color: #334155;
   color: #e2e8f0;
 }
 
-.dark .profile-btn {
-  background-color: #3b82f6;
-  color: white;
-}
-.dark .profile-btn:hover {
-  background-color: #2563eb;
+.dark .section-title {
+  color: #93c5fd;
 }
 
-.dark .profile-btn-red {
-  background-color: #dc2626 !important;
-}
-.dark .profile-btn-red:hover {
-  background-color: #b91c1c !important;
-}
-
-.dark .profile-delete-account {
-  background-color: #dc2626 !important;
-  color: white !important;
-}
-
-.dark .profile-photo-buttons .profile-btn {
-  background-color: #3b82f6;
+.dark .section-empty {
+  color: #cbd5e1;
 }
 
 .dark .card-item,
 .dark .card-item-yellow {
   background: #1e293b;
   border-color: #334155;
-  color: #e2e8f0;
-}
-.dark .card-item-yellow {
-  border-color: #facc15;
 }
 
 .dark .card-title {
   color: #e2e8f0;
-}
-
-.dark .toast-success {
-  background: #15803d !important;
-}
-.dark .toast-error {
-  background: #dc2626 !important;
-}
-
-.dark .modal-card {
-  background-color: #1e293b;
-  border: 1px solid #334155;
-}
-
-.dark .modal-title,
-.dark .modal-label {
-  color: #e2e8f0;
-}
-
-.dark .modal-input {
-  background-color: #0f172a;
-  border-color: #334155;
-  color: white;
 }

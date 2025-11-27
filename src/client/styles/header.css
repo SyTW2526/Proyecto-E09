@@ -4,13 +4,14 @@
   position: sticky;
   top: 0;
   width: 100%;
+  height: 80px; 
   z-index: 40;
 }
 
 .header-container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 12px 24px;
+  padding: 6px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -19,15 +20,14 @@
 .header-left {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
 }
 
 .header-logo {
-  width: 130px;
-  height: 130px;
+  height: 70px;         
+  width: auto;          
   object-fit: contain;
 }
-
 
 .nav-desktop {
   display: none;

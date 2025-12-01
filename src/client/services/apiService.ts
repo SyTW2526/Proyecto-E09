@@ -41,6 +41,39 @@ class ApiService {
     }
   }
 
+  async searchTcgCards(query: string, page = 1, limit = 20, set?: string, rarity?: string): Promise<{ data: any[]; total: number; page: number; limit: number }> {
+    try {
+      const params = new URLSearchParams();
+      params.append('q', query);
+      params.append('page', String(page));
+      params.append('limit', String(limit));
+      if (set) params.append('set', set);
+      if (rarity) params.append('rarity', rarity);
+      const res = await fetch(`${API_BASE_URL}/cards/search/tcg?${params.toString()}`);
+      if (!res.ok) throw new Error('Error searching TCGdex');
+      return await res.json();
+    } catch (err) {
+      console.error('Error searchTcgCards:', err);
+      return { data: [], total: 0, page, limit };
+    }
+  }
+
+  async searchTcgQuick(query: string, limit = 10): Promise<any[]> {
+    try {
+      const params = new URLSearchParams();
+      params.append('q', query);
+      params.append('page', '1');
+      params.append('limit', String(limit));
+      const res = await fetch(`${API_BASE_URL}/cards/search/tcg?${params.toString()}`);
+      if (!res.ok) throw new Error('Error quick searching TCGdex');
+      const payload = await res.json();
+      return payload.data || [];
+    } catch (err) {
+      console.error('Error searchTcgQuick:', err);
+      return [];
+    }
+  }
+
   async quickSearchCards(query: string): Promise<PokemonCard[]> {
     try {
       const res = await fetch(

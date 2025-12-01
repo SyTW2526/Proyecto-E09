@@ -55,7 +55,12 @@ const OpenPackPage: React.FC = () => {
   const [loadingSet, setLoadingSet] = useState(false);
   const [opening, setOpening] = useState(false);
   const [openedCards, setOpenedCards] = useState<any[]>([]);
+  const [packStatus, setPackStatus] = useState<{ remaining:number; count24:number; nextAllowed?: string | null } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [resetCode, setResetCode] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
+  const [showReset, setShowReset] = useState(false);
 
   // available sets to open
   const SET_OPTIONS = [
@@ -84,6 +89,17 @@ const OpenPackPage: React.FC = () => {
       }
     }
     load();
+    // load pack status
+    (async () => {
+      const user = authService.getUser();
+      if (!user || !authService.isAuthenticated()) return;
+      try {
+        const resp = await fetch(`http://localhost:3000/users/${encodeURIComponent(user.username||user.id)}/pack-status`, { headers: { ...authService.getAuthHeaders() } });
+        if (!resp.ok) return;
+        const payload = await resp.json();
+        setPackStatus(payload);
+      } catch (e) {}
+    })();
     return () => { mounted = false; };
   }, [selectedSet]);
 
@@ -136,80 +152,43 @@ const OpenPackPage: React.FC = () => {
       }
       const usernameOrId = user.username || user.id;
 
-  // fetch cards from selected set
-  const setData = await api.getCardsFromTcgDexSet(selectedSet);
-      const cards = (setData?.cards || setData?.data || setData?.cards || []) as any[];
-      if (!cards || cards.length === 0) {
-        setError('No se encontraron cartas en el set');
+      // call server endpoint that applies rate limits and persists the pack
+      const base = 'http://localhost:3000';
+      const resp = await fetch(`${base}/users/${encodeURIComponent(usernameOrId)}/open-pack`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authService.getAuthHeaders() },
+        body: JSON.stringify({ setId: selectedSet })
+      });
+      if (!resp.ok) {
+        const payload = await resp.json().catch(() => null);
+        if (payload && payload.nextAllowed) {
+          setError(`Rate limited. Next allowed: ${new Date(payload.nextAllowed).toLocaleString()}`);
+        } else if (payload && payload.message) {
+          setError(payload.message);
+        } else {
+          const txt = await resp.text();
+          setError(txt || 'Failed to open pack');
+        }
         setOpening(false);
         return;
       }
 
-      // choose 9 random cards
-      const chosen: any[] = [];
-      const pool = [...cards];
-      for (let i = 0; i < 9; i++) {
-        if (pool.length === 0) break;
-        const idx = Math.floor(Math.random() * pool.length);
-        chosen.push(pool.splice(idx,1)[0]);
-      }
-
-      // choose last card guaranteed Rare or higher
-      const rarityIndex = RARITY_ORDER.indexOf('Rare');
-      const rarePool = cards.filter(c => {
-        const r = (c.rarity || c.rarityText || '').toString();
-        // consider present in RARITY_ORDER at same or higher index
-        const idx = RARITY_ORDER.findIndex(x => x.toLowerCase() === r.toLowerCase());
-        return idx >= 0 && idx >= rarityIndex;
-      });
-
-      let lastCard: any = null;
-      if (rarePool.length > 0) lastCard = pickRandom(rarePool);
-      else lastCard = pickRandom(cards);
-
-      const pack = [...chosen, lastCard];
-      const normalized = pack.map(c => {
-        // try multiple shapes for image
-        let image = c.images?.large || c.images?.small || c.imageUrl || c.image || c.tcg?.images?.large || c.tcg?.images?.small || '';
-        if (!image && c.card && typeof c.card === 'object') {
-          image = c.card.images?.large || c.card.images?.small || c.card.imageUrl || c.card.image || '';
-        }
-        if (!image && (c.id || c.pokemonTcgId)) {
-          const tcgId = c.id || c.pokemonTcgId;
-          const [setCode, num] = tcgId.split('-');
-          const m = setCode ? String(setCode).match(/^[a-zA-Z]+/) : null;
-          const series = m ? m[0] : (setCode ? setCode.slice(0,2) : '');
-          if (setCode && num) image = `https://assets.tcgdex.net/en/${series}/${setCode}/${num}/high.png`;
-        }
-
-        // ensure we point to high.png variant when possible
-        if (!image) return { ...c, image: '' };
-        try {
-          // if already ends with known size png, switch to high.png
-          if (/\/(?:small|large|high|low)\.png$/i.test(image)) {
-            image = image.replace(/\/(?:small|large|high|low)\.png$/i, '/high.png');
-          }
-          // if it's a direct image url with extension, return as-is
-          if (/\.(png|jpe?g|gif|webp)$/i.test(image)) return { ...c, image };
-          // otherwise append /high.png
-          return { ...c, image: image.endsWith('/') ? `${image}high.png` : `${image}/high.png` };
-        } catch (e) {
-          return { ...c, image };
-        }
-      });
-
+      const payload = await resp.json();
+      const cards = payload.cards || [];
+      // normalize for frontend display
+      const normalized = cards.map((it: any) => ({ id: it.pokemonTcgId || (it.userCard && it.userCard.pokemonTcgId) || it.tcgId, name: it.name, image: it.image }));
       setOpenedCards(normalized);
-
-      // persist each card to user's collection via API (autoFetch)
-      const promises = normalized.map(async (card) => {
-        const tcgId = card.id || card.pokemonTcgId || '';
-        if (!tcgId) return false;
-        return await api.addCardToUserCollectionByTcgId(usernameOrId, tcgId);
-      });
-
-      const results = await Promise.all(promises);
-      const failed = results.filter(r => !r).length;
-      if (failed > 0) setError(`${failed} cartas no pudieron añadirse a la colección`);
+      // refresh pack status
+      (async () => {
+        const user = authService.getUser();
+        if (!user || !authService.isAuthenticated()) return;
+        try {
+          const resp2 = await fetch(`http://localhost:3000/users/${encodeURIComponent(user.username||user.id)}/pack-status`, { headers: { ...authService.getAuthHeaders() } });
+          if (!resp2.ok) return;
+          const payload2 = await resp2.json();
+          setPackStatus(payload2);
+        } catch (e) {}
+      })();
 
     } catch (err: any) {
       setError(err?.message ?? String(err));
@@ -252,6 +231,68 @@ const OpenPackPage: React.FC = () => {
                 <button className="CollectionButton" onClick={openPack} disabled={opening}>
                   {opening ? 'Abriendo...' : 'Abrir'}
                 </button>
+                {/* pack status UI */}
+                {packStatus && (
+                  <div style={{marginTop:12, textAlign:'center'}}>
+                    <div style={{fontSize:14}}>Disponibles: <strong>{packStatus.remaining}</strong></div>
+                    <div style={{display:'flex', gap:4, justifyContent:'center', marginTop:6}}>
+                      {[0,1].map(i => (
+                        <div key={i} style={{width:24, height:10, background: i < (2 - packStatus.remaining) ? '#f97316' : '#e5e7eb', borderRadius:4}} />
+                      ))}
+                    </div>
+                    {packStatus.nextAllowed && (
+                      <div style={{fontSize:12, color:'#6b7280', marginTop:6}}>Siguiente permitido: {new Date(packStatus.nextAllowed).toLocaleString()}</div>
+                    )}
+                  </div>
+                )}
+                {/* reset control for testing (hidden behind Código button) */}
+                <div style={{marginTop:10, display:'flex', gap:8, alignItems:'center', justifyContent:'center', flexDirection:'column'}}>
+                  <div style={{display:'flex', gap:8}}>
+                    <button className="CollectionButton" onClick={()=>setShowReset(s => !s)}>{showReset ? 'Cerrar' : 'Código'}</button>
+                  </div>
+                  {showReset && (
+                    <div style={{marginTop:8, display:'flex', gap:8, alignItems:'center'}}>
+                      <input value={resetCode} onChange={(e)=>setResetCode(e.target.value)} placeholder="ADMIN" style={{padding:6, fontSize:12, textTransform:'uppercase'}} />
+                      <button className="CollectionButton" onClick={async ()=>{
+                        setResetMessage(null);
+                        setResetLoading(true);
+                        try {
+                          const user = authService.getUser();
+                          if (!user) throw new Error('No auth');
+                          // require uppercase ADMIN on client
+                          if ((resetCode || 'ADMIN') !== 'ADMIN') {
+                            setResetMessage('Código inválido (debe ser ADMIN en mayúsculas)');
+                            setResetLoading(false);
+                            return;
+                          }
+                          const resp = await fetch(`http://localhost:3000/users/${encodeURIComponent(user.username||user.id)}/reset-pack-limit`, {
+                            method: 'POST', headers: { 'Content-Type': 'application/json', ...authService.getAuthHeaders() }, body: JSON.stringify({ code: resetCode || 'ADMIN' })
+                          });
+                          if (!resp.ok) {
+                            const p = await resp.json().catch(()=>null);
+                            setResetMessage(p?.message || `Error: ${resp.statusText}`);
+                            setResetLoading(false);
+                            return;
+                          }
+                          setResetMessage('Reset realizado');
+                          setShowReset(false);
+                          setResetCode('');
+                          // refresh pack status
+                          try {
+                            const resp2 = await fetch(`http://localhost:3000/users/${encodeURIComponent(user.username||user.id)}/pack-status`, { headers: { ...authService.getAuthHeaders() } });
+                            if (resp2.ok) {
+                              const payload2 = await resp2.json();
+                              setPackStatus(payload2);
+                            }
+                          } catch (e) {}
+                        } catch (e: any) {
+                          setResetMessage(e?.message ?? String(e));
+                        } finally { setResetLoading(false); }
+                      }} disabled={resetLoading}>{resetLoading ? 'Reset...' : 'Reset'}</button>
+                    </div>
+                  )}
+                  {resetMessage && <div style={{fontSize:12, color: resetMessage.includes('Error') ? 'red' : 'green', marginTop:6}}>{resetMessage}</div>}
+                </div>
               </div>
             </div>
           </div>

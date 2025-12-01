@@ -11,8 +11,12 @@ import { TrainerCard } from '../models/TrainerCard.js';
 import { EnergyCard } from '../models/EnergyCard.js';
 import { getCardById } from '../services/pokemon.js';
 import { upsertCardFromRaw } from '../services/cards.js';
+import { normalizeImageUrl } from '../services/tcgdx.js';
 import { Notification } from '../models/Notification.js';
+import { PackOpen } from '../models/PackOpen.js';
 import { authMiddleware, AuthRequest, optionalAuthMiddleware } from '../middleware/authMiddleware.js';
+
+const MS_HOUR = 1000 * 60 * 60;
 
 export const userRouter = express.Router();
 
@@ -445,6 +449,198 @@ userRouter.post('/users/:identifier/cards', authMiddleware, async (req: AuthRequ
     return res.status(201).send({ message: 'Card added to user collection', userCard });
   } catch (error) {
     res.status(500).send({ error: (error as Error).message ?? String(error) });
+  }
+});
+
+/**
+ * POST /users/:identifier/open-pack
+ * Server-side pack opening with rate limits: max 2 opens per 24h and at least 12h between opens.
+ * Body: { setId?: string }
+ */
+userRouter.post('/users/:identifier/open-pack', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { identifier } = req.params;
+    const { setId } = req.body;
+    const filterUser = mongoose.Types.ObjectId.isValid(identifier) ? { _id: identifier } : { username: identifier };
+    const user = await User.findOne(filterUser);
+    if (!user) return res.status(404).send({ error: 'Usuario no encontrado' });
+    if (req.userId?.toString() !== user._id.toString()) return res.status(403).send({ error: 'No autorizado' });
+
+    // Token-bucket rate limiting
+    // capacity = 2, refill 1 token every 12 hours
+    const REFILL_MS = 12 * MS_HOUR;
+    // ensure fields exist
+    if (typeof (user as any).packTokens !== 'number' || !(user as any).packLastRefill) {
+      (user as any).packTokens = 2;
+      (user as any).packLastRefill = new Date();
+    }
+    const now = Date.now();
+    const lastRefill = new Date((user as any).packLastRefill).getTime();
+    const refillCount = Math.floor((now - lastRefill) / REFILL_MS);
+    if (refillCount > 0) {
+      (user as any).packTokens = Math.min(2, ((user as any).packTokens || 0) + refillCount);
+      (user as any).packLastRefill = new Date(lastRefill + refillCount * REFILL_MS);
+      await user.save();
+    }
+
+    if (((user as any).packTokens || 0) <= 0) {
+      const nextAllowed = new Date((user as any).packLastRefill).getTime() + REFILL_MS;
+      return res.status(429).send({ error: 'No quedan tokens para abrir sobres. Espera para recargar.', nextAllowed: new Date(nextAllowed) });
+    }
+
+    // choose a set to open (fallback to a default)
+    const sid = setId || 'me01';
+
+    // fetch set cards server-side
+    const setResp = await (await import('../services/pokemon.js')).getCardsBySet(sid);
+    let cards = setResp?.data ?? setResp;
+    if (!cards || !Array.isArray(cards)) cards = cards?.cards ?? [];
+    if (!cards || cards.length === 0) return res.status(500).send({ error: 'No se pudieron obtener cartas del set' });
+
+    // pick 9 random + 1 rare (reuse RARITY_ORDER logic client-side minimal)
+    const RARITY_ORDER = ['Common','Uncommon','Rare','Holo Rare','Rare Holo','Ultra Rare','Secret Rare'];
+    const chosen: any[] = [];
+    const pool = [...cards];
+    for (let i = 0; i < 9; i++) {
+      if (pool.length === 0) break;
+      const idx = Math.floor(Math.random() * pool.length);
+      chosen.push(pool.splice(idx,1)[0]);
+    }
+    const rarityIndex = RARITY_ORDER.indexOf('Rare');
+    const rarePool = cards.filter((c:any) => {
+      const r = (c.rarity || c.rarityText || '').toString();
+      const idx = RARITY_ORDER.findIndex(x => x.toLowerCase() === r.toLowerCase());
+      return idx >= 0 && idx >= rarityIndex;
+    });
+    const pickRandom = (arr:any[]) => arr[Math.floor(Math.random()*arr.length)];
+    const last = (rarePool.length>0) ? pickRandom(rarePool) : pickRandom(cards);
+    const pack = [...chosen, last];
+
+    // persist PackOpen record
+    await PackOpen.create({ userId: user._id });
+    // consume a token and persist user token state
+    (user as any).packTokens = Math.max(0, ((user as any).packTokens || 0) - 1);
+    await user.save();
+
+    // For each card, upsert into Card collections and create UserCard
+    const createdUserCards: any[] = [];
+    for (const c of pack) {
+      const tcgId = c.id || c.pokemonTcgId || '';
+      if (!tcgId) continue;
+      // try to find existing Card in DB
+      const found = await Promise.any([
+        PokemonCard.findOne({ pokemonTcgId: tcgId }).lean(),
+        TrainerCard.findOne({ pokemonTcgId: tcgId }).lean(),
+        EnergyCard.findOne({ pokemonTcgId: tcgId }).lean(),
+        Card.findOne({ pokemonTcgId: tcgId }).lean()
+      ]).catch(() => null);
+
+      let cardRefId = found?._id;
+      if (!cardRefId) {
+        // try to fetch and upsert raw card
+        try {
+          const raw = await (await import('../services/pokemon.js')).getCardById(tcgId);
+          const saved = await upsertCardFromRaw(raw);
+          cardRefId = saved?._id;
+        } catch (e) {
+          // skip if can't fetch
+          continue;
+        }
+      }
+
+      if (!cardRefId) continue;
+
+      const userCard = new UserCard({
+        userId: user._id,
+        cardId: cardRefId,
+        pokemonTcgId: tcgId,
+        condition: 'Near Mint',
+        isPublic: false,
+        isFavorite: false,
+        acquisitionDate: new Date(),
+        notes: 'From pack',
+        quantity: 1,
+        forTrade: false,
+        collectionType: 'collection'
+      });
+      await userCard.save();
+
+      // derive image for response
+      let image = c.images?.large || c.images?.small || c.imageUrl || c.image || '';
+      // ensure image URL points to high-res PNG
+      image = normalizeImageUrl(image);
+      if (!image && (c.id || c.pokemonTcgId)) {
+        const [setCode, num] = (c.id || c.pokemonTcgId).split('-');
+        const m = setCode ? String(setCode).match(/^[a-zA-Z]+/) : null;
+        const series = m ? m[0] : (setCode ? setCode.slice(0,2) : '');
+        if (setCode && num) image = `https://assets.tcgdex.net/en/${series}/${setCode}/${num}/high.png`;
+      }
+
+      createdUserCards.push({ userCard, image, name: c.name || c.title || tcgId, pokemonTcgId: tcgId });
+    }
+
+    return res.status(201).send({ message: 'Pack opened', cards: createdUserCards });
+  } catch (err:any) {
+    return res.status(500).send({ error: err?.message ?? String(err) });
+  }
+});
+
+/**
+ * GET /users/:identifier/pack-status
+ * Returns how many opens remain and nextAllowed timestamp if rate-limited
+ */
+userRouter.get('/users/:identifier/pack-status', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { identifier } = req.params;
+    const filterUser = mongoose.Types.ObjectId.isValid(identifier) ? { _id: identifier } : { username: identifier };
+    const user = await User.findOne(filterUser);
+    if (!user) return res.status(404).send({ error: 'Usuario no encontrado' });
+    if (req.userId?.toString() !== user._id.toString()) return res.status(403).send({ error: 'No autorizado' });
+
+    // compute token-based status
+    const REFILL_MS = 12 * MS_HOUR;
+    const now = Date.now();
+    const lastRefill = new Date((user as any).packLastRefill).getTime();
+    let tokens = typeof (user as any).packTokens === 'number' ? (user as any).packTokens : 2;
+    const refillCount = Math.floor((now - lastRefill) / REFILL_MS);
+    if (refillCount > 0) tokens = Math.min(2, tokens + refillCount);
+    let nextAllowed: Date | null = null;
+    if (tokens <= 0) {
+      nextAllowed = new Date(lastRefill + REFILL_MS);
+    }
+    // still return count24 for compatibility
+    const dayAgo = new Date(now - 24 * MS_HOUR);
+    const count24 = await PackOpen.countDocuments({ userId: user._id, createdAt: { $gte: dayAgo } });
+    return res.send({ remaining: tokens, count24, nextAllowed });
+  } catch (err: any) {
+    return res.status(500).send({ error: err?.message ?? String(err) });
+  }
+});
+
+/**
+ * POST /users/:identifier/reset-pack-limit
+ * Reset pack opens for testing. Requires auth and a code (default 'ADMIN').
+ */
+userRouter.post('/users/:identifier/reset-pack-limit', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { identifier } = req.params;
+    const { code } = req.body || {};
+    const filterUser = mongoose.Types.ObjectId.isValid(identifier) ? { _id: identifier } : { username: identifier };
+    const user = await User.findOne(filterUser);
+    if (!user) return res.status(404).send({ error: 'Usuario no encontrado' });
+    if (req.userId?.toString() !== user._id.toString()) return res.status(403).send({ error: 'No autorizado' });
+
+    const adminCode = process.env.ADMIN_RESET_CODE || 'ADMIN';
+    if (!code || String(code) !== adminCode) return res.status(403).send({ error: 'Código inválido' });
+
+    await PackOpen.deleteMany({ userId: user._id });
+    // reset token bucket on user
+    (user as any).packTokens = 2;
+    (user as any).packLastRefill = new Date();
+    await user.save();
+    return res.send({ message: 'Reset de límites de sobres realizado' });
+  } catch (err: any) {
+    return res.status(500).send({ error: err?.message ?? String(err) });
   }
 });
 

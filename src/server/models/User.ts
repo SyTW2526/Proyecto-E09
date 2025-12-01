@@ -52,6 +52,15 @@ const userSchema = new mongoose.Schema({
       showWishlist: { type: Boolean, default: true }
     }
   },
+  // pack opening token bucket
+  packTokens: {
+    type: Number,
+    default: 2
+  },
+  packLastRefill: {
+    type: Date,
+    default: Date.now
+  },
   friends: [
     { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
   ],

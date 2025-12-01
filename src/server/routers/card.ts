@@ -299,8 +299,10 @@ cardRouter.get('/cards/search/tcg', async (req, res) => {
       id: c.id || c._id || '',
       name: c.name || c.title || '',
       images: c.images || { small: c.imageUrl || c.image || '' },
-      set: c.set?.name || c.set || c.series || '',
-      rarity: c.rarity || '',
+      // include both set id/code and human name when possible
+      setId: c.set?.id || c.setId || c.set?.code || c.setCode || (c.set && typeof c.set === 'string' ? c.set : ''),
+      set: c.set?.name || (typeof c.set === 'string' ? c.set : '') || c.series || '',
+      rarity: c.rarity || c.rarityText || '',
       types: c.types || [],
       pokemonTcgId: c.id || c.pokemonTcgId || ''
     }));

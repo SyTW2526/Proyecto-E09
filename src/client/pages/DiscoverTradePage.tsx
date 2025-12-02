@@ -90,7 +90,9 @@ const DiscoverTradeCards: React.FC = () => {
 
     if (!rawImage && id) {
       const [setCode, number] = id.split("-");
-      const series = setCode ? setCode.slice(0, 2) : "";
+      // extract alphabetic prefix (e.g. 'base1' -> 'base') to form the asset path
+      const m = setCode ? String(setCode).match(/^[a-zA-Z]+/) : null;
+      const series = m ? m[0] : (setCode ? String(setCode).slice(0, 2) : "");
       if (setCode && number) {
         rawImage = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
       }

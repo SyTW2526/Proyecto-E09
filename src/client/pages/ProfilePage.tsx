@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import "../styles/profile.css";
 
 const DEFAULT_AVATAR = "/icono.png";
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 8;
 
 const ProfilePage: React.FC = () => {
   const { t } = useTranslation();

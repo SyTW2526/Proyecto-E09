@@ -1,4 +1,7 @@
 .collection-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   padding: 0px 0px;
 }
 
@@ -6,6 +9,8 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  /* allow main content to grow so footer is pushed to bottom */
+  flex: 1 1 auto;
 }
 
 .collection-controls {

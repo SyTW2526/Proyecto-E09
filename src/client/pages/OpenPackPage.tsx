@@ -252,7 +252,7 @@ const OpenPackPage: React.FC = () => {
                   </div>
                   {showReset && (
                     <div style={{marginTop:8, display:'flex', gap:8, alignItems:'center'}}>
-                      <input value={resetCode} onChange={(e)=>setResetCode(e.target.value)} placeholder="ADMIN" style={{padding:6, fontSize:12, textTransform:'uppercase'}} />
+                      <input value={resetCode} onChange={(e)=>setResetCode(e.target.value)} placeholder="Insertar Código" style={{padding:6, fontSize:12, textTransform:'uppercase'}} />
                       <button className="CollectionButton" onClick={async ()=>{
                         setResetMessage(null);
                         setResetLoading(true);

@@ -276,3 +276,47 @@ cardRouter.get('/cards/search/quick', async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 });
+
+/**
+ * GET /cards/search/tcg
+ * Proxy search to TCGdex API without caching results. Supports q, page, limit, set, rarity
+ */
+cardRouter.get('/cards/search/tcg', async (req, res) => {
+  try {
+    const { q, page = '1', limit = '20', set, rarity } = req.query as any;
+    if (!q || typeof q !== 'string') return res.status(400).send({ error: 'Query parameter "q" is required' });
+
+    const filters: any = { name: q };
+    if (set) filters.set = set;
+    if (rarity) filters.rarity = rarity;
+
+    const apiResp = await (await import('../services/pokemon.js')).searchCards(filters);
+    const raw = apiResp.data ?? apiResp;
+    const cards = Array.isArray(raw) ? raw : (raw.cards ?? raw.data ?? []);
+
+    // normalize minimal shape
+    const normalized = (cards || []).map((c: any) => ({
+      id: c.id || c._id || '',
+      name: c.name || c.title || '',
+      images: c.images || { small: c.imageUrl || c.image || '' },
+      // include both set id/code and human name when possible
+      setId: c.set?.id || c.setId || c.set?.code || c.setCode || (c.set && typeof c.set === 'string' ? c.set : ''),
+      set: c.set?.name || (typeof c.set === 'string' ? c.set : '') || c.series || '',
+      rarity: c.rarity || c.rarityText || '',
+      types: c.types || [],
+      pokemonTcgId: c.id || c.pokemonTcgId || ''
+    }));
+
+    // simple server-side pagination
+    const p = Math.max(1, Number(page));
+    const l = Math.max(1, Number(limit));
+    const total = normalized.length;
+    const start = (p - 1) * l;
+    const pageItems = normalized.slice(start, start + l);
+
+    return res.send({ data: pageItems, total, page: p, limit: l });
+  } catch (err: any) {
+    console.error('Error in /cards/search/tcg:', err);
+    return res.status(500).send({ error: err?.message ?? String(err) });
+  }
+});

@@ -36,7 +36,8 @@ const Header: React.FC = () => {
 
     const timer = setTimeout(async () => {
       setSearchLoading(true);
-      const results = await apiService.quickSearchCards(searchQuery);
+      // Use TCGdex proxy quick search to avoid creating DB entries for ephemeral searches
+      const results = await apiService.searchTcgQuick(searchQuery, 8).catch(() => []);
       setSearchResults(results);
       setSearchLoading(false);
       setSearchOpen(true);
@@ -76,6 +77,15 @@ const Header: React.FC = () => {
     setSearchQuery("");
     setSearchOpen(false);
     setSearchResults([]);
+  };
+
+  // navigate to search page on Enter
+  const onSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+      setSearchResults([]);
+    }
   };
 
   return (
@@ -153,6 +163,7 @@ const Header: React.FC = () => {
             placeholder={t("header.buscar")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={onSearchKeyDown}
             onFocus={() => setSearchOpen(true)}
             className="header-search"
           />

@@ -17,7 +17,8 @@
     "start": "node dist/server/index.js",
     "test": "env-cmd -f ./config/test.env vitest run test/index.spec.ts",
     "test:selenium": "npx vitest run --config vitest.selenium.config.ts",
-    "test:all": "npm test && npm run test:selenium"
+    "test:all": "npm test && npm run test:selenium",
+    "coverage": "vitest run --coverage"
   },
   "repository": {
     "type": "git",
@@ -30,9 +31,10 @@
   "homepage": "https://github.com/SyTW2526/Proyecto-E09#readme",
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.17",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^24.10.0",
+    "@types/node": "^24.10.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "@types/react-router-dom": "^5.3.3",
@@ -40,6 +42,7 @@
     "@types/supertest": "^6.0.3",
     "@types/validator": "^13.15.4",
     "@vitejs/plugin-react": "^5.1.0",
+    "@vitest/coverage-v8": "^4.0.15",
     "chromedriver": "^142.0.3",
     "concurrently": "^9.2.1",
     "env-cmd": "^11.0.0",
@@ -50,13 +53,14 @@
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vite": "^7.2.0",
-    "vitest": "^4.0.7"
+    "vitest": "^4.0.15"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.10.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "bcryptjs": "^3.0.3",
+    "canvas-confetti": "^1.9.4",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",

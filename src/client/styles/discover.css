@@ -587,7 +587,6 @@
   color: #ffffff !important;
 }
 
-/* --- FLIP CARD --- */
 .flip-card {
   width: 230px;
   height: 320px;
@@ -630,8 +629,6 @@
   height: 100%;
   object-fit: cover;
 }
-
-
 .flip-card-back {
   transform: rotateY(180deg);
   background: #f3f8ff !important;
@@ -639,6 +636,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border: 1px solid #dbeafe;
 }
 
 
@@ -692,6 +690,7 @@
   border: 1px solid #dbeafe;
   margin-bottom: 6px;
 }
+
 .card-back-section-title {
   font-size: 10px;
   font-weight: 700;
@@ -699,13 +698,16 @@
   margin-bottom: 3px;
 }
 
+
 .price-box {
   background: #ffffff;
   padding: 6px;
   border-radius: 8px;
   border: 1px solid #dbeafe;
   margin-bottom: 6px;
+  text-align: center;
 }
+
 .price-label {
   font-size: 10px;
   font-weight: 700;
@@ -716,9 +718,10 @@
   font-weight: 800;
   color: #0284c7;
 }
+
 .price-box.gold-border {
-  border: 2px solid #eab308 !important;   
-  background: #fff7d6 !important;          
+  border: 2px solid #eab308 !important;
+  background: #fff7d6 !important;
   box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
 }
 
@@ -764,6 +767,7 @@
 .dark .trade-btn {
   background: #0ea5e9;
 }
+
 .discover-pagination {
   margin: 1.5rem 0 3rem;
   display: flex;

@@ -149,7 +149,8 @@ friendTradeRoomsRouter.post("/friend-trade-rooms/invites/:id/accept", authMiddle
       status: "pending",
     });
 
-    await trade.save(); 
+    await trade.save();
+
     if (!trade.privateRoomCode) {
       return res.status(500).send({
         error: "No se pudo generar el código de sala privada",
@@ -158,12 +159,15 @@ friendTradeRoomsRouter.post("/friend-trade-rooms/invites/:id/accept", authMiddle
 
     invite.status = "accepted";
     invite.tradeId = trade._id;
-    invite.privateRoomCode = trade.privateRoomCode; 
+    invite.privateRoomCode = trade.privateRoomCode;
+    await invite.save();
+    const populatedInvite = await FriendTradeRoomInvite.findById(invite._id)
+      .populate("from", "username email profileImage")
+      .populate("to", "username email profileImage");
 
     return res.send({
       message: "Invitación aceptada",
-      inviteId: invite._id,
-      tradeId: trade._id,
+      invite: populatedInvite,
       privateRoomCode: trade.privateRoomCode,
     });
   } catch (error: any) {

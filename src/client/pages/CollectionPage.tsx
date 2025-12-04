@@ -259,7 +259,6 @@ const CollectionPage: React.FC = () => {
                           <div className="back-price collection-back-price">
                             {hoverDetails[c.id] ? (() => {
                                 const d = hoverDetails[c.id];
-                                // Use stored average price from the cached card object (no calculations).
                                 const avg = d?.price?.avg ?? d?.avg ?? d?.price?.cardmarketAvg ?? d?.cardmarketAvg ?? null;
                                 return (
                                   <div className="price-grid collection-price-grid">
@@ -281,10 +280,26 @@ const CollectionPage: React.FC = () => {
           </div>
         )}
 
-        <div className="collection-pagination">
-          <button disabled={page<=1} onClick={()=>setPage(p=>Math.max(1,p-1))} className="CollectionButton">{t('common.prev')}</button>
-          <div style={{alignSelf:'center'}}>{page} / {totalPages}</div>
-          <button disabled={page>=totalPages} onClick={()=>setPage(p=>Math.min(totalPages,p+1))} className="CollectionButton">{t('common.next')}</button>
+        <div className="discover-pagination">
+          <button
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            className="CollectionButton"
+          >
+            {t("collection.prev") || "Anterior"}
+          </button>
+
+          <span className="discover-pagination-info">
+            {page} / {totalPages}
+          </span>
+
+          <button
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            className="CollectionButton"
+          >
+            {t("collection.next") || "Siguiente"}
+          </button>
         </div>
       </div>
 

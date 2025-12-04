@@ -226,52 +226,36 @@ const CreateRoomPage: React.FC = () => {
 
       <main className="trade-requests-main">
         <div className="discover-header">
-          <h1 className="trade-requests-title">
-            {t("createRoom.title")}
-          </h1>
-          <p className="trade-requests-subtitle">
-            {t("createRoom.subtitle")}
-          </p>
+          <h1 className="trade-requests-title">{t("createRoom.title")}</h1>
+          <p className="trade-requests-subtitle">{t("createRoom.subtitle")}</p>
         </div>
 
-        {loading && (
-          <p className="trade-requests-loading">
-            {t("createRoom.loading")}
-          </p>
-        )}
-
-        {error && !loading && (
-          <p className="trade-requests-error">{error}</p>
-        )}
+        {loading && <p className="trade-requests-loading">{t("createRoom.loading")}</p>}
+        {error && !loading && <p className="trade-requests-error">{error}</p>}
 
         {!loading && (
           <div className="trade-requests-columns">
 
             <section className="trade-panel">
-              <h2 className="trade-panel-title" style={{ textAlign: "center" }}>
-                {t("createRoom.inviteFriend")}
-              </h2>
+              <h2 className="trade-panel-title">{t("createRoom.inviteFriend")}</h2>
 
               {friends.length === 0 ? (
                 <p className="trade-empty">{t("createRoom.noFriends")}</p>
               ) : (
                 <>
-                  <div style={{ marginBottom: "10px" }}>
-                    <input
-                      type="text"
-                      className="discover-search-input"
-                      placeholder={t("createRoom.searchPlaceholder")}
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    className="discover-search-input"
+                    placeholder={t("createRoom.searchPlaceholder")}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
 
-                  <div className="trade-list friend-list">
+                  <div className="friend-list">
                     {filteredFriends.map((friend) => {
                       const isSelected = selectedFriendId === friend._id;
                       const avatar =
-                        friend.profileImage &&
-                        friend.profileImage.trim() !== ""
+                        friend.profileImage && friend.profileImage.trim() !== ""
                           ? friend.profileImage
                           : "/icono.png";
 
@@ -279,34 +263,26 @@ const CreateRoomPage: React.FC = () => {
                         <div
                           key={friend._id}
                           className={
-                            "trade-row friend-row" +
-                            (isSelected ? " friend-row-selected" : "")
+                            "friend-row" + (isSelected ? " friend-row-selected" : "")
                           }
                           onClick={() => handleSelectFriend(friend._id)}
                         >
-                          <div className="trade-card-preview">
-                            <img
-                              src={avatar}
-                              alt={friend.username}
-                              className="friend-avatar"
-                            />
+                          <div className="friend-avatar-wrapper">
+                            <img src={avatar} className="friend-avatar" />
                           </div>
+
                           <div className="trade-info">
-                            <div className="trade-info-header">
-                              <span className="trade-user">
-                                <strong>@{friend.username}</strong>
-                              </span>
-                            </div>
-                            <p className="trade-note">
-                              {t("createRoom.clickToSelect")}
-                            </p>
+                            <span className="trade-user">
+                              <strong>@{friend.username}</strong>
+                            </span>
+                            <p className="trade-note">{t("createRoom.clickToSelect")}</p>
                           </div>
                         </div>
                       );
                     })}
                   </div>
 
-                  <div style={{ marginTop: "12px", textAlign: "center" }}>
+                  <div style={{ textAlign: "center", marginTop: "12px" }}>
                     <button
                       className="btn-blue-small"
                       disabled={!selectedFriendId}
@@ -320,9 +296,7 @@ const CreateRoomPage: React.FC = () => {
             </section>
 
             <section className="trade-panel">
-              <h2 className="trade-panel-title" style={{ textAlign: "center" }}>
-                {t("createRoom.receivedInvites")}
-              </h2>
+              <h2 className="trade-panel-title">{t("createRoom.receivedInvites")}</h2>
 
               {receivedActive.length === 0 ? (
                 <p className="trade-empty">{t("createRoom.noReceivedInvites")}</p>
@@ -330,40 +304,31 @@ const CreateRoomPage: React.FC = () => {
                 <div className="trade-list">
                   {receivedActive.map((inv) => {
                     const avatar =
-                      inv.from?.profileImage &&
-                      inv.from.profileImage.trim() !== ""
+                      inv.from?.profileImage && inv.from.profileImage.trim() !== ""
                         ? inv.from.profileImage
                         : "/icono.png";
 
-                    const canGoRoom =
-                      inv.status === "accepted" && inv.privateRoomCode;
+                    const canGoRoom = inv.status === "accepted" && inv.privateRoomCode;
 
                     return (
                       <div key={inv._id} className="trade-row">
                         <div className="trade-card-preview">
-                          <img
-                            src={avatar}
-                            alt={inv.from?.username}
-                            className="friend-avatar"
-                          />
+                          <img src={avatar} className="friend-avatar" />
                         </div>
+
                         <div className="trade-info">
                           <div className="trade-info-header">
                             <span className="trade-user">
-                              {t("createRoom.from")}{" "}
-                              <strong>@{inv.from?.username}</strong>
+                              {t("createRoom.from")} <strong>@{inv.from?.username}</strong>
                             </span>
+
                             <span className={`status-badge status-${inv.status}`}>
-                              {inv.status === "pending" &&
-                                t("createRoom.pending")}
-                              {inv.status === "accepted" &&
-                                t("createRoom.accepted")}
+                              {inv.status === "pending" && t("createRoom.pending")}
+                              {inv.status === "accepted" && t("createRoom.accepted")}
                             </span>
                           </div>
 
-                          <p className="trade-date">
-                            {new Date(inv.createdAt).toLocaleString()}
-                          </p>
+                          <p className="trade-date">{new Date(inv.createdAt).toLocaleString()}</p>
 
                           <div className="trade-actions">
                             {inv.status === "pending" && (
@@ -386,17 +351,11 @@ const CreateRoomPage: React.FC = () => {
                             {inv.status === "accepted" && (
                               <button
                                 className={
-                                  canGoRoom
-                                    ? "btn-blue-small"
-                                    : "room-chip room-chip-disabled"
+                                  canGoRoom ? "btn-blue-small" : "room-chip room-chip-disabled"
                                 }
-                                onClick={() =>
-                                  canGoRoom && handleGoRoom(inv.privateRoomCode)
-                                }
+                                onClick={() => canGoRoom && handleGoRoom(inv.privateRoomCode)}
                               >
-                                {canGoRoom
-                                  ? t("createRoom.goRoom")
-                                  : t("createRoom.roomUnavailable")}
+                                {canGoRoom ? t("createRoom.goRoom") : t("createRoom.roomUnavailable")}
                               </button>
                             )}
                           </div>
@@ -409,9 +368,7 @@ const CreateRoomPage: React.FC = () => {
             </section>
 
             <section className="trade-panel">
-              <h2 className="trade-panel-title" style={{ textAlign: "center" }}>
-                {t("createRoom.sentInvites")}
-              </h2>
+              <h2 className="trade-panel-title">{t("createRoom.sentInvites")}</h2>
 
               {sentActive.length === 0 ? (
                 <p className="trade-empty">{t("createRoom.noSentInvites")}</p>
@@ -419,56 +376,41 @@ const CreateRoomPage: React.FC = () => {
                 <div className="trade-list">
                   {sentActive.map((inv) => {
                     const avatar =
-                      inv.to?.profileImage &&
-                      inv.to.profileImage.trim() !== ""
+                      inv.to?.profileImage && inv.to.profileImage.trim() !== ""
                         ? inv.to.profileImage
                         : "/icono.png";
 
-                    const canGoRoom =
-                      inv.status === "accepted" && inv.privateRoomCode;
+                    const canGoRoom = inv.status === "accepted" && inv.privateRoomCode;
 
                     return (
                       <div key={inv._id} className="trade-row">
                         <div className="trade-card-preview">
-                          <img
-                            src={avatar}
-                            alt={inv.to?.username}
-                            className="friend-avatar"
-                          />
+                          <img src={avatar} className="friend-avatar" />
                         </div>
+
                         <div className="trade-info">
                           <div className="trade-info-header">
                             <span className="trade-user">
-                              {t("createRoom.to")}{" "}
-                              <strong>@{inv.to?.username}</strong>
+                              {t("createRoom.to")} <strong>@{inv.to?.username}</strong>
                             </span>
+
                             <span className={`status-badge status-${inv.status}`}>
-                              {inv.status === "pending" &&
-                                t("createRoom.pending")}
-                              {inv.status === "accepted" &&
-                                t("createRoom.accepted")}
+                              {inv.status === "pending" && t("createRoom.pending")}
+                              {inv.status === "accepted" && t("createRoom.accepted")}
                             </span>
                           </div>
 
-                          <p className="trade-date">
-                            {new Date(inv.createdAt).toLocaleString()}
-                          </p>
+                          <p className="trade-date">{new Date(inv.createdAt).toLocaleString()}</p>
 
                           <div className="trade-actions">
                             {inv.status === "accepted" && (
                               <button
                                 className={
-                                  canGoRoom
-                                    ? "btn-blue-small"
-                                    : "room-chip room-chip-disabled"
+                                  canGoRoom ? "btn-blue-small" : "room-chip room-chip-disabled"
                                 }
-                                onClick={() =>
-                                  canGoRoom && handleGoRoom(inv.privateRoomCode)
-                                }
+                                onClick={() => canGoRoom && handleGoRoom(inv.privateRoomCode)}
                               >
-                                {canGoRoom
-                                  ? t("createRoom.goRoom")
-                                  : t("createRoom.roomUnavailable")}
+                                {canGoRoom ? t("createRoom.goRoom") : t("createRoom.roomUnavailable")}
                               </button>
                             )}
                           </div>
@@ -479,10 +421,7 @@ const CreateRoomPage: React.FC = () => {
                 </div>
               )}
 
-              <h3
-                className="trade-panel-title"
-                style={{ textAlign: "center", marginTop: "18px" }}
-              >
+              <h3 className="trade-panel-title" style={{ marginTop: "18px" }}>
                 {t("createRoom.history")}
               </h3>
 
@@ -492,50 +431,35 @@ const CreateRoomPage: React.FC = () => {
                 <div className="trade-list">
                   {receivedHistory.map((inv) => {
                     const avatar =
-                      inv.from?.profileImage &&
-                      inv.from.profileImage.trim() !== ""
+                      inv.from?.profileImage && inv.from.profileImage.trim() !== ""
                         ? inv.from.profileImage
                         : "/icono.png";
-
-                    const isCompleted = inv.status === "completed";
 
                     return (
                       <div key={inv._id + "-rec"} className="trade-row">
                         <div className="trade-card-preview">
-                          <img
-                            src={avatar}
-                            alt={inv.from?.username}
-                            className="friend-avatar"
-                          />
+                          <img src={avatar} className="friend-avatar" />
                         </div>
 
                         <div className="trade-info">
                           <div className="trade-info-header">
                             <span className="trade-user">
-                              {t("createRoom.from")}{" "}
-                              <strong>@{inv.from?.username}</strong>
+                              {t("createRoom.from")} <strong>@{inv.from?.username}</strong>
                             </span>
 
-                            <span
-                              className={`status-badge status-${inv.status}`}
-                            >
-                              {inv.status === "rejected" &&
-                                t("createRoom.rejectedStatus")}
-                              {inv.status === "cancelled" &&
-                                t("createRoom.cancelledStatus")}
-                              {inv.status === "completed" &&
-                                t("createRoom.completedStatus")}
+                            <span className={`status-badge status-${inv.status}`}>
+                              {inv.status === "rejected" && t("createRoom.rejectedStatus")}
+                              {inv.status === "cancelled" && t("createRoom.cancelledStatus")}
+                              {inv.status === "completed" && t("createRoom.completedStatus")}
                             </span>
                           </div>
 
-                          <p className="trade-date">
-                            {new Date(inv.createdAt).toLocaleString()}
-                          </p>
+                          <p className="trade-date">{new Date(inv.createdAt).toLocaleString()}</p>
 
                           <div className="trade-actions">
                             <span className="history-chip">
-                              {isCompleted
-                                ? t("createRoom.completedStatus")
+                              {inv.status === "completed"
+                                ? t("createRoom.tradeDone")
                                 : t("createRoom.roomUnavailable")}
                             </span>
                           </div>
@@ -546,50 +470,35 @@ const CreateRoomPage: React.FC = () => {
 
                   {sentHistory.map((inv) => {
                     const avatar =
-                      inv.to?.profileImage &&
-                      inv.to.profileImage.trim() !== ""
+                      inv.to?.profileImage && inv.to.profileImage.trim() !== ""
                         ? inv.to.profileImage
                         : "/icono.png";
-
-                    const isCompleted = inv.status === "completed";
 
                     return (
                       <div key={inv._id + "-sent"} className="trade-row">
                         <div className="trade-card-preview">
-                          <img
-                            src={avatar}
-                            alt={inv.to?.username}
-                            className="friend-avatar"
-                          />
+                          <img src={avatar} className="friend-avatar" />
                         </div>
 
                         <div className="trade-info">
                           <div className="trade-info-header">
                             <span className="trade-user">
-                              {t("createRoom.to")}{" "}
-                              <strong>@{inv.to?.username}</strong>
+                              {t("createRoom.to")} <strong>@{inv.to?.username}</strong>
                             </span>
 
-                            <span
-                              className={`status-badge status-${inv.status}`}
-                            >
-                              {inv.status === "rejected" &&
-                                t("createRoom.rejectedStatus")}
-                              {inv.status === "cancelled" &&
-                                t("createRoom.cancelledStatus")}
-                              {inv.status === "completed" &&
-                                t("createRoom.completedStatus")}
+                            <span className={`status-badge status-${inv.status}`}>
+                              {inv.status === "rejected" && t("createRoom.rejectedStatus")}
+                              {inv.status === "cancelled" && t("createRoom.cancelledStatus")}
+                              {inv.status === "completed" && t("createRoom.completedStatus")}
                             </span>
                           </div>
 
-                          <p className="trade-date">
-                            {new Date(inv.createdAt).toLocaleString()}
-                          </p>
+                          <p className="trade-date">{new Date(inv.createdAt).toLocaleString()}</p>
 
                           <div className="trade-actions">
                             <span className="history-chip">
-                              {isCompleted
-                                ? t("createRoom.completedStatus")
+                              {inv.status === "completed"
+                                ? t("createRoom.tradeDone")
                                 : t("createRoom.roomUnavailable")}
                             </span>
                           </div>
@@ -599,6 +508,7 @@ const CreateRoomPage: React.FC = () => {
                   })}
                 </div>
               )}
+
             </section>
           </div>
         )}

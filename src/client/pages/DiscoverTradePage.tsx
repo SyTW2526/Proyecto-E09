@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer";
 import { authService } from "../services/authService";
 import { useTranslation } from "react-i18next";
 import { Search, SlidersHorizontal } from "lucide-react";
 import "../styles/discover.css";
+
+import TradeModeModal from "@/components/Trade/TradeModeModal";
+import TradeMessageModal from "@/components/Trade/TradeMessageModal";
+import TradeOfferCardModal from "@/components/Trade/TradeOfferCardModal";
 
 interface ApiCardNormalized {
   id: string;
@@ -13,11 +17,7 @@ interface ApiCardNormalized {
   hp: string;
   set?: string;
   rarity: string;
-  price?: {
-    low?: number;
-    mid?: number;
-    high?: number;
-  };
+  price?: { low?: number; mid?: number; high?: number };
   illustrator?: string;
   series?: string;
 }
@@ -32,295 +32,212 @@ interface TradeCard extends ApiCardNormalized {
   owners: TradeOwnerInfo[];
 }
 
+interface UserCard {
+  id: string;
+  name: string;
+  image: string;
+  rarity: string;
+  pokemonTcgId?: string;
+  price?: {
+    low?: number;
+    mid?: number;
+    high?: number;
+  };
+}
+
+
 const CARDS_PER_PAGE = 12;
 
 const DiscoverTradeCards: React.FC = () => {
   const { t } = useTranslation();
-
-  const tt = (key: string, fallback: string) => {
-    const v = t(key);
-    return v === key ? fallback : v;
+  const tt = (k: string, f: string) => {
+    const v = t(k);
+    return v === k ? f : v;
   };
-
-  const [tradeCards, setTradeCards] = React.useState<TradeCard[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-
-  const [search, setSearch] = React.useState("");
-  const [priceOrder, setPriceOrder] = React.useState<"" | "asc" | "desc">("");
-  const [page, setPage] = React.useState(1);
-  const [showFilters, setShowFilters] = React.useState(false);
-
-  const [selectedCardForTrade, setSelectedCardForTrade] =
-    React.useState<TradeCard | null>(null);
-  const [selectedOwner, setSelectedOwner] = React.useState<string>("");
-  const [tradeNote, setTradeNote] = React.useState<string>("");
 
   const user = authService.getUser();
   const currentUsername = user?.username;
 
-  React.useEffect(() => {
-    if (selectedCardForTrade) {
-      const firstOwner = selectedCardForTrade.owners[0]?.username || "";
-      setSelectedOwner(firstOwner);
-      setTradeNote("");
-    } else {
-      setSelectedOwner("");
-      setTradeNote("");
-    }
-  }, [selectedCardForTrade]);
+  const [tradeCards, setTradeCards] = useState<TradeCard[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const normalizeImageUrl = (url: string | undefined) => {
+  const [search, setSearch] = useState("");
+  const [priceOrder, setPriceOrder] = useState<"" | "asc" | "desc">("");
+  const [page, setPage] = useState(1);
+  const [showFilters, setShowFilters] = useState(false);
+
+
+  const [selectedCardForTrade, setSelectedCardForTrade] = useState<TradeCard | null>(null);
+  const [selectedOwner, setSelectedOwner] = useState("");
+  const [tradeNote, setTradeNote] = useState("");
+
+  const [modeModalVisible, setModeModalVisible] = useState(false);
+  const [messageModalVisible, setMessageModalVisible] = useState(false);
+  const [offerModalVisible, setOfferModalVisible] = useState(false);
+
+  const [myCards, setMyCards] = useState<UserCard[]>([]);
+  const [selectedMyCard, setSelectedMyCard] = useState<UserCard | null>(null);
+
+
+  const normalizeImageUrl = (url?: string) => {
     if (!url) return "";
-    if (/\/(?:small|large|high|low)\.png$/i.test(url)) {
-      return url.replace(/\/(?:small|large|high|low)\.png$/i, "/high.png");
-    }
+    if (/\/(small|large|high|low)\.png$/i.test(url))
+      return url.replace(/\/(small|large|high|low)\.png$/i, "/high.png");
     if (/\.(png|jpg|jpeg|gif|webp)$/i.test(url)) return url;
-    return url.endsWith("/") ? `${url}high.png` : `${url}/high.png`;
+    return url.endsWith("/") ? url + "high.png" : url + "/high.png";
   };
+const normalizeApiCard = (raw: any): ApiCardNormalized => {
+  const id = raw.pokemonTcgId || raw.id || "";
+  let img =
+    raw.images?.large ||
+    raw.images?.small ||
+    raw.imageUrl ||
+    raw.image ||
+    "";
 
-  const normalizeApiCard = (raw: any): ApiCardNormalized => {
-    const id = raw.pokemonTcgId || raw._id || raw.id || "";
+  if (!img && id.includes("-")) {
+    const [setCode, number] = id.split("-");
+    const series = (setCode.match(/^[a-zA-Z]+/) || ["xx"])[0];
+    img = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+  }
 
-    let rawImage =
-      (raw.images && (raw.images.large || raw.images.small)) ||
-      raw.imageUrl ||
-      raw.image ||
-      "";
+  let priceObj: { low?: number; mid?: number; high?: number } | undefined =
+    undefined;
 
-    if (!rawImage && id) {
-      const [setCode, number] = id.split("-");
-      // extract alphabetic prefix (e.g. 'base1' -> 'base') to form the asset path
-      const m = setCode ? String(setCode).match(/^[a-zA-Z]+/) : null;
-      const series = m ? m[0] : (setCode ? String(setCode).slice(0, 2) : "");
-      if (setCode && number) {
-        rawImage = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
-      }
-    }
-
-    const setName =
-      raw.set?.name || raw.set?.series || raw.set || raw.series || "";
-
-    let priceObj:
-      | { low?: number; mid?: number; high?: number }
-      | undefined = undefined;
-
-    if (raw.price) {
-      priceObj = {
-        low:
-          raw.price.cardmarketAvg ??
-          raw.price.tcgplayerMarketPrice ??
-          undefined,
-        mid:
-          raw.price.avg ??
-          raw.price.tcgplayerMarketPrice ??
-          raw.price.cardmarketAvg ??
-          undefined,
-        high:
-          raw.price.cardmarketAvg ??
-          raw.price.tcgplayerMarketPrice ??
-          undefined,
-      };
-    } else if (raw.prices) {
-      priceObj = {
-        low: raw.prices.low ?? raw.prices.mid ?? raw.prices.high,
-        mid: raw.prices.mid ?? raw.prices.low ?? raw.prices.high,
-        high: raw.prices.high ?? raw.prices.mid ?? raw.prices.low,
-      };
-    } else if (raw.tcg?.prices) {
-      priceObj = {
-        low:
-          raw.tcg.prices.low ??
-          raw.tcg.prices.mid ??
-          raw.tcg.prices.high,
-        mid:
-          raw.tcg.prices.mid ??
-          raw.tcg.prices.low ??
-          raw.tcg.prices.high,
-        high:
-          raw.tcg.prices.high ??
-          raw.tcg.prices.mid ??
-          raw.tcg.prices.low,
-      };
-    } else if (typeof raw.marketPrice === "number") {
-      priceObj = {
-        low: raw.marketPrice,
-        mid: raw.marketPrice,
-        high: raw.marketPrice,
-      };
-    }
-
-    return {
-      id,
-      name: raw.name || "",
-      image: normalizeImageUrl(rawImage),
-      hp: raw.hp || "",
-      set: setName || "",
-      rarity: raw.rarity || "",
-      price: priceObj,
-      illustrator: raw.illustrator || raw.artist || "",
-      series: raw.set?.series || raw.series || "",
+  if (raw.price) {
+    priceObj = {
+      low:
+        raw.price.cardmarketAvg ??
+        raw.price.tcgplayerMarketPrice ??
+        raw.price.low,
+      mid:
+        raw.price.avg ??
+        raw.price.tcgplayerMarketPrice ??
+        raw.price.cardmarketAvg ??
+        raw.price.mid,
+      high:
+        raw.price.high ??
+        raw.price.cardmarketAvg ??
+        raw.price.tcgplayerMarketPrice,
     };
-  };
+  } else if (raw.prices) {
+    priceObj = {
+      low: raw.prices.low ?? raw.prices.mid ?? raw.prices.high,
+      mid: raw.prices.mid ?? raw.prices.low ?? raw.prices.high,
+      high: raw.prices.high ?? raw.prices.mid ?? raw.prices.low,
+    };
+  } else if (raw.tcgplayer?.prices?.holofoil) {
+    priceObj = {
+      low: raw.tcgplayer.prices.holofoil.low,
+      mid: raw.tcgplayer.prices.holofoil.mid,
+      high: raw.tcgplayer.prices.holofoil.high,
+    };
+  }
 
-  React.useEffect(() => {
+  return {
+    id,
+    name: raw.name || "",
+    image: normalizeImageUrl(img),
+    hp: raw.hp || "",
+    set: raw.set?.name || raw.set?.series || raw.set || raw.series || "",
+    rarity: raw.rarity || "",
+    illustrator: raw.illustrator ?? raw.artist ?? "",
+    price: priceObj,
+    series: raw.set?.series || raw.series || "",
+  };
+};
+
+  useEffect(() => {
     let mounted = true;
 
-    const fetchTradeCards = async () => {
+    const load = async () => {
       try {
         setLoading(true);
-        setError(null);
-
         const base = "http://localhost:3000";
 
         const params = new URLSearchParams();
-        params.set("page", "1");
         params.set("limit", "200");
-        if (currentUsername) {
-          params.set("excludeUsername", currentUsername);
-        }
+        if (currentUsername) params.set("excludeUsername", currentUsername);
 
-        const resp = await fetch(
-          `${base}/usercards/discover?${params.toString()}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              ...authService.getAuthHeaders(),
-            },
-          }
+        const resp = await fetch(`${base}/usercards/discover?${params}`, {
+          headers: {
+            "Content-Type": "application/json",
+            ...authService.getAuthHeaders(),
+          },
+        });
+        if (!resp.ok) throw new Error("Error cargando intercambio");
+
+        const data = await resp.json();
+        const rawItems = data.cards || [];
+
+        const ids = [...new Set(rawItems.map((i: any) => i.pokemonTcgId).filter(Boolean))];
+
+        const details = await Promise.all(
+          ids.map(async (id) => {
+            const r = await fetch(`${base}/cards`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id }),
+            });
+            if (!r.ok) return null;
+            const d = await r.json();
+            return { id, card: normalizeApiCard(d.card || d) };
+          })
         );
 
-        if (!resp.ok) {
-          throw new Error(
-            tt("trade.loadError", "Error al cargar cartas de intercambio")
-          );
-        }
-
-        const payload = await resp.json();
-        const rawItems: any[] = payload.cards || [];
-
-        if (!rawItems.length) {
-          if (!mounted) return;
-          setTradeCards([]);
-          setLoading(false);
-          return;
-        }
-
-        const ids = rawItems
-          .map((item) => item.pokemonTcgId)
-          .filter(Boolean) as string[];
-        const uniqueIds = Array.from(new Set(ids));
-
-        const detailPromises = uniqueIds.map(async (tcgId) => {
-          const resp = await fetch(`${base}/cards`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: tcgId }),
-          });
-          if (!resp.ok) {
-            console.warn("Error al cargar detalles de carta", tcgId);
-            return { tcgId, card: null as ApiCardNormalized | null };
-          }
-          const data = await resp.json();
-          const rawCard = data.card || data;
-          return { tcgId, card: normalizeApiCard(rawCard) };
-        });
-
-        const detailed = await Promise.all(detailPromises);
-
-        const cardMap = new Map<string, ApiCardNormalized>();
-        detailed.forEach(({ tcgId, card }) => {
-          if (tcgId && card) cardMap.set(tcgId, card);
-        });
+        const map = new Map<string, ApiCardNormalized>();
+        details
+          .filter((x): x is { id: string; card: ApiCardNormalized } => x !== null && typeof x.id === "string")
+          .forEach((x) => map.set(x.id, x.card));
 
         const grouped = new Map<string, TradeCard>();
 
         for (const item of rawItems) {
-          const tcgId: string = item.pokemonTcgId || "";
-          if (!tcgId) continue;
+          const id = item.pokemonTcgId;
+          if (!id) continue;
 
-          const owner = item.userId || {};
-          const username: string = owner.username || "";
-          const quantity: number = item.quantity ?? 1;
-          const condition: string = item.condition || "";
-
-          const baseCard: ApiCardNormalized =
-            cardMap.get(tcgId) ||
-            ({
-              id: tcgId,
-              name: "",
-              image: "",
-              hp: "",
-              set: "",
-              rarity: "",
-              price: undefined,
-              illustrator: "",
-              series: "",
-            } as ApiCardNormalized);
-
-          const ownerInfo: TradeOwnerInfo = {
-            username,
-            quantity,
-            condition,
+          const owner = {
+            username: item.userId?.username || "",
+            quantity: item.quantity ?? 1,
           };
 
-          const existing = grouped.get(tcgId);
-          if (!existing) {
-            grouped.set(tcgId, {
-              ...baseCard,
-              owners: [ownerInfo],
-            });
+          if (!grouped.has(id)) {
+            grouped.set(id, { ...map.get(id)!, owners: [owner] });
           } else {
-            existing.owners.push(ownerInfo);
+            grouped.get(id)!.owners.push(owner);
           }
         }
 
-        const merged = Array.from(grouped.values());
-
         if (!mounted) return;
-        setTradeCards(merged);
+        setTradeCards([...grouped.values()]);
       } catch (err: any) {
-        console.error(err);
-        if (mounted) setError(err.message ?? String(err));
+        if (mounted) setError(err.message);
       } finally {
         if (mounted) setLoading(false);
       }
     };
 
-    fetchTradeCards();
+    load();
     return () => {
       mounted = false;
     };
   }, [currentUsername]);
 
-
-  const setsData = React.useMemo(() => {
+  const setsData = useMemo(() => {
     let list = [...tradeCards];
+    const q = search.toLowerCase().trim();
 
-
-    const q = search.trim().toLowerCase();
     if (q) {
       list = list.filter((c) => {
-        const name = c.name || "";
-        const set = c.set || "";
-        const rarity = c.rarity || "";
-        const owners = c.owners || [];
-        const priceMid = c.price?.mid;
-
-        const ownerMatch = owners.some((o) =>
-          (o.username || "").toLowerCase().includes(q)
+        const ownerMatch = c.owners.some((o) =>
+          o.username.toLowerCase().includes(q)
         );
-
-        let priceMatch = false;
-        if (priceMid != null) {
-          const priceStr = priceMid.toFixed(2);
-          if (priceStr.includes(q)) priceMatch = true;
-        }
-
+        const priceMatch = c.price?.mid?.toString().includes(q);
         return (
-          name.toLowerCase().includes(q) ||
-          set.toLowerCase().includes(q) ||
-          rarity.toLowerCase().includes(q) ||
+          c.name.toLowerCase().includes(q) ||
+          c.set?.toLowerCase().includes(q) ||
+          c.rarity?.toLowerCase().includes(q) ||
           ownerMatch ||
           priceMatch
         );
@@ -328,95 +245,56 @@ const DiscoverTradeCards: React.FC = () => {
     }
 
     const bySet = new Map<string, TradeCard[]>();
-    for (const card of list) {
-      const setName = card.set || tt("trade.otherSets", "Otros");
-      if (!bySet.has(setName)) bySet.set(setName, []);
-      bySet.get(setName)!.push(card);
-    }
+    list.forEach((c) => {
+      const set = c.set || "Otros";
+      if (!bySet.has(set)) bySet.set(set, []);
+      bySet.get(set)!.push(c);
+    });
 
-    const getPrice = (c: TradeCard) =>
-      c.price?.mid != null ? Number(c.price.mid) : NaN;
-
-    const orderedSetNames = Array.from(bySet.keys()).sort((a, b) =>
-      a.localeCompare(b)
-    );
-
-    for (const s of orderedSetNames) {
-      let cards = bySet.get(s)!;
-      if (priceOrder === "asc") {
-        cards = [...cards].sort((a, b) => {
-          const pa = getPrice(a);
-          const pb = getPrice(b);
-          const va = isNaN(pa) ? Infinity : pa;
-          const vb = isNaN(pb) ? Infinity : pb;
-          return va - vb;
-        });
-      } else if (priceOrder === "desc") {
-        cards = [...cards].sort((a, b) => {
-          const pa = getPrice(a);
-          const pb = getPrice(b);
-          const va = isNaN(pa) ? -Infinity : pa;
-          const vb = isNaN(pb) ? -Infinity : pb;
-          return vb - va;
-        });
-      } else {
-        cards = [...cards].sort((a, b) =>
-          (a.name || "").localeCompare(b.name || "")
-        );
-      }
-      bySet.set(s, cards);
-    }
+    const orderedSetNames = [...bySet.keys()].sort((a, b) => a.localeCompare(b));
 
     return { bySet, orderedSetNames };
   }, [tradeCards, search, priceOrder]);
 
-  const fullSetNames = setsData.orderedSetNames;
-  const setsMap = setsData.bySet;
-
-  const paginatedSets = React.useMemo(() => {
+  const paginatedSets = useMemo(() => {
     const pages: Array<Array<{ setName: string; cards: TradeCard[] }>> = [];
-    let currentPage: Array<{ setName: string; cards: TradeCard[] }> = [];
-    let cardCount = 0;
+    let current: Array<{ setName: string; cards: TradeCard[] }> = [];
+    let count = 0;
 
-    for (const setName of fullSetNames) {
-      const cards = [...setsMap.get(setName)!];
-      let index = 0;
+    for (const setName of setsData.orderedSetNames) {
+      const cards = setsData.bySet.get(setName)!;
+      let idx = 0;
 
-      while (index < cards.length) {
-        const remainingSpace = CARDS_PER_PAGE - cardCount;
-        const remainingCardsInSet = cards.length - index;
-
-        if (remainingSpace === 0) {
-          pages.push(currentPage);
-          currentPage = [];
-          cardCount = 0;
+      while (idx < cards.length) {
+        if (count === CARDS_PER_PAGE) {
+          pages.push(current);
+          current = [];
+          count = 0;
         }
 
-        const take = Math.min(remainingSpace, remainingCardsInSet);
-        const slice = cards.slice(index, index + take);
+        const remaining = CARDS_PER_PAGE - count;
+        const take = Math.min(remaining, cards.length - idx);
 
-        currentPage.push({ setName, cards: slice });
-        cardCount += take;
-        index += take;
+        current.push({ setName, cards: cards.slice(idx, idx + take) });
+        count += take;
+        idx += take;
 
-        if (cardCount === CARDS_PER_PAGE) {
-          pages.push(currentPage);
-          currentPage = [];
-          cardCount = 0;
+        if (count === CARDS_PER_PAGE) {
+          pages.push(current);
+          current = [];
+          count = 0;
         }
       }
     }
 
-    if (currentPage.length > 0) pages.push(currentPage);
-
+    if (current.length) pages.push(current);
     return pages;
-  }, [fullSetNames, setsMap]);
+  }, [setsData]);
 
-  const totalPages = paginatedSets.length;
-  const safePage = Math.min(page, totalPages);
-  const pageData = paginatedSets[safePage - 1] ?? [];
+  const safePage = Math.min(page, paginatedSets.length);
+  const pageData = paginatedSets[safePage - 1] || [];
 
-  React.useEffect(() => {
+  useEffect(() => {
     setPage(1);
   }, [search, priceOrder, tradeCards]);
 
@@ -425,141 +303,207 @@ const DiscoverTradeCards: React.FC = () => {
     onProposeTrade,
   }: {
     card: TradeCard;
-    onProposeTrade: (card: TradeCard) => void;
+    onProposeTrade: (c: TradeCard) => void;
   }) => {
-    const [isFlipped, setIsFlipped] = React.useState(false);
-
-    const mainOwner = card.owners[0];
-    const extraOwnersCount = card.owners.length - 1;
-
-    const totalQuantity =
-      card.owners.reduce((sum, o) => sum + (o.quantity || 0), 0) ||
-      card.owners.length;
-
-    const displayNameBack = card.name || "—";
-    const displayRarity = card.rarity || "—";
-    const displaySet = card.set || "—";
-    const displayHP = card.hp || "—";
-    const displayIllustrator = card.illustrator || "—";
-    const displayPrice =
-      card.price && card.price.mid != null
-        ? `${Number(card.price.mid).toFixed(2)}€`
-        : "—";
+    const [flip, setFlip] = useState(false);
+    const totalQuantity = card.owners.reduce((s, o) => s + o.quantity, 0);
 
     return (
       <div
-        className={`flip-card ${isFlipped ? "flipped" : ""}`}
-        onMouseEnter={() => setIsFlipped(true)}
-        onMouseLeave={() => setIsFlipped(false)}
+        className={`flip-card ${flip ? "flipped" : ""}`}
+        onMouseEnter={() => setFlip(true)}
+        onMouseLeave={() => setFlip(false)}
       >
         <div className="flip-card-inner">
-          {/* FRONT */}
           <div className="flip-card-front pokemon-card holo-card">
-
-
-            <img
-              src={card.image}
-              alt={card.name}
-            />
+            <img src={card.image} alt={card.name} />
           </div>
+<div className="flip-card-back">
+  <h3>{card.name}</h3>
 
-          {/* BACK */}
-          <div className="flip-card-back">
-            <h3>{displayNameBack}</h3>
+  <p className="owner-line">
+    @{card.owners[0].username}
+    {card.owners.length > 1 && ` +${card.owners.length - 1}`}
+  </p>
 
-            {mainOwner && (
-              <p className="owner-line">
-                @{mainOwner.username}
-                {extraOwnersCount > 0 && ` +${extraOwnersCount}`}
-              </p>
-            )}
+  <div className="card-attrs">
+    <div className="attr-box">
+      <div className="attr-label">Rareza</div>
+      <div className="attr-value">{card.rarity}</div>
+    </div>
 
-            <div className="card-attrs">
-              <div className="attr-box">
-                <div className="attr-label">Rareza</div>
-                <div className="attr-value">{displayRarity}</div>
-              </div>
+    <div className="attr-box">
+      <div className="attr-label">Set</div>
+      <div className="attr-value">{card.set}</div>
+    </div>
 
-              <div className="attr-box">
-                <div className="attr-label">Set</div>
-                <div className="attr-value">{displaySet}</div>
-              </div>
+    <div className="attr-box">
+      <div className="attr-label">HP</div>
+      <div className="attr-value">{card.hp}</div>
+    </div>
 
-              <div className="attr-box">
-                <div className="attr-label">HP</div>
-                <div className="attr-value">{displayHP}</div>
-              </div>
+    <div className="attr-box">
+      <div className="attr-label">Cantidad</div>
+      <div className="attr-value">
+        {card.owners.reduce((s, o) => s + o.quantity, 0)}
+      </div>
+    </div>
+  </div>
 
-              <div className="attr-box">
-                <div className="attr-label">Cantidad</div>
-                <div className="attr-value">{totalQuantity}</div>
-              </div>
-            </div>
+  <div className="card-back-section">
+    <div className="card-back-section-title">Ilustrador</div>
+    <div className="attr-value">{card.illustrator || "—"}</div>
+  </div>
 
-            <div className="card-back-section">
-              <div className="card-back-section-title">Ilustrador</div>
-              <div className="attr-value">{displayIllustrator}</div>
-            </div>
+  <div className={`price-box ${card.rarity?.toLowerCase().includes("rare") ? "gold-border" : ""}`}>
+    <div className="price-label">Precio estimado</div>
+    <div className="price-value">
+      {card.price?.mid ? card.price.mid.toFixed(2) + "€" : "—"}
+    </div>
+  </div>
 
-            <div className={`price-box ${card.rarity?.toLowerCase().includes("rare") ? "gold-border" : ""}`}>
-              <div className="price-label">Precio estimado:</div>
-              <div className="price-value">{displayPrice}</div>
-            </div>
+  <button className="trade-btn" onClick={(e) => { e.stopPropagation(); onProposeTrade(card); }}>
+    Proponer intercambio
+  </button>
+</div>
 
-            <button
-              className="trade-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                onProposeTrade(card);
-              }}
-            >
-              Proponer intercambio
-            </button>
-          </div>
         </div>
       </div>
     );
   };
 
-  const handleSendTradeRequest = async () => {
-    const loggedUser = authService.getUser();
-    if (!loggedUser || !authService.isAuthenticated()) {
-      window.alert(tt("trade.mustLogin", "Debes iniciar sesión para proponer un intercambio"));
+  const handleOpenTradeMode = (card: TradeCard) => {
+    setSelectedCardForTrade(card);
+    setSelectedOwner(card.owners[0].username);
+    setTradeNote("");
+    setModeModalVisible(true);
+  };
+const loadMyCardsForTrade = async () => {
+  if (!currentUsername) return;
+
+  const resp = await fetch(
+    `http://localhost:3000/usercards/${currentUsername}/collection?forTrade=true`
+  );
+  const data = await resp.json();
+
+  const normalized = (data.cards || []).map((item: any) => {
+    const card = item.cardId || item.card || {};
+
+    let image =
+      card.image ||
+      card.imageUrl ||
+      card.imageUrlHiRes ||
+      card.images?.large ||
+      card.images?.small ||
+      "";
+
+    const pokemonTcgId = item.pokemonTcgId || card.pokemonTcgId || "";
+    if (!image && pokemonTcgId.includes("-")) {
+      const [setCode, number] = pokemonTcgId.split("-");
+      const series = (setCode.match(/^[a-zA-Z]+/) || ["xx"])[0];
+      image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+    }
+
+    return {
+      id: item._id || card._id || pokemonTcgId,
+      name: card.name || item.name || "",
+      image,
+      rarity: card.rarity || "",
+      pokemonTcgId,
+    };
+  });
+
+  setMyCards(normalized);
+};
+
+const handleSendTradeRequest = async () => {
+  if (!selectedCardForTrade) return;
+
+  const base = "http://localhost:3000";
+
+  try {
+    const resp = await fetch(`${base}/trade-requests`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...authService.getAuthHeaders(),
+      },
+      body: JSON.stringify({
+        receiverIdentifier: selectedOwner,
+        pokemonTcgId: selectedCardForTrade.id,
+        cardName: selectedCardForTrade.name,
+        cardImage: selectedCardForTrade.image,
+        note: tradeNote,
+        requestedPokemonTcgId: selectedCardForTrade.id,
+      }),
+    });
+
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      alert(data.error || "Error enviando solicitud.");
       return;
     }
-    if (!selectedCardForTrade || !selectedOwner) return;
 
-    try {
-      const base = "http://localhost:3000";
+    alert("Solicitud enviada.");
+    setSelectedCardForTrade(null);
+    setMessageModalVisible(false);
 
-      const resp = await fetch(`${base}/trade-requests`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...authService.getAuthHeaders(),
+  } catch (err) {
+    console.error(err);
+    alert("Error enviando solicitud.");
+  }
+};
+
+  const sendTradeWithCard = async () => {
+  if (!selectedCardForTrade || !selectedMyCard) return;
+
+  const base = "http://localhost:3000";
+
+  try {
+    const resp = await fetch(`${base}/trade-requests`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...authService.getAuthHeaders(),
+      },
+      body: JSON.stringify({
+        receiverIdentifier: selectedOwner,
+        pokemonTcgId: selectedCardForTrade.id,
+        cardName: selectedCardForTrade.name,
+        cardImage: selectedCardForTrade.image,
+        targetPrice: selectedCardForTrade.price?.mid ?? null,
+        offeredPrice: selectedMyCard.price!?.mid ?? null,
+        requestedPokemonTcgId: selectedCardForTrade.id,
+
+        offeredCard: {
+          pokemonTcgId: selectedMyCard.pokemonTcgId,
+          cardName: selectedMyCard.name,
+          cardImage: selectedMyCard.image,
         },
-        body: JSON.stringify({
-          receiverIdentifier: selectedOwner,
-          pokemonTcgId: selectedCardForTrade.id,
-          cardName: selectedCardForTrade.name,
-          cardImage: selectedCardForTrade.image,
-          note: tradeNote,
-        }),
-      });
+      }),
+    });
 
-      if (!resp.ok) {
-        const data = await resp.json().catch(() => ({}));
-        throw new Error(
-          data.error || tt("trade.errorSending", "Error enviando solicitud")
-        );
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      if (data.error === "TRADE_VALUE_DIFF_TOO_HIGH") {
+        alert("La diferencia de valor entre cartas es demasiado alta.");
+        return;
       }
 
-      window.alert(tt("trade.requestSent", "Solicitud de intercambio enviada."));
-      setSelectedCardForTrade(null);
-    } catch (e: any) {
-      window.alert(e.message || tt("trade.errorSending", "Error enviando solicitud"));
+      alert(data.error || "Error enviando solicitud.");
+      return;
     }
-  };
+    alert("Solicitud enviada con carta.");
+    setOfferModalVisible(false);
+    setSelectedCardForTrade(null);
+
+  } catch (err) {
+    console.error(err);
+    alert("Error al enviar solicitud.");
+  }
+};
 
   return (
     <div className="discover-page min-h-screen flex flex-col">
@@ -567,27 +511,18 @@ const DiscoverTradeCards: React.FC = () => {
 
       <main className="flex-1 px-4 py-10 md:px-10 lg:px-16">
         <div className="discover-header">
-          <h2 className="featured-title">
-            {tt("trade.discoverTitle", "Descubrir cartas de intercambio")}
-          </h2>
+          <h2 className="featured-title">Descubrir cartas de intercambio</h2>
           <p className="discover-subtitle">
-            {tt(
-              "trade.discoverSubtitle",
-              "Explora las cartas que otros usuarios han marcado como disponibles para intercambio."
-            )}
+            Explora las cartas que otros usuarios han marcado como disponibles.
           </p>
         </div>
-
         <div className="discover-toolbar">
           <div className="discover-search">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={tt(
-                "trade.searchPlaceholder",
-                "Buscar por carta, set, rareza, usuario o precio…"
-              )}
+              placeholder="Buscar…"
               className="discover-search-input"
             />
             <Search className="discover-search-icon" />
@@ -595,19 +530,15 @@ const DiscoverTradeCards: React.FC = () => {
 
           <div className="discover-filter-wrapper">
             <button
-              type="button"
               className="discover-filter-button"
-              onClick={() => setShowFilters((v) => !v)}
+              onClick={() => setShowFilters(!showFilters)}
             >
               <SlidersHorizontal className="w-4 h-4" />
-              <span>{tt("trade.filters", "Filtros")}</span>
+              Filtros
             </button>
 
             {showFilters && (
               <div className="discover-filter-panel">
-                <label className="discover-filter-label">
-                  {tt("trade.sort.label", "Ordenar por precio")}
-                </label>
                 <select
                   value={priceOrder}
                   onChange={(e) =>
@@ -615,15 +546,9 @@ const DiscoverTradeCards: React.FC = () => {
                   }
                   className="discover-filter-select"
                 >
-                  <option value="">
-                    {tt("trade.sort.default", "Orden por set / nombre")}
-                  </option>
-                  <option value="asc">
-                    {tt("trade.sort.priceAsc", "Precio: más bajo primero")}
-                  </option>
-                  <option value="desc">
-                    {tt("trade.sort.priceDesc", "Precio: más alto primero")}
-                  </option>
+                  <option value="">Orden por set</option>
+                  <option value="asc">Precio más bajo</option>
+                  <option value="desc">Precio más alto</option>
                 </select>
               </div>
             )}
@@ -631,170 +556,90 @@ const DiscoverTradeCards: React.FC = () => {
         </div>
         <div className="discover-sets">
           {loading && (
-            <div className="discover-empty">
-              {tt("trade.loadingCards", "Cargando cartas de intercambio...")}
-            </div>
+            <div className="discover-empty">Cargando cartas…</div>
           )}
 
-          {error && !loading && (
-            <div className="discover-error">{error}</div>
-          )}
+          {!loading &&
+            pageData.map((block, i) => (
+              <section key={i} className="discover-set-section">
+                <div className="discover-set-header">
+                  <h3 className="discover-set-title">{block.setName}</h3>
+                  <span>{block.cards.length} cartas</span>
+                </div>
 
-          {!loading && !error && pageData.length === 0 && (
-            <div className="discover-empty">
-              {tt("trade.empty", "No hay cartas de intercambio con esos filtros.")}
-            </div>
-          )}
+                <div className="discover-set-grid">
+                  {block.cards.map((card) => (
+                    <TradeFlipCard
+                      key={card.id}
+                      card={card}
+                      onProposeTrade={handleOpenTradeMode}
+                    />
+                  ))}
+                </div>
+              </section>
+            ))}
+          <div className="discover-pagination">
+            <button
+              disabled={safePage <= 1}
+              onClick={() => setPage(page - 1)}
+              className="CollectionButton"
+            >
+              Anterior
+            </button>
 
-          {!loading && !error && pageData.length > 0 && (
-            <>
-              {pageData.map((block) => (
-                <section key={block.setName} className="discover-set-section">
-                  <div className="discover-set-header">
-                    <h3 className="discover-set-title">{block.setName}</h3>
-                    <span className="discover-set-count">
-                      {block.cards.length}{" "}
-                      {block.cards.length === 1
-                        ? tt("trade.card", "carta")
-                        : tt("trade.cards", "cartas")}
-                    </span>
-                  </div>
+            <span>{safePage} / {paginatedSets.length}</span>
 
-                  <div className="discover-set-grid">
-                    {block.cards.map((card) => (
-                      <div key={card.id} className="discover-card-wrapper">
-                        <TradeFlipCard
-                          card={card}
-                          onProposeTrade={(c) => setSelectedCardForTrade(c)}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              ))}
-
-              <div className="discover-pagination">
-                <button
-                  disabled={safePage <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="CollectionButton"
-                >
-                  {tt("trade.prev", "Anterior")}
-                </button>
-                <span className="discover-pagination-info">
-                  {safePage} / {totalPages}
-                </span>
-                <button
-                  disabled={safePage >= totalPages}
-                  onClick={() =>
-                    setPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  className="CollectionButton"
-                >
-                  {tt("trade.next", "Siguiente")}
-                </button>
-              </div>
-            </>
-          )}
+            <button
+              disabled={safePage >= paginatedSets.length}
+              onClick={() => setPage(page + 1)}
+              className="CollectionButton"
+            >
+              Siguiente
+            </button>
+          </div>
         </div>
 
+        <TradeModeModal
+          visible={modeModalVisible}
+          onClose={() => setModeModalVisible(false)}
+          onSendMessage={() => {
+            setModeModalVisible(false);
+            setMessageModalVisible(true);
+          }}
+          onSendCard={async () => {
+            setModeModalVisible(false);
+            await loadMyCardsForTrade();
+            setOfferModalVisible(true);
+          }}
+        />
         {selectedCardForTrade && (
-          <div className="trade-request-overlay">
-            <div className="trade-request-panel">
-              <div className="trade-request-header">
-                <h3>{tt("trade.startTrade", "Proponer intercambio")}</h3>
-                <button
-                  className="trade-request-close"
-                  onClick={() => setSelectedCardForTrade(null)}
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="trade-request-body">
-                <div className="trade-request-card">
-                  <img
-                    src={selectedCardForTrade.image}
-                    alt={selectedCardForTrade.name}
-                  />
-                  <div className="trade-request-card-info">
-                    <p className="trade-request-card-name">
-                      {selectedCardForTrade.name}
-                    </p>
-                    <p className="trade-request-card-set">
-                      {selectedCardForTrade.set}
-                    </p>
-                    <p className="trade-request-card-owners">
-                      {tt("trade.availableBy", "Disponible por")}{" "}
-                      {selectedCardForTrade.owners.length === 1
-                        ? `@${selectedCardForTrade.owners[0].username}`
-                        : `${selectedCardForTrade.owners.length} ${tt(
-                            "trade.users",
-                            "usuarios"
-                          )}`}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="trade-request-form">
-                  <label className="trade-request-label">
-                    {tt(
-                      "trade.selectedUser",
-                      "Usuario con el que quieres intercambiar"
-                    )}
-                  </label>
-                  <select
-                    className="trade-request-select"
-                    value={selectedOwner}
-                    onChange={(e) => setSelectedOwner(e.target.value)}
-                  >
-                    {selectedCardForTrade.owners.map((o) => (
-                      <option key={o.username} value={o.username}>
-                        @{o.username}{" "}
-                        {o.quantity > 1
-                          ? `(${o.quantity} ${tt("trade.units", "uds")})`
-                          : ""}
-                      </option>
-                    ))}
-                  </select>
-
-                  <label className="trade-request-label">
-                    {tt(
-                      "trade.message",
-                      "Carta que ofreces / mensaje"
-                    )}
-                  </label>
-                  <textarea
-                    className="trade-request-textarea"
-                    value={tradeNote}
-                    onChange={(e) => setTradeNote(e.target.value)}
-                    placeholder={tt(
-                      "trade.messagePlaceholder",
-                      "Describe la carta que ofreces o los términos del intercambio…"
-                    )}
-                  />
-
-                  <div className="trade-request-actions">
-                    <button
-                      className="trade-request-cancel"
-                      type="button"
-                      onClick={() => setSelectedCardForTrade(null)}
-                    >
-                      {tt("trade.cancel", "Cancelar")}
-                    </button>
-                    <button
-                      className="trade-request-submit"
-                      type="button"
-                      onClick={handleSendTradeRequest}
-                    >
-                      {tt("trade.send", "Enviar solicitud")}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <TradeMessageModal
+            visible={messageModalVisible}
+            onClose={() => setMessageModalVisible(false)}
+            onSend={handleSendTradeRequest}
+            cardImage={selectedCardForTrade.image}
+            owners={selectedCardForTrade.owners}
+            selectedOwner={selectedOwner}
+            onOwnerChange={setSelectedOwner}
+            note={tradeNote}
+            onNoteChange={setTradeNote}
+          />
         )}
+        {selectedCardForTrade && (
+          <TradeOfferCardModal
+            visible={offerModalVisible}
+            onClose={() => setOfferModalVisible(false)}
+            cardImage={selectedCardForTrade.image}
+            owners={selectedCardForTrade.owners}
+            selectedOwner={selectedOwner}
+            onOwnerChange={setSelectedOwner}
+            myCards={myCards}
+            selectedMyCard={selectedMyCard}
+            onSelectMyCard={setSelectedMyCard}
+            onSend={sendTradeWithCard}
+          />
+        )}
+
       </main>
 
       <Footer />

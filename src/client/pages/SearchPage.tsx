@@ -142,27 +142,27 @@ const SearchPage: React.FC = () => {
       <div className="collection-inner">
         <div className="collection-controls">
           <div style={{display:'flex', gap:'.5rem', alignItems:'center'}}>
-            <h2 style={{margin:0}}>{t('Buscar cartas')}</h2>
-            <p style={{margin:0, marginLeft:'.75rem', color:'var(--text-secondary)'}}>{total} resultados</p>
+            <h2 style={{margin:0}}>{t('common.searchCards')}</h2>
+            <p style={{margin:0, marginLeft:'.75rem', color:'var(--text-secondary)'}}>{total} {t('common.results')}</p>
           </div>
 
           <div className="collection-filters">
-            <input placeholder={t('searchPlaceholder') || 'Buscar por nombre...'} value={query} onChange={(e)=>setQuery(e.target.value)} className="header-search" />
+            <input placeholder={t('common.searchPlaceholder')} value={query} onChange={(e)=>setQuery(e.target.value)} className="header-search" />
             <select value={selectedSet} onChange={(e)=>{ setSelectedSet(e.target.value); setPage(1); }}>
-              <option value="">Set</option>
+              <option value="">{t('common.set')}</option>
               {setsOptions.map(s => <option key={s.id} value={s.id}>{s.name || s.id}</option>)}
             </select>
             <select value={selectedRarity} onChange={(e)=>{ setSelectedRarity(e.target.value); setPage(1); }}>
-              <option value="">Rareza</option>
+              <option value="">{t('common.rarity')}</option>
               {raritiesOptions.map(r=> <option key={r} value={r}>{r}</option>)}
             </select>
           </div>
         </div>
 
         {loading ? (
-          <div className="collection-empty">Cargando...</div>
+          <div className="collection-empty">{t('common.loading')}</div>
         ) : results.length === 0 ? (
-          <div className="collection-empty">No hay resultados</div>
+          <div className="collection-empty">{t('common.noResults')}</div>
         ) : (
           <div className="collection-grid">
             {results.map((c:any)=>{
@@ -217,22 +217,22 @@ const SearchPage: React.FC = () => {
                     <div className="card-back">
                       <div className="card-back-inner collection-back-inner">
                         <h3 className="back-name collection-back-name">{c.name}</h3>
-                        <div className="back-row collection-back-row"><div className="back-label">Rareza</div><div className="back-value">{(hoverDetails[c.id]?.rarity) || c.rarity || '—'}</div></div>
-                        <div className="back-row collection-back-row"><div className="back-label">Set</div><div className="back-value">{(hoverDetails[c.id]?.set) || c.set || '—'}</div></div>
-                        <div className="back-row collection-back-row"><div className="back-label">Ilustrador</div><div className="back-value">{(hoverDetails[c.id] && (hoverDetails[c.id].illustrator)) || '—'}</div></div>
+                        <div className="back-row collection-back-row"><div className="back-label">{t('common.rarity')}</div><div className="back-value">{(hoverDetails[c.id]?.rarity) || c.rarity || '—'}</div></div>
+                        <div className="back-row collection-back-row"><div className="back-label">{t('common.set')}</div><div className="back-value">{(hoverDetails[c.id]?.set) || c.set || '—'}</div></div>
+                        <div className="back-row collection-back-row"><div className="back-label">{t('common.illustrator')}</div><div className="back-value">{(hoverDetails[c.id] && (hoverDetails[c.id].illustrator)) || '—'}</div></div>
                         <div className="back-price collection-back-price">
                           {hoverDetails[c.id] ? (()=>{
                             const d = hoverDetails[c.id];
                             const avg = d?.price?.avg ?? d?.price?.average ?? d?.avg ?? d?.cardmarketAvg ?? null;
-                            return (<div className="price-grid collection-price-grid"><div style={{fontWeight:700}}>Average:</div><div>{avg==null?'—':`${Number(avg).toFixed(2)}€`}</div></div>);
-                          })() : (<div className="loading">Cargando...</div>)}
+                            return (<div className="price-grid collection-price-grid"><div style={{fontWeight:700}}>{t('common.average')}:</div><div>{avg==null?'—':`${Number(avg).toFixed(2)}€`}</div></div>);
+                          })() : (<div className="loading">{t('common.loading')}</div>)}
                         </div>
                         <div style={{position:'absolute', top:8, right:8}}>
                           <button
                             onClick={async (e)=>{
                               e.stopPropagation();
                               const user = authService.getUser();
-                              if (!user || !authService.isAuthenticated()) { window.alert('Debes iniciar sesión'); return; }
+                              if (!user || !authService.isAuthenticated()) { window.alert(t('common.mustLogin')); return; }
                               const tcgId = c.pokemonTcgId || c.id;
                               const isFav = wishlistSet.has(tcgId) || wishlistSet.has(c.id);
                               if (!isFav) {
@@ -259,9 +259,9 @@ const SearchPage: React.FC = () => {
         )}
 
         <div className="collection-pagination">
-          <button disabled={page<=1} onClick={()=>setPage(p=>Math.max(1,p-1))} className="CollectionButton">Prev</button>
+          <button disabled={page<=1} onClick={()=>setPage(p=>Math.max(1,p-1))} className="CollectionButton">{t('common.prev')}</button>
           <div style={{alignSelf:'center'}}>{page} / {totalPages}</div>
-          <button disabled={page>=totalPages} onClick={()=>setPage(p=>Math.min(totalPages,p+1))} className="CollectionButton">Next</button>
+          <button disabled={page>=totalPages} onClick={()=>setPage(p=>Math.min(totalPages,p+1))} className="CollectionButton">{t('common.next')}</button>
         </div>
       </div>
       <Footer />

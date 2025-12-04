@@ -476,28 +476,28 @@ const DiscoverTradeCards: React.FC = () => {
 
             <div className="card-attrs">
               <div className="attr-box">
-                <div className="attr-label">Rareza</div>
+                <div className="attr-label">{t('common.rarity')}</div>
                 <div className="attr-value">{displayRarity}</div>
               </div>
 
               <div className="attr-box">
-                <div className="attr-label">Set</div>
+                <div className="attr-label">{t('common.set')}</div>
                 <div className="attr-value">{displaySet}</div>
               </div>
 
               <div className="attr-box">
-                <div className="attr-label">HP</div>
+                <div className="attr-label">{t('common.hp')}</div>
                 <div className="attr-value">{displayHP}</div>
               </div>
 
               <div className="attr-box">
-                <div className="attr-label">Cantidad</div>
+                <div className="attr-label">{t('common.quantity')}</div>
                 <div className="attr-value">{totalQuantity}</div>
               </div>
             </div>
 
             <div className="card-back-section">
-              <div className="card-back-section-title">Ilustrador</div>
+              <div className="card-back-section-title">{t('common.illustrator')}</div>
               <div className="attr-value">{displayIllustrator}</div>
             </div>
 

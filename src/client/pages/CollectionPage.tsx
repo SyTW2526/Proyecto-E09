@@ -153,34 +153,34 @@ const CollectionPage: React.FC = () => {
         <div className="collection-controls">
           <div style={{display:'flex', gap:'.5rem', alignItems:'center'}}>
             <h2 style={{margin:0}}>{t('Colección')}</h2>
-            <p style={{margin:0, marginLeft:'.75rem', color:'var(--text-secondary)'}}>{collection.length} {t('cartas')}</p>
+            <p style={{margin:0, marginLeft:'.75rem', color:'var(--text-secondary)'}}>{collection.length} {t('collection.cards')}</p>
           </div>
 
           <div className="collection-filters">
-            <input placeholder={t('buscar')} value={query} onChange={(e)=>setQuery(e.target.value)} className="header-search" />
+            <input placeholder={t('collection.search')} value={query} onChange={(e)=>setQuery(e.target.value)} className="header-search" />
 
             <select value={selectedSet} onChange={(e)=>setSelectedSet(e.target.value)}>
-              <option value="">{t('Sets')||'Set'}</option>
+              <option value="">{t('collection.sets')}</option>
               {sets.map(s=> <option key={s} value={s}>{s}</option>)}
             </select>
 
             <select value={selectedRarity} onChange={(e)=>setSelectedRarity(e.target.value)}>
-              <option value="">{t('Rareza')||'Rarity'}</option>
+              <option value="">{t('common.rarity')}</option>
               {rarities.map(r=> <option key={r} value={r}>{r}</option>)}
             </select>
 
             <select value={selectedType} onChange={(e)=>setSelectedType(e.target.value)}>
-              <option value="">{t('Tipo')||'Type'}</option>
+              <option value="">{t('collection.type')}</option>
               {types.map(ti=> <option key={ti} value={ti}>{ti}</option>)}
             </select>
 
             <select value={selectedSort} onChange={(e)=>setSelectedSort(e.target.value)}>
-              <option value="">{t('Ordenar')||'Ordenar'}</option>
-              <option value="name">{t('Nombre (A-Z)')||'Nombre (A-Z)'}</option>
-              <option value="rarity">{t('Rareza')||'Rareza'}</option>
+              <option value="">{t('collection.sort')}</option>
+              <option value="name">{t('collection.sortName')}</option>
+              <option value="rarity">{t('common.rarity')}</option>
             </select>
             <button
-              title={sortDir === 'asc' ? 'Orden ascendente' : 'Orden descendente'}
+              title={sortDir === 'asc' ? t('common.ascendingOrder') : t('common.descendingOrder')}
               onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
               style={{marginLeft:8}}
               className="CollectionButton"
@@ -191,9 +191,9 @@ const CollectionPage: React.FC = () => {
         </div>
 
         {loading ? (
-          <div className="collection-empty">{t('loading') || 'Cargando...'}</div>
+          <div className="collection-empty">{t('common.loading')}</div>
         ) : pageItems.length === 0 ? (
-          <div className="collection-empty">{t('collection.empty') || 'No hay cartas con esos filtros'}</div>
+          <div className="collection-empty">{t('collection.empty')}</div>
         ) : (
           <div className="collection-grid">
             {pageItems.map((c:any)=> {
@@ -219,12 +219,12 @@ const CollectionPage: React.FC = () => {
 
                     <div className="card-back">
                                             <button
-                        title={ (optimisticTrades[c.id] ?? c.forTrade) ? 'Marked for trade' : 'Mark for trade' }
+                        title={ (optimisticTrades[c.id] ?? c.forTrade) ? t('common.markedForTrade') : t('common.markForTrade') }
                         onClick={async (e)=>{
                           e.stopPropagation();
                           const user = authService.getUser();
                           if (!user || !authService.isAuthenticated()) {
-                            window.alert('Debes iniciar sesión para marcar cartas para intercambio');
+                            window.alert(t('common.mustLoginForTrade'));
                             return;
                           }
                           const current = optimisticTrades[c.id] ?? c.forTrade;
@@ -233,7 +233,7 @@ const CollectionPage: React.FC = () => {
                           const ok = await api.updateUserCard(user.username || user.id, c.id, { forTrade: next });
                           if (!ok) {
                             setOptimisticTrades(prev=> ({ ...prev, [c.id]: current }));
-                            window.alert('No se pudo actualizar el estado de intercambio');
+                            window.alert(t('common.errorUpdatingTrade'));
                           } else {
                             dispatch(fetchUserCollection(user.username || user.id));
                           }
@@ -245,15 +245,15 @@ const CollectionPage: React.FC = () => {
                       <div className="card-back-inner collection-back-inner">
                           <h3 className="back-name collection-back-name">{c.name}</h3>
                           <div className="back-row collection-back-row">
-                            <div className="back-label">Rareza</div>
+                            <div className="back-label">{t('common.rarity')}</div>
                             <div className="back-value">{c.rarity || '—'}</div>
                           </div>
                           <div className="back-row collection-back-row">
-                            <div className="back-label">Set</div>
+                            <div className="back-label">{t('common.set')}</div>
                             <div className="back-value">{c.set || c.series || '—'}</div>
                           </div>
                           <div className="back-row collection-back-row">
-                            <div className="back-label">Ilustrador</div>
+                            <div className="back-label">{t('common.illustrator')}</div>
                             <div className="back-value">{(hoverDetails[c.id] && (hoverDetails[c.id].illustrator || hoverDetails[c.id].artist)) || c.illustrator || '—'}</div>
                           </div>
                           <div className="back-price collection-back-price">
@@ -268,7 +268,7 @@ const CollectionPage: React.FC = () => {
                                   </div>
                                 );
                               })() : (
-                                <div className="loading">Cargando precios...</div>
+                                <div className="loading">{t('common.loadingPrices')}</div>
                               )}
                           </div>
                         </div>
@@ -282,9 +282,9 @@ const CollectionPage: React.FC = () => {
         )}
 
         <div className="collection-pagination">
-          <button disabled={page<=1} onClick={()=>setPage(p=>Math.max(1,p-1))} className="CollectionButton">Prev</button>
+          <button disabled={page<=1} onClick={()=>setPage(p=>Math.max(1,p-1))} className="CollectionButton">{t('common.prev')}</button>
           <div style={{alignSelf:'center'}}>{page} / {totalPages}</div>
-          <button disabled={page>=totalPages} onClick={()=>setPage(p=>Math.min(totalPages,p+1))} className="CollectionButton">Next</button>
+          <button disabled={page>=totalPages} onClick={()=>setPage(p=>Math.min(totalPages,p+1))} className="CollectionButton">{t('common.next')}</button>
         </div>
       </div>
 

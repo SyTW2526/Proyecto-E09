@@ -5,6 +5,10 @@
   flex-direction: column;
 }
 
+.dark .friends-container {
+  background: linear-gradient(to bottom right, #111827, #0f172a);
+}
+
 .friends-main {
   width: 100%;
   max-width: 1500px;
@@ -18,6 +22,10 @@
   color: #0369a1;
   text-align: center;
   margin-bottom: 40px;
+}
+
+.dark .friends-title {
+  color: #38bdf8;
 }
 
 .friends-columns-4 {
@@ -42,11 +50,20 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
+.dark .friends-panel {
+  background: #1f2937;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
 .panel-title {
   font-size: 20px;
   font-weight: 700;
   color: #0369a1;
   margin-bottom: 16px;
+}
+
+.dark .panel-title {
+  color: #38bdf8;
 }
 
 .input-box {
@@ -56,6 +73,12 @@
   border-radius: 10px;
   margin-bottom: 12px;
   font-size: 15px;
+}
+
+.dark .input-box {
+  background: #374151;
+  border: 1px solid #4b5563;
+  color: #f3f4f6;
 }
 
 .btn-blue {
@@ -70,8 +93,16 @@
   margin-bottom: 10px;
 }
 
+.dark .btn-blue {
+  background: #0369a1;
+}
+
 .btn-blue:hover {
   background: #0369a1;
+}
+
+.dark .btn-blue:hover {
+  background: #0284c7;
 }
 
 .btn-blue-small,
@@ -88,13 +119,25 @@
   color: white;
 }
 
+.dark .btn-blue-small {
+  background: #0369a1;
+}
+
 .btn-blue-small:hover {
   background: #0369a1;
+}
+
+.dark .btn-blue-small:hover {
+  background: #0284c7;
 }
 
 .btn-gray-small {
   background: #94a3b8;
   color: white;
+}
+
+.dark .btn-gray-small {
+  background: #4b5563;
 }
 
 .btn-gray-small:hover {

@@ -58,12 +58,21 @@
   overflow: hidden;
 }
 
+.dark .collection-card {
+  background: #1f2937;
+  border: 1px solid #374151;
+}
+
 .collection-card img {
   width: 100%;
   height: 220px;
   object-fit: contain;
   border-radius: 8px;
   background: #f8fafc;
+}
+
+.dark .collection-card img {
+  background: #374151;
 }
 
 /* Flip card styles similar to FeaturedCards behaviour */

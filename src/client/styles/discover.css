@@ -60,6 +60,10 @@
   cursor: pointer;
 }
 
+.dark .slider-button {
+  background: #374151;
+}
+
 .slider-button-left {
   left: 0.75rem;
 }
@@ -87,6 +91,10 @@
   margin-top: 0.75rem;
   font-size: 0.95rem;
   color: #64748b;
+}
+
+.dark .discover-subtitle {
+  color: #9ca3af;
 }
 
 .discover-toolbar {

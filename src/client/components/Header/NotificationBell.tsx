@@ -79,18 +79,18 @@ const NotificationBell: React.FC = () => {
 
       {/* DROPDOWN */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white rounded-lg shadow-2xl z-[9999] border border-gray-200">
+        <div className="notification-dropdown absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white dark:bg-slate-800 rounded-lg shadow-2xl z-[9999] border border-gray-200 dark:border-gray-700">
           
           {/* HEADER */}
-          <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex justify-between items-center">
-            <h3 className="font-bold text-gray-800">
+          <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-gray-700 p-4 flex justify-between items-center">
+            <h3 className="font-bold text-gray-800 dark:text-gray-100">
               {t('notifications.titulo')}
             </h3>
 
             {unread > 0 && (
               <button
                 onClick={handleMarkAllAsRead}
-                className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium flex items-center gap-1"
               >
                 <CheckCheck className="w-4 h-4" />
                 {t('notifications.marcarTodo')}
@@ -102,7 +102,7 @@ const NotificationBell: React.FC = () => {
           <div>
             {notifications.length === 0 ? (
               <div className="p-8 text-center">
-                <p className="text-gray-500 text-sm">
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
                   {t('notifications.sin')}
                 </p>
               </div>
@@ -110,21 +110,21 @@ const NotificationBell: React.FC = () => {
               notifications.map((notification: Notification) => (
                 <div
                   key={notification._id}
-                  className={`border-b border-gray-100 p-4 hover:bg-gray-50 transition ${
-                    !notification.isRead ? 'bg-blue-50' : ''
+                  className={`border-b border-gray-100 dark:border-gray-700 p-4 hover:bg-gray-50 dark:hover:bg-slate-700 transition ${
+                    !notification.isRead ? 'bg-blue-50 dark:bg-blue-900/30' : ''
                   }`}
                 >
                   <div className="flex gap-3">
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-800 text-sm">
+                      <h4 className="font-medium text-gray-800 dark:text-gray-100 text-sm">
                         {notification.title}
                       </h4>
 
-                      <p className="text-gray-600 text-xs mt-1">
+                      <p className="text-gray-600 dark:text-gray-400 text-xs mt-1">
                         {notification.message}
                       </p>
 
-                      <p className="text-gray-400 text-xs mt-2">
+                      <p className="text-gray-400 dark:text-gray-500 text-xs mt-2">
                         {new Date(notification.createdAt).toLocaleDateString()}
                       </p>
                     </div>
@@ -133,7 +133,7 @@ const NotificationBell: React.FC = () => {
                       {!notification.isRead && (
                         <button
                           onClick={() => handleMarkAsRead(notification._id)}
-                          className="text-blue-600 hover:text-blue-800 p-1"
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 p-1"
                           title={t('notifications.marcar')}
                         >
                           <CheckCheck className="w-4 h-4" />
@@ -142,8 +142,8 @@ const NotificationBell: React.FC = () => {
 
                       <button
                         onClick={() => handleRemoveNotification(notification._id)}
-                        className="text-gray-400 hover:text-red-600 p-1"
-                        title="Eliminar"
+                        className="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 p-1"
+                        title={t('common.delete')}
                       >
                         <X className="w-4 h-4" />
                       </button>

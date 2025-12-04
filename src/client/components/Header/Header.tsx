@@ -108,7 +108,7 @@ const Header: React.FC = () => {
 
           {/* ABRIR SOBRES */}
           <Link to="/abrir" className="CollectionButton">
-            {t('header.abrir', { defaultValue: 'Abrir' })}
+            {t('header.abrir')}
           </Link>
 
           {/* INTERCAMBIO */}

@@ -225,7 +225,7 @@ const FeaturedCards: React.FC = () => {
                   e.stopPropagation();
                   const user = authService.getUser();
                   if (!user || !authService.isAuthenticated()) {
-                    window.alert('Debes iniciar sesión para añadir a la wishlist');
+                    window.alert(t('common.mustLoginWishlist'));
                     return;
                   }
 
@@ -269,15 +269,15 @@ const FeaturedCards: React.FC = () => {
                   <h3 className="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-100">{card.name}</h3>
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
-                      <div className="text-xs text-gray-600 dark:text-gray-300">Rareza</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-300">{t('common.rarity')}</div>
                       <div className="font-semibold text-gray-600 dark:text-gray-100">{card.rarity || '—'}</div>
                     </div>
                     <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
-                      <div className="text-xs text-gray-600 dark:text-gray-300">Set</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-300">{t('common.set')}</div>
                       <div className="font-semibold text-gray-600 dark:text-gray-100">{card.set || '—'}</div>
                     </div>
                     <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
-                      <div className="text-xs text-gray-600 dark:text-gray-300">HP</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-300">{t('common.hp')}</div>
                       <div className="font-semibold text-gray-600 dark:text-gray-100">{card.hp || '—'}</div>
                     </div>
                   </div>

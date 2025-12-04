@@ -15,7 +15,8 @@
     "crearCuenta": "Crear cuenta",
     "ajustes": "Perfil y ajustes",
     "cerrarSesion": "Cerrar sesión",
-    "amigos": "Amigos"
+    "amigos": "Amigos",
+    "abrir": "Abrir sobres"
   },
 
   "notifications": {
@@ -138,7 +139,33 @@
   },
 
   "common": {
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "mustLoginWishlist": "Debes iniciar sesión para añadir a la wishlist",
+    "mustLogin": "Debes iniciar sesión",
+    "mustLoginForTrade": "Debes iniciar sesión para marcar cartas para intercambio",
+    "errorUpdatingTrade": "No se pudo actualizar el estado de intercambio",
+    "searchCards": "Buscar cartas",
+    "searchPlaceholder": "Buscar por nombre...",
+    "set": "Set",
+    "rarity": "Rareza",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "illustrator": "Ilustrador",
+    "hp": "HP",
+    "quantity": "Cantidad",
+    "ascendingOrder": "Orden ascendente",
+    "descendingOrder": "Orden descendente",
+    "markedForTrade": "Marked for trade",
+    "markForTrade": "Mark for trade",
+    "delete": "Eliminar",
+    "languageSelector": "Selector de idioma",
+    "unknownError": "Error desconocido",
+    "results": "resultados",
+    "noResults": "No hay resultados",
+    "loading": "Cargando...",
+    "loadingPrices": "Cargando precios...",
+    "loadingSet": "Cargando set...",
+    "average": "Promedio"
   },
 
   "pagination": {
@@ -183,7 +210,11 @@
     "sendRequest": "Enviar solicitud",
     "mustLogin": "Debes iniciar sesión para proponer un intercambio",
     "sendError": "Error enviando solicitud",
-    "requestSent": "Solicitud de intercambio enviada."
+    "requestSent": "Solicitud de intercambio enviada.",
+    "send": "Enviar solicitud",
+    "cancel": "Cancelar",
+    "loadError": "Error al cargar cartas de intercambio",
+    "errorSending": "Error enviando solicitud"
   },
 
   "friends": {
@@ -251,7 +282,21 @@
     "rejectTrade": "Rechazar",
     "publicRoom": "Sala de intercambio",
     "roomCode": "Código de sala",
-    "privateRoom": "Sala privada"
+    "privateRoom": "Sala privada",
+    "errorSalaNoEncontrada": "No se encontró la sala de intercambio",
+    "errorCargarIntercambio": "Error al cargar la sala de intercambio",
+    "tradeCompleted": "Intercambio completado correctamente",
+    "tradeRejected": "Intercambio rechazado",
+    "cardForcedOnly": "En este intercambio solo puedes usar la carta solicitada para ti",
+    "noTradeLoaded": "No se ha podido cargar el intercambio",
+    "mustSelectBoth": "Ambos usuarios deben seleccionar una carta antes de aceptar",
+    "errorValueDiff": "La diferencia de valor entre las cartas es demasiado alta",
+    "errorRequestedMismatch": "El intercambio no respeta la carta solicitada originalmente",
+    "errorCompleteTrade": "Error al completar el intercambio",
+    "waitingOtherUser": "Has aceptado el intercambio. Esperando a que el otro usuario también acepte",
+    "errorReject": "Error al rechazar el intercambio",
+    "loadingRoom": "Cargando sala de intercambio...",
+    "roomNotFound": "No se encontró la sala de intercambio"
   },
   "tradeReq": {
     "errorReceived": "Error cargando solicitudes recibidas",
@@ -351,5 +396,24 @@
     "rejectedStatus": "Rechazada",
     "cancelledStatus": "Cancelada",
     "completedStatus": "Intercambio realizado"
+  },
+
+  "openPack": {
+    "close": "Cerrar",
+    "code": "Código",
+    "reset": "Reset",
+    "cardsObtained": "Cartas obtenidas",
+    "available": "Disponibles",
+    "nextAllowed": "Siguiente permitido"
+  },
+
+  "collection": {
+    "cards": "cartas",
+    "search": "Buscar",
+    "sets": "Sets",
+    "type": "Tipo",
+    "sort": "Ordenar",
+    "sortName": "Nombre (A-Z)",
+    "empty": "No hay cartas con esos filtros"
   }
 }

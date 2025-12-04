@@ -6,6 +6,11 @@
   color: #111;
 }
 
+.dark .trade-page {
+  background: #111827;
+  color: #f3f4f6;
+}
+
 .trade-main {
   flex: 1;
   width: 100%;
@@ -37,11 +42,19 @@
   color: #0284c7;
 }
 
+.dark .trade-title {
+  color: #38bdf8;
+}
+
 .trade-room-code {
   font-size: 0.9rem;
   color: #444;
   margin-top: -6px;
   margin-bottom: 20px;
+}
+
+.dark .trade-room-code {
+  color: #9ca3af;
 }
 
 .trade-fight {
@@ -67,14 +80,26 @@
   object-fit: cover;
 }
 
+.dark .player-avatar {
+  border: 4px solid #1f2937;
+}
+
 .player-name {
   font-weight: 700;
   margin-top: 6px;
   color: #075985;
 }
 
+.dark .player-name {
+  color: #38bdf8;
+}
+
 .player-name.opponent {
   color: #1d4ed8;
+}
+
+.dark .player-name.opponent {
+  color: #60a5fa;
 }
 
 .player-card {
@@ -89,9 +114,18 @@
   overflow: hidden;
 }
 
+.dark .player-card {
+  background: linear-gradient(to bottom, #374151, #1f2937);
+  border: 2px solid #4b5563;
+}
+
 .no-card {
   font-size: 0.8rem;
   color: #777;
+}
+
+.dark .no-card {
+  color: #9ca3af;
 }
 
 .selected-card {
@@ -106,10 +140,18 @@
   color: #0284c7;
 }
 
+.dark .trade-icon {
+  color: #38bdf8;
+}
+
 .trade-subtitle {
   margin-top: 10px;
   font-weight: bold;
   color: #555;
+}
+
+.dark .trade-subtitle {
+  color: #d1d5db;
 }
 
 .trade-cards-grid {
@@ -142,6 +184,10 @@
   padding: 6px 10px;
   border-radius: 6px;
   cursor: pointer;
+}
+
+.dark .pager-btn {
+  background: #0369a1;
 }
 
 .pager-btn[disabled] {

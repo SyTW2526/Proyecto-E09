@@ -7,6 +7,11 @@
   color: #111;
 }
 
+.dark .profile-page {
+  background: #111827;
+  color: #f3f4f6;
+}
+
 .loading-container {
   min-height: 100vh;
   display: flex;
@@ -17,6 +22,10 @@
 .loading-text {
   font-size: 1.4rem;
   color: #666;
+}
+
+.dark .loading-text {
+  color: #999;
 }
 
 /* MAIN */
@@ -32,6 +41,10 @@
   font-weight: 800;
   color: #0284c7;
   margin-bottom: 3rem;
+}
+
+.dark .profile-title {
+  color: #38bdf8;
 }
 
 .profile-content {
@@ -131,10 +144,20 @@
   text-align: center;
 }
 
+.dark .profile-info-card {
+  background: #1f2937;
+  border: 2px solid #374151;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.5);
+}
+
 .profile-info-card p {
   font-size: 1.45rem;
   font-weight: 600;
   margin-bottom: 1rem;
+}
+
+.dark .profile-info-card p {
+  color: #f3f4f6;
 }
 
 .profile-info-buttons {
@@ -165,6 +188,12 @@
   box-shadow: 0 3px 8px rgba(0,0,0,0.05);
 }
 
+.dark .profile-section {
+  background: #1f2937;
+  border: 2px solid #374151;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
+
 .section-title {
   font-size: 1.8rem;
   color: #0284c7;
@@ -173,8 +202,16 @@
   text-align: center; 
 }
 
+.dark .section-title {
+  color: #38bdf8;
+}
+
 .section-empty {
   color: #777;
+}
+
+.dark .section-empty {
+  color: #9ca3af;
 }
 
 /* CARTAS */
@@ -195,8 +232,19 @@
   transition: 0.2s;
 }
 
+.dark .card-item,
+.dark .card-item-yellow {
+  background: #374151;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  border: 2px solid #4b5563;
+}
+
 .card-item-yellow {
   border-color: #facc15;
+}
+
+.dark .card-item-yellow {
+  border-color: #ca8a04;
 }
 
 .card-image {

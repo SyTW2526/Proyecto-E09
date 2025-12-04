@@ -6,7 +6,7 @@ import { setLanguage } from '../../features/preferences/preferencesSlice';
 
 const LanguageSelector: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const dispatch = useDispatch();
 
   const handleLanguageChange = (newLanguage: 'es' | 'en') => {
@@ -19,7 +19,7 @@ const LanguageSelector: React.FC = () => {
   return (
     <div className="relative">
       <button
-        aria-label="Selector de idioma"
+        aria-label={t('common.languageSelector')}
         className="p-2 hover:bg-white/20 rounded-full transition"
         onClick={() => setIsOpen(!isOpen)}
       >
@@ -27,13 +27,13 @@ const LanguageSelector: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-2xl z-[9999] border border-gray-200 overflow-hidden">
+        <div className="language-dropdown absolute right-0 mt-2 w-40 bg-white dark:bg-slate-800 rounded-lg shadow-2xl z-[9999] border border-gray-200 dark:border-gray-700 overflow-hidden">
           <button
             onClick={() => handleLanguageChange('es')}
-            className={`w-full text-left px-4 py-3 text-sm font-medium transition border-b border-gray-100 ${
+            className={`w-full text-left px-4 py-3 text-sm font-medium transition border-b border-gray-100 dark:border-gray-700 ${
               i18n.language === 'es'
-                ? 'bg-blue-50 text-blue-700'
-                : 'text-gray-700 hover:bg-gray-50'
+                ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700'
             }`}
           >
             🇪🇸 Español
@@ -42,8 +42,8 @@ const LanguageSelector: React.FC = () => {
             onClick={() => handleLanguageChange('en')}
             className={`w-full text-left px-4 py-3 text-sm font-medium transition ${
               i18n.language === 'en'
-                ? 'bg-blue-50 text-blue-700'
-                : 'text-gray-700 hover:bg-gray-50'
+                ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700'
             }`}
           >
             🇺🇸 English

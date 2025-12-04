@@ -168,12 +168,12 @@ const OpenPackPage: React.FC = () => {
       <div className="collection-inner">
 
         <div className="open-pack-title-wrapper">
-          <h2 className="open-pack-title">Abrir sobre</h2>
+          <h2 className="open-pack-title">{t('header.abrir')}</h2>
         </div>
 
 
         {loadingSet ? (
-          <div>Cargando set...</div>
+          <div>{t('common.loadingSet')}</div>
         ) : (
           <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:20 }}>
 
@@ -226,10 +226,10 @@ const OpenPackPage: React.FC = () => {
             
             {packStatus && (
               <div style={{ textAlign:'center' }}>
-                <div>Disponibles: <strong>{packStatus.remaining}</strong></div>
+                <div>{t('openPack.available')}: <strong>{packStatus.remaining}</strong></div>
                 {packStatus.nextAllowed && (
                   <div style={{ fontSize:12, color:'#666' }}>
-                    Siguiente permitido: {new Date(packStatus.nextAllowed).toLocaleString()}
+                    {t('openPack.nextAllowed')}: {new Date(packStatus.nextAllowed).toLocaleString()}
                   </div>
                 )}
               </div>
@@ -238,13 +238,13 @@ const OpenPackPage: React.FC = () => {
             {/* reset admin */}
             <div>
               <button className="CollectionButton" onClick={() => setShowReset(s => !s)}>
-                {showReset ? "Cerrar" : "Código"}
+                {showReset ? t('openPack.close') : t('openPack.code')}
               </button>
 
               {showReset && (
                 <div style={{ marginTop:10, display:'flex', gap:8 }}>
                   <input value={resetCode} onChange={e => setResetCode(e.target.value)} />
-                  <button className="CollectionButton">Reset</button>
+                  <button className="CollectionButton">{t('openPack.reset')}</button>
                 </div>
               )}
             </div>
@@ -257,7 +257,7 @@ const OpenPackPage: React.FC = () => {
         {/* cartas obtenidas */}
         {openedCards.length > 0 && (
           <div style={{ marginTop:20 }}>
-            <h3>Cartas obtenidas</h3>
+            <h3>{t('openPack.cardsObtained')}</h3>
             <div className="collection-grid">
               {openedCards.map(c => (
                 <div key={c.id} className="collection-card">

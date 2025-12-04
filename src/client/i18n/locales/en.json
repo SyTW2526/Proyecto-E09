@@ -15,7 +15,8 @@
     "crearCuenta": "Create account",
     "ajustes": "Profile and settings",
     "cerrarSesion": "Log out",
-    "amigos": "Friends"
+    "amigos": "Friends",
+    "abrir": "Open packs"
   },
 
   "notifications": {
@@ -138,7 +139,33 @@
   },
 
   "common": {
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "mustLoginWishlist": "You must be logged in to add to wishlist",
+    "mustLogin": "You must be logged in",
+    "mustLoginForTrade": "You must be logged in to mark cards for trade",
+    "errorUpdatingTrade": "Could not update trade status",
+    "searchCards": "Search cards",
+    "searchPlaceholder": "Search by name...",
+    "set": "Set",
+    "rarity": "Rarity",
+    "prev": "Previous",
+    "next": "Next",
+    "illustrator": "Illustrator",
+    "hp": "HP",
+    "quantity": "Quantity",
+    "ascendingOrder": "Ascending order",
+    "descendingOrder": "Descending order",
+    "markedForTrade": "Marked for trade",
+    "markForTrade": "Mark for trade",
+    "delete": "Delete",
+    "languageSelector": "Language selector",
+    "unknownError": "Unknown error",
+    "results": "results",
+    "noResults": "No results",
+    "loading": "Loading...",
+    "loadingPrices": "Loading prices...",
+    "loadingSet": "Loading set...",
+    "average": "Average"
   },
 
   "pagination": {
@@ -183,7 +210,11 @@
     "sendRequest": "Send request",
     "mustLogin": "You must be logged in to start a trade",
     "sendError": "Error sending request",
-    "requestSent": "Trade request sent."
+    "requestSent": "Trade request sent.",
+    "send": "Send request",
+    "cancel": "Cancel",
+    "loadError": "Error loading trade cards",
+    "errorSending": "Error sending request"
   },
 
   "friends": {
@@ -252,7 +283,21 @@
     "rejectTrade": "Reject",
     "publicRoom": "Trade room",
     "privateRoom": "Private room",
-    "roomCode": "Room code:"
+    "roomCode": "Room code:",
+    "errorSalaNoEncontrada": "Trade room not found",
+    "errorCargarIntercambio": "Error loading trade room",
+    "tradeCompleted": "Trade completed successfully",
+    "tradeRejected": "Trade rejected",
+    "cardForcedOnly": "In this trade you can only use the requested card",
+    "noTradeLoaded": "Could not load the trade",
+    "mustSelectBoth": "Both users must select a card before accepting",
+    "errorValueDiff": "The value difference between cards is too high",
+    "errorRequestedMismatch": "The trade does not respect the originally requested card",
+    "errorCompleteTrade": "Error completing the trade",
+    "waitingOtherUser": "You accepted the trade. Waiting for the other user to accept",
+    "errorReject": "Error rejecting the trade",
+    "loadingRoom": "Loading trade room...",
+    "roomNotFound": "Trade room not found"
   },
   "tradeReq": {
     "errorReceived": "Error loading received requests",
@@ -354,6 +399,25 @@
     "rejectedStatus": "Rejected",
     "cancelledStatus": "Cancelled",
     "completedStatus": "Trade completed"
+  },
+
+  "openPack": {
+    "close": "Close",
+    "code": "Code",
+    "reset": "Reset",
+    "cardsObtained": "Cards obtained",
+    "available": "Available",
+    "nextAllowed": "Next allowed"
+  },
+
+  "collection": {
+    "cards": "cards",
+    "search": "Search",
+    "sets": "Sets",
+    "type": "Type",
+    "sort": "Sort",
+    "sortName": "Name (A-Z)",
+    "empty": "No cards with those filters"
   }
 
 }

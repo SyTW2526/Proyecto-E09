@@ -1,3 +1,20 @@
+/**
+ * @file card.ts
+ * @description Router para operaciones CRUD de cartas Pokémon
+ * 
+ * Gestiona:
+ * - Listado y búsqueda de cartas
+ * - Cartas destacadas
+ * - Búsqueda de cartas por rarity, serie, conjunto, tipos
+ * - Importación de cartas desde API externa
+ * 
+ * @requires express - Framework web
+ * @requires Card - Modelo de datos de carta genérica
+ * @requires PokemonCard - Modelo de carta Pokémon
+ * @requires TrainerCard - Modelo de carta Entrenador
+ * @requires EnergyCard - Modelo de carta Energía
+ */
+
 import express from 'express';
 import { Card } from '../models/Card.js';
 import { PokemonCard } from '../models/PokemonCard.js';
@@ -6,12 +23,25 @@ import { EnergyCard } from '../models/EnergyCard.js';
 import { getCardById } from '../services/pokemon.js';
 import { sanitizeBriefCard, getCardCategory, normalizeImageUrl, extractPrices } from '../services/tcgdx.js';
 
+/**
+ * Router de cartas
+ */
 export const cardRouter = express.Router();
 
 
 /**
  * GET /cards
  * Obtiene una lista paginada de cartas con filtros opcionales
+ * 
+ * @query {number} page - Número de página (por defecto 1)
+ * @query {number} limit - Límite de resultados por página (por defecto 20)
+ * @query {string} name - Filtro por nombre de carta (regex)
+ * @query {string} rarity - Filtro por rareza
+ * @query {string} series - Filtro por serie
+ * @query {string} set - Filtro por conjunto/extensión
+ * @query {string} type - Filtro por tipo
+ * 
+ * @returns {Object} Objeto con cartas, total y paginación
  */
 cardRouter.get('/cards', async (req, res) => {
   try {

@@ -1,3 +1,21 @@
+/**
+ * @file index.ts
+ * @description Archivo principal del servidor Express con configuración de Socket.io
+ * 
+ * Configura:
+ * - Servidor Express con CORS
+ * - Websocket (Socket.io) para comunicación en tiempo real
+ * - Autenticación JWT para conexiones Socket.io
+ * - Enrutadores de la API REST
+ * - Eventos de Socket.io para salas de trading y mensajes privados
+ * 
+ * @requires express - Framework web
+ * @requires http - Módulo HTTP de Node.js
+ * @requires cors - Middleware CORS
+ * @requires jsonwebtoken - Autenticación JWT
+ * @requires socket.io - Websocket para tiempo real
+ */
+
 import express from "express";
 import http from "http";
 import cors from "cors";
@@ -18,8 +36,17 @@ import { tradeRequestRouter } from "./routers/trade_request.js";
 import { friendTradeRoomsRouter } from "./routers/friend_trade.js";
 import { ChatMessage } from "./models/Chat.js";
 
+/**
+ * Instancia de la aplicación Express
+ * @type {Express.Application}
+ */
 const app = express();
 
+/**
+ * Configuración de CORS
+ * Permite solicitudes desde localhost:5173 (Vite dev server)
+ * @type {cors.CorsOptions}
+ */
 app.use(
   cors({
     origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -29,11 +56,23 @@ app.use(
   })
 );
 
+/**
+ * Middleware de parseo de JSON y formularios
+ * Límite de 10MB para uploads
+ */
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+/**
+ * Crear servidor HTTP con Socket.io
+ * @type {http.Server}
+ */
 const server = http.createServer(app);
 
+/**
+ * Instancia de Socket.io para comunicación en tiempo real
+ * @type {Server}
+ */
 export const io = new Server(server, {
   cors: {
     origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -42,11 +81,20 @@ export const io = new Server(server, {
   },
 });
 
+/**
+ * Middleware que inyecta la instancia de Socket.io en cada request
+ * Permite que los routers accedan a Socket.io mediante req.io
+ */
 app.use((req: any, _res, next) => {
   req.io = io;
   next();
 });
 
+/**
+ * Middleware de autenticación para Socket.io
+ * Valida el JWT proporcionado en el handshake
+ * Si el token es válido, almacena userId y username en socket.data
+ */
 io.use((socket, next) => {
   try {
     const token = socket.handshake.auth?.token;
@@ -66,6 +114,14 @@ io.use((socket, next) => {
   }
 });
 
+/**
+ * Evento de conexión de Socket.io
+ * Gestiona:
+ * - Unión automática a sala privada del usuario
+ * - Eventos de sala (joinRoom, selectCard, tradeReady)
+ * - Mensajes privados
+ * - Notificaciones de desconexión
+ */
 io.on("connection", (socket) => {
   console.log(`Usuario conectado: ${socket.data.username}`);
 
@@ -90,6 +146,11 @@ io.on("connection", (socket) => {
     socket.emit("roomUsers", { users: usersInRoom });
   });
 
+  /**
+   * Evento: sendMessage
+   * Envía un mensaje a otros usuarios en la sala
+   * @param {Object} data - Objeto con roomCode y text
+   */
   socket.on("sendMessage", (data: any) => {
     socket.to(data.roomCode).emit("receiveMessage", {
       user: socket.data.username,
@@ -98,6 +159,11 @@ io.on("connection", (socket) => {
     });
   });
 
+  /**
+   * Evento: selectCard
+   * Notifica cuando un usuario selecciona una carta para trading
+   * @param {Object} data - Objeto con roomCode y card
+   */
   socket.on("selectCard", (data: any) => {
     const { roomCode, card } = data;
     socket.to(roomCode).emit("cardSelected", {
@@ -107,6 +173,11 @@ io.on("connection", (socket) => {
     });
   });
 
+  /**
+   * Evento: tradeReady
+   * Indica si el usuario está listo para completar el trading
+   * @param {Object} data - Objeto con roomCode y accepted
+   */
   socket.on("tradeReady", (data: any) => {
     const { roomCode, accepted } = data;
     socket.to(roomCode).emit("tradeReady", {
@@ -116,6 +187,12 @@ io.on("connection", (socket) => {
     });
   });
 
+  /**
+   * Evento: privateMessage
+   * Envía mensajes privados entre usuarios
+   * Guarda el mensaje en la base de datos
+   * @param {Object} msg - Objeto con from, to, text
+   */
   socket.on("privateMessage", async (msg: any) => {
     const { from, to, text } = msg;
     console.log(`Mensaje privado de ${from} a ${to}: ${text}`);
@@ -134,11 +211,19 @@ io.on("connection", (socket) => {
     }
   });
 
+  /**
+   * Evento: disconnect
+   * Se ejecuta cuando un usuario se desconecta
+   */
   socket.on("disconnect", () => {
     console.log(`Usuario desconectado: ${socket.data.username}`);
   });
 });
 
+/**
+ * Registro de todos los routers de la API
+ * Orden: usuarios, notificaciones, preferencias, sync, cartas, trading, etc.
+ */
 app.use(userRouter);
 app.use(notificationRouter);
 app.use(preferencesRouter);
@@ -151,6 +236,10 @@ app.use(tradeRequestRouter);
 app.use(friendTradeRoomsRouter);
 app.use(defaultRouter);
 
+/**
+ * Iniciar servidor en el puerto especificado
+ * Puerto por defecto: 3000
+ */
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
   console.log(`Servidor listo en http://localhost:${port}`);

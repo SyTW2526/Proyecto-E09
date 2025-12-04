@@ -1,3 +1,19 @@
+/**
+ * @file cards.ts
+ * @description Servicio de sincronización y gestión de cartas en la base de datos
+ * 
+ * Proporciona funciones para:
+ * - Sincronizar cartas desde la API externa a MongoDB
+ * - Actualizar información de cartas
+ * - Crear nuevas cartas desde datos RAW de la API
+ * - Normalizar y sanitizar datos de cartas
+ * 
+ * @requires Card - Modelo genérico de cartas
+ * @requires PokemonCard - Modelo de cartas Pokémon
+ * @requires TrainerCard - Modelo de cartas Entrenador
+ * @requires EnergyCard - Modelo de cartas Energía
+ */
+
 import { Card } from '../models/Card.js';
 import { PokemonCard } from '../models/PokemonCard.js';
 import { TrainerCard } from '../models/TrainerCard.js';
@@ -7,7 +23,15 @@ import { sanitizeBriefCard, getCardCategory, extractPrices } from '../services/t
 
 /**
  * Sincroniza todas las cartas desde la API externa hacia la base de datos local
- * @returns El número total de cartas procesadas
+ * Itera por todos los sets disponibles en TCGdex y guarda cada carta en su modelo específico
+ * 
+ * @async
+ * @returns {Promise<number>} El número total de cartas procesadas
+ * @throws {Error} Si hay problemas en la sincronización
+ * 
+ * @example
+ * const count = await syncAllCards();
+ * console.log(`${count} cartas sincronizadas`);
  */
 export async function syncAllCards() {
   console.log('Iniciando sincronización de cartas');

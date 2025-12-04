@@ -1,17 +1,66 @@
+/**
+ * @file apiService.ts
+ * @description Servicio centralizado para todas las llamadas API REST y tcgDex
+ * 
+ * Proporciona métodos para:
+ * - Búsqueda y obtención de cartas
+ * - Operaciones CRUD de usuarios
+ * - Gestión de trading y solicitudes
+ * - Operaciones de colección de cartas
+ * - Notificaciones y preferencias
+ * 
+ * URLs de API:
+ * - API local: http://localhost:3000
+ * - API externa tcgDex: https://api.tcgdex.net/v2/en
+ * 
+ * @requires authService - Servicio de autenticación
+ * @module services/apiService
+ */
+
 import { types } from 'util';
 import { PokemonCard, ApiResponse, PaginatedResponse, User, TradeStatus, UserOwnedCard } from '../types';
 import { authService } from './authService';
 
+/**
+ * URL base de la API local del servidor
+ * @constant
+ * @type {string}
+ */
 const API_BASE_URL = 'http://localhost:3000'; // URL base de la API del servidor
+
+/**
+ * URL base de la API pública tcgDex
+ * @constant
+ * @type {string}
+ */
 const TCGDEX_URL = 'https://api.tcgdex.net/v2/en'; // API pública de tcgDex
 
+/**
+ * Obtiene el prefijo alfabético de un código de set
+ * Ejemplo: "swsh1" -> "swsh", "base1" -> "ba"
+ * 
+ * @param {string} [setCode] - Código del set
+ * @returns {string} Prefijo alfabético
+ */
 function alphaPrefix(setCode: string | undefined) {
   if (!setCode) return '';
   const m = String(setCode).match(/^[a-zA-Z]+/);
   if (m) return m[0];
   return String(setCode).slice(0, 2);
 }
+
+/**
+ * Clase que agrupa todas las operaciones de API
+ * @class ApiService
+ */
 class ApiService {
+  /**
+   * Obtiene las cartas destacadas de la aplicación
+   * @async
+   * @returns {Promise<PokemonCard[]>} Array de cartas destacadas
+   * @example
+   * const featured = await apiService.fetchFeaturedCards();
+   */
   async fetchFeaturedCards(): Promise<PokemonCard[]> {
     try {
       const res = await fetch(`${API_BASE_URL}/cards/featured`);
@@ -24,6 +73,14 @@ class ApiService {
     }
   }
 
+  /**
+   * Busca cartas en la base de datos local
+   * @async
+   * @param {string} query - Término de búsqueda
+   * @param {number} [page=1] - Número de página
+   * @param {number} [limit=20] - Límite de resultados
+   * @returns {Promise<PaginatedResponse<PokemonCard>>} Resultados paginados
+   */
   async searchCards(
     query: string,
     page = 1,
@@ -41,6 +98,16 @@ class ApiService {
     }
   }
 
+  /**
+   * Busca cartas en la API tcgDex (datos actualizados en tiempo real)
+   * @async
+   * @param {string} query - Término de búsqueda
+   * @param {number} [page=1] - Número de página
+   * @param {number} [limit=20] - Límite de resultados
+   * @param {string} [set] - Filtro opcional por set
+   * @param {string} [rarity] - Filtro opcional por rareza
+   * @returns {Promise<PaginatedResponse<any>>} Resultados de la búsqueda
+   */
   async searchTcgCards(query: string, page = 1, limit = 20, set?: string, rarity?: string): Promise<{ data: any[]; total: number; page: number; limit: number }> {
     try {
       const params = new URLSearchParams();
@@ -48,6 +115,7 @@ class ApiService {
       params.append('page', String(page));
       params.append('limit', String(limit));
       if (set) params.append('set', set);
+
       if (rarity) params.append('rarity', rarity);
       const res = await fetch(`${API_BASE_URL}/cards/search/tcg?${params.toString()}`);
       if (!res.ok) throw new Error('Error searching TCGdex');

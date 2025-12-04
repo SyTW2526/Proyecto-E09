@@ -1,5 +1,32 @@
+/**
+ * @file TradeRequest.ts
+ * @description Modelo de Solicitud de Intercambio de Cartas
+ * 
+ * Registra solicitudes de intercambio entre usuarios,
+ * incluyendo cartas específicas solicitadas y estados.
+ * 
+ * @requires mongoose - ODM para MongoDB
+ */
+
 import mongoose from "mongoose";
 
+/**
+ * Esquema de Solicitud de Trade
+ * 
+ * @typedef {Object} TradeRequest
+ * @property {ObjectId} from - ID del usuario que solicita
+ * @property {ObjectId} to - ID del usuario destinatario
+ * @property {string} pokemonTcgId - ID TCG de la carta solicitada
+ * @property {string} cardName - Nombre de la carta
+ * @property {string} cardImage - URL de la imagen de la carta
+ * @property {string} note - Nota o comentario del solicitante
+ * @property {string} status - Estado (pending, accepted, rejected, cancelled, completed)
+ * @property {boolean} isManual - Si fue creada manualmente o automáticamente
+ * @property {ObjectId} tradeId - ID del Trade relacionado
+ * @property {Date} finishedAt - Fecha de finalización (se borra después de 2 días)
+ * @property {Date} createdAt - Fecha de creación
+ * @property {Date} updatedAt - Fecha de última actualización
+ */
 const tradeRequestSchema = new mongoose.Schema(
   {
     from: {
@@ -52,7 +79,10 @@ const tradeRequestSchema = new mongoose.Schema(
   }
 );
 
-// Borrar automáticamente solicitudes finalizadas 2 días después
+/**
+ * Índice TTL para borrar solicitudes finalizadas después de 2 días
+ * Libera espacio en base de datos automáticamente
+ */
 tradeRequestSchema.index(
   { finishedAt: 1 },
   {
@@ -61,4 +91,8 @@ tradeRequestSchema.index(
   }
 );
 
+/**
+ * Modelo de Solicitud de Trade exportado
+ * @type {mongoose.Model}
+ */
 export const TradeRequest = mongoose.model("TradeRequest", tradeRequestSchema);

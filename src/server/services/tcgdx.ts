@@ -1,9 +1,27 @@
 /**
- * Utilities for working with TCGdex responses.
- * Includes a sanitizer to remove circular references from BriefCard-like objects
- * and helpers to determine card category.
+ * @file tcgdx.ts
+ * @description Utilidades para procesar respuestas de la API TCGdex
+ * 
+ * Proporciona funciones para:
+ * - Sanitizar datos removiendo referencias circulares
+ * - Determinar la categoría de la carta
+ * - Extraer precios de diferentes mercados
+ * - Normalizar URLs de imágenes
+ * 
+ * @module services/tcgdx
  */
 
+/**
+ * Sanitiza objetos de tarjeta removiendo referencias circulares
+ * Convierte el objeto a JSON y de vuelta a un objeto limpio
+ * 
+ * @template T
+ * @param {T} input - Objeto de carta a sanitizar
+ * @returns {T} Objeto sanitizado sin referencias circulares
+ * 
+ * @example
+ * const sanitized = sanitizeBriefCard(rawCardData);
+ */
 export function sanitizeBriefCard<T extends Record<string, any>>(input: T): T {
   // JSON.stringify with a replacer that removes circular references
   const seen = new WeakSet();
@@ -38,8 +56,15 @@ export function sanitizeBriefCard<T extends Record<string, any>>(input: T): T {
 }
 
 /**
- * Determine card supertype/category from the API object.
- * The TCGdex API typically exposes `supertype` with values 'Pokémon', 'Trainer', 'Energy'.
+ * Determina la categoría de una carta basándose en su tipo
+ * Analiza el campo supertype para clasificar la carta
+ * 
+ * @param {Object} card - Objeto de carta de la API
+ * @returns {'pokemon'|'trainer'|'energy'|'unknown'} Categoría de la carta
+ * 
+ * @example
+ * const category = getCardCategory(cardData);
+ * // Returns: 'pokemon' | 'trainer' | 'energy' | 'unknown'
  */
 export function getCardCategory(card: Record<string, any>): 'pokemon' | 'trainer' | 'energy' | 'unknown' {
   const supertype = (card?.supertype || card?.type || '').toString().toLowerCase();

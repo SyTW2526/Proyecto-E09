@@ -6,6 +6,8 @@ import { Card } from "../../src/server/models/Card.js";
 
 beforeEach(async () => {
   await Card.deleteMany();
+  const { PokemonCard } = await import('../../src/server/models/PokemonCard.js');
+  await PokemonCard.deleteMany();
 });
 
 describe('GET /cards', () => {

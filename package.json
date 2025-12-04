@@ -18,7 +18,7 @@
     "test": "env-cmd -f ./config/test.env vitest run test/index.spec.ts",
     "test:selenium": "npx vitest run --config vitest.selenium.config.ts",
     "test:all": "npm test && npm run test:selenium",
-    "coverage": "env-cmd -f ./config/test.env vitest run --coverage"
+    "coverage": "env-cmd -f ./config/test.env vitest run --coverage test/index.spec.ts"
 
   },
   "repository": {

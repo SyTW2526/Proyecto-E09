@@ -99,12 +99,12 @@ const TradeOfferCardModal: React.FC<Props> = ({
             </div>
             {totalPages > 1 && (
               <div className="trade-pagination">
-                <button disabled={page === 1} onClick={() => setPage(page - 1)}>◀</button>
+                <button disabled={page === 1} onClick={() => setPage(page - 1)}>⬅</button>
                 <span>{page} / {totalPages}</span>
                 <button
                   disabled={page === totalPages}
                   onClick={() => setPage(page + 1)}
-                >▶</button>
+                >➡</button>
               </div>
             )}
 

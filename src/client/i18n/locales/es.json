@@ -140,6 +140,13 @@
   },
 
   "common": {
+    "all": "Todos",
+    "filter": "Filtrar",
+    "clear": "Borrar",
+    "none": "Ninguno",
+    "done": "Aplicar",
+    "asc": "Ascendente",
+    "desc": "Descendente",
     "cancel": "Cancelar",
     "mustLoginWishlist": "Debes iniciar sesión para añadir a la wishlist",
     "mustLogin": "Debes iniciar sesión",
@@ -390,7 +397,9 @@
     "accepted": "Aceptada",
     "rejectedStatus": "Rechazada",
     "cancelledStatus": "Cancelada",
-    "completedStatus": "Intercambio realizado"
+    "completedStatus": "Completada",
+    "tradeDone": "Intercambio realizado"
+
   },
 
   "openPack": {
@@ -404,7 +413,7 @@
 
   "collection": {
     "cards": "cartas",
-    "search": "Buscar",
+    "search": "Buscar en la colección...",
     "sets": "Sets",
     "type": "Tipo",
     "sort": "Ordenar",

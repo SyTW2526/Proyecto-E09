@@ -146,7 +146,7 @@ const CollectionPage: React.FC = () => {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   const [view, setView] = useState<ViewMode>("comfortable");
-  const pageSize = view === "dense" ? 18 : 12;
+  const pageSize = view === "dense" ? 25 : 18;
 
   const [page, setPage] = useState(1);
 

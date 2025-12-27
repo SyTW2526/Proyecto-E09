@@ -215,15 +215,15 @@
     "signIn": "Iniciar Sesión"
   },
   "start": {
-    "title": "Bienvenido a Cards AMI",
-    "subtitle": "Descubre, intercambia y explora el mundo de cartas Pokémon.",
-    "getStarted": "Comenzar Ahora",
+    "title": "¡Colecciona, intercambia y descubre tu mundo Pokémon!",
+    "subtitle": "En Cards AMI puedes crear tu colección personal, descubrir nuevas cartas e intercambiarlas con otros aficionados al mundo Pokémon.",
+    "getStarted": "Empieza Ya",
     "collect": "Colecciona",
-    "collectDesc": "Construye tu colección de cartas Pokémon.",
+    "collectDesc": "Guarda tus cartas favoritas, organiza tu colección y crea una lista de deseos. ¡Tu biblioteca Pokémon siempre al día!",
     "trade": "Intercambia",
-    "tradeDesc": "Intercambia cartas con otros coleccionistas.",
+    "tradeDesc": "Conecta con otros coleccionistas o con tus amigos y realiza intercambios seguros para conseguir las cartas que te faltan.",
     "explore": "Explora",
-    "exploreDesc": "Encuentra cartas raras y únicas."
+    "exploreDesc": "Encuentra las cartas que buscas, descubre nuevas expansiones y mantente al tanto de las últimas novedades en el mundo Pokémon."
   },
   "featured": {
     "title": "Cartas Destacadas",

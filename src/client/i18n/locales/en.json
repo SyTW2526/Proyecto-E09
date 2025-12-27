@@ -209,15 +209,15 @@
     "signIn": "Sign In"
   },
   "start": {
-    "title": "Welcome to Cards AMI",
-    "subtitle": "Discover, trade, and explore the world of Pokémon cards.",
+    "title": "Collect, trade and discover your Pokemon world!",
+    "subtitle": "In Cards AMI you can create your personal collection, discover new cards and trade them with other Pokémon enthusiasts.",
     "getStarted": "Start Now",
     "collect": "Collect",
-    "collectDesc": "Build your Pokémon card collection.",
+    "collectDesc": "Save your favorite cards, organize your collection and create a wishlist. Your Pokémon library always up to date!",
     "trade": "Trade",
-    "tradeDesc": "Trade cards with other collectors.",
+    "tradeDesc": "Connect with other collectors or your friends and make secure trades to get the cards you need.",
     "explore": "Explore",
-    "exploreDesc": "Find rare and unique cards."
+    "exploreDesc": "Find the cards you are looking for, discover new expansions, and stay up to date with the latest news in the Pokémon world."
   },
   "featured": {
     "title": "Featured Cards",

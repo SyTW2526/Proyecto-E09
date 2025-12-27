@@ -351,6 +351,9 @@
     "acceptedStatus": "Accepted",
     "rejectedStatus": "Rejected",
     "cancelledStatus": "Cancelled",
-    "title": "Trade Requests"
+    "title": "Trade Requests",
+    "accept": "Accepted",
+    "reject": "Rejected",
+    "cancel": "Cancelled"
   }
 }

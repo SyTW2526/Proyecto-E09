@@ -361,6 +361,9 @@
     "acceptedStatus": "Aceptada",
     "rejectedStatus": "Rechazada",
     "cancelledStatus": "Cancelada",
-    "title": "Solicitudes de Intercambio"
+    "title": "Solicitudes de Intercambio",
+    "accept": "Aceptar",
+    "reject": "Rechazar",
+    "cancel": "Cancelar"
   }
 }

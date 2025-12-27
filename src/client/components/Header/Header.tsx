@@ -99,6 +99,23 @@ const Header: React.FC = () => {
     setSearchResults([]);
   };
 
+  const toggleDarkMode = () => {
+    document.documentElement.classList.toggle('dark-mode');
+    localStorage.setItem(
+      'theme',
+      document.documentElement.classList.contains('dark-mode')
+        ? 'dark'
+        : 'light'
+    );
+  };
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark-mode');
+    }
+  }, []);
+
   return (
     <header className="siteHeader">
       <div className="siteHeader__inner">
@@ -109,15 +126,19 @@ const Header: React.FC = () => {
             onClick={() => setMobileOpen((v) => !v)}
             aria-label={
               mobileOpen
-                ? t('common.close') || 'Cerrar'
-                : t('common.open') || 'Abrir'
+                ? t('common.close', 'Cerrar')
+                : t('common.open', 'Abrir')
             }
             aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
 
-          <Link to="/home" className="brand" aria-label="AMI Home">
+          <Link
+            to="/home"
+            className="brand"
+            aria-label={t('header.home', 'AMI Home')}
+          >
             <span className="brand__text brand__text--gradient">AMI</span>
           </Link>
 
@@ -128,7 +149,7 @@ const Header: React.FC = () => {
                 `topNav__link ${isActive ? 'is-active' : ''}`
               }
             >
-              {t('header.coleccion')}
+              {t('header.collection', 'Collection')}
             </NavLink>
 
             <NavLink
@@ -137,7 +158,7 @@ const Header: React.FC = () => {
                 `topNav__link ${isActive ? 'is-active' : ''}`
               }
             >
-              {t('header.abrir')}
+              {t('header.open', 'Open')}
             </NavLink>
 
             <div className="dropdown" ref={tradeRef}>
@@ -147,7 +168,7 @@ const Header: React.FC = () => {
                 aria-haspopup="menu"
                 aria-expanded={tradeOpen}
               >
-                <span>{t('header.intercambio')}</span>
+                <span>{t('header.trade', 'Trade')}</span>
                 <ChevronDown
                   size={18}
                   className={`chev ${tradeOpen ? 'chev--open' : ''}`}
@@ -164,7 +185,7 @@ const Header: React.FC = () => {
                       navigate('/discover');
                     }}
                   >
-                    {t('header.descubrirCartas')}
+                    {t('header.discoverCards', 'Discover Cards')}
                   </button>
 
                   <button
@@ -175,7 +196,7 @@ const Header: React.FC = () => {
                       navigate('/trade-requests');
                     }}
                   >
-                    {t('header.solicitudes')}
+                    {t('header.requests', 'Requests')}
                   </button>
 
                   <button
@@ -186,7 +207,7 @@ const Header: React.FC = () => {
                       navigate('/trade-room/create');
                     }}
                   >
-                    {t('header.crearSala')}
+                    {t('header.createRoom', 'Create Room')}
                   </button>
                 </div>
               )}
@@ -204,7 +225,7 @@ const Header: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={onSearchKeyDown}
               onFocus={() => setSearchOpen(true)}
-              placeholder={t('header.buscar')}
+              placeholder={t('header.search', 'Search')}
               aria-controls={listId}
               aria-expanded={searchOpen}
               aria-autocomplete="list"
@@ -278,7 +299,7 @@ const Header: React.FC = () => {
               onClick={() => setProfileOpen((v) => !v)}
               aria-haspopup="menu"
               aria-expanded={profileOpen}
-              aria-label={t('header.profile') || 'Perfil'}
+              aria-label={t('header.profile', 'Profile')}
             >
               <User size={22} />
             </button>
@@ -292,7 +313,7 @@ const Header: React.FC = () => {
                         {user?.username || 'AMI'}
                       </div>
                       <div className="menu__sub">
-                        {t('header.account') || 'Cuenta'}
+                        {t('header.account', 'Account')}
                       </div>
                     </div>
 
@@ -304,7 +325,7 @@ const Header: React.FC = () => {
                         navigate('/friends');
                       }}
                     >
-                      {t('header.amigos')}
+                      {t('header.friends', 'Friends')}
                     </button>
                     <button
                       className="menu__item"
@@ -314,7 +335,7 @@ const Header: React.FC = () => {
                         navigate('/profile');
                       }}
                     >
-                      {t('header.ajustes')}
+                      {t('header.settings', 'Settings')}
                     </button>
                     <button
                       className="menu__item menu__item--danger"
@@ -324,7 +345,7 @@ const Header: React.FC = () => {
                         navigate('/');
                       }}
                     >
-                      {t('header.cerrarSesion')}
+                      {t('header.logout', 'Log Out')}
                     </button>
                   </>
                 ) : (
@@ -337,7 +358,7 @@ const Header: React.FC = () => {
                         navigate('/');
                       }}
                     >
-                      {t('header.login') || 'Iniciar sesión'}
+                      {t('header.login', 'Log In')}
                     </button>
                     <button
                       className="menu__item"
@@ -347,7 +368,7 @@ const Header: React.FC = () => {
                         navigate('/register');
                       }}
                     >
-                      {t('header.register') || 'Crear cuenta'}
+                      {t('header.register', 'Register')}
                     </button>
                   </>
                 )}

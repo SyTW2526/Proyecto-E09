@@ -8,13 +8,19 @@ import '../styles/hero.css';
 
 const HomePage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-linear-to-b from-blue-100 to-white">
+    <div
+      className="homePage"
+      style={{ backgroundColor: 'var(--background)', color: 'var(--text)' }}
+    >
       <Header />
-      <Hero />
-      <div className="home-transition" />
-      <FeaturedCards />
+      <main className="homeMain">
+        <Hero />
+        <div className="home-transition" />
+        <FeaturedCards />
+      </main>
       <Footer />
     </div>
   );
 };
+
 export default HomePage;

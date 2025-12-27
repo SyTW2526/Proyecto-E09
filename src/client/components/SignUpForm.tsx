@@ -52,11 +52,11 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
   return (
     <>
       <h2 className="text-4xl font-bold text-sky-700 mb-4 text-center">
-        {t('signUp.titulo')}
+        {t('signUp.title', 'Sign Up')}
       </h2>
 
       <p className="text-gray-500 mb-10 text-center text-lg">
-        {t('signUp.subtitulo')}
+        {t('signUp.subtitle', 'Create your account to get started.')}
       </p>
 
       <form
@@ -72,13 +72,13 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
         {/* Username */}
         <div className="w-4/5 flex flex-col">
           <label className="text-base font-semibold mb-2 ml-1">
-            {t('signUp.usernameLabel')}
+            {t('signUp.usernameLabel', 'Username')}
           </label>
           <input
             name="username"
             value={formData.username}
             onChange={handleInputChange}
-            placeholder={t('signUp.usernamePlaceholder')}
+            placeholder={t('signUp.usernamePlaceholder', 'Enter your username')}
             className="px-4 py-2.5 border rounded-lg"
           />
         </div>
@@ -86,14 +86,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
         {/* Email */}
         <div className="w-4/5 flex flex-col">
           <label className="text-base font-semibold mb-2 ml-1">
-            {t('signUp.emailLabel')}
+            {t('signUp.emailLabel', 'Email')}
           </label>
           <input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleInputChange}
-            placeholder={t('signUp.emailPlaceholder')}
+            placeholder={t('signUp.emailPlaceholder', 'Enter your email')}
             className="px-4 py-2.5 border rounded-lg"
           />
         </div>
@@ -101,14 +101,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
         {/* Password */}
         <div className="w-4/5 flex flex-col">
           <label className="text-base font-semibold mb-2 ml-1">
-            {t('signUp.passwordLabel')}
+            {t('signUp.passwordLabel', 'Password')}
           </label>
           <input
             type="password"
             name="password"
             value={formData.password}
             onChange={handleInputChange}
-            placeholder={t('signUp.passwordPlaceholder')}
+            placeholder={t('signUp.passwordPlaceholder', 'Enter your password')}
             className="px-4 py-2.5 border rounded-lg"
           />
         </div>
@@ -116,14 +116,17 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
         {/* Confirm */}
         <div className="w-4/5 flex flex-col">
           <label className="text-base font-semibold mb-2 ml-1">
-            {t('signUp.confirmPasswordLabel')}
+            {t('signUp.confirmPasswordLabel', 'Confirm Password')}
           </label>
           <input
             type="password"
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleInputChange}
-            placeholder={t('signUp.confirmPasswordPlaceholder')}
+            placeholder={t(
+              'signUp.confirmPasswordPlaceholder',
+              'Confirm your password'
+            )}
             className="px-4 py-2.5 border rounded-lg"
           />
         </div>
@@ -133,7 +136,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
           disabled={loading}
           className="w-4/5 mt-6 bg-linear-to-r from-sky-600 to-blue-600 text-white font-semibold py-3 rounded-lg disabled:opacity-50"
         >
-          {loading ? t('signUp.botonCargando') : t('signUp.botonCrear')}
+          {loading
+            ? t('signUp.loadingButton', 'Loading...')
+            : t('signUp.createButton', 'Create Account')}
         </button>
       </form>
       {onSwitch && (
@@ -142,7 +147,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
           onClick={onSwitch}
           className="mt-8 text-sm font-semibold text-sky-600 hover:underline text-center w-full"
         >
-          {t('signUp.yaTengoCuenta')} {t('signUp.iniciarSesion')}
+          {t('signUp.haveAccount', 'Already have an account?')}{' '}
+          {t('signUp.signIn', 'Sign In')}
         </button>
       )}
     </>

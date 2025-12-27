@@ -459,12 +459,10 @@ userRouter.post(
       }
 
       if (!cardRefId)
-        return res
-          .status(404)
-          .send({
-            error:
-              'Card not found. Provide cardId or pokemonTcgId (use autoFetch=true to fetch)',
-          });
+        return res.status(404).send({
+          error:
+            'Card not found. Provide cardId or pokemonTcgId (use autoFetch=true to fetch)',
+        });
 
       // si ya existe una entrada idéntica (mismo user, misma carta, mismo tipo de colección y condición), aumentar cantidad
       const existingFilter: any = {
@@ -498,12 +496,10 @@ userRouter.post(
           { new: true }
         );
 
-        return res
-          .status(200)
-          .send({
-            message: 'Existing card quantity incremented',
-            userCard: updated,
-          });
+        return res.status(200).send({
+          message: 'Existing card quantity incremented',
+          userCard: updated,
+        });
       }
 
       const userCard = new UserCard({
@@ -581,12 +577,10 @@ userRouter.post(
       if (((user as any).packTokens || 0) <= 0) {
         const nextAllowed =
           new Date((user as any).packLastRefill).getTime() + REFILL_MS;
-        return res
-          .status(429)
-          .send({
-            error: 'No quedan tokens para abrir sobres. Espera para recargar.',
-            nextAllowed: new Date(nextAllowed),
-          });
+        return res.status(429).send({
+          error: 'No quedan tokens para abrir sobres. Espera para recargar.',
+          nextAllowed: new Date(nextAllowed),
+        });
       }
 
       // choose a set to open (fallback to a default)

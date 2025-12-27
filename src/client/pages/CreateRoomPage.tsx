@@ -44,6 +44,10 @@ const CreateRoomPage: React.FC = () => {
     type: 'accept' | 'reject';
     inviteId: string;
   } | null>(null);
+  const [infoModal, setInfoModal] = useState<{
+    titleKey: string;
+    messageKey: string;
+  } | null>(null);
 
   const baseUrl = 'http://localhost:3000';
   const token = localStorage.getItem('token') || '';
@@ -121,7 +125,11 @@ const CreateRoomPage: React.FC = () => {
 
   const handleCreateInvite = async () => {
     if (!selectedFriendId) {
-      alert(t('createRoom.mustSelectFriend'));
+      setInfoModal({
+        titleKey: 'createRoom.attentionTitle',
+        messageKey: 'createRoom.mustSelectFriend',
+      });
+
       return;
     }
 
@@ -133,14 +141,33 @@ const CreateRoomPage: React.FC = () => {
       });
 
       const data = await resp.json();
-      if (!resp.ok)
-        throw new Error(data.error || t('createRoom.errorSendingInvite'));
+      if (!resp.ok) {
+        if (
+          data.error === 'INVITE_ALREADY_EXISTS' ||
+          data.error === 'Ya tienes una invitación pendiente a este amigo'
+        ) {
+          setInfoModal({
+            titleKey: 'createRoom.inviteExistsTitle',
+            messageKey: 'createRoom.inviteExists',
+          });
+          return;
+        }
 
-      alert(t('createRoom.inviteSent'));
+        throw new Error(data.error || t('createRoom.errorSendingInvite'));
+      }
+
+      setInfoModal({
+        titleKey: 'createRoom.inviteSentTitle',
+        messageKey: 'createRoom.inviteSent',
+      });
+
       setSelectedFriendId(null);
       await loadInvites();
     } catch (e: any) {
-      alert(e.message || t('createRoom.errorSendingInvite'));
+      setInfoModal({
+        titleKey: 'common.error',
+        messageKey: e.message || t('createRoom.errorSendingInvite'),
+      });
     }
   };
 
@@ -626,6 +653,24 @@ const CreateRoomPage: React.FC = () => {
                 {confirmAction.type === 'accept'
                   ? t('createRoom.accept')
                   : t('createRoom.reject')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {infoModal && (
+        <div className="confirm-overlay" onClick={() => setInfoModal(null)}>
+          <div className="confirm-card" onClick={(e) => e.stopPropagation()}>
+            <h3 className="confirm-title">{t(infoModal.titleKey)}</h3>
+
+            <p className="confirm-text">{t(infoModal.messageKey)}</p>
+
+            <div className="confirm-actions">
+              <button
+                className="confirm-btn primary"
+                onClick={() => setInfoModal(null)}
+              >
+                {t('createRoom.accept')}
               </button>
             </div>
           </div>

@@ -384,7 +384,7 @@ const CollectionPage: React.FC = () => {
 
   const setOptions: SelectOption[] = useMemo(
     () => [
-      { value: '', label: t('common.all') || 'Todos' },
+      { value: '', label: t('common.all', 'Todos') },
       ...sets.map((s) => ({ value: s, label: s })),
     ],
     [sets, t]
@@ -392,7 +392,7 @@ const CollectionPage: React.FC = () => {
 
   const rarityOptions: SelectOption[] = useMemo(
     () => [
-      { value: '', label: t('common.all') || 'Todas' },
+      { value: '', label: t('common.all', 'Todas') },
       ...rarities.map((r) => ({ value: r, label: r })),
     ],
     [rarities, t]
@@ -400,7 +400,7 @@ const CollectionPage: React.FC = () => {
 
   const typeOptions: SelectOption[] = useMemo(
     () => [
-      { value: '', label: t('common.all') || 'Todos' },
+      { value: '', label: t('common.all', 'Todos') },
       ...types.map((tp) => ({ value: tp, label: tp })),
     ],
     [types, t]
@@ -408,28 +408,31 @@ const CollectionPage: React.FC = () => {
 
   const sortOptions: SelectOption[] = useMemo(
     () => [
-      { value: '', label: t('common.none') || 'Ninguno' },
-      { value: 'name', label: t('collection.sortName') || 'Nombre' },
-      { value: 'rarity', label: t('common.rarity') || 'Rareza' },
+      { value: '', label: t('common.none', 'Ninguno') },
+      { value: 'name', label: t('collection.sortName', 'Nombre') },
+      { value: 'rarity', label: t('common.rarity', 'Rareza') },
     ],
     [t]
   );
 
   return (
-    <div className="collectionPage">
+    <div
+      className="collectionPage"
+      style={{ backgroundColor: 'var(--background)', color: 'var(--text)' }}
+    >
       <Header />
 
       <main className="collectionMain">
         <div className="collectionHeaderRow collectionHeaderRow--center">
           <h1 className="collectionTitleLine">
-            <span className="collectionTitleWord">{t('Colección')}</span>
+            <span className="collectionTitleWord">{t('collection.title')}</span>
             <span className="collectionTitleSep">|</span>
             <span className="collectionTitleCount">{filtered.length}</span>
             <span className="collectionTitleText">{t('collection.cards')}</span>
           </h1>
         </div>
 
-        <section className="collectionToolbar toolbarRightOnly">
+        <section className="collectionToolbar">
           <div className="toolbarRightGroup">
             <input
               className="searchInput searchInput--right"
@@ -632,7 +635,7 @@ const CollectionPage: React.FC = () => {
 
         <div className="collectionContent">
           {loading ? (
-            <div className="stateBox">{t('common.loading')}</div>
+            <div className="stateBox loadingState">{t('common.loading')}</div>
           ) : pageItems.length === 0 ? (
             <div className="stateBox">{t('collection.empty')}</div>
           ) : (
@@ -758,7 +761,9 @@ const CollectionPage: React.FC = () => {
 
                                 return (
                                   <div className="priceRow">
-                                    <span className="priceLabel">Precio</span>
+                                    <span className="priceLabel">
+                                      {t('common.price')}
+                                    </span>
                                     <span className="priceValue">
                                       {avg === null || avg === undefined
                                         ? '—'
@@ -786,31 +791,33 @@ const CollectionPage: React.FC = () => {
             </section>
           )}
         </div>
-        <div className="pagerZone">
-          <div className="pager">
-            <button
-              className="pagerBtn"
-              disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              type="button"
-            >
-              {t('collection.prev') || 'Anterior'}
-            </button>
+        {!loading && pageItems.length > 0 && (
+          <div className="pagerZone">
+            <div className="pager">
+              <button
+                className="pagerBtn"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                type="button"
+              >
+                {t('collection.prev') || 'Anterior'}
+              </button>
 
-            <div className="pagerInfo">
-              {page} / {totalPages}
+              <div className="pagerInfo">
+                {page} / {totalPages}
+              </div>
+
+              <button
+                className="pagerBtn"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                type="button"
+              >
+                {t('collection.next') || 'Siguiente'}
+              </button>
             </div>
-
-            <button
-              className="pagerBtn"
-              disabled={page >= totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              type="button"
-            >
-              {t('collection.next') || 'Siguiente'}
-            </button>
           </div>
-        </div>
+        )}
       </main>
 
       <Footer />

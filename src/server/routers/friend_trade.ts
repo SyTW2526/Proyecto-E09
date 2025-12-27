@@ -78,11 +78,9 @@ friendTradeRoomsRouter.post(
         (id: any) => id.toString() === friend._id.toString()
       );
       if (!isFriend) {
-        return res
-          .status(400)
-          .send({
-            error: 'Sólo puedes invitar a usuarios que sean tus amigos',
-          });
+        return res.status(400).send({
+          error: 'Sólo puedes invitar a usuarios que sean tus amigos',
+        });
       }
 
       if (friend._id.equals(me._id)) {

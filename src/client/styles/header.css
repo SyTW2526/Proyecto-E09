@@ -4,8 +4,11 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(251, 252, 254, 0.92);
-  backdrop-filter: blur(10px);
+  background-color: var(--panel-bg);
+  color: var(--text);
+  transition:
+    background-color 0.3s,
+    color 0.3s;
   border-bottom: 1px solid var(--border);
 }
 
@@ -103,14 +106,17 @@
   position: relative;
   padding: 10px 8px;
   text-decoration: none;
-  color: rgb(0, 0, 0);
+  color: var(--text);
   font-weight: 800;
   font-size: clamp(15px, 1.05vw, 19px);
   line-height: 1;
   background: transparent;
   border: 0;
   cursor: pointer;
-  transition: color 160ms ease;
+  transition:
+    color 0.3s,
+    background 160ms ease,
+    transform 160ms ease;
 }
 
 .topNav__link::after {
@@ -129,7 +135,7 @@
 }
 
 .topNav__link:hover {
-  color: rgb(0, 0, 0);
+  color: var(--text);
 }
 .topNav__link:hover::after {
   background: rgba(48, 120, 211, 0.85);
@@ -137,7 +143,7 @@
 }
 
 .topNav__link.is-active {
-  color: rgb(0, 0, 0);
+  color: var(--text);
 }
 .topNav__link.is-active::after {
   background: rgb(48, 120, 211);
@@ -231,10 +237,10 @@
   top: calc(100% + 12px);
   left: 0;
   min-width: 280px;
-  background: var(--panel-bg);
-  border: 1px solid var(--card-border);
+  background-color: var(--panel-bg);
+  border: 1px solid var(--border);
   border-radius: 14px;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 10px;
   font-family:
     Manrope,
@@ -276,14 +282,22 @@
   cursor: pointer;
   font-weight: 800;
   font-size: 16px;
-  color: rgb(0, 0, 0);
-  transition: background 160ms ease;
+  color: var(--text);
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 .menu__item:hover {
-  background: rgba(149, 167, 231, 0.18);
+  background-color: color-mix(in srgb, var(--primary) 15%, transparent 85%);
+  color: var(--text);
 }
 .menu__item--danger {
-  color: rgb(200, 36, 52);
+  color: var(--secondary);
+}
+
+.menu__item--danger:hover {
+  background-color: var(--secondary);
+  color: var(--background);
 }
 
 .searchDrop {
@@ -291,10 +305,10 @@
   top: calc(100% + 12px);
   left: 0;
   right: 0;
-  background: var(--panel-bg);
-  border: 1px solid var(--card-border);
+  background-color: var(--panel-bg);
+  border: 1px solid var(--border);
   border-radius: 14px;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 .searchDrop__state {
@@ -319,9 +333,14 @@
   background: transparent;
   cursor: pointer;
   text-align: left;
+  color: var(--text);
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 .searchItem:hover {
-  background: rgba(48, 120, 211, 0.06);
+  background-color: var(--primary);
+  color: var(--background);
 }
 
 .searchItem__img {
@@ -384,7 +403,8 @@
 .mobileNav {
   display: none;
   border-top: 1px solid var(--border);
-  background: var(--bg);
+  background-color: var(--panel-bg);
+  color: var(--text);
   padding: 10px 18px 16px;
 }
 .mobileNav__link {
@@ -392,7 +412,7 @@
   padding: 12px 10px;
   border-radius: 12px;
   text-decoration: none;
-  color: rgb(0, 0, 0);
+  color: var(--text);
   font-weight: 900;
   font-family:
     Manrope,
@@ -402,9 +422,10 @@
     Roboto,
     Arial,
     sans-serif;
+  transition: color 0.3s;
 }
 .mobileNav__link:hover {
-  background: rgba(149, 167, 231, 0.18);
+  color: var(--primary);
 }
 
 @media (max-width: 980px) {
@@ -448,4 +469,71 @@
   .mobileNav {
     display: none !important;
   }
+}
+.notification-dropdown,
+.language-dropdown {
+  background-color: var(--panel-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.18);
+}
+
+.notification-dropdown h3,
+.notification-dropdown h4 {
+  color: var(--text);
+}
+
+.notification-dropdown p {
+  color: var(--text-muted);
+}
+
+.notification-dropdown > div:first-child {
+  background-color: var(--panel-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.notification-dropdown > div > div {
+  transition: background-color 0.2s ease;
+}
+
+.notification-dropdown > div > div:hover {
+  background-color: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+.notification-dropdown > div > div[data-unread='true'] {
+  background-color: color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+.notification-dropdown button svg,
+.language-dropdown button svg {
+  color: var(--text);
+}
+
+.language-dropdown button {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.language-dropdown button:hover {
+  background-color: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--text);
+}
+
+.language-dropdown button.is-active {
+  background-color: color-mix(in srgb, var(--primary) 18%, transparent);
+  color: #0f172a;
+}
+
+.language-dropdown button.is-active:hover {
+  background-color: color-mix(in srgb, var(--primary) 22%, transparent);
 }

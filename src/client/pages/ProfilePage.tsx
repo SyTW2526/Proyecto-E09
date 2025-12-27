@@ -38,7 +38,9 @@ const ProfilePage: React.FC = () => {
   if (!user) {
     return (
       <div className="loading-container">
-        <p className="loading-text">{t('profile.loading')}</p>
+        <p className="loading-text">
+          {t('profile.loading', 'Loading profile...')}
+        </p>
       </div>
     );
   }
@@ -60,9 +62,15 @@ const ProfilePage: React.FC = () => {
         );
         setUser(updatedUser);
         authService.saveUser(updatedUser);
-        showToast('success', t('profile.photoUpdated'));
+        showToast(
+          'success',
+          t('profile.photoUpdated', 'Profile photo updated successfully.')
+        );
       } catch {
-        showToast('error', t('profile.errorUpdatingPhoto'));
+        showToast(
+          'error',
+          t('profile.errorUpdatingPhoto', 'Error updating profile photo.')
+        );
       }
     };
 
@@ -74,6 +82,8 @@ const ProfilePage: React.FC = () => {
     username: user.username,
     email: user.email,
   });
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeletingPhoto, setIsDeletingPhoto] = useState(false);
 
   const saveProfile = async () => {
     try {
@@ -84,13 +94,19 @@ const ProfilePage: React.FC = () => {
       setUser(updatedUser);
       authService.saveUser(updatedUser);
       setIsEditing(false);
-      showToast('success', t('profile.saved'));
+      showToast('success', t('profile.saved', 'Profile saved successfully.'));
     } catch (err: any) {
       if (err?.message === 'USERNAME_EXISTS')
-        return showToast('error', t('profile.usernameExists'));
+        return showToast(
+          'error',
+          t('profile.usernameExists', 'This username already exists.')
+        );
       if (err?.message === 'EMAIL_EXISTS')
-        return showToast('error', t('profile.emailExists'));
-      showToast('error', t('profile.saveError'));
+        return showToast(
+          'error',
+          t('profile.emailExists', 'This email already exists.')
+        );
+      showToast('error', t('profile.saveError', 'Error saving profile.'));
     }
   };
 
@@ -155,19 +171,7 @@ const ProfilePage: React.FC = () => {
 
               <button
                 className="profile-btn profile-btn-red"
-                onClick={async () => {
-                  if (!confirm(t('profile.confirmDeletePhoto'))) return;
-
-                  try {
-                    const updatedUser = await authService.deleteProfileImage(
-                      user.username
-                    );
-                    setUser(updatedUser);
-                    showToast('success', t('profile.photoDeleted'));
-                  } catch {
-                    showToast('error', t('profile.errorDeletePhoto'));
-                  }
-                }}
+                onClick={() => setIsDeletingPhoto(true)}
               >
                 {t('profile.deletePhoto')}
               </button>
@@ -192,17 +196,7 @@ const ProfilePage: React.FC = () => {
 
               <button
                 className="profile-btn-red profile-delete-account"
-                onClick={async () => {
-                  if (!confirm(t('profile.confirmDeleteAccount'))) return;
-
-                  try {
-                    await authService.deleteAccount(user.username);
-                    showToast('success', t('profile.accountDeleted'));
-                    setTimeout(() => (window.location.href = '/'), 1200);
-                  } catch {
-                    showToast('error', t('profile.errorDeleteAccount'));
-                  }
-                }}
+                onClick={() => setIsDeleting(true)}
               >
                 {t('profile.deleteAccount')}
               </button>
@@ -213,10 +207,6 @@ const ProfilePage: React.FC = () => {
         <div className="profile-lists">
           <section className="profile-section">
             <h2 className="section-title">{t('profile.wishlist')}</h2>
-
-            {wishlist.length === 0 && (
-              <p className="section-empty">{t('profile.noWishlist')}</p>
-            )}
 
             {wishlist.length > 0 && (
               <>
@@ -229,23 +219,27 @@ const ProfilePage: React.FC = () => {
                   ))}
                 </div>
 
-                <div className="pagination-controls">
-                  <button
-                    disabled={wishlistPage <= 1}
-                    onClick={() => setWishlistPage((p) => p - 1)}
-                  >
-                    {t('profile.prev')}
-                  </button>
-                  <span>
-                    {wishlistPage} / {wishlistTotalPages}
-                  </span>
-                  <button
-                    disabled={wishlistPage >= wishlistTotalPages}
-                    onClick={() => setWishlistPage((p) => p + 1)}
-                  >
-                    {t('profile.next')}
-                  </button>
-                </div>
+                {wishlistTotalPages > 1 && (
+                  <div className="pagination-controls">
+                    <button
+                      disabled={wishlistPage <= 1}
+                      onClick={() => setWishlistPage((p) => p - 1)}
+                    >
+                      {t('profile.prev')}
+                    </button>
+
+                    <span>
+                      {wishlistPage} / {wishlistTotalPages}
+                    </span>
+
+                    <button
+                      disabled={wishlistPage >= wishlistTotalPages}
+                      onClick={() => setWishlistPage((p) => p + 1)}
+                    >
+                      {t('profile.next')}
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </section>
@@ -254,7 +248,9 @@ const ProfilePage: React.FC = () => {
             <h2 className="section-title">{t('profile.tradeList')}</h2>
 
             {tradeList.length === 0 && (
-              <p className="section-empty">{t('profile.noTrade')}</p>
+              <p className="section-empty">
+                {t('profile.noTrade', 'You have no cards available for trade.')}
+              </p>
             )}
 
             {tradeList.length > 0 && (
@@ -306,9 +302,13 @@ const ProfilePage: React.FC = () => {
               ✕
             </button>
 
-            <h2 className="modal-title">{t('profile.editProfile')}</h2>
+            <h2 className="modal-title">
+              {t('profile.editProfile', 'Edit Profile')}
+            </h2>
 
-            <label className="modal-label">{t('profile.username')}</label>
+            <label className="modal-label">
+              {t('profile.username', 'Username')}
+            </label>
             <input
               className="modal-input"
               value={editData.username}
@@ -317,7 +317,7 @@ const ProfilePage: React.FC = () => {
               }
             />
 
-            <label className="modal-label">{t('profile.email')}</label>
+            <label className="modal-label">{t('profile.email', 'Email')}</label>
             <input
               className="modal-input"
               value={editData.email}
@@ -331,7 +331,7 @@ const ProfilePage: React.FC = () => {
                 className="profile-btn-red"
                 onClick={() => setIsEditing(false)}
               >
-                {t('profile.cancel')}
+                {t('profile.cancel', 'Cancel')}
               </button>
 
               <button
@@ -339,7 +339,112 @@ const ProfilePage: React.FC = () => {
                 onClick={saveProfile}
                 disabled={!hasChanges}
               >
-                {t('profile.save')}
+                {t('profile.save', 'Save')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {isDeleting && (
+        <div className="modal-overlay" onClick={() => setIsDeleting(false)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <h2 className="modal-title">
+              {t('profile.confirmDeleteTitle', 'Eliminar cuenta')}
+            </h2>
+
+            <p className="modal-text">
+              {t(
+                'profile.confirmDeleteAccount',
+                'Esta acción es permanente. Se eliminarán tu cuenta y todos tus datos.'
+              )}
+            </p>
+
+            <div className="modal-buttons">
+              <button
+                className="profile-btn"
+                onClick={() => setIsDeleting(false)}
+              >
+                {t('profile.cancel', 'Cancelar')}
+              </button>
+
+              <button
+                className="profile-btn-red"
+                onClick={async () => {
+                  try {
+                    await authService.deleteAccount(user.username);
+                    showToast(
+                      'success',
+                      t('profile.accountDeleted', 'Cuenta eliminada')
+                    );
+                    setTimeout(() => (window.location.href = '/'), 1200);
+                  } catch {
+                    showToast(
+                      'error',
+                      t(
+                        'profile.errorDeleteAccount',
+                        'Error al eliminar la cuenta'
+                      )
+                    );
+                  }
+                }}
+              >
+                {t('profile.deleteAccount', 'Eliminar cuenta')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {isDeletingPhoto && (
+        <div
+          className="modal-overlay"
+          onClick={() => setIsDeletingPhoto(false)}
+        >
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <h2 className="modal-title">
+              {t('profile.confirmDeletePhotoTitle', 'Eliminar foto de perfil')}
+            </h2>
+
+            <p className="modal-text">
+              {t(
+                'profile.confirmDeletePhoto',
+                'Se eliminará tu foto de perfil y se restaurará el avatar por defecto.'
+              )}
+            </p>
+
+            <div className="modal-buttons">
+              <button
+                className="profile-btn"
+                onClick={() => setIsDeletingPhoto(false)}
+              >
+                {t('profile.cancel', 'Cancelar')}
+              </button>
+
+              <button
+                className="profile-btn-red"
+                onClick={async () => {
+                  try {
+                    const updatedUser = await authService.deleteProfileImage(
+                      user.username
+                    );
+                    setUser(updatedUser);
+                    authService.saveUser(updatedUser);
+                    showToast(
+                      'success',
+                      t('profile.photoDeleted', 'Foto eliminada correctamente')
+                    );
+                    setIsDeletingPhoto(false);
+                  } catch {
+                    showToast(
+                      'error',
+                      t(
+                        'profile.errorDeletePhoto',
+                        'Error al eliminar la foto de perfil'
+                      )
+                    );
+                  }
+                }}
+              >
+                {t('profile.deletePhoto', 'Eliminar foto')}
               </button>
             </div>
           </div>

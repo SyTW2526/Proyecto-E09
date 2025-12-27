@@ -60,12 +60,14 @@ const TradePage: React.FC = () => {
         );
         const data = await res.json();
         if (!res.ok) {
-          setTradeError(data?.error || t('tradeRoom.errorSalaNoEncontrada'));
+          setTradeError(
+            data?.error || t('tradeRoom.roomNotFound', 'Room not found.')
+          );
           return;
         }
         setTrade(data);
       } catch (e) {
-        setTradeError(t('tradeRoom.errorCargarIntercambio'));
+        setTradeError(t('tradeRoom.errorLoadingTrade', 'Error loading trade.'));
       } finally {
         setLoadingTrade(false);
       }
@@ -118,12 +120,14 @@ const TradePage: React.FC = () => {
     };
 
     const onTradeCompleted = () => {
-      window.alert(t('tradeRoom.tradeCompleted'));
+      window.alert(
+        t('tradeRoom.tradeCompleted', 'Trade completed successfully.')
+      );
       navigate('/discover');
     };
 
     const onTradeRejected = () => {
-      window.alert(t('tradeRoom.tradeRejected'));
+      window.alert(t('tradeRoom.tradeRejected', 'Trade rejected.'));
       navigate('/discover');
     };
 
@@ -222,7 +226,9 @@ const TradePage: React.FC = () => {
 
   const handleSelectCard = (card: UserCard) => {
     if (forcedCard && card.id !== forcedCard.id) {
-      window.alert(t('tradeRoom.cardForcedOnly'));
+      window.alert(
+        t('tradeRoom.cardForcedOnly', 'You can only select the requested card.')
+      );
       return;
     }
 
@@ -233,11 +239,13 @@ const TradePage: React.FC = () => {
   const handleAccept = async () => {
     try {
       if (!trade) {
-        window.alert(t('tradeRoom.noTradeLoaded'));
+        window.alert(t('tradeRoom.noTradeLoaded', 'No trade loaded.'));
         return;
       }
       if (!selectedCard || !opponentCard) {
-        window.alert(t('tradeRoom.mustSelectBoth'));
+        window.alert(
+          t('tradeRoom.mustSelectBoth', 'Both users must select a card.')
+        );
         return;
       }
 
@@ -261,36 +269,63 @@ const TradePage: React.FC = () => {
 
       if (!res.ok) {
         if (data?.error === 'TRADE_VALUE_DIFF_TOO_HIGH') {
-          window.alert(t('tradeRoom.errorValueDiff'));
+          window.alert(
+            t(
+              'tradeRoom.errorValueDiff',
+              'The value difference between cards is too high.'
+            )
+          );
         } else if (data?.error === 'REQUESTED_CARD_MISMATCH') {
-          window.alert(t('tradeRoom.errorRequestedMismatch'));
+          window.alert(
+            t(
+              'tradeRoom.errorRequestedMismatch',
+              'The selected card does not match the requested card.'
+            )
+          );
         } else {
-          window.alert(data?.error || t('tradeRoom.errorCompleteTrade'));
+          window.alert(
+            data?.error ||
+              t('tradeRoom.errorCompleteTrade', 'Error completing the trade.')
+          );
         }
         return;
       }
 
       if (data.message === 'WAITING_OTHER_USER') {
-        window.alert(t('tradeRoom.waitingOtherUser'));
+        window.alert(
+          t(
+            'tradeRoom.waitingOtherUser',
+            'Waiting for the other user to confirm.'
+          )
+        );
         return;
       }
 
       if (data.message === 'TRADE_COMPLETED') {
-        window.alert(t('tradeRoom.tradeCompleted'));
+        window.alert(
+          t('tradeRoom.tradeCompleted', 'Trade completed successfully.')
+        );
         navigate('/discover');
         return;
       }
 
-      window.alert(t('tradeRoom.unexpectedResponse'));
+      window.alert(
+        t(
+          'tradeRoom.unexpectedResponse',
+          'Unexpected response from the server.'
+        )
+      );
     } catch {
-      window.alert(t('tradeRoom.errorCompleteTrade'));
+      window.alert(
+        t('tradeRoom.errorCompleteTrade', 'Error completing the trade.')
+      );
     }
   };
 
   const handleReject = async () => {
     try {
       if (!trade) {
-        window.alert(t('tradeRoom.noTradeLoaded'));
+        window.alert(t('tradeRoom.noTradeLoaded', 'No trade loaded.'));
         return;
       }
 
@@ -306,14 +341,17 @@ const TradePage: React.FC = () => {
 
       const data = await res.json();
       if (!res.ok) {
-        window.alert(data?.error || t('tradeRoom.errorReject'));
+        window.alert(
+          data?.error ||
+            t('tradeRoom.errorReject', 'Error rejecting the trade.')
+        );
         return;
       }
 
-      window.alert(t('tradeRoom.tradeRejected'));
+      window.alert(t('tradeRoom.tradeRejected', 'Trade rejected.'));
       navigate('/discover');
     } catch {
-      window.alert(t('tradeRoom.errorReject'));
+      window.alert(t('tradeRoom.errorReject', 'Error rejecting the trade.'));
     }
   };
   if (!user || !authService.isAuthenticated()) {
@@ -321,7 +359,9 @@ const TradePage: React.FC = () => {
       <div className="trade-page">
         <Header />
         <main className="trade-main">
-          <p>{t('tradeRoom.mustLogin')}</p>
+          <p>
+            {t('tradeRoom.mustLogin', 'You must log in to access this page.')}
+          </p>
         </main>
         <Footer />
       </div>
@@ -333,7 +373,7 @@ const TradePage: React.FC = () => {
       <div className="trade-page">
         <Header />
         <main className="trade-main">
-          <p>{t('tradeRoom.loadingRoom')}</p>
+          <p>{t('tradeRoom.loadingRoom', 'Loading trade room...')}</p>
         </main>
         <Footer />
       </div>
@@ -345,7 +385,7 @@ const TradePage: React.FC = () => {
       <div className="trade-page">
         <Header />
         <main className="trade-main">
-          <p>{tradeError || t('tradeRoom.roomNotFound')}</p>
+          <p>{tradeError || t('tradeRoom.roomNotFound', 'Room not found.')}</p>
         </main>
         <Footer />
       </div>
@@ -365,20 +405,20 @@ const TradePage: React.FC = () => {
           <section className="trade-left">
             <h2 className="trade-title">{pageTitle}</h2>
             <p className="trade-room-code">
-              {t('tradeRoom.roomCode')}: <b>{roomCode}</b>
+              {t('tradeRoom.roomCode', 'Room Code')}: <b>{roomCode}</b>
             </p>
 
             <div className="trade-fight">
               <div className="player-block">
                 <img src={userImage} className="player-avatar" />
-                <p className="player-name">{t('tradeRoom.you')}</p>
+                <p className="player-name">{t('tradeRoom.you', 'You')}</p>
 
                 <div className="player-card">
                   {selectedCard ? (
                     <img src={selectedCard.image} className="selected-card" />
                   ) : (
                     <span className="no-card">
-                      {t('tradeRoom.selectYourCard')}
+                      {t('tradeRoom.selectYourCard', 'Select your card')}
                     </span>
                   )}
                 </div>
@@ -389,7 +429,7 @@ const TradePage: React.FC = () => {
               <div className="player-block">
                 <img src={opponentImage} className="player-avatar" />
                 <p className="player-name opponent">
-                  {opponentName || t('tradeRoom.otherUser')}
+                  {opponentName || t('tradeRoom.otherUser', 'Other User')}
                 </p>
 
                 <div className="player-card">
@@ -397,7 +437,10 @@ const TradePage: React.FC = () => {
                     <img src={opponentCard.image} className="selected-card" />
                   ) : (
                     <span className="no-card">
-                      {t('tradeRoom.waitingOpponentCard')}
+                      {t(
+                        'tradeRoom.waitingOpponentCard',
+                        "Waiting for opponent's card"
+                      )}
                     </span>
                   )}
                 </div>
@@ -434,8 +477,8 @@ const TradePage: React.FC = () => {
           <aside className="trade-chat">
             <h3 className="chat-title">
               {isFriendPrivateRoom
-                ? t('tradeRoom.privateChat')
-                : t('tradeRoom.chat')}
+                ? t('tradeRoom.privateChat', 'Private Chat')
+                : t('tradeRoom.chat', 'Chat')}
             </h3>
 
             <div className="chat-window">
@@ -454,7 +497,8 @@ const TradePage: React.FC = () => {
                     >
                       {m.user !== username && (
                         <p className="sender-name">
-                          {opponentName || t('tradeRoom.otherUser')}
+                          {opponentName ||
+                            t('tradeRoom.otherUser', 'Other User')}
                         </p>
                       )}
                       <p>{m.text}</p>
@@ -470,22 +514,25 @@ const TradePage: React.FC = () => {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={
                   isFriendPrivateRoom
-                    ? t('tradeRoom.placeholderFriend')
-                    : t('tradeRoom.placeholder')
+                    ? t(
+                        'tradeRoom.placeholderFriend',
+                        'Send a message to your friend...'
+                      )
+                    : t('tradeRoom.placeholder', 'Send a message...')
                 }
                 className="chat-input"
               />
               <button onClick={handleSend} className="chat-send">
-                {t('tradeRoom.send')}
+                {t('tradeRoom.send', 'Send')}
               </button>
             </div>
 
             <div className="trade-actions">
               <button className="btn-accept" onClick={handleAccept}>
-                {t('tradeRoom.acceptTrade')}
+                {t('tradeRoom.acceptTrade', 'Accept Trade')}
               </button>
               <button className="btn-reject" onClick={handleReject}>
-                {t('tradeRoom.rejectTrade')}
+                {t('tradeRoom.rejectTrade', 'Reject Trade')}
               </button>
             </div>
           </aside>

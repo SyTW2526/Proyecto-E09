@@ -516,17 +516,17 @@ const DiscoverTradeCards: React.FC = () => {
               </div>
 
               <div className="attr-box">
-                <div className="attr-label">Set</div>
+                <div className="attr-label">{t('discover.set')}</div>
                 <div className="attr-value">{card.set}</div>
               </div>
 
               <div className="attr-box">
-                <div className="attr-label">HP</div>
+                <div className="attr-label">{t('discover.hp')}</div>
                 <div className="attr-value">{card.hp}</div>
               </div>
 
               <div className="attr-box">
-                <div className="attr-label">Cantidad</div>
+                <div className="attr-label">{t('discover.quantity')}</div>
                 <div className="attr-value">
                   {card.owners.reduce((s, o) => s + o.quantity, 0)}
                 </div>
@@ -534,12 +534,14 @@ const DiscoverTradeCards: React.FC = () => {
             </div>
 
             <div className="card-back-section">
-              <div className="card-back-section-title">Ilustrador</div>
+              <div className="card-back-section-title">
+                {t('discover.illustrator')}
+              </div>
               <div className="attr-value">{card.illustrator || '—'}</div>
             </div>
 
             <div className={`price-box ${highlightGold ? 'gold-border' : ''}`}>
-              <div className="price-label">Precio estimado</div>
+              <div className="price-label">{t('discover.estimatedPrice')}</div>
               <div className="price-value">
                 {card.price?.mid ? card.price.mid.toFixed(2) + '€' : '—'}
               </div>
@@ -552,7 +554,7 @@ const DiscoverTradeCards: React.FC = () => {
                 onProposeTrade(card);
               }}
             >
-              Proponer intercambio
+              {t('discover.proposeTrade')}
             </button>
           </div>
         </div>
@@ -631,16 +633,19 @@ const DiscoverTradeCards: React.FC = () => {
       const data = await resp.json();
 
       if (!resp.ok) {
-        alert(data.error || 'Error enviando solicitud.');
+        alert(
+          data.error ||
+            t('common.errorSendingRequest', 'Error enviando solicitud.')
+        );
         return;
       }
 
-      alert('Solicitud enviada.');
+      alert(t('common.requestSent', 'Solicitud enviada.'));
       setSelectedCardForTrade(null);
       setMessageModalVisible(false);
     } catch (err) {
       console.error(err);
-      alert('Error enviando solicitud.');
+      alert(t('common.errorSendingRequest', 'Error enviando solicitud.'));
     }
   };
 
@@ -676,41 +681,49 @@ const DiscoverTradeCards: React.FC = () => {
 
       if (!resp.ok) {
         if (data.error === 'TRADE_VALUE_DIFF_TOO_HIGH') {
-          alert('La diferencia de valor entre cartas es demasiado alta.');
+          alert(
+            t(
+              'common.tradeValueDiffTooHigh',
+              'La diferencia de valor entre cartas es demasiado alta.'
+            )
+          );
           return;
         }
-        alert(data.error || 'Error enviando solicitud.');
+        alert(
+          data.error ||
+            t('common.errorSendingRequest', 'Error enviando solicitud.')
+        );
         return;
       }
 
-      alert('Solicitud enviada con carta.');
+      alert(t('common.requestSentWithCard', 'Solicitud enviada con carta.'));
       setOfferModalVisible(false);
       setSelectedCardForTrade(null);
     } catch (err) {
       console.error(err);
-      alert('Error al enviar solicitud.');
+      alert(t('common.errorSendingRequest', 'Error enviando solicitud.'));
     }
   };
 
   const totalResults = filteredAndSorted.length;
 
   const sortByOptions: Opt[] = [
-    { value: 'name', label: 'Nombre' },
-    { value: 'price', label: 'Precio' },
+    { value: 'name', label: t('discover.sortByName') || 'Nombre' },
+    { value: 'price', label: t('discover.sortByPrice') || 'Precio' },
   ];
 
   const sortDirOptions: Opt[] = [
-    { value: 'asc', label: 'Ascendente' },
-    { value: 'desc', label: 'Descendente' },
+    { value: 'asc', label: t('discover.sortAsc') || 'Ascendente' },
+    { value: 'desc', label: t('discover.sortDesc') || 'Descendente' },
   ];
 
   const rarityOptions: Opt[] = [
-    { value: 'all', label: 'Todas' },
+    { value: 'all', label: t('common.all', 'Todas') },
     ...availableRarities.map((r) => ({ value: r, label: r })),
   ];
 
   const setOptions: Opt[] = [
-    { value: 'all', label: 'Todos' },
+    { value: 'all', label: t('common.all', 'Todos') },
     ...availableSets.map((s) => ({ value: s, label: s })),
   ];
 
@@ -720,11 +733,8 @@ const DiscoverTradeCards: React.FC = () => {
 
       <main className="discover-main">
         <div className="discover-header">
-          <h1 className="discover-title">Descubrir cartas</h1>
-          <p className="discover-subtitle">
-            Explora las cartas que otros usuarios han marcado como disponibles
-            para intercambio.
-          </p>
+          <h1 className="discover-title">{t('discover.title')}</h1>
+          <p className="discover-subtitle">{t('discover.subtitle')}</p>
         </div>
 
         <div className="collectionToolbar discoverToolbar">
@@ -735,7 +745,7 @@ const DiscoverTradeCards: React.FC = () => {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar por carta, usuario…"
+                placeholder={t('discover.searchPlaceholder')}
                 className="searchInput searchInput--right discoverSearchInput"
               />
             </div>
@@ -745,8 +755,8 @@ const DiscoverTradeCards: React.FC = () => {
                 className="iconBtn"
                 onClick={() => setShowFilters((v) => !v)}
                 type="button"
-                aria-label="Filtros"
-                title="Filtros"
+                aria-label={t('discover.filters')}
+                title={t('discover.filters')}
               >
                 <SlidersHorizontal size={18} />
               </button>
@@ -758,8 +768,8 @@ const DiscoverTradeCards: React.FC = () => {
                       className="panelCloseBtn"
                       onClick={() => setShowFilters(false)}
                       type="button"
-                      aria-label="Cerrar"
-                      title="Cerrar"
+                      aria-label={t('common.close')}
+                      title={t('common.close')}
                     >
                       <X size={16} />
                     </button>
@@ -767,7 +777,7 @@ const DiscoverTradeCards: React.FC = () => {
 
                   <div className="panelBody">
                     <div className="panelField discoverField">
-                      <span>Ordenar por</span>
+                      <span>{t('discover.sortBy')}</span>
                       <SelectPro
                         value={sortBy}
                         options={sortByOptions}
@@ -777,7 +787,7 @@ const DiscoverTradeCards: React.FC = () => {
                     </div>
 
                     <div className="panelField discoverField">
-                      <span>Dirección</span>
+                      <span>{t('discover.direction')}</span>
                       <SelectPro
                         value={sortDir}
                         options={sortDirOptions}
@@ -787,7 +797,7 @@ const DiscoverTradeCards: React.FC = () => {
                     </div>
 
                     <div className="panelField discoverField">
-                      <span>Rareza</span>
+                      <span>{t('common.rarity')}</span>
                       <SelectPro
                         value={rarityFilter}
                         options={rarityOptions}
@@ -797,7 +807,7 @@ const DiscoverTradeCards: React.FC = () => {
                     </div>
 
                     <div className="panelField discoverField">
-                      <span>Set</span>
+                      <span>{t('discover.set')}</span>
                       <SelectPro
                         value={setFilter}
                         options={setOptions}
@@ -813,7 +823,9 @@ const DiscoverTradeCards: React.FC = () => {
                         onChange={(e) => setGroupBySet(e.target.checked)}
                       />
                       <span className="discoverGroupUi" />
-                      <span className="discoverGroupText">Agrupar por set</span>
+                      <span className="discoverGroupText">
+                        {t('discover.groupBySet')}
+                      </span>
                     </label>
                   </div>
 
@@ -830,20 +842,24 @@ const DiscoverTradeCards: React.FC = () => {
                         setSearch('');
                       }}
                     >
-                      Limpiar
+                      {t('common.clear')}
                     </button>
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="viewToggles" role="group" aria-label="Grid density">
+            <div
+              className="viewToggles"
+              role="group"
+              aria-label={t('discover.gridDensity')}
+            >
               <button
                 className={gridMode === 'normal' ? 'isActive' : ''}
                 aria-pressed={gridMode === 'normal'}
                 onClick={() => setGridMode('normal')}
                 type="button"
-                title="Normal"
+                title={t('discover.gridNormal')}
               >
                 <LayoutGrid size={18} />
               </button>
@@ -853,7 +869,7 @@ const DiscoverTradeCards: React.FC = () => {
                 aria-pressed={gridMode === 'large'}
                 onClick={() => setGridMode('large')}
                 type="button"
-                title="Grande"
+                title={t('discover.gridLarge')}
               >
                 <Grid2X2 size={18} />
               </button>
@@ -862,17 +878,17 @@ const DiscoverTradeCards: React.FC = () => {
         </div>
 
         <div className="discoverResultsLine">
-          Resultados{' '}
+          {t('discover.results')}{' '}
           <span className="discoverResultsBadge">{totalResults}</span>
         </div>
 
         <div className={`discover-content grid-${gridMode}`}>
-          {loading && <div className="discover-empty">Cargando cartas…</div>}
+          {loading && (
+            <div className="discover-empty">{t('discover.loading')}</div>
+          )}
           {error && !loading && <div className="discover-empty">{error}</div>}
           {!loading && !error && totalResults === 0 && (
-            <div className="discover-empty">
-              No hay cartas disponibles con esos filtros.
-            </div>
+            <div className="discover-empty">{t('discover.noResults')}</div>
           )}
 
           {!loading && !error && totalResults > 0 && !groupBySet && (
@@ -894,7 +910,7 @@ const DiscoverTradeCards: React.FC = () => {
                     disabled={paginatedFlat.safe <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                   >
-                    Anterior
+                    {t('common.prev')}
                   </button>
 
                   <div className="pagerInfo">
@@ -906,7 +922,7 @@ const DiscoverTradeCards: React.FC = () => {
                     disabled={paginatedFlat.safe >= paginatedFlat.totalPages}
                     onClick={() => setPage((p) => p + 1)}
                   >
-                    Siguiente
+                    {t('common.next')}
                   </button>
                 </div>
               </div>
@@ -946,7 +962,7 @@ const DiscoverTradeCards: React.FC = () => {
                     disabled={paginatedSets.safe <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                   >
-                    Anterior
+                    {t('common.prev')}
                   </button>
 
                   <div className="pagerInfo">
@@ -958,7 +974,7 @@ const DiscoverTradeCards: React.FC = () => {
                     disabled={paginatedSets.safe >= paginatedSets.totalPages}
                     onClick={() => setPage((p) => p + 1)}
                   >
-                    Siguiente
+                    {t('common.next')}
                   </button>
                 </div>
               </div>

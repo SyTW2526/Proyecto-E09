@@ -18,7 +18,7 @@ const AuthHeader: React.FC<AuthHeaderProps> = ({ onSignIn, onSignUp }) => {
         <div className="siteHeader__left">
           <a href="/" className="brand">
             <span className="brand__text brand__text--gradient">
-              CARDS&nbsp;AMI
+              {t('header.brand')}
             </span>
           </a>
         </div>
@@ -28,7 +28,7 @@ const AuthHeader: React.FC<AuthHeaderProps> = ({ onSignIn, onSignUp }) => {
         <div className="siteHeader__right">
           <nav className="topNav">
             <button onClick={onSignIn} className="topNav__link" type="button">
-              {t('header.iniciarSesion')}
+              {t('header.signIn')}
             </button>
 
             <button
@@ -36,7 +36,7 @@ const AuthHeader: React.FC<AuthHeaderProps> = ({ onSignIn, onSignUp }) => {
               className="topNav__link topNav__link--btn"
               type="button"
             >
-              {t('header.crearCuenta')}
+              {t('header.signUp')}
             </button>
           </nav>
 

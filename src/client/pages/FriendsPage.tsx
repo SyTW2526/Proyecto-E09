@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import { initSocket } from '../socket';
 import { authService } from '../services/authService';
 import '../styles/friends.css';
+import { useTranslation } from 'react-i18next';
 
 interface User {
   id: string;
@@ -37,6 +38,7 @@ interface Message {
 }
 
 const FriendsPage: React.FC = () => {
+  const { t } = useTranslation();
   const user = authService.getUser() as User | null;
   const token = localStorage.getItem('token');
   if (!user || !token) return null;
@@ -185,28 +187,25 @@ const FriendsPage: React.FC = () => {
   const showConfirmToast = (message: string, onConfirm: () => void) => {
     setToast({
       visible: true,
-      message,
+      message: t('friends.confirmRemove', { username: message }),
       action: onConfirm,
     });
   };
 
   const removeFriend = (friend: Friend) => {
-    showConfirmToast(
-      `¿Eliminar a ${friend.username} de tus amigos?`,
-      async () => {
-        await fetch(`http://localhost:3000/friends/remove/${friend._id}`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    showConfirmToast(friend.username, async () => {
+      await fetch(`http://localhost:3000/friends/remove/${friend._id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        setToast({ visible: false, message: '' });
-        setActiveFriend(null);
-        setMessages([]);
-        loadAll();
-      }
-    );
+      setToast({ visible: false, message: '' });
+      setActiveFriend(null);
+      setMessages([]);
+      loadAll();
+    });
   };
 
   const handleSearch = async () => {
@@ -223,20 +222,20 @@ const FriendsPage: React.FC = () => {
       <Header />
 
       <main className="friendsMain">
-        <h1 className="friendsTitle">Amigos</h1>
+        <h1 className="friendsTitle">{t('friends.title')}</h1>
 
         <div className="friendsTabs">
           <button
             className={view === 'chat' ? 'isActive' : ''}
             onClick={() => setView('chat')}
           >
-            Mis amigos
+            {t('friends.myFriends')}
           </button>
           <button
             className={view === 'requests' ? 'isActive' : ''}
             onClick={() => setView('requests')}
           >
-            Solicitudes
+            {t('friends.requests')}
           </button>
         </div>
 
@@ -245,17 +244,19 @@ const FriendsPage: React.FC = () => {
             <div className="trade-requests-main">
               <div className="trade-requests-columns">
                 <section className="trade-panel">
-                  <h3 className="trade-panel-title">Buscar usuarios</h3>
+                  <h3 className="trade-panel-title">
+                    {t('friends.searchUsers')}
+                  </h3>
 
                   <input
                     className="discover-search-input"
-                    placeholder="Buscar usuarios…"
+                    placeholder={t('friends.searchPlaceholder')}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
 
                   <button className="btn-blue-small" onClick={handleSearch}>
-                    Buscar
+                    {t('friends.search')}
                   </button>
 
                   {searchResults.length === 0 ? null : (
@@ -276,7 +277,7 @@ const FriendsPage: React.FC = () => {
                               className="btn-accent-small"
                               onClick={() => sendFriendRequest(u._id)}
                             >
-                              Añadir amigo
+                              {t('friends.addFriend')}
                             </button>
                           </div>
                         </div>
@@ -286,10 +287,10 @@ const FriendsPage: React.FC = () => {
                 </section>
 
                 <section className="trade-panel">
-                  <h3 className="trade-panel-title">Recibidas</h3>
+                  <h3 className="trade-panel-title">{t('friends.received')}</h3>
 
                   {received.length === 0 ? (
-                    <div className="trade-empty">No tienes solicitudes</div>
+                    <div className="trade-empty">{t('friends.noRequests')}</div>
                   ) : (
                     <div className="trade-list">
                       {received.map((r) => (
@@ -308,13 +309,13 @@ const FriendsPage: React.FC = () => {
                               className="btn-blue-small"
                               onClick={() => accept(r.userId)}
                             >
-                              Aceptar
+                              {t('friends.accept')}
                             </button>
                             <button
                               className="btn-red-small"
                               onClick={() => reject(r.userId)}
                             >
-                              Rechazar
+                              {t('friends.reject')}
                             </button>
                           </div>
                         </div>
@@ -324,11 +325,11 @@ const FriendsPage: React.FC = () => {
                 </section>
 
                 <section className="trade-panel">
-                  <h3 className="trade-panel-title">Enviadas</h3>
+                  <h3 className="trade-panel-title">{t('friends.sent')}</h3>
 
                   {sent.length === 0 ? (
                     <div className="trade-empty">
-                      No has enviado solicitudes
+                      {t('friends.noSentRequests')}
                     </div>
                   ) : (
                     <div className="trade-list">
@@ -348,7 +349,7 @@ const FriendsPage: React.FC = () => {
                               className="btn-gray-small"
                               onClick={() => cancel(r._id)}
                             >
-                              Cancelar
+                              {t('friends.cancel')}
                             </button>
                           </div>
                         </div>
@@ -364,7 +365,7 @@ const FriendsPage: React.FC = () => {
         {view === 'chat' && (
           <div className="friendsChatLayout">
             <aside className="friendsList">
-              <h3>MIS AMIGOS</h3>
+              <h3>{t('friends.myFriends')}</h3>
               {friends.map((f) => (
                 <div
                   key={f._id}
@@ -376,7 +377,7 @@ const FriendsPage: React.FC = () => {
 
                   <button
                     className="removeFriendBtn"
-                    title="Eliminar amigo"
+                    title={t('friends.removeFriend')}
                     onClick={(e) => {
                       e.stopPropagation();
                       removeFriend(f);
@@ -390,7 +391,7 @@ const FriendsPage: React.FC = () => {
 
             <section className="friendsChat">
               {!activeFriend ? (
-                <div className="chatEmpty">Selecciona un amigo</div>
+                <div className="chatEmpty">{t('friends.selectFriend')}</div>
               ) : (
                 <>
                   <header className="chatHeader">
@@ -418,7 +419,7 @@ const FriendsPage: React.FC = () => {
 
                   <div className="chatComposer">
                     <textarea
-                      placeholder="Escribe un mensaje..."
+                      placeholder={t('friends.writeMessage')}
                       value={messageInput}
                       onChange={(e) => {
                         setMessageInput(e.target.value);
@@ -439,7 +440,7 @@ const FriendsPage: React.FC = () => {
                       onClick={sendMessage}
                       disabled={!messageInput.trim()}
                     >
-                      Enviar
+                      {t('friends.send')}
                     </button>
                   </div>
                 </>
@@ -460,11 +461,11 @@ const FriendsPage: React.FC = () => {
                 className="toastCancel"
                 onClick={() => setToast({ visible: false, message: '' })}
               >
-                Cancelar
+                {t('common.cancel')}
               </button>
 
               <button className="toastConfirm" onClick={toast.action}>
-                Eliminar
+                {t('friends.remove')}
               </button>
             </div>
           </div>

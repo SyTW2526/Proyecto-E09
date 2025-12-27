@@ -408,6 +408,14 @@
   background: rgba(48, 120, 211, 0.14);
   border-color: rgba(48, 120, 211, 0.4);
 }
+.dark .discoverGroupRow input:checked + .discoverGroupUi {
+  background: rgba(48, 120, 211, 0.3);
+  border-color: rgba(48, 120, 211, 0.6);
+}
+.dark .discoverGroupRow input:checked + .discoverGroupUi::after {
+  background: var(--primary);
+  border-color: rgba(48, 120, 211, 0.8);
+}
 .discoverGroupRow input:checked + .discoverGroupUi::after {
   left: 21px;
   border-color: rgba(48, 120, 211, 0.4);
@@ -760,4 +768,31 @@
   .selectList--twoCol {
     column-count: 1;
   }
+}
+
+.discoverGroupRow input + .discoverGroupUi {
+  border: 1px solid rgba(48, 120, 211, 0.6);
+}
+
+.dark .discoverGroupRow input + .discoverGroupUi {
+  border: 1px solid rgba(48, 120, 211, 0.8);
+}
+
+.discoverGroupRow input + .discoverGroupUi::after {
+  background: rgba(48, 120, 211, 0.6);
+  border: 1px solid rgba(48, 120, 211, 0.8);
+}
+
+.dark .discoverGroupRow input + .discoverGroupUi::after {
+  background: rgba(48, 120, 211, 0.8);
+  border: 1px solid rgba(48, 120, 211, 1);
+}
+
+.discoverGroupRow input:checked + .discoverGroupUi {
+  border-color: rgba(48, 120, 211, 1);
+}
+
+.discoverGroupRow input:checked + .discoverGroupUi::after {
+  background: rgba(48, 120, 211, 1);
+  border-color: rgba(48, 120, 211, 1);
 }

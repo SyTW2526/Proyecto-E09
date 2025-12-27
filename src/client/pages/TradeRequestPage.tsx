@@ -87,11 +87,16 @@ const TradeRequestsPage: React.FC = () => {
 
       if (!recResp.ok) {
         const data = await recResp.json().catch(() => ({}));
-        throw new Error(data.error || t('tradeReq.errorReceived'));
+        throw new Error(
+          data.error ||
+            t('tradeReq.errorReceived', 'Error loading received requests.')
+        );
       }
       if (!sentResp.ok) {
         const data = await sentResp.json().catch(() => ({}));
-        throw new Error(data.error || t('tradeReq.errorSent'));
+        throw new Error(
+          data.error || t('tradeReq.errorSent', 'Error loading sent requests.')
+        );
       }
 
       const recData = await recResp.json();
@@ -100,7 +105,13 @@ const TradeRequestsPage: React.FC = () => {
       setReceivedRequests(recData.requests || []);
       setSentRequests(sentData.requests || []);
     } catch (e: any) {
-      setError(e.message || t('tradeReq.errorGeneral'));
+      setError(
+        e.message ||
+          t(
+            'tradeReq.errorGeneral',
+            'An error occurred while loading trade requests.'
+          )
+      );
     } finally {
       setLoading(false);
     }
@@ -135,7 +146,15 @@ const TradeRequestsPage: React.FC = () => {
     });
   }, [receivedRequests, sentRequests]);
   const handleAccept = async (requestId: string) => {
-    if (!confirm(t('tradeReq.confirmAccept'))) return;
+    if (
+      !confirm(
+        t(
+          'tradeReq.confirmAccept',
+          'Are you sure you want to accept this request?'
+        )
+      )
+    )
+      return;
 
     try {
       const resp = await fetch(
@@ -153,7 +172,7 @@ const TradeRequestsPage: React.FC = () => {
       if (data.privateRoomCode) {
         navigate(`/trade-room/${data.privateRoomCode}`);
       } else {
-        alert(t('tradeReq.accepted'));
+        alert(t('tradeReq.accepted', 'Request accepted successfully.'));
         await loadRequests();
       }
     } catch (e: any) {
@@ -162,7 +181,15 @@ const TradeRequestsPage: React.FC = () => {
   };
 
   const handleReject = async (requestId: string) => {
-    if (!confirm(t('tradeReq.confirmReject'))) return;
+    if (
+      !confirm(
+        t(
+          'tradeReq.confirmReject',
+          'Are you sure you want to reject this request?'
+        )
+      )
+    )
+      return;
 
     try {
       const resp = await fetch(
@@ -176,7 +203,7 @@ const TradeRequestsPage: React.FC = () => {
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok) throw new Error(data.error || t('tradeReq.errorReject'));
 
-      alert(t('tradeReq.rejected'));
+      alert(t('tradeReq.rejected', 'Request rejected.'));
       loadRequests();
     } catch (e: any) {
       alert(e.message || t('tradeReq.errorReject'));
@@ -184,7 +211,15 @@ const TradeRequestsPage: React.FC = () => {
   };
 
   const handleCancel = async (requestId: string) => {
-    if (!confirm(t('tradeReq.confirmCancel'))) return;
+    if (
+      !confirm(
+        t(
+          'tradeReq.confirmCancel',
+          'Are you sure you want to cancel this request?'
+        )
+      )
+    )
+      return;
 
     try {
       const resp = await fetch(
@@ -198,7 +233,7 @@ const TradeRequestsPage: React.FC = () => {
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok) throw new Error(data.error || t('tradeReq.errorCancel'));
 
-      alert(t('tradeReq.cancelled'));
+      alert(t('tradeReq.cancelled', 'Request cancelled.'));
       loadRequests();
     } catch (e: any) {
       alert(e.message || t('tradeReq.errorCancel'));
@@ -282,7 +317,9 @@ const TradeRequestsPage: React.FC = () => {
         </div>
 
         {loading && (
-          <p className="trade-requests-loading">{t('tradeReq.loading')}</p>
+          <p className="trade-requests-loading">
+            {t('tradeReq.loading', 'Loading trade requests...')}
+          </p>
         )}
 
         {error && !loading && <p className="trade-requests-error">{error}</p>}
@@ -290,10 +327,14 @@ const TradeRequestsPage: React.FC = () => {
         {!loading && !error && (
           <div className="trade-requests-columns">
             <section className="trade-panel">
-              <h2 className="trade-panel-title">{t('tradeReq.received')}</h2>
+              <h2 className="trade-panel-title">
+                {t('tradeReq.received', 'Received Requests')}
+              </h2>
 
               {activeReceived.length === 0 ? (
-                <p className="trade-empty">{t('tradeReq.noReceived')}</p>
+                <p className="trade-empty">
+                  {t('tradeReq.noReceived', 'No received requests.')}
+                </p>
               ) : (
                 <div className="trade-list">
                   {activeReceived.map((req) => (
@@ -324,12 +365,14 @@ const TradeRequestsPage: React.FC = () => {
                         </div>
 
                         <p className="trade-card-name">
-                          {req.cardName || t('tradeReq.noName')}
+                          {req.cardName ||
+                            t('tradeReq.noName', 'No name available')}
                         </p>
 
                         {req.note && (
                           <p className="trade-note">
-                            <span>{t('tradeReq.message')}:</span> {req.note}
+                            <span>{t('tradeReq.message', 'Message')}:</span>{' '}
+                            {req.note}
                           </p>
                         )}
 
@@ -365,10 +408,14 @@ const TradeRequestsPage: React.FC = () => {
             </section>
 
             <section className="trade-panel">
-              <h2 className="trade-panel-title">{t('tradeReq.sent')}</h2>
+              <h2 className="trade-panel-title">
+                {t('tradeReq.sent', 'Sent Requests')}
+              </h2>
 
               {activeSent.length === 0 ? (
-                <p className="trade-empty">{t('tradeReq.noSent')}</p>
+                <p className="trade-empty">
+                  {t('tradeReq.noSent', 'No sent requests.')}
+                </p>
               ) : (
                 <div className="trade-list">
                   {activeSent.map((req) => (
@@ -399,12 +446,14 @@ const TradeRequestsPage: React.FC = () => {
                         </div>
 
                         <p className="trade-card-name">
-                          {req.cardName || t('tradeReq.noName')}
+                          {req.cardName ||
+                            t('tradeReq.noName', 'No name available')}
                         </p>
 
                         {req.note && (
                           <p className="trade-note">
-                            <span>{t('tradeReq.message')}:</span> {req.note}
+                            <span>{t('tradeReq.message', 'Message')}:</span>{' '}
+                            {req.note}
                           </p>
                         )}
 
@@ -431,10 +480,14 @@ const TradeRequestsPage: React.FC = () => {
               )}
             </section>
             <section className="trade-panel trade-panel-history">
-              <h2 className="trade-panel-title">{t('tradeReq.history')}</h2>
+              <h2 className="trade-panel-title">
+                {t('tradeReq.history', 'History')}
+              </h2>
 
               {historyCombined.length === 0 ? (
-                <p className="trade-empty">{t('tradeReq.noHistory')}</p>
+                <p className="trade-empty">
+                  {t('tradeReq.noHistory', 'No trade history available.')}
+                </p>
               ) : (
                 <div className="trade-list">
                   {historyCombined.map((req: any) => {
@@ -474,12 +527,14 @@ const TradeRequestsPage: React.FC = () => {
                           </div>
 
                           <p className="trade-card-name">
-                            {req.cardName || t('tradeReq.noName')}
+                            {req.cardName ||
+                              t('tradeReq.noName', 'No name available')}
                           </p>
 
                           {req.note && (
                             <p className="trade-note">
-                              <span>{t('tradeReq.message')}:</span> {req.note}
+                              <span>{t('tradeReq.message', 'Message')}:</span>{' '}
+                              {req.note}
                             </p>
                           )}
 
@@ -490,12 +545,15 @@ const TradeRequestsPage: React.FC = () => {
                           <div className="trade-actions">
                             {req.tradeId?.status === 'completed' && (
                               <span className="history-chip">
-                                {t('tradeReq.tradeDone')}
+                                {t('tradeReq.tradeDone', 'Trade completed')}
                               </span>
                             )}
                             {req.tradeId?.status === 'cancelled' && (
                               <span className="history-chip">
-                                {t('tradeReq.tradeCancelled')}
+                                {t(
+                                  'tradeReq.tradeCancelled',
+                                  'Trade cancelled'
+                                )}
                               </span>
                             )}
                           </div>

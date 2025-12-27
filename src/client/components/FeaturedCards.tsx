@@ -303,7 +303,7 @@ const FeaturedCards: React.FC = () => {
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
                       <div className="text-xs text-gray-600 dark:text-gray-300">
-                        {t('common.rarity')}
+                        {t('common.rarity', 'Rarity')}
                       </div>
                       <div className="font-semibold text-gray-600 dark:text-gray-100">
                         {card.rarity || '—'}
@@ -311,7 +311,7 @@ const FeaturedCards: React.FC = () => {
                     </div>
                     <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
                       <div className="text-xs text-gray-600 dark:text-gray-300">
-                        {t('common.set')}
+                        {t('common.set', 'Set')}
                       </div>
                       <div className="font-semibold text-gray-600 dark:text-gray-100">
                         {card.set || '—'}
@@ -319,7 +319,7 @@ const FeaturedCards: React.FC = () => {
                     </div>
                     <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
                       <div className="text-xs text-gray-600 dark:text-gray-300">
-                        {t('common.hp')}
+                        {t('common.hp', 'HP')}
                       </div>
                       <div className="font-semibold text-gray-600 dark:text-gray-100">
                         {card.hp || '—'}
@@ -329,7 +329,8 @@ const FeaturedCards: React.FC = () => {
 
                   <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
                     <div className="text-sm text-gray-700 dark:text-gray-300">
-                      Ilustrador: {card.illustrator || '—'}
+                      {t('common.illustrator', 'Illustrator')}:{' '}
+                      {card.illustrator || '—'}
                     </div>
                   </div>
                 </div>
@@ -339,7 +340,7 @@ const FeaturedCards: React.FC = () => {
                     <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
                       <div className="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-gray-600">
                         <span className="font-bold text-lg text-gray-800 dark:text-gray-100">
-                          Precio:
+                          {t('common.price', 'Price')}:
                         </span>
                         <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                           {card.price?.mid
@@ -399,9 +400,14 @@ const FeaturedCards: React.FC = () => {
   return (
     <section className="featured-wrapper">
       <div className="text-center mb-8">
-        <h2 className="featured-heading">{t('featured.title')}</h2>
+        <h2 className="featured-heading">
+          {t('featured.title', 'Featured Cards')}
+        </h2>
         <p className="featured-description">
-          Selección de cartas populares entre coleccionistas.
+          {t(
+            'featured.description',
+            'A selection of popular cards among collectors.'
+          )}
         </p>
       </div>
 

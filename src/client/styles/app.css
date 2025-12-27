@@ -511,3 +511,110 @@ html.dark a:hover {
     flex: 0 0 100%;
   }
 }
+
+.siteFooter {
+  background-color: var(--panel-bg);
+  color: var(--text);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.dark-mode .siteFooter {
+  color: #ffffff;
+}
+
+.footerContent {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.footerLeft,
+.footerCenter,
+.footerRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.darkModeToggle {
+  background-color: var(--primary);
+  color: var(--background);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.darkModeToggle:hover {
+  background-color: var(--secondary);
+}
+
+.notificationBell {
+  background-color: var(--panel-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.notificationBell:hover {
+  background-color: var(--primary);
+  color: var(--background);
+}
+
+.dark-mode .notificationBell {
+  background-color: var(--panel-bg);
+  color: #ffffff;
+}
+
+.languageSelector {
+  background-color: var(--panel-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.languageSelector:hover {
+  background-color: var(--primary);
+  color: var(--background);
+}
+
+.dark-mode .languageSelector {
+  background-color: var(--panel-bg);
+  color: #ffffff;
+}
+
+.featurePage,
+.homePage {
+  background-color: color-mix(in srgb, var(--primary) 5%, transparent 95%);
+}
+html.dark .footer-bg,
+html.dark .footer-title,
+html.dark .footer-link,
+html.dark .footer-link-simple {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+html.dark .footer-link:hover,
+html.dark .footer-link-simple:hover {
+  color: var(--primary);
+}

@@ -122,3 +122,38 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.feature {
+  background-color: var(--background);
+  color: var(--text);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.dark-mode .feature {
+  color: #ffffff;
+}
+
+.featureCard {
+  background-color: var(--card-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: 8px;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.dark-mode .featureCard {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
+
+html.dark .featured-card .pokemon-card-back h3 {
+  color: #ffffff !important;
+}

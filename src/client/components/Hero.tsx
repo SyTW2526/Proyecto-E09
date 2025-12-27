@@ -11,15 +11,18 @@ const Hero: React.FC = () => {
         <h1 className="home-hero-brand">CARDS AMI</h1>
 
         <p className="home-hero-tagline">
-          Descubre el mundo Pokémon a través de nuestras cartas
+          {t(
+            'hero.tagline',
+            'Descubre el mundo Pokémon a través de nuestras cartas'
+          )}
         </p>
 
         <div className="home-hero-actions">
           <a href="/discover" className="hero-btn hero-btn-primary">
-            Explorar cartas
+            {t('hero.explore', 'Explorar cartas')}
           </a>
           <a href="/collection" className="hero-btn hero-btn-secondary">
-            Mi colección
+            {t('hero.myCollection', 'Mi colección')}
           </a>
         </div>
       </div>

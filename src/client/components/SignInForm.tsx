@@ -45,11 +45,11 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSwitch }) => {
   return (
     <>
       <h2 className="text-4xl font-bold text-sky-700 mb-4 text-center">
-        {t('signIn.titulo')}
+        {t('signIn.title', 'Sign In')}
       </h2>
 
       <p className="text-gray-500 mb-10 text-center text-lg">
-        {t('signIn.subtitulo')}
+        {t('signIn.subtitle', 'Access your account to explore more.')}
       </p>
 
       <form
@@ -65,14 +65,14 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSwitch }) => {
         {/* Username */}
         <div className="w-4/5 flex flex-col">
           <label className="text-base font-semibold mb-2 ml-1">
-            {t('signIn.usernameLabel')}
+            {t('signIn.usernameLabel', 'Username')}
           </label>
           <input
             type="text"
             name="username"
             value={formData.username}
             onChange={handleInputChange}
-            placeholder={t('signIn.usernamePlaceholder')}
+            placeholder={t('signIn.usernamePlaceholder', 'Enter your username')}
             className="px-4 py-2.5 border rounded-lg"
           />
         </div>
@@ -80,14 +80,14 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSwitch }) => {
         {/* Password */}
         <div className="w-4/5 flex flex-col">
           <label className="text-base font-semibold mb-2 ml-1">
-            {t('signIn.passwordLabel')}
+            {t('signIn.passwordLabel', 'Password')}
           </label>
           <input
             type="password"
             name="password"
             value={formData.password}
             onChange={handleInputChange}
-            placeholder={t('signIn.passwordPlaceholder')}
+            placeholder={t('signIn.passwordPlaceholder', 'Enter your password')}
             className="px-4 py-2.5 border rounded-lg"
           />
         </div>
@@ -97,7 +97,9 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSwitch }) => {
           disabled={loading}
           className="w-4/5 mt-6 bg-linear-to-r from-sky-600 to-blue-600 text-white font-semibold py-3 rounded-lg disabled:opacity-50"
         >
-          {loading ? t('signIn.botonCargando') : t('signIn.botonEntrar')}
+          {loading
+            ? t('signIn.loadingButton', 'Loading...')
+            : t('signIn.signInButton', 'Sign In')}
         </button>
       </form>
 
@@ -107,7 +109,8 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSwitch }) => {
           onClick={onSwitch}
           className="mt-8 text-sm font-semibold text-sky-600 hover:underline text-center w-full"
         >
-          {t('signUp.yaTengoCuenta')} {t('signUp.iniciarSesion')}
+          {t('signUp.haveAccount', 'Already have an account?')}{' '}
+          {t('signUp.signIn', 'Sign In')}
         </button>
       )}
     </>

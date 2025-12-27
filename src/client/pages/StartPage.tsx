@@ -17,7 +17,7 @@ const StartPage: React.FC = () => {
   }, [modal]);
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-blue-100 to-white dark:from-gray-900 dark:to-gray-950">
+    <div className="min-h-screen bg-[radial-gradient(900px_500px_at_50%_-200px,rgba(48,120,211,0.06),transparent_60%)] dark:bg-[radial-gradient(900px_500px_at_50%_-200px,rgba(48,120,211,0.10),#0f172a_60%)]">
       <Header
         onSignIn={() => setModal('signin')}
         onSignUp={() => setModal('signup')}

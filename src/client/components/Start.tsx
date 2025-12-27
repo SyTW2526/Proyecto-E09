@@ -28,11 +28,14 @@ const Start: React.FC<StartProps> = ({ onStart }) => {
           />
 
           <h1 className="text-5xl md:text-6xl font-extrabold text-sky-700 dark:text-sky-400">
-            {t('start.titulo')}
+            {t('start.title', 'Welcome to Cards AMI')}
           </h1>
 
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl">
-            {t('start.subtitulo')}
+            {t(
+              'start.subtitle',
+              'Collect, trade, and explore the world of Pokémon cards.'
+            )}
           </p>
 
           <button
@@ -55,7 +58,7 @@ const Start: React.FC<StartProps> = ({ onStart }) => {
               text-lg
             "
           >
-            {t('start.empezar')}
+            {t('start.getStarted', 'Get Started')}
           </button>
         </div>
 
@@ -69,10 +72,13 @@ const Start: React.FC<StartProps> = ({ onStart }) => {
             "
           >
             <h3 className="text-xl font-bold text-sky-700 mb-3 dark:text-sky-400">
-              {t('start.colecciona')}
+              {t('start.collect', 'Collect')}
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
-              {t('start.coleccionaDesc')}
+              {t(
+                'start.collectDesc',
+                'Build your collection of Pokémon cards.'
+              )}
             </p>
           </div>
 
@@ -85,10 +91,10 @@ const Start: React.FC<StartProps> = ({ onStart }) => {
             "
           >
             <h3 className="text-xl font-bold text-sky-700 mb-3 dark:text-sky-400">
-              {t('start.intercambia')}
+              {t('start.trade', 'Trade')}
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
-              {t('start.intercambiaDesc')}
+              {t('start.tradeDesc', 'Exchange cards with other collectors.')}
             </p>
           </div>
 
@@ -101,10 +107,10 @@ const Start: React.FC<StartProps> = ({ onStart }) => {
             "
           >
             <h3 className="text-xl font-bold text-sky-700 mb-3 dark:text-sky-400">
-              {t('start.explora')}
+              {t('start.explore', 'Explore')}
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
-              {t('start.exploraDesc')}
+              {t('start.exploreDesc', 'Discover rare and unique cards.')}
             </p>
           </div>
         </div>

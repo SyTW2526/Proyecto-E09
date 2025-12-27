@@ -85,11 +85,17 @@ const OpenPackPage: React.FC = () => {
   const openedCardsRef = useRef<HTMLDivElement | null>(null);
 
   const SET_OPTIONS = [
-    { id: 'me01', label: 'Mega Evolución (me01)' },
-    { id: 'sm9', label: 'Team Up (sm9)' },
-    { id: 'base1', label: 'Base Set (base1)' },
-    { id: 'bw9', label: 'Plasma Freeze (bw9)' },
-    { id: 'sv05', label: 'Temporal Forces (sv05)' },
+    {
+      id: 'me01',
+      label: t('openPack.setMegaEvolution', 'Mega Evolution (me01)'),
+    },
+    { id: 'sm9', label: t('openPack.setTeamUp', 'Team Up (sm9)') },
+    { id: 'base1', label: t('openPack.setBaseSet', 'Base Set (base1)') },
+    { id: 'bw9', label: t('openPack.setPlasmaFreeze', 'Plasma Freeze (bw9)') },
+    {
+      id: 'sv05',
+      label: t('openPack.setTemporalForces', 'Temporal Forces (sv05)'),
+    },
   ];
 
   const [selectedSet, setSelectedSet] = useState<string>(SET_OPTIONS[0].id);
@@ -224,7 +230,9 @@ const OpenPackPage: React.FC = () => {
       <Header />
       <div className="collection-inner">
         <div className="open-pack-title-wrapper">
-          <h2 className="open-pack-title">{t('header.abrir')}</h2>
+          <h2 className="open-pack-title">
+            {t('openPack.openPackTitle', 'Open Pack')}
+          </h2>
         </div>
 
         <div className="open-pack-content">
@@ -297,11 +305,11 @@ const OpenPackPage: React.FC = () => {
 
               {packStatus && (
                 <div className="open-pack-status">
-                  {t('openPack.available')}:{' '}
+                  {t('openPack.available', 'Available Packs')}:{' '}
                   <strong>{packStatus.remaining}</strong>
                   {packStatus.nextAllowed && (
                     <small>
-                      {t('openPack.nextAllowed')}:{' '}
+                      {t('openPack.nextAllowed', 'Next Pack Available')}:{' '}
                       {new Date(packStatus.nextAllowed).toLocaleString()}
                     </small>
                   )}
@@ -314,7 +322,7 @@ const OpenPackPage: React.FC = () => {
                     className="open-pack-reset-toggle"
                     onClick={() => setShowReset(true)}
                   >
-                    {t('openPack.code')}
+                    {t('openPack.code', 'Enter Reset Code')}
                   </button>
                 )}
 
@@ -329,7 +337,10 @@ const OpenPackPage: React.FC = () => {
                     </button>
 
                     <input
-                      placeholder={t('openPack.enterCode')}
+                      placeholder={t(
+                        'openPack.enterCode',
+                        'Enter your reset code'
+                      )}
                       value={resetCode}
                       onChange={(e) => setResetCode(e.target.value)}
                     />

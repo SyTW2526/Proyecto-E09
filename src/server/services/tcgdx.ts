@@ -1,24 +1,24 @@
 /**
  * @file tcgdx.ts
  * @description Utilidades para procesar respuestas de la API TCGdex
- * 
+ *
  * Proporciona funciones para:
  * - Sanitizar datos removiendo referencias circulares
  * - Determinar la categoría de la carta
  * - Extraer precios de diferentes mercados
  * - Normalizar URLs de imágenes
- * 
+ *
  * @module services/tcgdx
  */
 
 /**
  * Sanitiza objetos de tarjeta removiendo referencias circulares
  * Convierte el objeto a JSON y de vuelta a un objeto limpio
- * 
+ *
  * @template T
  * @param {T} input - Objeto de carta a sanitizar
  * @returns {T} Objeto sanitizado sin referencias circulares
- * 
+ *
  * @example
  * const sanitized = sanitizeBriefCard(rawCardData);
  */
@@ -46,7 +46,11 @@ export function sanitizeBriefCard<T extends Record<string, any>>(input: T): T {
     for (const k of Object.keys(input)) {
       const v = (input as any)[k];
       if (v && typeof v === 'object') {
-        try { out[k] = JSON.parse(JSON.stringify(v)); } catch { out[k] = undefined; }
+        try {
+          out[k] = JSON.parse(JSON.stringify(v));
+        } catch {
+          out[k] = undefined;
+        }
       } else {
         out[k] = v;
       }
@@ -58,16 +62,20 @@ export function sanitizeBriefCard<T extends Record<string, any>>(input: T): T {
 /**
  * Determina la categoría de una carta basándose en su tipo
  * Analiza el campo supertype para clasificar la carta
- * 
+ *
  * @param {Object} card - Objeto de carta de la API
  * @returns {'pokemon'|'trainer'|'energy'|'unknown'} Categoría de la carta
- * 
+ *
  * @example
  * const category = getCardCategory(cardData);
  * // Returns: 'pokemon' | 'trainer' | 'energy' | 'unknown'
  */
-export function getCardCategory(card: Record<string, any>): 'pokemon' | 'trainer' | 'energy' | 'unknown' {
-  const supertype = (card?.supertype || card?.type || '').toString().toLowerCase();
+export function getCardCategory(
+  card: Record<string, any>
+): 'pokemon' | 'trainer' | 'energy' | 'unknown' {
+  const supertype = (card?.supertype || card?.type || '')
+    .toString()
+    .toLowerCase();
   if (supertype.includes('pokemon')) return 'pokemon';
   if (supertype.includes('trainer')) return 'trainer';
   if (supertype.includes('energy')) return 'energy';
@@ -115,22 +123,39 @@ export function extractPrices(card: Record<string, any>) {
   if (card?.pricing?.tcgplayer) {
     const t = card.pricing.tcgplayer;
     // try holofoil.marketPrice, then midPrice or marketPrice
-    tcgplayerMarketPrice = t?.holofoil?.marketPrice ?? t?.holofoil?.midPrice ?? t?.marketPrice ?? t?.midPrice ?? null;
+    tcgplayerMarketPrice =
+      t?.holofoil?.marketPrice ??
+      t?.holofoil?.midPrice ??
+      t?.marketPrice ??
+      t?.midPrice ??
+      null;
   }
 
   // older/other shapes
   if (card?.cardmarket) {
     const cm = card.cardmarket;
-    cardmarketAvg = cardmarketAvg ?? (cm?.prices?.avg ?? cm?.prices?.average ?? cm?.avg ?? cm?.average ?? null);
+    cardmarketAvg =
+      cardmarketAvg ??
+      cm?.prices?.avg ??
+      cm?.prices?.average ??
+      cm?.avg ??
+      cm?.average ??
+      null;
   }
 
   if (card?.tcg) {
     const t = card.tcg;
-    tcgplayerMarketPrice = tcgplayerMarketPrice ?? (t?.prices?.market ?? t?.marketPrice ?? t?.prices?.mid ?? null);
+    tcgplayerMarketPrice =
+      tcgplayerMarketPrice ??
+      t?.prices?.market ??
+      t?.marketPrice ??
+      t?.prices?.mid ??
+      null;
   }
 
   if (card?.prices && typeof card.prices === 'object') {
-    cardmarketAvg = cardmarketAvg ?? (card.prices?.avg ?? card.prices?.average ?? null);
+    cardmarketAvg =
+      cardmarketAvg ?? card.prices?.avg ?? card.prices?.average ?? null;
   }
 
   if (typeof card.marketPrice === 'number') {

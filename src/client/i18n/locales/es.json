@@ -2,7 +2,7 @@
   "header": {
     "coleccion": "Colección",
     "intercambio": "Intercambio",
-     "account": "Cuenta",
+    "account": "Cuenta",
     "descubrirCartas": "Descubrir cartas",
     "solicitudes": "Solicitudes de intercambio",
     "crearSala": "Crear sala privada",
@@ -352,60 +352,59 @@
   "createRoom": {
     "title": "Crear sala privada",
     "subtitle": "Invita a un amigo y crea una sala privada de intercambio.",
-    
+
     "loading": "Cargando datos...",
     "mustLogin": "Debes iniciar sesión para crear una sala.",
-    
+
     "errorLoadingFriends": "Error cargando la lista de amigos.",
     "errorLoadingInvites": "Error cargando las invitaciones.",
     "errorSendingInvite": "Error enviando la invitación.",
     "errorAcceptInvite": "Error aceptando la invitación.",
     "errorRejectInvite": "Error rechazando la invitación.",
     "noRoomCode": "No se pudo obtener el código de sala.",
-    
+
     "inviteFriend": "Invitar amigo",
     "clickToSelect": "Haz clic para seleccionar",
     "searchPlaceholder": "Buscar amigo...",
     "noFriends": "No tienes amigos agregados.",
-    
+
     "createRoomButton": "Crear sala",
     "mustSelectFriend": "Debes seleccionar un amigo.",
     "inviteSent": "Invitación enviada.",
-    
+
     "receivedInvites": "Invitaciones recibidas",
     "noReceivedInvites": "No tienes invitaciones recibidas.",
-    
+
     "sentInvites": "Invitaciones enviadas",
     "noSentInvites": "No has enviado invitaciones.",
-    
+
     "history": "Historial",
     "emptyHistory": "No hay elementos en el historial.",
-    
+
     "from": "De",
     "to": "Para",
-    
+
     "accept": "Aceptar",
     "reject": "Rechazar",
-    
+
     "confirmAccept": "¿Aceptar esta invitación?",
     "confirmReject": "¿Rechazar esta invitación?",
-    
+
     "goRoom": "Ir a la sala",
     "roomUnavailable": "Sala no disponible",
-    
+
     "pending": "Pendiente",
     "accepted": "Aceptada",
     "rejectedStatus": "Rechazada",
     "cancelledStatus": "Cancelada",
     "completedStatus": "Completada",
     "tradeDone": "Intercambio realizado"
-
   },
 
   "openPack": {
     "close": "Cerrar",
     "code": "Código",
-    "reset": "Reset",
+    "enterCode": "Introduce el código",
     "cardsObtained": "Cartas obtenidas",
     "available": "Disponibles",
     "nextAllowed": "Siguiente permitido"
@@ -421,6 +420,5 @@
     "empty": "No hay cartas con esos filtros",
     "next": "Siguiente",
     "prev": "Anterior"
-
   }
 }

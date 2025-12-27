@@ -1,16 +1,3 @@
-.trade-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: white;
-  color: #111;
-}
-
-.dark .trade-page {
-  background: #111827;
-  color: #f3f4f6;
-}
-
 .trade-main {
   flex: 1;
   width: 100%;
@@ -29,7 +16,6 @@
     justify-content: space-between;
   }
 }
-
 
 .trade-left {
   flex: 1;
@@ -76,7 +62,7 @@
   height: 95px;
   border-radius: 50%;
   border: 4px solid white;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   object-fit: cover;
 }
 
@@ -202,30 +188,42 @@
 
 .trade-card {
   width: 130px;
-  padding: 0; 
-  background: white;
-  border: 2px solid #7dd3fc;
-  border-radius: 12px;
+  background: transparent; /* ⬅️ clave */
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
   cursor: pointer;
   overflow: hidden;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
-}
 
-.trade-card-img {
-  width: 100%;
-  display: block;
-}
+  display: flex;
+  flex-direction: column;
 
-.trade-card-title {
-  font-size: 0.78rem;
-  padding: 4px 6px 6px;
-  text-align: center;
-  color: #0f172a;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    border-color 0.12s ease;
 }
 
 .trade-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(15,23,42,0.18);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.15);
+  border-color: #cbd5e1; /* NO azul */
+}
+
+.trade-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.15);
+  border-color: #cbd5e1; /* NO azul */
+}
+
+.trade-card-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.trade-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
   border-color: #0ea5e9;
 }
 
@@ -276,22 +274,45 @@
 }
 
 .chat-bubble-2 {
-  padding: 12px 16px;
-  max-width: 75%;
-  border-radius: 14px;
-  font-size: 16px;
-  line-height: 1.4;
+  padding: 10px 14px;
+  max-width: 72%;
+  border-radius: 18px;
+  font-size: 15px;
+  line-height: 1.45;
 }
 
 .chat-bubble-2.self {
-  background: linear-gradient(to right, #0284c7, #0369a1);
+  background: linear-gradient(135deg, #0284c7, #0ea5e9);
   color: white;
+  border-bottom-right-radius: 6px;
 }
 
 .chat-bubble-2.other {
   background: white;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #e5e7eb;
   color: #0f172a;
+  border-bottom-left-radius: 6px;
+}
+
+.chat-bubble-2 {
+  padding: 10px 14px;
+  max-width: 72%;
+  border-radius: 18px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.chat-bubble-2.self {
+  background: linear-gradient(135deg, #0284c7, #0ea5e9);
+  color: white;
+  border-bottom-right-radius: 6px;
+}
+
+.chat-bubble-2.other {
+  background: white;
+  border: 1px solid #e5e7eb;
+  color: #0f172a;
+  border-bottom-left-radius: 6px;
 }
 
 .sender-name {
@@ -303,27 +324,35 @@
 .chat-input-row {
   display: flex;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 12px;
+  padding: 8px;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
 }
 
 .chat-input {
   flex: 1;
-  padding: 14px;
-  border-radius: 10px;
-  border: 1px solid #cbd5e1;
-}
-
-.chat-send {
-  background: #0284c7;
-  padding: 14px 22px;
-  font-weight: 700;
-  font-size: 17px;
-  color: white;
+  padding: 12px 14px;
   border-radius: 12px;
+  border: none;
+  font-size: 15px;
+  outline: none;
+}
+.dark .chat-input-row {
+  background: #020617;
+  border-color: #334155;
+}
+.chat-send {
+  background: linear-gradient(135deg, #0284c7, #0ea5e9);
+  padding: 12px 20px;
+  font-weight: 800;
+  font-size: 15px;
+  color: white;
+  border-radius: 14px;
   cursor: pointer;
   border: none;
-  transition: transform 0.1s ease, background 0.2s ease, box-shadow 0.15s ease;
-  box-shadow: 0 4px 10px rgba(15,23,42,0.2);
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.35);
 }
 
 .chat-send:hover {
@@ -331,10 +360,9 @@
 }
 
 .chat-send:active {
-  transform: scale(0.90);
+  transform: scale(0.9);
   background: #075985;
 }
-
 
 .trade-actions {
   display: flex;
@@ -353,8 +381,11 @@
   color: white;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(15,23,42,0.22);
-  transition: transform 0.1s ease, filter 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.22);
+  transition:
+    transform 0.1s ease,
+    filter 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .btn-accept {
@@ -369,13 +400,13 @@
 .btn-reject:hover:not(:disabled) {
   filter: brightness(1.05);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(15,23,42,0.28);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.28);
 }
 
 .btn-accept:active:not(:disabled),
 .btn-reject:active:not(:disabled) {
   transform: scale(0.95);
-  box-shadow: 0 3px 8px rgba(15,23,42,0.2);
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.2);
 }
 
 .btn-accept:disabled,
@@ -408,7 +439,7 @@
 .trade-card-disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 .dark .trade-page {
@@ -463,7 +494,6 @@
   border-color: #334155;
 }
 
-
 .dark .trade-user,
 .dark .trade-card-name,
 .dark .trade-note,
@@ -487,7 +517,7 @@
 }
 
 .dark .room-chip-disabled {
-  color: #d1d5db !important; 
+  color: #d1d5db !important;
 }
 
 .dark .btn-blue-small,

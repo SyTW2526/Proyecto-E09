@@ -1,13 +1,13 @@
 /**
  * @file cards.ts
  * @description Servicio de sincronización y gestión de cartas en la base de datos
- * 
+ *
  * Proporciona funciones para:
  * - Sincronizar cartas desde la API externa a MongoDB
  * - Actualizar información de cartas
  * - Crear nuevas cartas desde datos RAW de la API
  * - Normalizar y sanitizar datos de cartas
- * 
+ *
  * @requires Card - Modelo genérico de cartas
  * @requires PokemonCard - Modelo de cartas Pokémon
  * @requires TrainerCard - Modelo de cartas Entrenador
@@ -19,16 +19,20 @@ import { PokemonCard } from '../models/PokemonCard.js';
 import { TrainerCard } from '../models/TrainerCard.js';
 import { EnergyCard } from '../models/EnergyCard.js';
 import { getAllSets, getCardsBySet } from './pokemon.js';
-import { sanitizeBriefCard, getCardCategory, extractPrices } from '../services/tcgdx.js';
+import {
+  sanitizeBriefCard,
+  getCardCategory,
+  extractPrices,
+} from '../services/tcgdx.js';
 
 /**
  * Sincroniza todas las cartas desde la API externa hacia la base de datos local
  * Itera por todos los sets disponibles en TCGdex y guarda cada carta en su modelo específico
- * 
+ *
  * @async
  * @returns {Promise<number>} El número total de cartas procesadas
  * @throws {Error} Si hay problemas en la sincronización
- * 
+ *
  * @example
  * const count = await syncAllCards();
  * console.log(`${count} cartas sincronizadas`);
@@ -37,7 +41,7 @@ export async function syncAllCards() {
   console.log('Iniciando sincronización de cartas');
 
   const setsResponse = await getAllSets();
-  const sets = setsResponse.data ?? setsResponse; 
+  const sets = setsResponse.data ?? setsResponse;
 
   let count = 0;
 
@@ -75,17 +79,20 @@ export async function syncAllCards() {
                 series: c.set?.series || '',
                 set: c.set?.name || '',
                 rarity: c.rarity || '',
-                images: { small: c.images?.small || '', large: c.images?.large || '' },
+                images: {
+                  small: c.images?.small || '',
+                  large: c.images?.large || '',
+                },
                 illustrator: c.illustrator || c.artist || '',
                 price: {
                   cardmarketAvg: prices.cardmarketAvg,
                   tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
-                  avg: prices.avg ?? 0
+                  avg: prices.avg ?? 0,
                 },
                 nationalPokedexNumber: c.nationalPokedexNumbers?.[0] || null,
                 artist: c.artist || '',
                 cardNumber: c.number || '',
-                lastPriceUpdate: new Date()
+                lastPriceUpdate: new Date(),
               },
               { upsert: true, new: true, setDefaultsOnInsert: true }
             );
@@ -101,18 +108,21 @@ export async function syncAllCards() {
                 series: c.set?.series || '',
                 set: c.set?.name || '',
                 rarity: c.rarity || '',
-                images: { small: c.images?.small || '', large: c.images?.large || '' },
+                images: {
+                  small: c.images?.small || '',
+                  large: c.images?.large || '',
+                },
                 illustrator: c.illustrator || c.artist || '',
                 price: {
                   cardmarketAvg: prices.cardmarketAvg,
                   tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
-                  avg: prices.avg ?? 0
+                  avg: prices.avg ?? 0,
                 },
                 text: Array.isArray(c.text) ? c.text.join('\n') : c.text || '',
                 effect: c.effect || '',
                 artist: c.artist || '',
                 cardNumber: c.number || '',
-                lastPriceUpdate: new Date()
+                lastPriceUpdate: new Date(),
               },
               { upsert: true, new: true, setDefaultsOnInsert: true }
             );
@@ -125,21 +135,24 @@ export async function syncAllCards() {
                 name: c.name,
                 supertype: c.supertype || '',
                 subtype: c.subtype || '',
-                energyType: c?.energyType || (c?.subtype || ''),
+                energyType: c?.energyType || c?.subtype || '',
                 series: c.set?.series || '',
                 set: c.set?.name || '',
                 rarity: c.rarity || '',
-                images: { small: c.images?.small || '', large: c.images?.large || '' },
+                images: {
+                  small: c.images?.small || '',
+                  large: c.images?.large || '',
+                },
                 illustrator: c.illustrator || c.artist || '',
                 price: {
                   cardmarketAvg: prices.cardmarketAvg,
                   tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
-                  avg: prices.avg ?? 0
+                  avg: prices.avg ?? 0,
                 },
                 text: Array.isArray(c.text) ? c.text.join('\n') : c.text || '',
                 artist: c.artist || '',
                 cardNumber: c.number || '',
-                lastPriceUpdate: new Date()
+                lastPriceUpdate: new Date(),
               },
               { upsert: true, new: true, setDefaultsOnInsert: true }
             );
@@ -161,12 +174,12 @@ export async function syncAllCards() {
                 price: {
                   cardmarketAvg: prices.cardmarketAvg,
                   tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
-                  avg: prices.avg ?? 0
+                  avg: prices.avg ?? 0,
                 },
                 nationalPokedexNumber: c.nationalPokedexNumbers?.[0] || null,
                 artist: c.artist || '',
                 cardNumber: c.number || '',
-                lastPriceUpdate: new Date()
+                lastPriceUpdate: new Date(),
               },
               { upsert: true, new: true, setDefaultsOnInsert: true }
             );
@@ -174,15 +187,23 @@ export async function syncAllCards() {
 
           count++;
         } catch (err) {
-          console.error(`Error saving card ${c?.id || c?.name}:`, (err as Error).message ?? String(err));
+          console.error(
+            `Error saving card ${c?.id || c?.name}:`,
+            (err as Error).message ?? String(err)
+          );
         }
       }
     } catch (error) {
-      console.error(`Error al sincronizar el set ${setId}:`, (error as Error).message ?? String(error));
+      console.error(
+        `Error al sincronizar el set ${setId}:`,
+        (error as Error).message ?? String(error)
+      );
     }
   }
 
-  console.log(`Sincronización completada. Total de cartas procesadas: ${count}`);
+  console.log(
+    `Sincronización completada. Total de cartas procesadas: ${count}`
+  );
   return count;
 }
 
@@ -226,12 +247,12 @@ export async function upsertCardFromRaw(raw: any) {
         price: {
           cardmarketAvg: prices.cardmarketAvg,
           tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
-          avg: prices.avg ?? 0
+          avg: prices.avg ?? 0,
         },
         nationalPokedexNumber: c.nationalPokedexNumbers?.[0] || null,
         artist: c.artist || '',
         cardNumber: c.number || '',
-        lastPriceUpdate: new Date()
+        lastPriceUpdate: new Date(),
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
@@ -251,13 +272,13 @@ export async function upsertCardFromRaw(raw: any) {
         price: {
           cardmarketAvg: prices.cardmarketAvg,
           tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
-          avg: prices.avg ?? 0
+          avg: prices.avg ?? 0,
         },
         text: Array.isArray(c.text) ? c.text.join('\n') : c.text || '',
         effect: c.effect || '',
         artist: c.artist || '',
         cardNumber: c.number || '',
-        lastPriceUpdate: new Date()
+        lastPriceUpdate: new Date(),
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
@@ -269,7 +290,7 @@ export async function upsertCardFromRaw(raw: any) {
         name: c.name,
         supertype: c.supertype || '',
         subtype: c.subtype || '',
-        energyType: c?.energyType || (c?.subtype || ''),
+        energyType: c?.energyType || c?.subtype || '',
         series: c.set?.series || '',
         set: c.set?.name || '',
         rarity: c.rarity || '',
@@ -278,12 +299,12 @@ export async function upsertCardFromRaw(raw: any) {
         price: {
           cardmarketAvg: prices.cardmarketAvg,
           tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
-          avg: prices.avg ?? 0
+          avg: prices.avg ?? 0,
         },
         text: Array.isArray(c.text) ? c.text.join('\n') : c.text || '',
         artist: c.artist || '',
         cardNumber: c.number || '',
-        lastPriceUpdate: new Date()
+        lastPriceUpdate: new Date(),
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
@@ -303,12 +324,12 @@ export async function upsertCardFromRaw(raw: any) {
         price: {
           cardmarketAvg: prices.cardmarketAvg,
           tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
-          avg: prices.avg ?? 0
+          avg: prices.avg ?? 0,
         },
         nationalPokedexNumber: c.nationalPokedexNumbers?.[0] || null,
         artist: c.artist || '',
         cardNumber: c.number || '',
-        lastPriceUpdate: new Date()
+        lastPriceUpdate: new Date(),
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );

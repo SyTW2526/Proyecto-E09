@@ -3,7 +3,12 @@ import { Bell, X, CheckCheck } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { RootState } from '../../store/store';
-import {markAsRead,markAllAsRead,removeNotification, Notification } from '../../features/notifications/notificationsSlice';
+import {
+  markAsRead,
+  markAllAsRead,
+  removeNotification,
+  Notification,
+} from '../../features/notifications/notificationsSlice';
 
 const NotificationBell: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,10 +24,10 @@ const NotificationBell: React.FC = () => {
 
   useEffect(() => {
     if (unread > 0) {
-      const bell = document.getElementById("bell-icon");
+      const bell = document.getElementById('bell-icon');
       if (bell) {
-        bell.classList.add("ring");
-        setTimeout(() => bell.classList.remove("ring"), 800);
+        bell.classList.add('ring');
+        setTimeout(() => bell.classList.remove('ring'), 800);
       }
     }
   }, [unread]);
@@ -42,7 +47,6 @@ const NotificationBell: React.FC = () => {
     }
 
     return () => document.removeEventListener('mousedown', handleClickOutside);
-
   }, [isOpen]);
 
   const handleMarkAsRead = (notificationId: string) => {
@@ -80,7 +84,6 @@ const NotificationBell: React.FC = () => {
       {/* DROPDOWN */}
       {isOpen && (
         <div className="notification-dropdown absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white dark:bg-slate-800 rounded-lg shadow-2xl z-[9999] border border-gray-200 dark:border-gray-700">
-          
           {/* HEADER */}
           <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-gray-700 p-4 flex justify-between items-center">
             <h3 className="font-bold text-gray-800 dark:text-gray-100">
@@ -141,20 +144,20 @@ const NotificationBell: React.FC = () => {
                       )}
 
                       <button
-                        onClick={() => handleRemoveNotification(notification._id)}
+                        onClick={() =>
+                          handleRemoveNotification(notification._id)
+                        }
                         className="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 p-1"
                         title={t('common.delete')}
                       >
                         <X className="w-4 h-4" />
                       </button>
                     </div>
-
                   </div>
                 </div>
               ))
             )}
           </div>
-
         </div>
       )}
     </div>

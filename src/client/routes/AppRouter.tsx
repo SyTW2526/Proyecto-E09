@@ -1,17 +1,17 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import StartPage from "../pages/StartPage";
-import SignUpPage from "../pages/SignUpPage";
-import SignInPage from "../pages/SignInPage";
-import HomePage from "../pages/HomePage";
-import ProfilePage from "../pages/ProfilePage";
-import FriendsPage from "../pages/FriendsPage";
-import CollectionPage from "../pages/CollectionPage";
-import DiscoverTradePage from "../pages/DiscoverTradePage";
-import TradeRequestsPage from "../pages/TradeRequestPage";
-import TradePage from "../pages/TradePage";
-import CreateTradeRoomPage from "../pages/CreateRoomPage";
-import OpenPackPage from "../pages/OpenPackPage";
-import SearchPage from "../pages/SearchPage";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import StartPage from '../pages/StartPage';
+import SignUpPage from '../pages/SignUpPage';
+import SignInPage from '../pages/SignInPage';
+import HomePage from '../pages/HomePage';
+import ProfilePage from '../pages/ProfilePage';
+import FriendsPage from '../pages/FriendsPage';
+import CollectionPage from '../pages/CollectionPage';
+import DiscoverTradePage from '../pages/DiscoverTradePage';
+import TradeRequestsPage from '../pages/TradeRequestPage';
+import TradePage from '../pages/TradePage';
+import CreateTradeRoomPage from '../pages/CreateRoomPage';
+import OpenPackPage from '../pages/OpenPackPage';
+import SearchPage from '../pages/SearchPage';
 
 const AppRouter = () => {
   return (

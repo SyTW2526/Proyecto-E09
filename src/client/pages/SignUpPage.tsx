@@ -5,7 +5,7 @@ import SignUpForm from '../components/SignUpForm';
 const SignUpPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-linear-to-b from-blue-100 to-white">
-      <SignUpForm/>
+      <SignUpForm />
     </div>
   );
 };

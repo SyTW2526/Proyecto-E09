@@ -1,10 +1,10 @@
 /**
  * @file PokemonCard.ts
  * @description Modelo detallado de Cartas Pokémon con toda la información de juego
- * 
+ *
  * Almacena información completa de cartas Pokémon incluyendo ataques,
  * habilidades, debilidades, costos de retirada y más datos de juego.
- * 
+ *
  * @requires mongoose - ODM para MongoDB
  */
 
@@ -18,12 +18,15 @@ import mongoose from 'mongoose';
  * @property {string} damage - Daño infligido
  * @property {string} text - Descripción del efecto
  */
-const attackSchema = new mongoose.Schema({
-  name: String,
-  cost: [String],
-  damage: String,
-  text: String
-}, { _id: false });
+const attackSchema = new mongoose.Schema(
+  {
+    name: String,
+    cost: [String],
+    damage: String,
+    text: String,
+  },
+  { _id: false }
+);
 
 /**
  * Esquema de Habilidad
@@ -32,11 +35,14 @@ const attackSchema = new mongoose.Schema({
  * @property {string} text - Descripción de la habilidad
  * @property {string} type - Tipo de habilidad
  */
-const abilitySchema = new mongoose.Schema({
-  name: String,
-  text: String,
-  type: String
-}, { _id: false });
+const abilitySchema = new mongoose.Schema(
+  {
+    name: String,
+    text: String,
+    type: String,
+  },
+  { _id: false }
+);
 
 /**
  * Esquema de Debilidad/Resistencia
@@ -44,14 +50,17 @@ const abilitySchema = new mongoose.Schema({
  * @property {string} type - Tipo de Pokémon (fuego, agua, etc)
  * @property {string} value - Multiplicador de daño
  */
-const weaknessSchema = new mongoose.Schema({
-  type: String,
-  value: String
-}, { _id: false });
+const weaknessSchema = new mongoose.Schema(
+  {
+    type: String,
+    value: String,
+  },
+  { _id: false }
+);
 
 /**
  * Esquema principal de Carta Pokémon
- * 
+ *
  * @typedef {Object} PokemonCard
  * @property {string} pokemonTcgId - ID único de la API TCG
  * @property {string} name - Nombre del Pokémon
@@ -80,40 +89,46 @@ const weaknessSchema = new mongoose.Schema({
  * @property {Date} createdAt - Fecha de creación
  * @property {Date} updatedAt - Fecha de última actualización
  */
-const pokemonCardSchema = new mongoose.Schema({
-  pokemonTcgId: { type: String, required: true, unique: true, index: true },
-  name: { type: String, required: true },
-  supertype: { type: String },
-  subtype: { type: String },
-  hp: { type: String },
-  types: [{ type: String }],
-  evolvesFrom: { type: String },
-  abilities: [abilitySchema],
-  attacks: [attackSchema],
-  weaknesses: [weaknessSchema],
-  resistances: [weaknessSchema],
-  retreatCost: [{ type: String }],
-  series: { type: String },
-  set: { type: String },
-  rarity: { type: String },
-  images: {
-    small: String,
-    large: String
+const pokemonCardSchema = new mongoose.Schema(
+  {
+    pokemonTcgId: { type: String, required: true, unique: true, index: true },
+    name: { type: String, required: true },
+    supertype: { type: String },
+    subtype: { type: String },
+    hp: { type: String },
+    types: [{ type: String }],
+    evolvesFrom: { type: String },
+    abilities: [abilitySchema],
+    attacks: [attackSchema],
+    weaknesses: [weaknessSchema],
+    resistances: [weaknessSchema],
+    retreatCost: [{ type: String }],
+    series: { type: String },
+    set: { type: String },
+    rarity: { type: String },
+    images: {
+      small: String,
+      large: String,
+    },
+    illustrator: { type: String },
+    price: {
+      cardmarketAvg: { type: Number, default: null },
+      tcgplayerMarketPrice: { type: Number, default: null },
+      avg: { type: Number, default: 0 },
+    },
+    nationalPokedexNumber: { type: Number },
+    artist: { type: String },
+    cardNumber: { type: String },
+    marketPrice: { type: Number, default: 0 },
+    lastPriceUpdate: { type: Date },
+    category: {
+      type: String,
+      enum: ['pokemon', 'trainer', 'energy', 'unknown'],
+      default: 'pokemon',
+    },
   },
-  illustrator: { type: String },
-  price: {
-    cardmarketAvg: { type: Number, default: null },
-    tcgplayerMarketPrice: { type: Number, default: null },
-    avg: { type: Number, default: 0 }
-  },
-  nationalPokedexNumber: { type: Number },
-  artist: { type: String },
-  cardNumber: { type: String },
-  marketPrice: { type: Number, default: 0 },
-  lastPriceUpdate: { type: Date }
-  ,
-  category: { type: String, enum: ['pokemon','trainer','energy','unknown'], default: 'pokemon' }
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 /**
  * Modelo de Carta Pokémon exportado

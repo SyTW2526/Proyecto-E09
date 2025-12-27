@@ -5,25 +5,27 @@ import { Card } from '../models/Card.js';
 import { getCardsByName } from '../services/pokemon.js';
 export const userCardRouter = express.Router();
 
-userCardRouter.post("/usercards/import", async (req, res) => {
+userCardRouter.post('/usercards/import', async (req, res) => {
   try {
-    const { username, query = "", limit = 5, forTrade = true } = req.body;
+    const { username, query = '', limit = 5, forTrade = true } = req.body;
     const user = await User.findOne({ username });
-    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
     const apiResult = await getCardsByName(query);
     const rawCards = apiResult.data || [];
 
     if (!rawCards.length)
-      return res.status(404).json({ error: "No se encontraron cartas en la API" });
+      return res
+        .status(404)
+        .json({ error: 'No se encontraron cartas en la API' });
 
     const cards = rawCards
-      .filter((c:any) => c.images && (c.images.small || c.images.large))
+      .filter((c: any) => c.images && (c.images.small || c.images.large))
       .slice(0, limit);
 
     if (!cards.length)
       return res
         .status(404)
-        .json({ error: "No se encontraron cartas con imagen disponible" });
+        .json({ error: 'No se encontraron cartas con imagen disponible' });
 
     const createdUserCards = [];
 
@@ -35,10 +37,10 @@ userCardRouter.post("/usercards/import", async (req, res) => {
         localCard = await Card.create({
           name: c.name,
           imageUrl: image,
-          rarity: c.rarity || "Common",
+          rarity: c.rarity || 'Common',
           pokemonTcgId: c.id,
-          series: c.set?.series || "",
-          set: c.set?.name || "",
+          series: c.set?.series || '',
+          set: c.set?.name || '',
           types: c.types || [],
         });
       }
@@ -48,7 +50,7 @@ userCardRouter.post("/usercards/import", async (req, res) => {
         {
           $setOnInsert: {
             forTrade,
-            collectionType: "collection",
+            collectionType: 'collection',
             pokemonTcgId: localCard.pokemonTcgId,
           },
         },
@@ -63,8 +65,8 @@ userCardRouter.post("/usercards/import", async (req, res) => {
       cards: createdUserCards,
     });
   } catch (error) {
-    console.error("Error al importar cartas:", error);
-    res.status(500).json({ error: "Error al importar cartas desde la API" });
+    console.error('Error al importar cartas:', error);
+    res.status(500).json({ error: 'Error al importar cartas desde la API' });
   }
 });
 
@@ -76,7 +78,9 @@ userCardRouter.post('/usercards/:username/:type', async (req, res) => {
   try {
     const { username, type } = req.params;
     if (!['collection', 'wishlist'].includes(type)) {
-      return res.status(400).send({ error: 'Tipo inválido. Use "collection" o "wishlist".' });
+      return res
+        .status(400)
+        .send({ error: 'Tipo inválido. Use "collection" o "wishlist".' });
     }
     const user = await User.findOne({ username });
     if (!user) {
@@ -86,7 +90,7 @@ userCardRouter.post('/usercards/:username/:type', async (req, res) => {
     const newCard = new UserCard({
       ...req.body,
       userId: user._id,
-      collectionType: type
+      collectionType: type,
     });
 
     await newCard.save();
@@ -138,7 +142,6 @@ userCardRouter.get('/usercards/discover', async (req, res) => {
   }
 });
 
-
 /**
  * GET /usercards/:username
  * Obtiene todas las cartas de un usuario (colección y lista de deseos)
@@ -165,7 +168,9 @@ userCardRouter.get('/usercards/:username', async (req, res) => {
       filter.forTrade = ft === 'true' || ft === '1';
     }
 
-    let query = UserCard.find(filter).populate('cardId', 'name imageUrl rarity').sort({ createdAt: -1 });
+    let query = UserCard.find(filter)
+      .populate('cardId', 'name imageUrl rarity')
+      .sort({ createdAt: -1 });
     if (skip) query = query.skip(skip);
     if (limitNum) query = query.limit(limitNum);
 
@@ -196,7 +201,7 @@ userCardRouter.get('/usercards/:username/:type', async (req, res) => {
     const { page = '1', limit } = req.query as any;
 
     const user = await User.findOne({ username });
-    if (!user) { 
+    if (!user) {
       return res.status(404).send({ error: 'Usuario no encontrado' });
     }
 
@@ -216,7 +221,9 @@ userCardRouter.get('/usercards/:username/:type', async (req, res) => {
       (filter as any).forTrade = ft === 'true' || ft === '1';
     }
 
-    let query = UserCard.find(filter).populate('cardId', 'name imageUrl rarity').sort({ createdAt: -1 });
+    let query = UserCard.find(filter)
+      .populate('cardId', 'name imageUrl rarity')
+      .sort({ createdAt: -1 });
     if (skip) query = query.skip(skip);
     if (limitNum) query = query.limit(limitNum);
 
@@ -241,52 +248,61 @@ userCardRouter.get('/usercards/:username/:type', async (req, res) => {
  * PATCH /usercards/:username/cards/:userCardId
  * Actualiza una carta específica en la colección o lista de deseos del usuario
  */
-userCardRouter.patch('/usercards/:username/cards/:userCardId', async (req, res) => {
-  try {
-    const { username, userCardId } = req.params;
-    const user = await User.findOne({ username });
-    if (!user) { 
-      return res.status(404).send({ error: 'Usuario no encontrado' });
-    }
+userCardRouter.patch(
+  '/usercards/:username/cards/:userCardId',
+  async (req, res) => {
+    try {
+      const { username, userCardId } = req.params;
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).send({ error: 'Usuario no encontrado' });
+      }
 
-    const userCard = await UserCard.findOneAndUpdate(
-      { _id: userCardId, userId: user._id },
-      req.body,
-      { new: true, runValidators: true }
-    );
+      const userCard = await UserCard.findOneAndUpdate(
+        { _id: userCardId, userId: user._id },
+        req.body,
+        { new: true, runValidators: true }
+      );
 
-    if (!userCard) { 
-      return res.status(404).send({ error: 'Carta no encontrada' });
+      if (!userCard) {
+        return res.status(404).send({ error: 'Carta no encontrada' });
+      }
+      res.send(userCard);
+    } catch (error) {
+      res
+        .status(400)
+        .send({ error: (error as Error).message ?? String(error) });
     }
-    res.send(userCard);
-  } catch (error) {
-    res.status(400).send({ error: (error as Error).message ?? String(error) });
   }
-});
+);
 
 /**
  * DELETE /usercards/:username/cards/:userCardId
  * Elimina una carta específica de la colección o lista de deseos del usuario
  */
-userCardRouter.delete('/usercards/:username/cards/:userCardId', async (req, res) => {
-  try {
-    const { username, userCardId } = req.params;
-    const user = await User.findOne({ username });
-    if (!user) { 
-      return res.status(404).send({ error: 'Usuario no encontrado' });
-    }
+userCardRouter.delete(
+  '/usercards/:username/cards/:userCardId',
+  async (req, res) => {
+    try {
+      const { username, userCardId } = req.params;
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).send({ error: 'Usuario no encontrado' });
+      }
 
-    const deletedCard = await UserCard.findOneAndDelete({
-      _id: userCardId,
-      userId: user._id
-    });
+      const deletedCard = await UserCard.findOneAndDelete({
+        _id: userCardId,
+        userId: user._id,
+      });
 
-    if (!deletedCard) { 
-      return res.status(404).send({ error: 'Carta no encontrada' });
+      if (!deletedCard) {
+        return res.status(404).send({ error: 'Carta no encontrada' });
+      }
+      res.send({ message: 'Carta eliminada correctamente', deletedCard });
+    } catch (error) {
+      res
+        .status(500)
+        .send({ error: (error as Error).message ?? String(error) });
     }
-    res.send({ message: 'Carta eliminada correctamente', deletedCard });
-  } catch (error) {
-    res.status(500).send({ error: (error as Error).message ?? String(error) });
   }
-});
-
+);

@@ -1,10 +1,10 @@
 /**
  * @file Card.ts
  * @description Modelo genérico de Carta Pokémon para la base de datos
- * 
+ *
  * Almacena información de cartas base sin detalles específicos de Pokemon,
  * Entrenador, o Energía. Se usa como referencia desde UserCard.
- * 
+ *
  * @requires mongoose - ODM para MongoDB
  */
 
@@ -12,7 +12,7 @@ import mongoose from 'mongoose';
 
 /**
  * Esquema de Carta genérica
- * 
+ *
  * @typedef {Object} Card
  * @property {string} pokemonTcgId - ID único de la API TCG Pokémon
  * @property {string} name - Nombre de la carta
@@ -36,68 +36,72 @@ import mongoose from 'mongoose';
  * @property {Date} createdAt - Fecha de creación
  * @property {Date} updatedAt - Fecha de última actualización
  */
-const cardSchema = new mongoose.Schema({
-  pokemonTcgId: {
-    type: String,
-    required: true,
-    unique: true,
-    index: true
+const cardSchema = new mongoose.Schema(
+  {
+    pokemonTcgId: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    series: {
+      type: String,
+    },
+    set: {
+      type: String,
+    },
+    rarity: {
+      type: String,
+    },
+    types: [
+      {
+        type: String,
+      },
+    ],
+    imageUrl: {
+      type: String,
+    },
+    illustrator: {
+      type: String,
+    },
+    imageUrlHiRes: {
+      type: String,
+    },
+    marketPrice: {
+      type: Number,
+      default: 0,
+    },
+    price: {
+      cardmarketAvg: { type: Number, default: null },
+      tcgplayerMarketPrice: { type: Number, default: null },
+      avg: { type: Number, default: 0 },
+    },
+    lastPriceUpdate: {
+      type: Date,
+    },
+    nationalPokedexNumber: {
+      type: Number,
+    },
+    artist: {
+      type: String,
+    },
+    cardNumber: {
+      type: String,
+    },
+    category: {
+      type: String,
+      enum: ['pokemon', 'trainer', 'energy', 'unknown'],
+      default: 'unknown',
+    },
   },
-  name: {
-    type: String,
-    required: true
-  },
-  series: {
-    type: String
-  },
-  set: {
-    type: String
-  },
-  rarity: {
-    type: String
-  },
-  types: [{
-    type: String
-  }],
-  imageUrl: {
-    type: String
-  },
-  illustrator: {
-    type: String
-  },
-  imageUrlHiRes: {
-    type: String
-  },
-  marketPrice: {
-    type: Number,
-    default: 0
-  },
-  price: {
-    cardmarketAvg: { type: Number, default: null },
-    tcgplayerMarketPrice: { type: Number, default: null },
-    avg: { type: Number, default: 0 }
-  },
-  lastPriceUpdate: {
-    type: Date
-  },
-  nationalPokedexNumber: {
-    type: Number
-  },
-  artist: {
-    type: String
-  },
-  cardNumber: {
-    type: String
+  {
+    timestamps: true,
   }
-  ,
-  category: {
-    type: String,
-    enum: ['pokemon', 'trainer', 'energy', 'unknown'],
-    default: 'unknown'
-  }
-}, {
-  timestamps: true
-});
+);
 
 /**
  * Modelo de Carta exportado

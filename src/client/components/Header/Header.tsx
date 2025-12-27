@@ -1,14 +1,14 @@
-import React, { useEffect, useId, useRef, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Search, User, ChevronDown, Menu, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
-import NotificationBell from "./NotificationBell";
-import LanguageSelector from "./LanguageSelector";
-import DarkModeToggle from "./DarkModeToggle";
-import { authService } from "../../services/authService";
-import apiService from "../../services/apiService";
-import { PokemonCard } from "../../types";
-import "../../styles/header.css";
+import React, { useEffect, useId, useRef, useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Search, User, ChevronDown, Menu, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import NotificationBell from './NotificationBell';
+import LanguageSelector from './LanguageSelector';
+import DarkModeToggle from './DarkModeToggle';
+import { authService } from '../../services/authService';
+import apiService from '../../services/apiService';
+import { PokemonCard } from '../../types';
+import '../../styles/header.css';
 
 const Header: React.FC = () => {
   const { t } = useTranslation();
@@ -19,7 +19,7 @@ const Header: React.FC = () => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [tradeOpen, setTradeOpen] = useState(false);
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<PokemonCard[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -59,13 +59,16 @@ const Header: React.FC = () => {
   useEffect(() => {
     const onPointerDown = (e: PointerEvent) => {
       const target = e.target as Node;
-      if (profileRef.current && !profileRef.current.contains(target)) setProfileOpen(false);
-      if (tradeRef.current && !tradeRef.current.contains(target)) setTradeOpen(false);
-      if (searchRef.current && !searchRef.current.contains(target)) setSearchOpen(false);
+      if (profileRef.current && !profileRef.current.contains(target))
+        setProfileOpen(false);
+      if (tradeRef.current && !tradeRef.current.contains(target))
+        setTradeOpen(false);
+      if (searchRef.current && !searchRef.current.contains(target))
+        setSearchOpen(false);
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         setProfileOpen(false);
         setTradeOpen(false);
         setSearchOpen(false);
@@ -73,16 +76,16 @@ const Header: React.FC = () => {
       }
     };
 
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
     return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
     };
   }, []);
 
   const onSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && searchQuery.trim()) {
+    if (e.key === 'Enter' && searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchOpen(false);
       setSearchResults([]);
@@ -91,7 +94,7 @@ const Header: React.FC = () => {
 
   const handleCardSelect = (card: any) => {
     navigate(`/card/${card._id || card.id}`);
-    setSearchQuery("");
+    setSearchQuery('');
     setSearchOpen(false);
     setSearchResults([]);
   };
@@ -104,7 +107,11 @@ const Header: React.FC = () => {
           <button
             className="iconBtn iconBtn--mobile"
             onClick={() => setMobileOpen((v) => !v)}
-            aria-label={mobileOpen ? (t("common.close") || "Cerrar") : (t("common.open") || "Abrir")}
+            aria-label={
+              mobileOpen
+                ? t('common.close') || 'Cerrar'
+                : t('common.open') || 'Abrir'
+            }
             aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}
@@ -117,16 +124,20 @@ const Header: React.FC = () => {
           <nav className="topNav" aria-label="Primary">
             <NavLink
               to="/collection"
-              className={({ isActive }) => `topNav__link ${isActive ? "is-active" : ""}`}
+              className={({ isActive }) =>
+                `topNav__link ${isActive ? 'is-active' : ''}`
+              }
             >
-              {t("header.coleccion")}
+              {t('header.coleccion')}
             </NavLink>
 
             <NavLink
               to="/abrir"
-              className={({ isActive }) => `topNav__link ${isActive ? "is-active" : ""}`}
+              className={({ isActive }) =>
+                `topNav__link ${isActive ? 'is-active' : ''}`
+              }
             >
-              {t("header.abrir")}
+              {t('header.abrir')}
             </NavLink>
 
             <div className="dropdown" ref={tradeRef}>
@@ -136,8 +147,11 @@ const Header: React.FC = () => {
                 aria-haspopup="menu"
                 aria-expanded={tradeOpen}
               >
-                <span>{t("header.intercambio")}</span>
-                <ChevronDown size={18} className={`chev ${tradeOpen ? "chev--open" : ""}`} />
+                <span>{t('header.intercambio')}</span>
+                <ChevronDown
+                  size={18}
+                  className={`chev ${tradeOpen ? 'chev--open' : ''}`}
+                />
               </button>
 
               {tradeOpen && (
@@ -147,10 +161,10 @@ const Header: React.FC = () => {
                     className="menu__item"
                     onClick={() => {
                       setTradeOpen(false);
-                      navigate("/discover");
+                      navigate('/discover');
                     }}
                   >
-                    {t("header.descubrirCartas")}
+                    {t('header.descubrirCartas')}
                   </button>
 
                   <button
@@ -158,10 +172,10 @@ const Header: React.FC = () => {
                     className="menu__item"
                     onClick={() => {
                       setTradeOpen(false);
-                      navigate("/trade-requests");
+                      navigate('/trade-requests');
                     }}
                   >
-                    {t("header.solicitudes")}
+                    {t('header.solicitudes')}
                   </button>
 
                   <button
@@ -169,10 +183,10 @@ const Header: React.FC = () => {
                     className="menu__item"
                     onClick={() => {
                       setTradeOpen(false);
-                      navigate("/trade-room/create");
+                      navigate('/trade-room/create');
                     }}
                   >
-                    {t("header.crearSala")}
+                    {t('header.crearSala')}
                   </button>
                 </div>
               )}
@@ -190,7 +204,7 @@ const Header: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={onSearchKeyDown}
               onFocus={() => setSearchOpen(true)}
-              placeholder={t("header.buscar")}
+              placeholder={t('header.buscar')}
               aria-controls={listId}
               aria-expanded={searchOpen}
               aria-autocomplete="list"
@@ -202,13 +216,13 @@ const Header: React.FC = () => {
               {searchLoading && (
                 <div className="searchDrop__state">
                   <span className="spinner" aria-hidden="true" />
-                  {t("common.searching") || "Buscando..."}
+                  {t('common.searching') || 'Buscando...'}
                 </div>
               )}
 
               {!searchLoading && searchResults.length === 0 && (
                 <div className="searchDrop__state">
-                  {t("common.noResults") || "No se encontraron cartas"}
+                  {t('common.noResults') || 'No se encontraron cartas'}
                 </div>
               )}
 
@@ -222,14 +236,26 @@ const Header: React.FC = () => {
                       onClick={() => handleCardSelect(card)}
                     >
                       <div className="searchItem__img">
-                        {card.image ? <img src={card.image} alt={card.name} loading="lazy" /> : null}
+                        {card.image ? (
+                          <img
+                            src={card.image}
+                            alt={card.name}
+                            loading="lazy"
+                          />
+                        ) : null}
                       </div>
 
                       <div className="searchItem__info">
                         <div className="searchItem__name">{card.name}</div>
                         <div className="searchItem__meta">
-                          {card.set ? <span className="badge badge--set">{card.set}</span> : null}
-                          {card.rarity ? <span className="badge badge--rarity">{card.rarity}</span> : null}
+                          {card.set ? (
+                            <span className="badge badge--set">{card.set}</span>
+                          ) : null}
+                          {card.rarity ? (
+                            <span className="badge badge--rarity">
+                              {card.rarity}
+                            </span>
+                          ) : null}
                         </div>
                       </div>
                     </button>
@@ -252,7 +278,7 @@ const Header: React.FC = () => {
               onClick={() => setProfileOpen((v) => !v)}
               aria-haspopup="menu"
               aria-expanded={profileOpen}
-              aria-label={t("header.profile") || "Perfil"}
+              aria-label={t('header.profile') || 'Perfil'}
             >
               <User size={22} />
             </button>
@@ -262,27 +288,66 @@ const Header: React.FC = () => {
                 {isAuthed ? (
                   <>
                     <div className="menu__header">
-                      <div className="menu__title">{user?.username || "AMI"}</div>
-                      <div className="menu__sub">{t("header.account") || "Cuenta"}</div>
+                      <div className="menu__title">
+                        {user?.username || 'AMI'}
+                      </div>
+                      <div className="menu__sub">
+                        {t('header.account') || 'Cuenta'}
+                      </div>
                     </div>
 
-                    <button className="menu__item" role="menuitem" onClick={() => { setProfileOpen(false); navigate("/friends"); }}>
-                      {t("header.amigos")}
+                    <button
+                      className="menu__item"
+                      role="menuitem"
+                      onClick={() => {
+                        setProfileOpen(false);
+                        navigate('/friends');
+                      }}
+                    >
+                      {t('header.amigos')}
                     </button>
-                    <button className="menu__item" role="menuitem" onClick={() => { setProfileOpen(false); navigate("/profile"); }}>
-                      {t("header.ajustes")}
+                    <button
+                      className="menu__item"
+                      role="menuitem"
+                      onClick={() => {
+                        setProfileOpen(false);
+                        navigate('/profile');
+                      }}
+                    >
+                      {t('header.ajustes')}
                     </button>
-                    <button className="menu__item menu__item--danger" role="menuitem" onClick={() => { authService.logout(); navigate("/"); }}>
-                      {t("header.cerrarSesion")}
+                    <button
+                      className="menu__item menu__item--danger"
+                      role="menuitem"
+                      onClick={() => {
+                        authService.logout();
+                        navigate('/');
+                      }}
+                    >
+                      {t('header.cerrarSesion')}
                     </button>
                   </>
                 ) : (
                   <>
-                    <button className="menu__item" role="menuitem" onClick={() => { setProfileOpen(false); navigate("/"); }}>
-                      {t("header.login") || "Iniciar sesión"}
+                    <button
+                      className="menu__item"
+                      role="menuitem"
+                      onClick={() => {
+                        setProfileOpen(false);
+                        navigate('/');
+                      }}
+                    >
+                      {t('header.login') || 'Iniciar sesión'}
                     </button>
-                    <button className="menu__item" role="menuitem" onClick={() => { setProfileOpen(false); navigate("/register"); }}>
-                      {t("header.register") || "Crear cuenta"}
+                    <button
+                      className="menu__item"
+                      role="menuitem"
+                      onClick={() => {
+                        setProfileOpen(false);
+                        navigate('/register');
+                      }}
+                    >
+                      {t('header.register') || 'Crear cuenta'}
                     </button>
                   </>
                 )}
@@ -295,20 +360,40 @@ const Header: React.FC = () => {
       {/* MOBILE NAV */}
       {mobileOpen && (
         <div className="mobileNav">
-          <NavLink to="/collection" onClick={() => setMobileOpen(false)} className="mobileNav__link">
-            {t("header.coleccion")}
+          <NavLink
+            to="/collection"
+            onClick={() => setMobileOpen(false)}
+            className="mobileNav__link"
+          >
+            {t('header.coleccion')}
           </NavLink>
-          <NavLink to="/abrir" onClick={() => setMobileOpen(false)} className="mobileNav__link">
-            {t("header.abrir")}
+          <NavLink
+            to="/abrir"
+            onClick={() => setMobileOpen(false)}
+            className="mobileNav__link"
+          >
+            {t('header.abrir')}
           </NavLink>
-          <NavLink to="/discover" onClick={() => setMobileOpen(false)} className="mobileNav__link">
-            {t("header.descubrirCartas")}
+          <NavLink
+            to="/discover"
+            onClick={() => setMobileOpen(false)}
+            className="mobileNav__link"
+          >
+            {t('header.descubrirCartas')}
           </NavLink>
-          <NavLink to="/trade-requests" onClick={() => setMobileOpen(false)} className="mobileNav__link">
-            {t("header.solicitudes")}
+          <NavLink
+            to="/trade-requests"
+            onClick={() => setMobileOpen(false)}
+            className="mobileNav__link"
+          >
+            {t('header.solicitudes')}
           </NavLink>
-          <NavLink to="/trade-room/create" onClick={() => setMobileOpen(false)} className="mobileNav__link">
-            {t("header.crearSala")}
+          <NavLink
+            to="/trade-room/create"
+            onClick={() => setMobileOpen(false)}
+            className="mobileNav__link"
+          >
+            {t('header.crearSala')}
           </NavLink>
         </div>
       )}
@@ -317,5 +402,3 @@ const Header: React.FC = () => {
 };
 
 export default Header;
-
-

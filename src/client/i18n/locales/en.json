@@ -343,51 +343,50 @@
     "historyCancelled": "Trade cancelled"
   },
 
-
   "createRoom": {
     "title": "Create private room",
     "subtitle": "Invite a friend and create a private trade room.",
-    
+
     "loading": "Loading data...",
     "mustLogin": "You must be logged in to create a room.",
-    
+
     "errorLoadingFriends": "Error loading friends list.",
     "errorLoadingInvites": "Error loading invitations.",
     "errorSendingInvite": "Error sending invite.",
     "errorAcceptInvite": "Error accepting invite.",
     "errorRejectInvite": "Error rejecting invite.",
     "noRoomCode": "Could not retrieve room code.",
-    
+
     "inviteFriend": "Invite friend",
     "clickToSelect": "Click to select",
     "searchPlaceholder": "Search friend...",
     "noFriends": "You have no friends added.",
-    
+
     "createRoomButton": "Create room",
     "mustSelectFriend": "You must select a friend.",
     "inviteSent": "Invite sent.",
-    
+
     "receivedInvites": "Received invites",
     "noReceivedInvites": "You have no received invites.",
-    
+
     "sentInvites": "Sent invites",
     "noSentInvites": "You have not sent any invites.",
-    
+
     "history": "History",
     "emptyHistory": "No items in the history.",
-    
+
     "from": "From",
     "to": "To",
-    
+
     "accept": "Accept",
     "reject": "Decline",
-    
+
     "confirmAccept": "Accept this invitation?",
     "confirmReject": "Decline this invitation?",
-    
+
     "goRoom": "Go to room",
     "roomUnavailable": "Room unavailable",
-    
+
     "pending": "Pending",
     "accepted": "Accepted",
     "rejectedStatus": "Rejected",
@@ -413,5 +412,4 @@
     "sortName": "Name (A-Z)",
     "empty": "No cards with those filters"
   }
-
 }

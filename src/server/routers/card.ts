@@ -26,7 +26,16 @@ import {
   getCardCategory,
   normalizeImageUrl,
   extractPrices,
+  normalizeSearchCard,
 } from '../services/tcgdx.js';
+import { upsertCardFromRaw } from '../services/cards.js';
+import {
+  sendSuccess,
+  sendError,
+  sendPaginated,
+  parsePaginationParams,
+  ensureResourceExists,
+} from '../utils/responseHelpers.js';
 
 /**
  * Router de cartas
@@ -49,7 +58,8 @@ export const cardRouter = express.Router();
  */
 cardRouter.get('/cards', async (req, res) => {
   try {
-    const { page = 1, limit = 20, name, rarity, series, set, type } = req.query;
+    const { page, limit } = parsePaginationParams(req.query);
+    const { name, rarity, series, set, type } = req.query;
 
     const filter: Record<string, any> = {};
 
@@ -59,25 +69,16 @@ cardRouter.get('/cards', async (req, res) => {
     if (set) filter.set = set;
     if (type) filter.types = type;
 
-    const skip = (Number(page) - 1) * Number(limit);
+    const skip = (page - 1) * limit;
 
-    const cards = await Card.find(filter)
-      .sort({ name: 1 })
-      .skip(skip)
-      .limit(Number(limit));
+    const [cards, total] = await Promise.all([
+      Card.find(filter).sort({ name: 1 }).skip(skip).limit(limit),
+      Card.countDocuments(filter),
+    ]);
 
-    const total = await Card.countDocuments(filter);
-    const totalPages = Math.ceil(total / Number(limit));
-
-    res.send({
-      page: Number(page),
-      totalPages,
-      totalResults: total,
-      resultsPerPage: Number(limit),
-      cards,
-    });
+    sendPaginated(res, cards, page, limit, total);
   } catch (error: any) {
-    res.status(500).send({ error: error.message });
+    sendError(res, error);
   }
 });
 
@@ -90,13 +91,11 @@ cardRouter.get('/cards/:id', async (req, res) => {
     const { id } = req.params;
     const card = await Card.findById(id);
 
-    if (!card) {
-      return res.status(404).send({ error: 'Carta no encontrada' });
-    }
+    if (!ensureResourceExists(res, card, 'Carta')) return;
 
-    res.send(card);
+    sendSuccess(res, card);
   } catch (error: any) {
-    res.status(500).send({ error: error.message });
+    sendError(res, error);
   }
 });
 
@@ -109,181 +108,55 @@ cardRouter.get('/cards/:id', async (req, res) => {
 cardRouter.post('/cards', async (req, res) => {
   try {
     const { id } = req.body as { id?: string };
-    if (!id) return res.status(400).send({ error: 'Missing card id in body' });
+    
+    if (!id) {
+      return sendError(res, 'Missing card id in body', 400);
+    }
 
-    // check cache across specialized collections then fallback
-    const cached = await Promise.any([
-      PokemonCard.findOne({ pokemonTcgId: id }).lean(),
-      TrainerCard.findOne({ pokemonTcgId: id }).lean(),
-      EnergyCard.findOne({ pokemonTcgId: id }).lean(),
-      Card.findOne({ pokemonTcgId: id }).lean(),
-    ]).catch(() => null);
+    // Check cache in unified collection (discriminator pattern)
+    const cached = await Card.findOne({ pokemonTcgId: id }).lean();
 
     if (cached) {
-      return res.send({ source: 'cache', card: cached });
+      return sendSuccess(res, { source: 'cache', card: cached });
     }
 
-    // fetch from external TCGdex API
+    // Fetch from external TCGdex API
     const apiResp = await getCardById(id);
-    // API may return data directly or wrapped in data
-    const raw = apiResp.data ?? apiResp;
-    // sometimes the API returns an array when querying by search - normalize
-    const brief = Array.isArray(raw) ? raw[0] : raw;
-    if (!brief)
-      return res.status(404).send({ error: 'Card not found in external API' });
-
-    // extract prices from the raw API response (avoid losing nested fields during sanitization)
-    const prices = extractPrices(brief);
-    const c = sanitizeBriefCard(brief);
-    const category = getCardCategory(c);
-
-    let saved: any = null;
-    if (category === 'pokemon') {
-      saved = await PokemonCard.findOneAndUpdate(
-        { pokemonTcgId: c.id },
-        {
-          pokemonTcgId: c.id,
-          category: 'pokemon',
-          name: c.name,
-          supertype: c.supertype || '',
-          subtype: c.subtype || '',
-          hp: c.hp || '',
-          types: c.types || [],
-          evolvesFrom: c.evolvesFrom || '',
-          abilities: c.abilities || [],
-          attacks: c.attacks || [],
-          weaknesses: c.weaknesses || [],
-          resistances: c.resistances || [],
-          retreatCost: c.retreat || c.retreatCost || [],
-          series: c.set?.series || '',
-          set: c.set?.name || '',
-          rarity: c.rarity || '',
-          images: {
-            small: normalizeImageUrl(c.images?.small || ''),
-            large: normalizeImageUrl(c.images?.large || ''),
-          },
-          illustrator: c.illustrator || '',
-          nationalPokedexNumber: c.nationalPokedexNumbers?.[0] || null,
-          price: {
-            cardmarketAvg: prices.cardmarketAvg,
-            tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
-            avg: prices.avg ?? 0,
-          },
-          cardNumber: c.number || '',
-          lastPriceUpdate: new Date(),
-        },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
-      );
-    } else if (category === 'trainer') {
-      saved = await TrainerCard.findOneAndUpdate(
-        { pokemonTcgId: c.id },
-        {
-          pokemonTcgId: c.id,
-          category: 'trainer',
-          name: c.name,
-          supertype: c.supertype || '',
-          subtype: c.subtype || '',
-          series: c.set?.series || '',
-          set: c.set?.name || '',
-          rarity: c.rarity || '',
-          images: {
-            small: normalizeImageUrl(c.images?.small || ''),
-            large: normalizeImageUrl(c.images?.large || ''),
-          },
-          illustrator: c.illustrator || '',
-          price: {
-            cardmarketAvg: prices.cardmarketAvg,
-            tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
-            avg: prices.avg ?? 0,
-          },
-          text: Array.isArray(c.text) ? c.text.join('\n') : c.text || '',
-          effect: c.effect || '',
-          cardNumber: c.number || '',
-          lastPriceUpdate: new Date(),
-        },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
-      );
-    } else if (category === 'energy') {
-      saved = await EnergyCard.findOneAndUpdate(
-        { pokemonTcgId: c.id },
-        {
-          pokemonTcgId: c.id,
-          category: 'energy',
-          name: c.name,
-          supertype: c.supertype || '',
-          subtype: c.subtype || '',
-          energyType: c?.energyType || c?.subtype || '',
-          series: c.set?.series || '',
-          set: c.set?.name || '',
-          rarity: c.rarity || '',
-          images: {
-            small: normalizeImageUrl(c.images?.small || ''),
-            large: normalizeImageUrl(c.images?.large || ''),
-          },
-          illustrator: c.illustrator || '',
-          price: {
-            cardmarketAvg: prices.cardmarketAvg,
-            tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
-            avg: prices.avg ?? 0,
-          },
-          text: Array.isArray(c.text) ? c.text.join('\n') : c.text || '',
-          cardNumber: c.number || '',
-          lastPriceUpdate: new Date(),
-        },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
-      );
-    } else {
-      saved = await Card.findOneAndUpdate(
-        { pokemonTcgId: c.id },
-        {
-          pokemonTcgId: c.id,
-          category: category || 'unknown',
-          name: c.name,
-          series: c.set?.series || '',
-          set: c.set?.name || '',
-          rarity: c.rarity || '',
-          types: c.types || [],
-          imageUrl: normalizeImageUrl(c.images?.small || ''),
-          imageUrlHiRes: normalizeImageUrl(c.images?.large || ''),
-          illustrator: c.illustrator || '',
-          price: {
-            cardmarketAvg: prices.cardmarketAvg,
-            tcgplayerMarketPrice: prices.tcgplayerMarketPrice,
-            avg: prices.avg ?? 0,
-          },
-          nationalPokedexNumber: c.nationalPokedexNumbers?.[0] || null,
-          cardNumber: c.number || '',
-          lastPriceUpdate: new Date(),
-        },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
-      );
+    
+    if (!apiResp) {
+      return sendError(res, 'Card not found in external API', 404);
     }
 
-    return res.send({ source: 'tcgdex', card: saved });
+    // Use centralized upsert function
+    const saved = await upsertCardFromRaw(apiResp);
+    
+    if (!saved) {
+      return sendError(res, 'Error saving card', 500);
+    }
+
+    // Responder directamente sin envolver para compatibilidad con cliente
+    return res.status(200).send({ source: 'tcgdex', card: saved });
   } catch (error: any) {
     console.error('Error in POST /cards:', error?.message ?? error);
-    return res.status(500).send({ error: error?.message ?? String(error) });
+    return sendError(res, error);
   }
 });
 
 /**
  * GET /cards/tcg/:tcgId
- * Busca una carta en caché por su pokemonTcgId en las colecciones especializadas.
+ * Busca una carta en caché por su pokemonTcgId en la colección unificada.
  */
 cardRouter.get('/cards/tcg/:tcgId', async (req, res) => {
   try {
     const { tcgId } = req.params;
-    const found =
-      (await PokemonCard.findOne({ pokemonTcgId: tcgId })) ||
-      (await TrainerCard.findOne({ pokemonTcgId: tcgId })) ||
-      (await EnergyCard.findOne({ pokemonTcgId: tcgId })) ||
-      (await Card.findOne({ pokemonTcgId: tcgId }));
+    const found = await Card.findOne({ pokemonTcgId: tcgId });
 
-    if (!found)
-      return res.status(404).send({ error: 'Card not found in cache' });
-    return res.send({ source: 'cache', card: found });
+    if (!ensureResourceExists(res, found, 'Card')) return;
+    
+    // Responder directamente sin envolver para compatibilidad con cliente
+    return res.status(200).send({ source: 'cache', card: found });
   } catch (err: any) {
-    return res.status(500).send({ error: err.message });
+    return sendError(res, err);
   }
 });
 
@@ -297,16 +170,16 @@ cardRouter.get('/cards/search/quick', async (req, res) => {
     const { q } = req.query;
 
     if (!q || typeof q !== 'string') {
-      return res.status(400).send({ error: 'Query parameter "q" is required' });
+      return sendError(res, 'Query parameter "q" is required', 400);
     }
 
     const filter = { name: { $regex: q, $options: 'i' } };
 
     const cards = await Card.find(filter).sort({ name: 1 }).limit(10).lean();
 
-    res.send({ data: cards, count: cards.length });
+    return sendSuccess(res, { data: cards, count: cards.length });
   } catch (error: any) {
-    res.status(500).send({ error: error.message });
+    return sendError(res, error);
   }
 });
 
@@ -318,7 +191,7 @@ cardRouter.get('/cards/search/tcg', async (req, res) => {
   try {
     const { q, page = '1', limit = '20', set, rarity } = req.query as any;
     if (!q || typeof q !== 'string')
-      return res.status(400).send({ error: 'Query parameter "q" is required' });
+      return sendError(res, 'Query parameter "q" is required', 400);
 
     const filters: any = { name: q };
     if (set) filters.set = set;
@@ -330,27 +203,8 @@ cardRouter.get('/cards/search/tcg', async (req, res) => {
     const raw = apiResp.data ?? apiResp;
     const cards = Array.isArray(raw) ? raw : (raw.cards ?? raw.data ?? []);
 
-    // normalize minimal shape
-    const normalized = (cards || []).map((c: any) => ({
-      id: c.id || c._id || '',
-      name: c.name || c.title || '',
-      images: c.images || { small: c.imageUrl || c.image || '' },
-      // include both set id/code and human name when possible
-      setId:
-        c.set?.id ||
-        c.setId ||
-        c.set?.code ||
-        c.setCode ||
-        (c.set && typeof c.set === 'string' ? c.set : ''),
-      set:
-        c.set?.name ||
-        (typeof c.set === 'string' ? c.set : '') ||
-        c.series ||
-        '',
-      rarity: c.rarity || c.rarityText || '',
-      types: c.types || [],
-      pokemonTcgId: c.id || c.pokemonTcgId || '',
-    }));
+    // Usar función reutilizable para normalizar cartas
+    const normalized = (cards || []).map(normalizeSearchCard);
 
     // simple server-side pagination
     const p = Math.max(1, Number(page));
@@ -359,9 +213,9 @@ cardRouter.get('/cards/search/tcg', async (req, res) => {
     const start = (p - 1) * l;
     const pageItems = normalized.slice(start, start + l);
 
-    return res.send({ data: pageItems, total, page: p, limit: l });
+    return sendSuccess(res, { data: pageItems, total, page: p, limit: l });
   } catch (err: any) {
     console.error('Error in /cards/search/tcg:', err);
-    return res.status(500).send({ error: err?.message ?? String(err) });
+    return sendError(res, err);
   }
 });

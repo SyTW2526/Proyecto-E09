@@ -11,6 +11,7 @@ import {
   getAllSeries,
   searchCards,
 } from '../services/pokemon.js';
+import { sendSuccess, sendError } from '../utils/responseHelpers.js';
 
 export const pokemonRouter = Router();
 
@@ -24,9 +25,9 @@ pokemonRouter.get(
     try {
       const { name } = req.params;
       const cards = await getCardsByName(name);
-      res.send(cards);
-    } catch (error) {
-      res.status(500).send({ error: 'Error fetching cards by name' });
+      return sendSuccess(res, cards);
+    } catch (error: any) {
+      return sendError(res, error, 500);
     }
   }
 );
@@ -39,9 +40,12 @@ pokemonRouter.get('/pokemon/cards/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const card = await getCardById(id);
-    res.send(card);
-  } catch (error) {
-    res.status(404).send({ error: 'Card not found' });
+    if (!card) {
+      return sendError(res, 'Card not found', 404);
+    }
+    return sendSuccess(res, card);
+  } catch (error: any) {
+    return sendError(res, error);
   }
 });
 
@@ -52,9 +56,9 @@ pokemonRouter.get('/pokemon/cards/:id', async (req: Request, res: Response) => {
 pokemonRouter.get('/pokemon/sets', async (req: Request, res: Response) => {
   try {
     const sets = await getAllSets();
-    res.send(sets);
-  } catch (error) {
-    res.status(500).send({ error: 'Error fetching sets' });
+    return sendSuccess(res, sets);
+  } catch (error: any) {
+    return sendError(res, error, 500);
   }
 });
 
@@ -68,9 +72,12 @@ pokemonRouter.get(
     try {
       const { setId } = req.params;
       const cards = await getCardsBySet(setId);
-      res.send(cards);
-    } catch (error) {
-      res.status(404).send({ error: 'Set not found' });
+      if (!cards || (Array.isArray(cards) && cards.length === 0)) {
+        return sendError(res, 'Set not found', 404);
+      }
+      return sendSuccess(res, cards);
+    } catch (error: any) {
+      return sendError(res, error);
     }
   }
 );
@@ -85,9 +92,9 @@ pokemonRouter.get(
     try {
       const { type } = req.params;
       const cards = await getCardsByType(type);
-      res.send(cards);
-    } catch (error) {
-      res.status(500).send({ error: 'Error fetching cards by type' });
+      return sendSuccess(res, cards);
+    } catch (error: any) {
+      return sendError(res, error, 500);
     }
   }
 );
@@ -102,12 +109,12 @@ pokemonRouter.get(
     try {
       const hp = parseInt(req.params.hp);
       if (isNaN(hp)) {
-        return res.status(400).send({ error: 'HP must be a number' });
+        return sendError(res, 'HP must be a number', 400);
       }
       const cards = await getCardsByHP(hp);
-      res.send(cards);
-    } catch (error) {
-      res.status(500).send({ error: 'Error fetching cards by HP' });
+      return sendSuccess(res, cards);
+    } catch (error: any) {
+      return sendError(res, error, 500);
     }
   }
 );
@@ -122,9 +129,9 @@ pokemonRouter.get(
     try {
       const { rarity } = req.params;
       const cards = await getCardsByRarity(rarity);
-      res.send(cards);
-    } catch (error) {
-      res.status(500).send({ error: 'Error fetching cards by rarity' });
+      return sendSuccess(res, cards);
+    } catch (error: any) {
+      return sendError(res, error, 500);
     }
   }
 );
@@ -136,9 +143,9 @@ pokemonRouter.get(
 pokemonRouter.get('/pokemon/series', async (req: Request, res: Response) => {
   try {
     const series = await getAllSeries();
-    res.send(series);
-  } catch (error) {
-    res.status(500).send({ error: 'Error fetching series' });
+    return sendSuccess(res, series);
+  } catch (error: any) {
+    return sendError(res, error, 500);
   }
 });
 
@@ -152,9 +159,12 @@ pokemonRouter.get(
     try {
       const { seriesId } = req.params;
       const series = await getSeriesById(seriesId);
-      res.send(series);
-    } catch (error) {
-      res.status(404).send({ error: 'Series not found' });
+      if (!series) {
+        return sendError(res, 'Series not found', 404);
+      }
+      return sendSuccess(res, series);
+    } catch (error: any) {
+      return sendError(res, error);
     }
   }
 );
@@ -175,8 +185,8 @@ pokemonRouter.get('/pokemon/search', async (req: Request, res: Response) => {
     if (req.query.set) filters.set = req.query.set as string;
 
     const cards = await searchCards(filters);
-    res.send(cards);
-  } catch (error) {
-    res.status(500).send({ error: 'Error searching cards' });
+    return sendSuccess(res, cards);
+  } catch (error: any) {
+    return sendError(res, error, 500);
   }
 });

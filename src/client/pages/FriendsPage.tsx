@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer';
 import { initSocket } from '../socket';
@@ -63,25 +63,33 @@ const FriendsPage: React.FC = () => {
     message: '',
   });
 
-  const loadAll = async () => {
+  const loadAll = useCallback(async () => {
     const headers = { Authorization: `Bearer ${token}` };
 
-    const [f, r, s] = await Promise.all([
-      fetch(`http://localhost:3000/friends/user/${user.id}`, { headers }).then(
-        (r) => r.json()
-      ),
-      fetch(`http://localhost:3000/friends/requests/user/${user.id}`, {
-        headers,
-      }).then((r) => r.json()),
-      fetch(`http://localhost:3000/friends/requests/sent/${user.id}`, {
-        headers,
-      }).then((r) => r.json()),
-    ]);
+    try {
+      const [f, r, s] = await Promise.all([
+        fetch(`http://localhost:3000/friends/user/${user.id}`, { headers }).then(
+          (r) => r.json()
+        ),
+        fetch(`http://localhost:3000/friends/requests/user/${user.id}`, {
+          headers,
+        }).then((r) => r.json()),
+        fetch(`http://localhost:3000/friends/requests/sent/${user.id}`, {
+          headers,
+        }).then((r) => r.json()),
+      ]);
 
-    setFriends(f.friends || []);
-    setReceived(r.requests || []);
-    setSent(s.sent || []);
-  };
+      setFriends(f.friends || f.data?.friends || []);
+      setReceived(r.requests || r.data?.requests || []);
+      setSent(s.sent || s.data?.sent || []);
+    } catch (err) {
+      console.error('Error loading friends:', err);
+      setToast({
+        visible: true,
+        message: 'Error al cargar solicitudes',
+      });
+    }
+  }, [token, user.id]);
 
   useEffect(() => {
     loadAll();
@@ -125,6 +133,34 @@ const FriendsPage: React.FC = () => {
     };
   }, [activeFriend?._id]);
 
+  useEffect(() => {
+    const s = initSocket();
+    if (!s) return;
+
+    // Estos listeners se registran una sola vez y escuchan independientemente
+    const onFriendRequestReceived = () => {
+      loadAll();
+    };
+
+    const onFriendRequestAccepted = () => {
+      loadAll();
+    };
+
+    const onFriendRequestRejected = () => {
+      loadAll();
+    };
+
+    s.on('friendRequestReceived', onFriendRequestReceived);
+    s.on('friendRequestAccepted', onFriendRequestAccepted);
+    s.on('friendRequestRejected', onFriendRequestRejected);
+
+    return () => {
+      s.off('friendRequestReceived', onFriendRequestReceived);
+      s.off('friendRequestAccepted', onFriendRequestAccepted);
+      s.off('friendRequestRejected', onFriendRequestRejected);
+    };
+  }, [loadAll]);
+
   const openChat = async (friend: Friend) => {
     setActiveFriend(friend);
     setIsTyping(false);
@@ -153,35 +189,119 @@ const FriendsPage: React.FC = () => {
   };
 
   const accept = async (id: string) => {
-    await fetch(`http://localhost:3000/friends/accept/${id}`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    loadAll();
+    try {
+      const res = await fetch(`http://localhost:3000/friends/accept/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        setToast({
+          visible: true,
+          message: errorData.error || 'Error al aceptar solicitud',
+        });
+        return;
+      }
+
+      loadAll();
+    } catch (err) {
+      setToast({
+        visible: true,
+        message: 'Error en la conexión',
+      });
+    }
   };
 
   const reject = async (id: string) => {
-    await fetch(`http://localhost:3000/friends/reject/${id}`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    loadAll();
+    try {
+      const res = await fetch(`http://localhost:3000/friends/reject/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        setToast({
+          visible: true,
+          message: errorData.error || 'Error al rechazar solicitud',
+        });
+        return;
+      }
+
+      loadAll();
+    } catch (err) {
+      setToast({
+        visible: true,
+        message: 'Error en la conexión',
+      });
+    }
   };
 
   const cancel = async (id: string) => {
-    await fetch(`http://localhost:3000/friends/requests/cancel/${id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    loadAll();
+    try {
+      const res = await fetch(`http://localhost:3000/friends/requests/cancel/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        setToast({
+          visible: true,
+          message: errorData.error || 'Error al cancelar solicitud',
+        });
+        return;
+      }
+
+      loadAll();
+    } catch (err) {
+      setToast({
+        visible: true,
+        message: 'Error en la conexión',
+      });
+    }
   };
 
   const sendFriendRequest = async (id: string) => {
-    await fetch(`http://localhost:3000/friends/request/${id}`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    loadAll();
+    try {
+      const res = await fetch(`http://localhost:3000/friends/request/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        setToast({
+          visible: true,
+          message: errorData.error || 'Error al enviar solicitud',
+        });
+        return;
+      }
+
+      setToast({
+        visible: true,
+        message: 'Solicitud enviada',
+      });
+      loadAll();
+    } catch (err) {
+      setToast({
+        visible: true,
+        message: 'Error en la conexión',
+      });
+    }
   };
 
   const showConfirmToast = (message: string, onConfirm: () => void) => {

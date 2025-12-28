@@ -85,23 +85,62 @@ export function getCardCategory(
 }
 
 /**
- * Normalize an image base URL to point to the high resolution PNG.
- * Examples:
- * - https://.../178 -> https://.../178/high.png
- * - https://.../178/large.png -> https://.../178/high.png
+ * Normaliza una URL de imagen para apuntar a la versión de alta resolución.
+ * 
+ * Maneja casos especiales:
+ * - URLs que terminan en /high.png ya están normalizadas
+ * - Reemplaza /small.png, /large.png, /low.png por /high.png
+ * - Para URLs sin extensión, añade /high.png
+ * - Corrige el formato de TCGdex para sets especiales (base, dp, ex, etc.)
+ * 
+ * @param url - URL de imagen a normalizar
+ * @returns URL normalizada apuntando a versión high.png
+ * 
+ * @example
+ * normalizeImageUrl('https://assets.tcgdex.net/en/ba/base1/2') 
+ * // => 'https://assets.tcgdex.net/en/base/base1/2/high.png'
  */
 export function normalizeImageUrl(url?: string | null): string {
   if (!url) return '';
-  const s = String(url);
-  // if already ends with /high.png (case-insensitive)
+  const s = String(url).trim();
+  
+  // Si ya termina con /high.png, está correcta
   if (/\/high\.png$/i.test(s)) return s;
-  // replace known size suffixes
+  
+  // Reemplazar extensiones conocidas por /high.png
   if (/\/(?:small|large|low)\.png$/i.test(s)) {
     return s.replace(/\/(?:small|large|low)\.png$/i, '/high.png');
   }
-  // if ends with an image extension, keep as-is
+  
+  // Si ya tiene una extensión de imagen, mantenerla
   if (/\.(png|jpe?g|gif|webp)$/i.test(s)) return s;
-  // otherwise append /high.png
+  
+  // Caso especial: URLs de TCGdex que usan prefijos abreviados incorrectamente
+  // Ej: .../en/ba/base1/... debe ser .../en/base/base1/...
+  const tcgdexMatch = s.match(/^(https?:\/\/[^/]+\/[^/]+\/)([a-z]{2})(\/.+)$/i);
+  if (tcgdexMatch) {
+    const [, prefix, shortCode, rest] = tcgdexMatch;
+    
+    // Mapeo de códigos abreviados a nombres completos de series TCGdex
+    const seriesMap: Record<string, string> = {
+      'ba': 'base',
+      'ex': 'ex',
+      'dp': 'dp',
+      'pl': 'pl',
+      'hs': 'hgss',
+      'bw': 'bw',
+      'xy': 'xy',
+      'sm': 'sm',
+      'sw': 'swsh',
+      'sv': 'sv',
+    };
+    
+    const fullSeriesName = seriesMap[shortCode.toLowerCase()] || shortCode;
+    const normalized = `${prefix}${fullSeriesName}${rest}`;
+    return normalized.endsWith('/') ? `${normalized}high.png` : `${normalized}/high.png`;
+  }
+  
+  // Caso por defecto: añadir /high.png
   return s.endsWith('/') ? `${s}high.png` : `${s}/high.png`;
 }
 
@@ -165,4 +204,38 @@ export function extractPrices(card: Record<string, any>) {
   const avg = cardmarketAvg ?? tcgplayerMarketPrice ?? null;
 
   return { cardmarketAvg, tcgplayerMarketPrice, avg };
+}
+
+/**
+ * Normaliza una carta RAW de la API TCGdex para búsquedas y respuestas frontend
+ * Crea una forma mínima y consistente que el frontend espera
+ *
+ * @param card - Objeto de carta RAW de la API
+ * @returns Objeto normalizado con campos: id, name, images, set, rarity, types, pokemonTcgId
+ *
+ * @example
+ * const normalized = normalizeSearchCard(rawCard);
+ * // Returns: { id: 'swsh3-25', name: 'Pikachu', images: {...}, set: 'Sword & Shield', ... }
+ */
+export function normalizeSearchCard(card: any) {
+  return {
+    id: card.id || card._id || '',
+    name: card.name || card.title || '',
+    images: card.images || { small: card.imageUrl || card.image || '' },
+    // include both set id/code and human name when possible
+    setId:
+      card.set?.id ||
+      card.setId ||
+      card.set?.code ||
+      card.setCode ||
+      (card.set && typeof card.set === 'string' ? card.set : ''),
+    set:
+      card.set?.name ||
+      (typeof card.set === 'string' ? card.set : '') ||
+      card.series ||
+      '',
+    rarity: card.rarity || card.rarityText || '',
+    types: card.types || [],
+    pokemonTcgId: card.id || card.pokemonTcgId || '',
+  };
 }

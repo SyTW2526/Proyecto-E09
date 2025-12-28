@@ -19,6 +19,36 @@ import {
   AuthRequest,
   optionalAuthMiddleware,
 } from '../middleware/authMiddleware.js';
+import {
+  sendSuccess,
+  sendError,
+} from '../utils/responseHelpers.js';
+import {
+  findUserByIdentifier,
+  validateOwnership,
+  findFriendByIdentifier,
+  getCurrentUserOrFail,
+} from '../utils/userHelpers.js';
+import {
+  computePackTokens,
+  validatePackTokens,
+  consumePackToken,
+  getPackOpenCount24h,
+} from '../utils/packHelpers.js';
+import {
+  removeFriendRequest,
+  hasPendingFriendRequest,
+  addFriendBidirectional,
+  removeFriendBidirectional,
+  getChatHistoryBetween,
+  deleteChatHistoryBetween,
+} from '../utils/friendHelpers.js';
+import {
+  findUserByUsernameOrEmail,
+  validateUsernameEmail,
+  validateUsernameOwnership,
+  validateRegistrationInput,
+} from '../utils/validationHelpers.js';
 
 const MS_HOUR = 1000 * 60 * 60;
 
@@ -33,12 +63,9 @@ userRouter.post('/users/register', async (req: Request, res: Response) => {
     const { username, email, password, confirmPassword } = req.body;
 
     // Validaciones básicas
-    if (!username || !email || !password || !confirmPassword) {
-      return res.status(400).send({ error: 'Todos los campos son requeridos' });
-    }
-
-    if (password !== confirmPassword) {
-      return res.status(400).send({ error: 'Las contraseñas no coinciden' });
+    const validation = validateRegistrationInput(username, email, password, confirmPassword);
+    if (!validation.valid) {
+      return res.status(400).send({ error: validation.error });
     }
 
     if (password.length < 6) {
@@ -48,7 +75,7 @@ userRouter.post('/users/register', async (req: Request, res: Response) => {
     }
 
     // Verificar si el usuario ya existe
-    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    const existingUser = await findUserByUsernameOrEmail(username || email);
     if (existingUser) {
       return res.status(400).send({ error: 'El usuario o correo ya existen' });
     }
@@ -65,7 +92,7 @@ userRouter.post('/users/register', async (req: Request, res: Response) => {
 
     await newUser.save();
 
-    res.status(201).send({
+    return res.status(201).send({
       message: 'Usuario registrado correctamente',
       user: {
         id: newUser._id,
@@ -74,7 +101,7 @@ userRouter.post('/users/register', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    res.status(500).send({ error: (error as Error).message ?? String(error) });
+    sendError(res, (error as Error).message ?? String(error), 500);
   }
 });
 
@@ -88,27 +115,19 @@ userRouter.post('/users/login', async (req: Request, res: Response) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res
-        .status(400)
-        .send({ error: 'Username y contraseña requeridos' });
+      return sendError(res, 'Username y contraseña requeridos', 400);
     }
 
-    const user = await User.findOne({
-      $or: [{ username }, { email: username }],
-    });
+    const user = await findUserByUsernameOrEmail(username);
 
     if (!user) {
-      return res
-        .status(401)
-        .send({ error: 'Usuario o contraseña incorrectos' });
+      return sendError(res, 'Usuario o contraseña incorrectos', 401);
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res
-        .status(401)
-        .send({ error: 'Usuario o contraseña incorrectos' });
+      return sendError(res, 'Usuario o contraseña incorrectos', 401);
     }
 
     const secret: string = process.env.JWT_SECRET || 'tu-clave-secreta';
@@ -123,7 +142,7 @@ userRouter.post('/users/login', async (req: Request, res: Response) => {
     );
 
     // Login exitoso: devolver información del usuario + token
-    res.status(200).send({
+    return res.status(200).send({
       message: 'Sesión iniciada correctamente',
       user: {
         id: user._id,
@@ -134,7 +153,7 @@ userRouter.post('/users/login', async (req: Request, res: Response) => {
       token, // JWT para mantener sesión segura
     });
   } catch (error) {
-    res.status(500).send({ error: (error as Error).message ?? String(error) });
+    sendError(res, (error as Error).message ?? String(error), 500);
   }
 });
 
@@ -149,16 +168,9 @@ userRouter.get(
     try {
       const { identifier } = req.params;
 
-      const filter = mongoose.Types.ObjectId.isValid(identifier)
-        ? { _id: identifier }
-        : { username: identifier };
-
-      const user = await User.findOne(filter).select(
-        'username email profileImage'
-      );
-
+      const user = await findUserByIdentifier(identifier);
       if (!user) {
-        return res.status(404).send({ error: 'Usuario no encontrado' });
+        return sendError(res, 'Usuario no encontrado', 404);
       }
 
       res.send({
@@ -168,7 +180,7 @@ userRouter.get(
         profileImage: user.profileImage || '',
       });
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      sendError(res, error.message, 500);
     }
   }
 );
@@ -186,13 +198,11 @@ userRouter.patch(
       const { profileImage } = req.body;
 
       if (!profileImage) {
-        return res.status(400).send({ error: 'No se envió ninguna imagen' });
+        return sendError(res, 'No se envió ninguna imagen', 400);
       }
 
-      if (req.username !== username) {
-        return res
-          .status(403)
-          .send({ error: 'No puedes modificar otro usuario' });
+      if (!validateUsernameOwnership(req.username || '', username)) {
+        return sendError(res, 'No puedes modificar otro usuario', 403);
       }
 
       const user = await User.findOneAndUpdate(
@@ -202,9 +212,9 @@ userRouter.patch(
       );
 
       if (!user)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
+        return sendError(res, 'Usuario no encontrado', 404);
 
-      res.send({
+      sendSuccess(res, {
         message: 'Imagen actualizada',
         user: {
           id: user._id,
@@ -214,7 +224,7 @@ userRouter.patch(
         },
       });
     } catch (err: any) {
-      res.status(500).send({ error: err.message });
+      sendError(res, err.message, 500);
     }
   }
 );
@@ -230,10 +240,8 @@ userRouter.delete(
     try {
       const { username } = req.params;
 
-      if (req.username !== username) {
-        return res
-          .status(403)
-          .send({ error: 'No puedes modificar otro usuario' });
+      if (!validateUsernameOwnership(req.username || '', username)) {
+        return sendError(res, 'No puedes modificar otro usuario', 403);
       }
 
       const user = await User.findOneAndUpdate(
@@ -243,9 +251,9 @@ userRouter.delete(
       );
 
       if (!user)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
+        return sendError(res, 'Usuario no encontrado', 404);
 
-      res.send({
+      sendSuccess(res, {
         message: 'Foto eliminada',
         user: {
           id: user._id,
@@ -255,7 +263,7 @@ userRouter.delete(
         },
       });
     } catch (err: any) {
-      res.status(500).send({ error: err.message });
+      sendError(res, err.message, 500);
     }
   }
 );
@@ -272,21 +280,13 @@ userRouter.patch(
       const { username } = req.params;
       const { username: newUsername, email: newEmail } = req.body;
 
-      const user = await User.findOne({ username });
-      if (!user) return res.status(404).send({ error: 'USER_NOT_FOUND' });
+      const user = await findUserByIdentifier(username);
+      if (!user) return sendError(res, 'USER_NOT_FOUND', 404);
 
-      if (newUsername && newUsername !== user.username) {
-        const existsUser = await User.findOne({ username: newUsername });
-        if (existsUser) {
-          return res.status(400).send({ error: 'USERNAME_EXISTS' });
-        }
-      }
-
-      if (newEmail && newEmail !== user.email) {
-        const existsEmail = await User.findOne({ email: newEmail });
-        if (existsEmail) {
-          return res.status(400).send({ error: 'EMAIL_EXISTS' });
-        }
+      // Usar helper para validar cambios de username/email
+      const validation = await validateUsernameEmail(newUsername, newEmail, user.username, user.email);
+      if (!validation.valid) {
+        return sendError(res, validation.error || 'Validation error', 400);
       }
 
       if (newUsername) user.username = newUsername;
@@ -300,7 +300,7 @@ userRouter.patch(
         { expiresIn: '7d' }
       );
 
-      res.send({
+      sendSuccess(res, {
         message: 'Perfil actualizado',
         user: {
           id: user._id,
@@ -311,7 +311,7 @@ userRouter.patch(
         token,
       });
     } catch (err: any) {
-      res.status(500).send({ error: err.message });
+      sendError(res, err.message, 500);
     }
   }
 );
@@ -327,21 +327,19 @@ userRouter.delete(
     try {
       const { username } = req.params;
 
-      if (req.username !== username) {
-        return res
-          .status(403)
-          .send({ error: 'No puedes eliminar otra cuenta' });
+      if (!validateUsernameOwnership(req.username || '', username)) {
+        return sendError(res, 'No puedes eliminar otra cuenta', 403);
       }
 
       const user = await User.findOneAndDelete({ username });
 
       if (!user) {
-        return res.status(404).send({ error: 'Usuario no encontrado' });
+        return sendError(res, 'Usuario no encontrado', 404);
       }
 
-      res.send({ message: 'Cuenta eliminada correctamente' });
+      sendSuccess(res, { message: 'Cuenta eliminada correctamente' });
     } catch (err: any) {
-      res.status(500).send({ error: err.message });
+      sendError(res, err.message, 500);
     }
   }
 );
@@ -363,12 +361,10 @@ userRouter.get(
         page = 1,
         limit = 20,
       } = req.query as any;
-      const filterUser = mongoose.Types.ObjectId.isValid(identifier)
-        ? { _id: identifier }
-        : { username: identifier };
-      const user = await User.findOne(filterUser);
+
+      const user = await findUserByIdentifier(identifier);
       if (!user)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
+        return sendError(res, 'Usuario no encontrado', 404);
 
       const skip = (Number(page) - 1) * Number(limit);
 
@@ -387,16 +383,14 @@ userRouter.get(
         .limit(Number(limit))
         .populate('cardId');
 
-      res.send({
+      sendSuccess(res, {
         page: Number(page),
         totalResults: total,
         resultsPerPage: Number(limit),
         cards,
       });
     } catch (error) {
-      res
-        .status(500)
-        .send({ error: (error as Error).message ?? String(error) });
+      sendError(res, (error as Error).message ?? String(error), 500);
     }
   }
 );
@@ -412,16 +406,14 @@ userRouter.post(
   async (req: AuthRequest, res) => {
     try {
       const { identifier } = req.params;
-      const filterUser = mongoose.Types.ObjectId.isValid(identifier)
-        ? { _id: identifier }
-        : { username: identifier };
-      const user = await User.findOne(filterUser);
+
+      const user = await findUserByIdentifier(identifier);
       if (!user)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
+        return sendError(res, 'Usuario no encontrado', 404);
 
       // sólo el propio usuario puede modificar su colección
-      if (req.userId?.toString() !== user._id.toString())
-        return res.status(403).send({ error: 'No autorizado' });
+      if (!validateOwnership(req.userId, user._id))
+        return sendError(res, 'No autorizado', 403);
 
       const {
         pokemonTcgId,
@@ -440,12 +432,8 @@ userRouter.post(
 
       // buscar por pokemonTcgId si no se proporcionó cardId
       if (!cardRefId && pokemonTcgId) {
-        const found = await Promise.any([
-          PokemonCard.findOne({ pokemonTcgId }).lean(),
-          TrainerCard.findOne({ pokemonTcgId }).lean(),
-          EnergyCard.findOne({ pokemonTcgId }).lean(),
-          Card.findOne({ pokemonTcgId }).lean(),
-        ]).catch(() => null);
+        // Usar discriminator: buscar en la colección unificada 'cards'
+        const found = await Card.findOne({ pokemonTcgId }).lean();
 
         if (found) {
           cardRefId = (found as any)._id;
@@ -540,46 +528,19 @@ userRouter.post(
     try {
       const { identifier } = req.params;
       const { setId } = req.body;
-      const filterUser = mongoose.Types.ObjectId.isValid(identifier)
-        ? { _id: identifier }
-        : { username: identifier };
-      const user = await User.findOne(filterUser);
+
+      const user = await findUserByIdentifier(identifier);
       if (!user)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
-      if (req.userId?.toString() !== user._id.toString())
-        return res.status(403).send({ error: 'No autorizado' });
+        return sendError(res, 'Usuario no encontrado', 404);
+      if (!validateOwnership(req.userId, user._id))
+        return sendError(res, 'No autorizado', 403);
 
       // Token-bucket rate limiting
-      // capacity = 2, refill 1 token every 12 hours
-      const REFILL_MS = 12 * MS_HOUR;
-      // ensure fields exist
-      if (
-        typeof (user as any).packTokens !== 'number' ||
-        !(user as any).packLastRefill
-      ) {
-        (user as any).packTokens = 2;
-        (user as any).packLastRefill = new Date();
-      }
-      const now = Date.now();
-      const lastRefill = new Date((user as any).packLastRefill).getTime();
-      const refillCount = Math.floor((now - lastRefill) / REFILL_MS);
-      if (refillCount > 0) {
-        (user as any).packTokens = Math.min(
-          2,
-          ((user as any).packTokens || 0) + refillCount
-        );
-        (user as any).packLastRefill = new Date(
-          lastRefill + refillCount * REFILL_MS
-        );
-        await user.save();
-      }
-
-      if (((user as any).packTokens || 0) <= 0) {
-        const nextAllowed =
-          new Date((user as any).packLastRefill).getTime() + REFILL_MS;
+      const { tokens, nextAllowed } = computePackTokens(user);
+      if (tokens <= 0) {
         return res.status(429).send({
           error: 'No quedan tokens para abrir sobres. Espera para recargar.',
-          nextAllowed: new Date(nextAllowed),
+          nextAllowed,
         });
       }
 
@@ -593,9 +554,7 @@ userRouter.post(
       let cards = setResp?.data ?? setResp;
       if (!cards || !Array.isArray(cards)) cards = cards?.cards ?? [];
       if (!cards || cards.length === 0)
-        return res
-          .status(500)
-          .send({ error: 'No se pudieron obtener cartas del set' });
+        return sendError(res, 'No se pudieron obtener cartas del set', 500);
 
       // pick 9 random + 1 rare (reuse RARITY_ORDER logic client-side minimal)
       const RARITY_ORDER = [
@@ -630,25 +589,17 @@ userRouter.post(
 
       // persist PackOpen record
       await PackOpen.create({ userId: user._id });
-      // consume a token and persist user token state
-      (user as any).packTokens = Math.max(
-        0,
-        ((user as any).packTokens || 0) - 1
-      );
-      await user.save();
+      
+      // consume a token
+      await consumePackToken(user);
 
       // For each card, upsert into Card collections and create UserCard
       const createdUserCards: any[] = [];
       for (const c of pack) {
         const tcgId = c.id || c.pokemonTcgId || '';
         if (!tcgId) continue;
-        // try to find existing Card in DB
-        const found = await Promise.any([
-          PokemonCard.findOne({ pokemonTcgId: tcgId }).lean(),
-          TrainerCard.findOne({ pokemonTcgId: tcgId }).lean(),
-          EnergyCard.findOne({ pokemonTcgId: tcgId }).lean(),
-          Card.findOne({ pokemonTcgId: tcgId }).lean(),
-        ]).catch(() => null);
+        // try to find existing Card in DB (using discriminator)
+        const found = await Card.findOne({ pokemonTcgId: tcgId }).lean();
 
         let cardRefId = found?._id;
         if (!cardRefId) {
@@ -707,7 +658,7 @@ userRouter.post(
         .status(201)
         .send({ message: 'Pack opened', cards: createdUserCards });
     } catch (err: any) {
-      return res.status(500).send({ error: err?.message ?? String(err) });
+      return sendError(res, err?.message ?? String(err), 500);
     }
   }
 );
@@ -722,38 +673,21 @@ userRouter.get(
   async (req: AuthRequest, res) => {
     try {
       const { identifier } = req.params;
-      const filterUser = mongoose.Types.ObjectId.isValid(identifier)
-        ? { _id: identifier }
-        : { username: identifier };
-      const user = await User.findOne(filterUser);
+
+      const user = await findUserByIdentifier(identifier);
       if (!user)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
-      if (req.userId?.toString() !== user._id.toString())
-        return res.status(403).send({ error: 'No autorizado' });
+        return sendError(res, 'Usuario no encontrado', 404);
+      if (!validateOwnership(req.userId, user._id))
+        return sendError(res, 'No autorizado', 403);
 
       // compute token-based status
-      const REFILL_MS = 12 * MS_HOUR;
-      const now = Date.now();
-      const lastRefill = new Date((user as any).packLastRefill).getTime();
-      let tokens =
-        typeof (user as any).packTokens === 'number'
-          ? (user as any).packTokens
-          : 2;
-      const refillCount = Math.floor((now - lastRefill) / REFILL_MS);
-      if (refillCount > 0) tokens = Math.min(2, tokens + refillCount);
-      let nextAllowed: Date | null = null;
-      if (tokens <= 0) {
-        nextAllowed = new Date(lastRefill + REFILL_MS);
-      }
+      const { tokens, nextAllowed } = computePackTokens(user);
+      
       // still return count24 for compatibility
-      const dayAgo = new Date(now - 24 * MS_HOUR);
-      const count24 = await PackOpen.countDocuments({
-        userId: user._id,
-        createdAt: { $gte: dayAgo },
-      });
-      return res.send({ remaining: tokens, count24, nextAllowed });
+      const count24 = await getPackOpenCount24h(PackOpen, user._id);
+      return sendSuccess(res, { remaining: tokens, count24, nextAllowed });
     } catch (err: any) {
-      return res.status(500).send({ error: err?.message ?? String(err) });
+      return sendError(res, err?.message ?? String(err), 500);
     }
   }
 );
@@ -769,27 +703,25 @@ userRouter.post(
     try {
       const { identifier } = req.params;
       const { code } = req.body || {};
-      const filterUser = mongoose.Types.ObjectId.isValid(identifier)
-        ? { _id: identifier }
-        : { username: identifier };
-      const user = await User.findOne(filterUser);
+
+      const user = await findUserByIdentifier(identifier);
       if (!user)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
-      if (req.userId?.toString() !== user._id.toString())
-        return res.status(403).send({ error: 'No autorizado' });
+        return sendError(res, 'Usuario no encontrado', 404);
+      if (!validateOwnership(req.userId, user._id))
+        return sendError(res, 'No autorizado', 403);
 
       const adminCode = process.env.ADMIN_RESET_CODE || 'ADMIN';
       if (!code || String(code) !== adminCode)
-        return res.status(403).send({ error: 'Código inválido' });
+        return sendError(res, 'Código inválido', 403);
 
       await PackOpen.deleteMany({ userId: user._id });
       // reset token bucket on user
       (user as any).packTokens = 2;
       (user as any).packLastRefill = new Date();
       await user.save();
-      return res.send({ message: 'Reset de límites de sobres realizado' });
+      return sendSuccess(res, { message: 'Reset de límites de sobres realizado' });
     } catch (err: any) {
-      return res.status(500).send({ error: err?.message ?? String(err) });
+      return sendError(res, err?.message ?? String(err), 500);
     }
   }
 );
@@ -804,14 +736,12 @@ userRouter.patch(
   async (req: AuthRequest, res) => {
     try {
       const { identifier, userCardId } = req.params;
-      const filterUser = mongoose.Types.ObjectId.isValid(identifier)
-        ? { _id: identifier }
-        : { username: identifier };
-      const user = await User.findOne(filterUser);
+
+      const user = await findUserByIdentifier(identifier);
       if (!user)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
-      if (req.userId?.toString() !== user._id.toString())
-        return res.status(403).send({ error: 'No autorizado' });
+        return sendError(res, 'Usuario no encontrado', 404);
+      if (!validateOwnership(req.userId, user._id))
+        return sendError(res, 'No autorizado', 403);
 
       const allowed = [
         'quantity',
@@ -825,22 +755,20 @@ userRouter.patch(
       const updates = Object.keys(req.body);
       const valid = updates.every((k) => allowed.includes(k));
       if (!valid)
-        return res.status(400).send({ error: 'Actualización no permitida' });
+        return sendError(res, 'Actualización no permitida', 400);
 
       const userCard = await UserCard.findOne({
         _id: userCardId,
         userId: user._id,
       });
       if (!userCard)
-        return res.status(404).send({ error: 'UserCard no encontrada' });
+        return sendError(res, 'UserCard no encontrada', 404);
 
       updates.forEach((k) => ((userCard as any)[k] = req.body[k]));
       await userCard.save();
-      res.send({ message: 'UserCard actualizada', userCard });
+      sendSuccess(res, { message: 'UserCard actualizada', userCard });
     } catch (error) {
-      res
-        .status(500)
-        .send({ error: (error as Error).message ?? String(error) });
+      sendError(res, (error as Error).message ?? String(error), 500);
     }
   }
 );
@@ -855,26 +783,22 @@ userRouter.delete(
   async (req: AuthRequest, res) => {
     try {
       const { identifier, userCardId } = req.params;
-      const filterUser = mongoose.Types.ObjectId.isValid(identifier)
-        ? { _id: identifier }
-        : { username: identifier };
-      const user = await User.findOne(filterUser);
+
+      const user = await findUserByIdentifier(identifier);
       if (!user)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
-      if (req.userId?.toString() !== user._id.toString())
-        return res.status(403).send({ error: 'No autorizado' });
+        return sendError(res, 'Usuario no encontrado', 404);
+      if (!validateOwnership(req.userId, user._id))
+        return sendError(res, 'No autorizado', 403);
 
       const removed = await UserCard.findOneAndDelete({
         _id: userCardId,
         userId: user._id,
       });
       if (!removed)
-        return res.status(404).send({ error: 'UserCard no encontrada' });
-      res.send({ message: 'UserCard eliminada', removed });
+        return sendError(res, 'UserCard no encontrada', 404);
+      sendSuccess(res, { message: 'UserCard eliminada', removed });
     } catch (error) {
-      res
-        .status(500)
-        .send({ error: (error as Error).message ?? String(error) });
+      sendError(res, (error as Error).message ?? String(error), 500);
     }
   }
 );
@@ -989,7 +913,7 @@ userRouter.get(
       );
 
       if (!user)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
+        return sendError(res, 'Usuario no encontrado', 404);
 
       const requests = user.friendRequests.map((req: any) => ({
         requestId: req._id,
@@ -1000,9 +924,9 @@ userRouter.get(
         createdAt: req.createdAt,
       }));
 
-      res.send({ requests });
+      sendSuccess(res, { requests });
     } catch (err: any) {
-      res.status(500).send({ error: err.message });
+      sendError(res, err.message, 500);
     }
   }
 );
@@ -1018,43 +942,35 @@ userRouter.post(
     try {
       const { friendIdentifier } = req.params;
       const currentUserId = req.userId;
-      const currentUsername = req.username;
 
-      const me = await User.findById(currentUserId);
-      if (!me)
-        return res.status(404).send({ error: 'Usuario actual no encontrado' });
+      const me = await getCurrentUserOrFail(currentUserId, res);
+      if (!me) return;
 
-      const friend = await (mongoose.Types.ObjectId.isValid(friendIdentifier)
-        ? User.findById(friendIdentifier)
-        : User.findOne({ username: friendIdentifier }));
-
+      const friend = await findFriendByIdentifier(friendIdentifier);
       if (!friend)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
+        return sendError(res, 'Usuario no encontrado', 404);
 
-      const hadRequest = me.friendRequests.some(
-        (r: any) => r.from.toString() === friend._id.toString()
-      );
-      if (!hadRequest) {
-        return res
-          .status(400)
-          .send({ error: 'No había solicitud pendiente de este usuario' });
+      if (!hasPendingFriendRequest(me, friend._id)) {
+        return sendError(res, 'No había solicitud pendiente de este usuario', 400);
       }
-      if (!me.friends.includes(friend._id)) {
-        me.friends.push(friend._id);
-      }
-      if (!friend.friends.includes(me._id)) {
-        friend.friends.push(me._id);
-      }
-      (me.friendRequests as any) = (me.friendRequests as any).filter(
-        (r: any) => r.from.toString() !== friend._id.toString()
-      );
+      
+      addFriendBidirectional(me, friend);
+      removeFriendRequest(me, friend._id);
 
       await me.save();
       await friend.save();
 
-      res.send({ message: 'Solicitud aceptada', friends: me.friends });
+      // Notificar al amigo que la solicitud fue aceptada
+      const friendIdStr = friend._id.toString();
+      req.io.to(`user:${friendIdStr}`).emit('friendRequestAccepted', {
+        userId: me._id,
+        username: me.username,
+        profileImage: me.profileImage || '',
+      });
+
+      sendSuccess(res, { message: 'Solicitud aceptada', friends: me.friends });
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      sendError(res, error.message, 500);
     }
   }
 );
@@ -1071,26 +987,26 @@ userRouter.post(
       const { friendIdentifier } = req.params;
       const currentUserId = req.userId;
 
-      const me = await User.findById(currentUserId);
-      if (!me)
-        return res.status(404).send({ error: 'Usuario actual no encontrado' });
+      const me = await getCurrentUserOrFail(currentUserId, res);
+      if (!me) return;
 
-      const friend = await (mongoose.Types.ObjectId.isValid(friendIdentifier)
-        ? User.findById(friendIdentifier)
-        : User.findOne({ username: friendIdentifier }));
-
+      const friend = await findFriendByIdentifier(friendIdentifier);
       if (!friend)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
+        return sendError(res, 'Usuario no encontrado', 404);
 
-      (me.friendRequests as any) = (me.friendRequests as any).filter(
-        (r: any) => r.from.toString() !== friend._id.toString()
-      );
+      removeFriendRequest(me, friend._id);
 
       await me.save();
 
-      res.send({ message: 'Solicitud rechazada' });
+      // Notificar al amigo que la solicitud fue rechazada
+      req.io.to(`user:${friend._id}`).emit('friendRequestRejected', {
+        userId: me._id,
+        username: me.username,
+      });
+
+      sendSuccess(res, { message: 'Solicitud rechazada' });
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      sendError(res, error.message, 500);
     }
   }
 );
@@ -1108,19 +1024,14 @@ userRouter.get(
       const currentUserId = req.userId;
 
       if (!currentUserId) {
-        return res.status(401).send({ error: 'No autenticado' });
+        return sendError(res, 'No autenticado', 401);
       }
 
-      const messages = await ChatMessage.find({
-        $or: [
-          { from: currentUserId, to: otherUserId },
-          { from: otherUserId, to: currentUserId },
-        ],
-      }).sort({ createdAt: 1 });
+      const messages = await getChatHistoryBetween(ChatMessage, currentUserId, otherUserId);
 
-      res.send({ messages });
+      sendSuccess(res, { messages });
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      sendError(res, error.message, 500);
     }
   }
 );
@@ -1137,38 +1048,22 @@ userRouter.delete(
       const { friendIdentifier } = req.params;
       const currentUserId = req.userId;
 
-      const me = await User.findById(currentUserId);
-      if (!me)
-        return res.status(404).send({ error: 'Usuario actual no encontrado' });
+      const me = await getCurrentUserOrFail(currentUserId, res);
+      if (!me) return;
 
-      const friend = await (mongoose.Types.ObjectId.isValid(friendIdentifier)
-        ? User.findById(friendIdentifier)
-        : User.findOne({ username: friendIdentifier }));
-
+      const friend = await findFriendByIdentifier(friendIdentifier);
       if (!friend)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
+        return sendError(res, 'Usuario no encontrado', 404);
 
-      me.friends = me.friends.filter(
-        (id: any) => id.toString() !== friend._id.toString()
-      );
-
-      friend.friends = friend.friends.filter(
-        (id: any) => id.toString() !== me._id.toString()
-      );
-
-      await ChatMessage.deleteMany({
-        $or: [
-          { from: currentUserId, to: friend._id },
-          { from: friend._id, to: currentUserId },
-        ],
-      });
+      removeFriendBidirectional(me, friend);
+      await deleteChatHistoryBetween(ChatMessage, currentUserId, friend._id);
 
       await me.save();
       await friend.save();
 
-      res.send({ message: 'Amigo eliminado correctamente' });
+      sendSuccess(res, { message: 'Amigo eliminado correctamente' });
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      sendError(res, error.message, 500);
     }
   }
 );
@@ -1184,13 +1079,18 @@ userRouter.get(
     try {
       const { userId } = req.params;
 
-      const users = await User.find({
-        friendRequests: { $elemMatch: { from: userId } },
-      }).select('username _id');
+      // Convertir a ObjectId si es válido
+      const userObjectId = userId.match(/^[0-9a-fA-F]{24}$/)
+        ? new mongoose.Types.ObjectId(userId)
+        : userId;
 
-      res.send({ sent: users });
+      const users = await User.find({
+        friendRequests: { $elemMatch: { from: userObjectId } },
+      }).select('username _id profileImage');
+
+      sendSuccess(res, { sent: users });
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      sendError(res, error.message, 500);
     }
   }
 );
@@ -1207,12 +1107,10 @@ userRouter.delete(
       const { friendIdentifier } = req.params;
       const currentUserId = req.userId;
 
-      const friend = await (mongoose.Types.ObjectId.isValid(friendIdentifier)
-        ? User.findById(friendIdentifier)
-        : User.findOne({ username: friendIdentifier }));
+      const friend = await findFriendByIdentifier(friendIdentifier);
 
       if (!friend)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
+        return sendError(res, 'Usuario no encontrado', 404);
 
       friend.friendRequests = (friend.friendRequests as any).filter(
         (r: any) => r.from.toString() !== currentUserId!.toString()
@@ -1220,9 +1118,9 @@ userRouter.delete(
 
       await friend.save();
 
-      res.send({ message: 'Solicitud enviada cancelada correctamente' });
+      sendSuccess(res, { message: 'Solicitud enviada cancelada correctamente' });
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      sendError(res, error.message, 500);
     }
   }
 );
@@ -1241,23 +1139,19 @@ userRouter.post(
 
       const me = await User.findById(currentUserId);
       if (!me)
-        return res.status(404).send({ error: 'Usuario actual no encontrado' });
+        return sendError(res, 'Usuario actual no encontrado', 404);
 
-      const friend = await (mongoose.Types.ObjectId.isValid(friendIdentifier)
-        ? User.findById(friendIdentifier)
-        : User.findOne({ username: friendIdentifier }));
+      const friend = await findFriendByIdentifier(friendIdentifier);
 
       if (!friend)
-        return res.status(404).send({ error: 'Usuario no encontrado' });
+        return sendError(res, 'Usuario no encontrado', 404);
 
       if (friend._id.equals(me._id)) {
-        return res
-          .status(400)
-          .send({ error: 'No puedes enviarte solicitud a ti mismo' });
+        return sendError(res, 'No puedes enviarte solicitud a ti mismo', 400);
       }
 
       if (me.friends.includes(friend._id)) {
-        return res.status(400).send({ error: 'Ya sois amigos' });
+        return sendError(res, 'Ya sois amigos', 400);
       }
 
       const already = friend.friendRequests.some(
@@ -1265,9 +1159,7 @@ userRouter.post(
       );
 
       if (already) {
-        return res
-          .status(400)
-          .send({ error: 'La solicitud ya está pendiente' });
+        return sendError(res, 'La solicitud ya está pendiente', 400);
       }
 
       friend.friendRequests.push({ from: me._id });
@@ -1280,11 +1172,20 @@ userRouter.post(
         isRead: false,
       });
 
-      req.io.to(`user:${friend._id}`).emit('notification', notification);
+      const friendIdStr = friend._id.toString();
+      req.io.to(`user:${friendIdStr}`).emit('notification', notification);
+      
+      // Emitir evento para actualizar la lista de solicitudes recibidas
+      req.io.to(`user:${friendIdStr}`).emit('friendRequestReceived', {
+        userId: me._id,
+        username: me.username,
+        email: me.email,
+        profileImage: me.profileImage || '',
+      });
 
-      res.send({ message: 'Solicitud enviada correctamente' });
+      sendSuccess(res, { message: 'Solicitud enviada correctamente' });
     } catch (error) {
-      res.status(500).send({ error: 'Error procesando solicitud' });
+      sendError(res, 'Error procesando solicitud', 500);
     }
   }
 );
@@ -1300,7 +1201,7 @@ userRouter.get(
     try {
       const currentUserId = req.userId;
       if (!currentUserId) {
-        return res.status(401).send({ error: 'No autenticado' });
+        return sendError(res, 'No autenticado', 401);
       }
 
       const me = await User.findById(currentUserId).populate(
@@ -1309,17 +1210,15 @@ userRouter.get(
       );
 
       if (!me) {
-        return res.status(404).send({ error: 'Usuario actual no encontrado' });
+        return sendError(res, 'Usuario actual no encontrado', 404);
       }
 
-      return res.send({
+      return sendSuccess(res, {
         friends: me.friends || [],
       });
     } catch (error: any) {
       console.error('Error cargando amigos:', error);
-      return res
-        .status(500)
-        .send({ error: error.message ?? 'Error cargando amigos' });
+      return sendError(res, error.message ?? 'Error cargando amigos', 500);
     }
   }
 );

@@ -107,7 +107,8 @@
     "proposeTrade": "Propose Trade",
     "gridDensity": "Grid Density",
     "gridNormal": "Normal",
-    "gridLarge": "Large"
+    "gridLarge": "Large",
+    "alreadyExists": "A trade already exists with this user."
   },
   "friends": {
     "title": "Friends",
@@ -354,6 +355,13 @@
     "title": "Trade Requests",
     "accept": "Accepted",
     "reject": "Rejected",
-    "cancel": "Cancelled"
+    "cancel": "Cancelled",
+    "confirmDeleteTitle": "Delete Trade Request",
+    "confirmDelete": "Are you sure you want to delete this trade request?",
+    "deleted": "Trade request deleted successfully.",
+    "errorDelete": "Error deleting trade request.",
+    "confirmAcceptTitle": "Accept Request?",
+    "confirmRejectTitle": "Reject Request?",
+    "confirmCancelTitle": "Cancel Request?"
   }
 }

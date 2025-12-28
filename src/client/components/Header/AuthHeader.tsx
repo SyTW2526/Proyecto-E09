@@ -26,7 +26,7 @@ const AuthHeader: React.FC<AuthHeaderProps> = ({ onSignIn, onSignUp }) => {
         <div />
 
         <div className="siteHeader__right">
-          <nav className="topNav">
+          <nav className="topNav topNav--auth">
             <button onClick={onSignIn} className="topNav__link" type="button">
               {t('header.signIn')}
             </button>

@@ -5,6 +5,7 @@ import { authService } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../styles/request.css';
+import ConfirmModal from '@/components/ConfirmModal';
 
 interface TradeUser {
   _id: string;
@@ -43,6 +44,16 @@ const TradeRequestsPage: React.FC = () => {
   const [sentRequests, setSentRequests] = useState<TradeRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{
+    title: string;
+    message: string;
+    variant?: 'success' | 'error' | 'info';
+  } | null>(null);
+
+  const [actionModal, setActionModal] = useState<{
+    type: 'accept' | 'reject' | 'cancel';
+    requestId: string;
+  } | null>(null);
 
   const baseUrl = 'http://localhost:3000';
   const token = localStorage.getItem('token') || '';
@@ -105,13 +116,20 @@ const TradeRequestsPage: React.FC = () => {
       setReceivedRequests(recData.requests || []);
       setSentRequests(sentData.requests || []);
     } catch (e: any) {
-      setError(
+      const msg =
         e.message ||
-          t(
-            'tradeReq.errorGeneral',
-            'An error occurred while loading trade requests.'
-          )
-      );
+        t(
+          'tradeReq.errorGeneral',
+          'An error occurred while loading trade requests.'
+        );
+
+      setConfirmModal({
+        title: t('common.error', 'Error'),
+        message: msg,
+        variant: 'error',
+      });
+
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -145,17 +163,27 @@ const TradeRequestsPage: React.FC = () => {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
   }, [receivedRequests, sentRequests]);
-  const handleAccept = async (requestId: string) => {
-    if (
-      !confirm(
-        t(
-          'tradeReq.confirmAccept',
-          'Are you sure you want to accept this request?'
-        )
-      )
-    )
-      return;
+  const executeAction = async () => {
+    if (!actionModal) return;
 
+    const { type, requestId } = actionModal;
+
+    try {
+      if (type === 'accept') {
+        await handleAccept(requestId);
+      }
+      if (type === 'reject') {
+        await handleReject(requestId);
+      }
+      if (type === 'cancel') {
+        await handleCancel(requestId);
+      }
+    } finally {
+      setActionModal(null);
+    }
+  };
+
+  const handleAccept = async (requestId: string) => {
     try {
       const resp = await fetch(
         `${baseUrl}/trade-requests/${requestId}/accept`,
@@ -172,25 +200,24 @@ const TradeRequestsPage: React.FC = () => {
       if (data.privateRoomCode) {
         navigate(`/trade-room/${data.privateRoomCode}`);
       } else {
-        alert(t('tradeReq.accepted', 'Request accepted successfully.'));
+        setConfirmModal({
+          title: t('tradeReq.acceptedStatus'),
+          message: t('tradeReq.accepted', 'Request accepted successfully.'),
+          variant: 'success',
+        });
+
         await loadRequests();
       }
     } catch (e: any) {
-      alert(e.message || t('tradeReq.errorAccept'));
+      setConfirmModal({
+        title: t('common.error', 'Error'),
+        message: e.message || t('tradeReq.errorAccept'),
+        variant: 'error',
+      });
     }
   };
 
   const handleReject = async (requestId: string) => {
-    if (
-      !confirm(
-        t(
-          'tradeReq.confirmReject',
-          'Are you sure you want to reject this request?'
-        )
-      )
-    )
-      return;
-
     try {
       const resp = await fetch(
         `${baseUrl}/trade-requests/${requestId}/reject`,
@@ -203,24 +230,22 @@ const TradeRequestsPage: React.FC = () => {
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok) throw new Error(data.error || t('tradeReq.errorReject'));
 
-      alert(t('tradeReq.rejected', 'Request rejected.'));
+      setConfirmModal({
+        title: t('tradeReq.rejected', 'Request rejected.'),
+        message: t('tradeReq.rejected', 'Request rejected.'),
+        variant: 'success',
+      });
       loadRequests();
     } catch (e: any) {
-      alert(e.message || t('tradeReq.errorReject'));
+      setConfirmModal({
+        title: t('common.error', 'Error'),
+        message: e.message || t('tradeReq.errorAccept'),
+        variant: 'error',
+      });
     }
   };
 
   const handleCancel = async (requestId: string) => {
-    if (
-      !confirm(
-        t(
-          'tradeReq.confirmCancel',
-          'Are you sure you want to cancel this request?'
-        )
-      )
-    )
-      return;
-
     try {
       const resp = await fetch(
         `${baseUrl}/trade-requests/${requestId}/cancel`,
@@ -233,10 +258,18 @@ const TradeRequestsPage: React.FC = () => {
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok) throw new Error(data.error || t('tradeReq.errorCancel'));
 
-      alert(t('tradeReq.cancelled', 'Request cancelled.'));
+      setConfirmModal({
+        title: t('tradeReq.cancelled', 'Request cancelled.'),
+        message: t('tradeReq.cancelled', 'Request cancelled.'),
+        variant: 'success',
+      });
       loadRequests();
     } catch (e: any) {
-      alert(e.message || t('tradeReq.errorCancel'));
+      setConfirmModal({
+        title: t('common.error', 'Error'),
+        message: e.message || t('tradeReq.errorAccept'),
+        variant: 'error',
+      });
     }
   };
 
@@ -322,8 +355,6 @@ const TradeRequestsPage: React.FC = () => {
           </p>
         )}
 
-        {error && !loading && <p className="trade-requests-error">{error}</p>}
-
         {!loading && !error && (
           <div className="trade-requests-columns">
             <section className="trade-panel">
@@ -385,13 +416,23 @@ const TradeRequestsPage: React.FC = () => {
                             <>
                               <button
                                 className="btn-blue-small"
-                                onClick={() => handleAccept(req._id)}
+                                onClick={() =>
+                                  setActionModal({
+                                    type: 'accept',
+                                    requestId: req._id,
+                                  })
+                                }
                               >
                                 {t('tradeReq.accept')}
                               </button>
                               <button
                                 className="btn-red-small"
-                                onClick={() => handleReject(req._id)}
+                                onClick={() =>
+                                  setActionModal({
+                                    type: 'reject',
+                                    requestId: req._id,
+                                  })
+                                }
                               >
                                 {t('tradeReq.reject')}
                               </button>
@@ -465,7 +506,12 @@ const TradeRequestsPage: React.FC = () => {
                           {req.status === 'pending' && (
                             <button
                               className="btn-red-small"
-                              onClick={() => handleCancel(req._id)}
+                              onClick={() =>
+                                setActionModal({
+                                  type: 'cancel',
+                                  requestId: req._id,
+                                })
+                              }
                             >
                               {t('tradeReq.cancel')}
                             </button>
@@ -569,6 +615,46 @@ const TradeRequestsPage: React.FC = () => {
       </main>
 
       <Footer />
+      {confirmModal && (
+        <ConfirmModal
+          open={true}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          variant={confirmModal.variant}
+          onClose={() => setConfirmModal(null)}
+        />
+      )}
+      {actionModal && (
+        <ConfirmModal
+          open={true}
+          title={
+            actionModal.type === 'accept'
+              ? t('tradeReq.confirmAcceptTitle', 'Accept trade request')
+              : actionModal.type === 'reject'
+                ? t('tradeReq.confirmRejectTitle', 'Reject trade request')
+                : t('tradeReq.confirmCancelTitle', 'Cancel trade request')
+          }
+          message={
+            actionModal.type === 'accept'
+              ? t(
+                  'tradeReq.confirmAccept',
+                  'Are you sure you want to accept this trade request?'
+                )
+              : actionModal.type === 'reject'
+                ? t(
+                    'tradeReq.confirmReject',
+                    'Are you sure you want to reject this trade request?'
+                  )
+                : t(
+                    'tradeReq.confirmCancel',
+                    'Are you sure you want to cancel this trade request?'
+                  )
+          }
+          variant={actionModal.type === 'accept' ? 'success' : 'error'}
+          onConfirm={executeAction}
+          onClose={() => setActionModal(null)}
+        />
+      )}
     </div>
   );
 };

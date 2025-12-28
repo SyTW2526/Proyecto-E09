@@ -9,6 +9,7 @@ import {
 import { addNotification } from './features/notifications/notificationsSlice';
 import { initSocket, getSocket } from './socket';
 import ToastContainer from './components/toast';
+import ToastManager from './components/ToastManager';
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
@@ -67,6 +68,7 @@ const App: React.FC = () => {
 
   return (
     <>
+      <ToastManager />
       <AppRouter />
       <ToastContainer />
     </>

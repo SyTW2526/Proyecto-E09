@@ -108,7 +108,8 @@
     "proposeTrade": "Proponer intercambio",
     "gridDensity": "Densidad de cuadrícula",
     "gridNormal": "Normal",
-    "gridLarge": "Grande"
+    "gridLarge": "Grande",
+    "alreadyExists": "Ya existe un intercambio activo con este usuario."
   },
   "friends": {
     "title": "Amigos",
@@ -364,6 +365,13 @@
     "title": "Solicitudes de Intercambio",
     "accept": "Aceptar",
     "reject": "Rechazar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "deleted": "Solicitud de intercambio eliminada correctamente.",
+    "confirmDeleteTitle": "Eliminar Solicitud de Intercambio",
+    "confirmDelete": "¿Estás seguro de que deseas eliminar esta solicitud de intercambio?",
+    "errorDelete": "Error al eliminar la solicitud de intercambio.",
+    "confirmAcceptTitle": "¿Aceptar Solicitud?",
+    "confirmRejectTitle": "¿Rechazar Solicitud?",
+    "confirmCancelTitle": "¿Cancelar Solicitud?"
   }
 }

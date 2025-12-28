@@ -12,6 +12,10 @@
  */
 
 import { io } from 'socket.io-client';
+import { store } from '@/store/store';
+import { addNotification } from '@/features/notifications/notificationsSlice';
+import { toast } from '@/components/ToastManager';
+import type { Notification } from '@/features/notifications/notificationsSlice';
 
 /**
  * Instancia global de Socket.io
@@ -54,6 +58,20 @@ export function initSocket() {
   socket.on('connect', () => {
     console.log('Socket conectado:', socket.id);
   });
+  /*
+   * Evento de nueva solicitud
+   */
+  socket.on('notification', (notification: Notification) => {
+    console.log('Notificación:', notification);
+
+    toast.push({
+      title: notification.title,
+      message: notification.message,
+    });
+
+    store.dispatch(addNotification(notification));
+  });
+
   /**
    * Evento de desconexión
    * Se dispara cuando se pierde la conexión con el servidor

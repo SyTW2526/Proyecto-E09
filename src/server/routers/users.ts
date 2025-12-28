@@ -1048,6 +1048,18 @@ userRouter.post(
       (me.friendRequests as any) = (me.friendRequests as any).filter(
         (r: any) => r.from.toString() !== friend._id.toString()
       );
+      const notification = await Notification.create({
+        userId: friend._id,
+        title: 'Solicitud de amistad aceptada',
+        message: `${me.username} ha aceptado tu solicitud de amistad.`,
+        isRead: false,
+        data: {
+          type: 'friendAccepted',
+          friendId: me._id,
+        },
+      });
+
+      req.io.to(`user:${friend._id}`).emit('notification', notification);
 
       await me.save();
       await friend.save();

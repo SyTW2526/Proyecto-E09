@@ -92,6 +92,7 @@ tradeRequestRouter.post(
 
       if (exists) {
         return res.status(400).send({
+          errorCode: 'TRADE_ALREADY_EXISTS',
           error: isManual
             ? 'Ya existe una invitación pendiente de sala entre estos usuarios'
             : 'Ya existe una solicitud pendiente para esta carta entre estos usuarios',
@@ -123,11 +124,7 @@ tradeRequestRouter.post(
         isRead: false,
       });
 
-      if ((req as any).io) {
-        (req as any).io
-          .to(`user:${receiver._id}`)
-          .emit('notification', notification);
-      }
+      req.io.to(`user:${receiver._id}`).emit('notification', notification);
 
       res.status(201).send({
         message: isManual
@@ -272,11 +269,7 @@ tradeRequestRouter.post(
         },
       });
 
-      if ((req as any).io) {
-        (req as any).io
-          .to(`user:${request.from}`)
-          .emit('notification', notification);
-      }
+      req.io.to(`user:${request.from}`).emit('notification', notification);
 
       res.send({
         message: 'Solicitud aceptada',

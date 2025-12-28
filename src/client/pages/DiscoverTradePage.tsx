@@ -17,7 +17,7 @@ import '../styles/discover.css';
 import TradeModeModal from '@/components/Trade/TradeModeModal';
 import TradeMessageModal from '@/components/Trade/TradeMessageModal';
 import TradeOfferCardModal from '@/components/Trade/TradeOfferCardModal';
-
+import ConfirmModal from '@/components/ConfirmModal';
 interface ApiCardNormalized {
   id: string;
   name: string;
@@ -189,7 +189,11 @@ const DiscoverTradeCards: React.FC = () => {
 
   const [myCards, setMyCards] = useState<UserCard[]>([]);
   const [selectedMyCard, setSelectedMyCard] = useState<UserCard | null>(null);
-
+  const [confirmModal, setConfirmModal] = useState<{
+    title: string;
+    message: string;
+    variant?: 'success' | 'error' | 'info';
+  } | null>(null);
   const normalizeImageUrl = (url?: string) => {
     if (!url) return '';
     if (/\/(small|large|high|low)\.png$/i.test(url))
@@ -197,7 +201,24 @@ const DiscoverTradeCards: React.FC = () => {
     if (/\.(png|jpg|jpeg|gif|webp)$/i.test(url)) return url;
     return url.endsWith('/') ? url + 'high.png' : url + '/high.png';
   };
+  const translateTradeError = (code?: string) => {
+    switch (code) {
+      case 'TRADE_ALREADY_EXISTS':
+        return t(
+          'discover.alreadyExists',
+          'Ya existe un intercambio activo con este usuario.'
+        );
 
+      case 'TRADE_VALUE_DIFF_TOO_HIGH':
+        return t(
+          'discover.tradeValueDifferenceTooHigh',
+          'La diferencia de valor entre las cartas es demasiado alta.'
+        );
+
+      default:
+        return t('common.errorSendingRequest', 'Error enviando solicitud.');
+    }
+  };
   const normalizeApiCard = (raw: any): ApiCardNormalized => {
     const id = raw.pokemonTcgId || raw.id || '';
     let img =
@@ -633,19 +654,31 @@ const DiscoverTradeCards: React.FC = () => {
       const data = await resp.json();
 
       if (!resp.ok) {
-        alert(
-          data.error ||
-            t('common.errorSendingRequest', 'Error enviando solicitud.')
-        );
+        setConfirmModal({
+          title: t('common.error', 'Error'),
+          message:
+            translateTradeError(data.error) ||
+            t('common.errorSendingRequest', 'Error enviando solicitud.'),
+          variant: 'error',
+        });
+
         return;
       }
 
-      alert(t('common.requestSent', 'Solicitud enviada.'));
+      setConfirmModal({
+        title: t('common.done', 'Hecho'),
+        message: t('common.requestSent', 'Solicitud enviada'),
+        variant: 'success',
+      });
       setSelectedCardForTrade(null);
       setMessageModalVisible(false);
     } catch (err) {
       console.error(err);
-      alert(t('common.errorSendingRequest', 'Error enviando solicitud.'));
+      setConfirmModal({
+        title: t('common.error', 'Error'),
+        message: t('common.errorSendingRequest', 'Error enviando solicitud.'),
+        variant: 'error',
+      });
     }
   };
 
@@ -680,28 +713,33 @@ const DiscoverTradeCards: React.FC = () => {
       const data = await resp.json();
 
       if (!resp.ok) {
-        if (data.error === 'TRADE_VALUE_DIFF_TOO_HIGH') {
-          alert(
-            t(
-              'common.tradeValueDiffTooHigh',
-              'La diferencia de valor entre cartas es demasiado alta.'
-            )
-          );
-          return;
-        }
-        alert(
-          data.error ||
-            t('common.errorSendingRequest', 'Error enviando solicitud.')
-        );
+        setConfirmModal({
+          title: t('common.error', 'Error'),
+          message:
+            translateTradeError(data.error) ||
+            t('common.errorSendingRequest', 'Error enviando solicitud.'),
+          variant: 'error',
+        });
         return;
       }
 
-      alert(t('common.requestSentWithCard', 'Solicitud enviada con carta.'));
+      setConfirmModal({
+        title: t('common.done', 'Hecho'),
+        message: t(
+          'common.requestSentWithCard',
+          'Solicitud enviada con carta.'
+        ),
+        variant: 'success',
+      });
       setOfferModalVisible(false);
       setSelectedCardForTrade(null);
     } catch (err) {
       console.error(err);
-      alert(t('common.errorSendingRequest', 'Error enviando solicitud.'));
+      setConfirmModal({
+        title: t('common.error', 'Error'),
+        message: t('common.errorSendingRequest', 'Error enviando solicitud.'),
+        variant: 'error',
+      });
     }
   };
 
@@ -1027,6 +1065,15 @@ const DiscoverTradeCards: React.FC = () => {
       </main>
 
       <Footer />
+      {confirmModal && (
+        <ConfirmModal
+          open={true}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          variant={confirmModal.variant}
+          onClose={() => setConfirmModal(null)}
+        />
+      )}
     </div>
   );
 };

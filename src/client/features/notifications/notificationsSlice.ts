@@ -1,4 +1,17 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+const STORAGE_KEY = 'app_notifications';
+
+const loadFromStorage = () => {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  } catch {
+    return [];
+  }
+};
+
+const saveToStorage = (notifications: any[]) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
+};
 
 export interface Notification {
   _id: string;
@@ -20,7 +33,7 @@ interface NotificationsState {
 }
 
 const initialState: NotificationsState = {
-  notifications: [],
+  notifications: loadFromStorage(),
   unread: 0,
   loading: false,
   error: null,
@@ -42,6 +55,7 @@ const notificationsSlice = createSlice({
       if (!action.payload.isRead) {
         state.unread += 1;
       }
+      saveToStorage(state.notifications);
     },
 
     // Marcar como leída
@@ -53,6 +67,7 @@ const notificationsSlice = createSlice({
         notification.isRead = true;
         state.unread -= 1;
       }
+      saveToStorage(state.notifications);
     },
 
     // Marcar todas como leídas
@@ -61,6 +76,7 @@ const notificationsSlice = createSlice({
         n.isRead = true;
       });
       state.unread = 0;
+      saveToStorage(state.notifications);
     },
 
     // Eliminar notificación
@@ -74,6 +90,7 @@ const notificationsSlice = createSlice({
       state.notifications = state.notifications.filter(
         (n) => n._id !== action.payload
       );
+      saveToStorage(state.notifications);
     },
 
     // Establecer carga

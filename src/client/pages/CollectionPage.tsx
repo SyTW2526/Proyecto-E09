@@ -750,12 +750,16 @@ const CollectionPage: React.FC = () => {
                           </div>
 
                           <div className="backPrice">
-                            {d ? (
+                            {d || c.price ? (
                               (() => {
                                 const avg =
+                                  c?.price?.avg ??
                                   d?.price?.avg ??
+                                  c?.avg ??
                                   d?.avg ??
+                                  c?.price?.cardmarketAvg ??
                                   d?.price?.cardmarketAvg ??
+                                  c?.cardmarketAvg ??
                                   d?.cardmarketAvg ??
                                   null;
 

@@ -627,6 +627,7 @@ class ApiService {
           types: card.types,
           category: card.category,
           rarity: card.rarity,
+          price: card.price,
           forTrade: item.forTrade,
           pokemonTcgId: tcgId,
         });

@@ -30,7 +30,7 @@ interface Card {
 const FeaturedCards: React.FC = () => {
   const { t } = useTranslation();
 
-  const [currentIndex] = React.useState(0);
+  const [currentIndex, setCurrentIndex] = React.useState(0);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const trackRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -51,11 +51,25 @@ const FeaturedCards: React.FC = () => {
 
   const normalizeImageUrl = (url: string | undefined) => {
     if (!url) return '';
-    if (/\/(?:small|large|high|low)\.png$/i.test(url)) {
-      return url.replace(/\/(?:small|large|high|low)\.png$/i, '/high.png');
+    let s = String(url);
+    
+    // Correct malformed TCGdex URLs (missing series component)
+    const tcgdexMatch = s.match(/^(https?:\/\/assets\.tcgdex\.net\/)(?:jp|en)\/([a-z0-9.]+)\/(.+)$/i);
+    if (tcgdexMatch) {
+      const [, baseUrl, setCode, rest] = tcgdexMatch;
+      const seriesMatch = setCode.match(/^([a-z]+)/i);
+      if (seriesMatch) {
+        const series = seriesMatch[1].toLowerCase();
+        s = `${baseUrl}en/${series}/${setCode.toLowerCase()}/${rest}`;
+      }
     }
-    if (/\.(png|jpg|jpeg|gif|webp)$/i.test(url)) return url;
-    return url.endsWith('/') ? `${url}high.png` : `${url}/high.png`;
+    
+    // Normalize quality to high
+    if (/\/(?:small|large|high|low)\.png$/i.test(s)) {
+      return s.replace(/\/(?:small|large|high|low)\.png$/i, '/high.png');
+    }
+    if (/\.(png|jpg|jpeg|gif|webp)$/i.test(s)) return s;
+    return s.endsWith('/') ? `${s}high.png` : `${s}/high.png`;
   };
 
   React.useEffect(() => {
@@ -65,36 +79,40 @@ const FeaturedCards: React.FC = () => {
       try {
         setLoading(true);
         const base = 'http://localhost:3000';
-        const promises = featuredIds.map(async (tcgId) => {
-          const resp = await fetch(`${base}/cards`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: tcgId }),
-          });
-          if (!resp.ok)
-            throw new Error(`Failed to fetch ${tcgId}: ${resp.statusText}`);
-          const data = await resp.json();
-          return data.card;
-        });
-
-        const results = await Promise.all(promises);
+        
+        // Usar el nuevo endpoint /cards/featured que obtiene cartas directamente de TCGdex
+        const resp = await fetch(`${base}/cards/featured`);
+        if (!resp.ok) {
+          throw new Error(`Failed to fetch featured cards: ${resp.statusText}`);
+        }
+        
+        const data = await resp.json();
+        const cards = data.data || data;
+        
         if (!mounted) return;
 
-        const normalized: Card[] = results.map((c: any) => {
-          const id = c.pokemonTcgId || c._id || c.id || '';
-          let rawImage =
-            (c.images && (c.images.large || c.images.small)) ||
-            c.imageUrl ||
-            c.image ||
-            '';
-          if (!rawImage && id) {
-            const [setCode, number] = id.split('-');
-            const m = setCode ? String(setCode).match(/^[a-zA-Z]+/) : null;
-            const series = m ? m[0] : setCode ? setCode.slice(0, 2) : '';
-            if (setCode && number) {
-              rawImage = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+        const normalized: Card[] = cards
+          .filter((c: any) => c != null)
+          .map((c: any) => {
+            const id = c.pokemonTcgId || c._id || c.id || '';
+            let rawImage =
+              (c.images && (c.images.large || c.images.small)) ||
+              c.imageUrl ||
+              c.image ||
+              '';
+            
+            // Generar URL de TCGdex como fallback si no hay imagen
+            if (!rawImage && id) {
+              const [setCode, number] = id.split('-');
+              if (setCode && number) {
+                // Detectar si es carta japonesa (me, sv, etc.) o inglesa
+                const isJapanese = /^(me|sv|s|k|p|sm|xy)/i.test(setCode);
+                const lang = isJapanese ? 'jp' : 'en';
+                // Para cartas japonesas, extraer el código numérico
+                const cleanSetCode = setCode.toLowerCase();
+                rawImage = `https://assets.tcgdex.net/${lang}/${cleanSetCode}/${number}/high.png`;
+              }
             }
-          }
 
           const setName =
             c.set?.name || c.set?.series || c.set || c.series || '';
@@ -203,6 +221,28 @@ const FeaturedCards: React.FC = () => {
     if (!featuredCards || featuredCards.length <= 1) return featuredCards;
     return [...featuredCards, ...featuredCards, ...featuredCards];
   }, [featuredCards]);
+
+  const scrollToIndex = (index: number) => {
+    const container = containerRef.current;
+    const track = trackRef.current;
+    if (!container || !track) return;
+    const firstCard = track.querySelector<HTMLElement>('.featured-card');
+    if (!firstCard) return;
+    const gap = 24;
+    const cardWidth = firstCard.offsetWidth + gap;
+    const left = index * cardWidth;
+    container.scrollTo({ left, behavior: 'smooth' });
+  };
+
+  const scrollByCard = (direction: 'next' | 'prev') => {
+    if (!tripleList || tripleList.length === 0) return;
+    const nextIndex =
+      direction === 'next'
+        ? (currentIndex + 1) % tripleList.length
+        : (currentIndex - 1 + tripleList.length) % tripleList.length;
+    setCurrentIndex(nextIndex);
+    scrollToIndex(nextIndex);
+  };
 
   const PokemonCard = ({ card }: { card: Card }) => {
     const [isFlipped, setIsFlipped] = React.useState(false);
@@ -359,42 +399,22 @@ const FeaturedCards: React.FC = () => {
     );
   };
 
-  const scrollByCard = (direction: 'next' | 'prev') => {
-    const container = containerRef.current;
-    const track = trackRef.current;
-    if (!container || !track) return;
-
-    const firstCard = track.querySelector<HTMLElement>('.featured-card');
-    if (!firstCard) return;
-
-    const gap = 24;
-    const cardWidth = firstCard.offsetWidth + gap;
-
-    container.scrollBy({
-      left: direction === 'next' ? cardWidth : -cardWidth,
-      behavior: 'smooth',
-    });
-  };
-
   React.useEffect(() => {
-    if (!featuredCards || featuredCards.length <= 1) return;
-    const id = setInterval(() => scrollByCard('next'), 5000);
+    if (!tripleList || tripleList.length <= 1) return;
+    const id = setInterval(() => {
+      setCurrentIndex((prev) => {
+        const next = (prev + 1) % tripleList.length;
+        scrollToIndex(next);
+        return next;
+      });
+    }, 5000);
     return () => clearInterval(id);
-  }, [featuredCards]);
+  }, [tripleList]);
 
   React.useEffect(() => {
-    const container = containerRef.current;
-    const track = trackRef.current;
-    if (!container || !track) return;
-
     if (!featuredCards || featuredCards.length <= 1) return;
-
-    const timer = setTimeout(() => {
-      const singleWidth = track.scrollWidth / 3;
-      container.scrollLeft = singleWidth;
-    }, 150);
-
-    return () => clearTimeout(timer);
+    setCurrentIndex(0);
+    setTimeout(() => scrollToIndex(0), 150);
   }, [tripleList, featuredCards]);
 
   return (

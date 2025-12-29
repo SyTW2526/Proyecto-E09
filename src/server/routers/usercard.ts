@@ -3,6 +3,13 @@ import { UserCard } from '../models/UserCard.js';
 import { User } from '../models/User.js';
 import { Card } from '../models/Card.js';
 import { getCardsByName } from '../services/pokemon.js';
+import { upsertCardFromRaw } from '../services/cards.js';
+import {
+  isValidCollectionType,
+  getUserCardsPaginated,
+  findUserOrFail,
+} from '../utils/userHelpers.js';
+import { sendSuccess, sendError } from '../utils/responseHelpers.js';
 export const userCardRouter = express.Router();
 
 userCardRouter.post('/usercards/import', async (req, res) => {
@@ -30,19 +37,12 @@ userCardRouter.post('/usercards/import', async (req, res) => {
     const createdUserCards = [];
 
     for (const c of cards) {
-      const image = c.images.small || c.images.large;
-
-      let localCard = await Card.findOne({ pokemonTcgId: c.id });
+      // Usar upsertCardFromRaw para guardar la carta correctamente con el patrón discriminator
+      let localCard = await upsertCardFromRaw(c);
+      
       if (!localCard) {
-        localCard = await Card.create({
-          name: c.name,
-          imageUrl: image,
-          rarity: c.rarity || 'Common',
-          pokemonTcgId: c.id,
-          series: c.set?.series || '',
-          set: c.set?.name || '',
-          types: c.types || [],
-        });
+        console.warn(`No se pudo guardar la carta: ${c.id}`);
+        continue;
       }
 
       const userCard = await UserCard.findOneAndUpdate(
@@ -77,15 +77,11 @@ userCardRouter.post('/usercards/import', async (req, res) => {
 userCardRouter.post('/usercards/:username/:type', async (req, res) => {
   try {
     const { username, type } = req.params;
-    if (!['collection', 'wishlist'].includes(type)) {
-      return res
-        .status(400)
-        .send({ error: 'Tipo inválido. Use "collection" o "wishlist".' });
+    if (!isValidCollectionType(type)) {
+      return sendError(res, 'Tipo inválido. Use "collection" o "wishlist".', 400);
     }
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).send({ error: 'Usuario no encontrado' });
-    }
+    const user = await findUserOrFail(username, res);
+    if (!user) return;
 
     const newCard = new UserCard({
       ...req.body,
@@ -94,9 +90,9 @@ userCardRouter.post('/usercards/:username/:type', async (req, res) => {
     });
 
     await newCard.save();
-    res.status(201).send(newCard);
-  } catch (error) {
-    res.status(400).send({ error: (error as Error).message ?? String(error) });
+    return sendSuccess(res, newCard, 'Carta añadida exitosamente', 201);
+  } catch (error: any) {
+    return sendError(res, error);
   }
 });
 /**
@@ -123,8 +119,9 @@ userCardRouter.get('/usercards/discover', async (req, res) => {
     const total = await UserCard.countDocuments(filter);
 
     const cards = await UserCard.find(filter)
+      .select('userId cardId pokemonTcgId quantity forTrade condition collectionType createdAt')
       .populate('userId', 'username profileImage')
-      .populate('cardId')
+      .populate('cardId', 'name images rarity set price pokemonTcgId category hp types abilities attacks artist illustrator series')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit));
@@ -149,45 +146,24 @@ userCardRouter.get('/usercards/discover', async (req, res) => {
 userCardRouter.get('/usercards/:username', async (req, res) => {
   try {
     const { username } = req.params;
-    // when client omits `limit`, return all results (no DB limit)
-    const { page = '1', limit, forTrade } = req.query as any;
+    const { page, limit, forTrade } = req.query;
 
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).send({ error: 'Usuario no encontrado' });
+    const result = await getUserCardsPaginated(username, {}, { page, limit, forTrade });
+
+    if (result.error) {
+      return sendError(res, result.error, result.statusCode);
     }
 
-    const pageNum = Number(page) || 1;
-    const limitNum = limit !== undefined ? Number(limit) : null;
-    const skip = limitNum ? (pageNum - 1) * limitNum : 0;
-
-    const filter: any = { userId: user._id };
-    if (forTrade !== undefined) {
-      // accept 'true' or '1' (from query string) as boolean true
-      const ft = String(forTrade);
-      filter.forTrade = ft === 'true' || ft === '1';
-    }
-
-    let query = UserCard.find(filter)
-      .populate('cardId', 'name imageUrl rarity')
-      .sort({ createdAt: -1 });
-    if (skip) query = query.skip(skip);
-    if (limitNum) query = query.limit(limitNum);
-
-    const cards = await query.exec();
-
-    const total = await UserCard.countDocuments(filter);
-    const totalPages = limitNum ? Math.ceil(total / limitNum) : 1;
-
+    // Responder directamente sin envolver en sendSuccess para mantener compatibilidad con cliente
     return res.status(200).send({
-      page: pageNum,
-      totalPages,
-      totalResults: total,
-      resultsPerPage: limitNum ?? total,
-      cards: cards || [],
+      page: result.pageNum,
+      totalPages: result.totalPages,
+      totalResults: result.total,
+      resultsPerPage: result.limitNum,
+      cards: result.cards || [],
     });
   } catch (error: any) {
-    return res.status(500).send({ error: error.message });
+    return sendError(res, error);
   }
 });
 
@@ -198,49 +174,32 @@ userCardRouter.get('/usercards/:username', async (req, res) => {
 userCardRouter.get('/usercards/:username/:type', async (req, res) => {
   try {
     const { username, type } = req.params;
-    const { page = '1', limit } = req.query as any;
+    const { page, limit, forTrade } = req.query;
 
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).send({ error: 'Usuario no encontrado' });
+    if (!isValidCollectionType(type)) {
+      return sendError(res, 'Tipo inválido. Use "collection" o "wishlist".', 400);
     }
 
-    if (!['collection', 'wishlist'].includes(type)) {
-      return res.status(400).send({ error: 'Tipo inválido' });
+    const result = await getUserCardsPaginated(
+      username,
+      { collectionType: type },
+      { page, limit, forTrade }
+    );
+
+    if (result.error) {
+      return sendError(res, result.error, result.statusCode);
     }
 
-    const pageNum = Number(page) || 1;
-    const limitNum = limit !== undefined ? Number(limit) : null;
-    const skip = limitNum ? (pageNum - 1) * limitNum : 0;
-
-    const filter: any = { userId: user._id, collectionType: type };
-
-    const { forTrade } = req.query;
-    if (forTrade !== undefined) {
-      const ft = String(forTrade);
-      (filter as any).forTrade = ft === 'true' || ft === '1';
-    }
-
-    let query = UserCard.find(filter)
-      .populate('cardId', 'name imageUrl rarity')
-      .sort({ createdAt: -1 });
-    if (skip) query = query.skip(skip);
-    if (limitNum) query = query.limit(limitNum);
-
-    const cards = await query.exec();
-
-    const total = await UserCard.countDocuments(filter);
-    const totalPages = limitNum ? Math.ceil(total / limitNum) : 1;
-
-    res.send({
-      page: pageNum,
-      totalPages,
-      totalResults: total,
-      resultsPerPage: limitNum ?? total,
-      cards,
+    // Responder directamente sin envolver en sendSuccess para mantener compatibilidad con cliente
+    return res.status(200).send({
+      page: result.pageNum,
+      totalPages: result.totalPages,
+      totalResults: result.total,
+      resultsPerPage: result.limitNum,
+      cards: result.cards,
     });
   } catch (error: any) {
-    res.status(500).send({ error: error.message });
+    return sendError(res, error);
   }
 });
 

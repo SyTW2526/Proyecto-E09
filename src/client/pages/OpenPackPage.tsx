@@ -82,6 +82,7 @@ const OpenPackPage: React.FC = () => {
   const [resetLoading, setResetLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState<string | null>(null);
   const [showReset, setShowReset] = useState(false);
+  const [timeUntilNext, setTimeUntilNext] = useState<string>('');
   const openedCardsRef = useRef<HTMLDivElement | null>(null);
 
   const SET_OPTIONS = [
@@ -108,6 +109,36 @@ const OpenPackPage: React.FC = () => {
       });
     }
   }, [openedCards]);
+
+  // Actualizar el tiempo restante cada segundo
+  useEffect(() => {
+    const updateTimer = () => {
+      if (!packStatus?.nextAllowed) {
+        setTimeUntilNext('');
+        return;
+      }
+
+      const nextDate = new Date(packStatus.nextAllowed);
+      const now = Date.now();
+      const diff = nextDate.getTime() - now;
+
+      if (diff <= 0) {
+        setTimeUntilNext(t('openPack.readyNow', 'Ready now!'));
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeUntilNext(`${hours}h ${minutes}m ${seconds}s`);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(interval);
+  }, [packStatus, t]);
 
   useEffect(() => {
     let mounted = true;
@@ -137,9 +168,14 @@ const OpenPackPage: React.FC = () => {
 
         if (resp.ok) {
           const json = await resp.json();
-          setPackStatus(json);
+          console.log('Pack status loaded:', json); // Debug
+          setPackStatus(json.data || json); // Extraer data si existe
+        } else {
+          console.error('Failed to load pack status:', resp.status);
         }
-      } catch {}
+      } catch (err) {
+        console.error('Error loading pack status:', err);
+      }
     }
     loadStatus();
 
@@ -215,7 +251,7 @@ const OpenPackPage: React.FC = () => {
 
       if (statusResp.ok) {
         const newStatus = await statusResp.json();
-        setPackStatus(newStatus);
+        setPackStatus(newStatus.data || newStatus); // Extraer data si existe
       }
     } catch (e: any) {
       setError(e?.message ?? String(e));
@@ -303,16 +339,53 @@ const OpenPackPage: React.FC = () => {
                 )}
               </div>
 
-              {packStatus && (
+              {packStatus ? (
                 <div className="open-pack-status">
-                  {t('openPack.available', 'Available Packs')}:{' '}
-                  <strong>{packStatus.remaining}</strong>
-                  {packStatus.nextAllowed && (
-                    <small>
-                      {t('openPack.nextAllowed', 'Next Pack Available')}:{' '}
-                      {new Date(packStatus.nextAllowed).toLocaleString()}
-                    </small>
+                  <div style={{ fontSize: '1.2em', marginBottom: '8px' }}>
+                    <span style={{ opacity: 0.8 }}>
+                      {t('openPack.availableTokens', 'Tokens disponibles')}:
+                    </span>{' '}
+                    <strong style={{ fontSize: '1.3em', color: (packStatus.remaining ?? 0) > 0 ? '#4CAF50' : '#f44336' }}>
+                      {packStatus.remaining ?? 0} / 2
+                    </strong>
+                  </div>
+                  
+                  {(packStatus.remaining ?? 0) < 2 && timeUntilNext && (
+                    <div style={{ 
+                      fontSize: '0.95em', 
+                      opacity: 0.9,
+                      padding: '8px 12px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      borderRadius: '8px',
+                      marginTop: '8px'
+                    }}>
+                      <div>
+                        {t('openPack.nextTokenIn', 'Próximo token en')}:{' '}
+                        <strong style={{ color: '#FFB74D' }}>{timeUntilNext}</strong>
+                      </div>
+                      {packStatus.remaining === 0 && (
+                        <small style={{ opacity: 0.7, display: 'block', marginTop: '4px' }}>
+                          {t('openPack.noTokensAvailable', 'No tienes tokens disponibles')}
+                        </small>
+                      )}
+                    </div>
                   )}
+                  
+                  {packStatus.remaining === 2 && (
+                    <div style={{ 
+                      fontSize: '0.9em', 
+                      opacity: 0.7,
+                      marginTop: '4px'
+                    }}>
+                      {t('openPack.maxTokens', 'Tienes el máximo de tokens')}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="open-pack-status">
+                  <div style={{ opacity: 0.6 }}>
+                    {t('common.loading', 'Cargando...')}
+                  </div>
                 </div>
               )}
 

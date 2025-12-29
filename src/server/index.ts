@@ -161,15 +161,18 @@ io.on('connection', (socket) => {
   });
   /**
    * Evento: sendMessage
-   * Envía un mensaje a otros usuarios en la sala
+   * Envía un mensaje a TODOS los usuarios en la sala (incluyendo el remitente)
    * @param {Object} data - Objeto con roomCode y text
    */
   socket.on('sendMessage', (data: any) => {
-    socket.to(data.roomCode).emit('receiveMessage', {
+    const message = {
       user: socket.data.username,
       userId: socket.data.userId,
       text: data.text,
-    });
+    };
+    
+    // Enviar a todos en la sala incluyendo el remitente
+    io.to(data.roomCode).emit('receiveMessage', message);
   });
 
   /**

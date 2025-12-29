@@ -4,6 +4,8 @@ import { AuthRequest, authMiddleware } from '../middleware/authMiddleware.js';
 import { User } from '../models/User.js';
 import { Trade } from '../models/Trade.js';
 import { FriendTradeRoomInvite } from '../models/FriendTrade.js';
+import { validateObjectId } from '../utils/mongoHelpers.js';
+import { sendError } from '../utils/responseHelpers.js';
 
 export const friendTradeRoomsRouter = express.Router();
 
@@ -59,10 +61,8 @@ friendTradeRoomsRouter.post(
         return res.status(401).send({ error: 'No autenticado' });
       }
 
-      if (!friendId || !mongoose.Types.ObjectId.isValid(friendId)) {
-        return res
-          .status(400)
-          .send({ error: 'friendId es obligatorio y debe ser válido' });
+      if (!friendId || !validateObjectId(friendId, res, 'friendId')) {
+        return;
       }
 
       const me = await User.findById(currentUserId);

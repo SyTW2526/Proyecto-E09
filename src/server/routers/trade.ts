@@ -6,6 +6,13 @@ import { UserCard } from '../models/UserCard.js';
 import { TradeRequest } from '../models/TradeRequest.js';
 import { AuthRequest, authMiddleware } from '../middleware/authMiddleware.js';
 import { FriendTradeRoomInvite } from '../models/FriendTrade.js';
+import { findUserFlexible } from '../utils/mongoHelpers.js';
+import { sendError } from '../utils/responseHelpers.js';
+import {
+  getPaginatedTrades,
+  getPopulatedTrade,
+  getTradeByRoomCode,
+} from '../utils/tradeHelpers.js';
 
 export const tradeRouter = express.Router();
 
@@ -31,26 +38,20 @@ tradeRouter.post(
 
       const initiatorUserId = req.userId;
       if (!initiatorUserId) {
-        return res.status(401).send({ error: 'No autenticado' });
+        return sendError(res, 'No autenticado', 401);
       }
 
-      let resolvedReceiverId: mongoose.Types.ObjectId;
+      const receiverUser = await findUserFlexible(receiverUserId);
 
-      if (mongoose.Types.ObjectId.isValid(receiverUserId)) {
-        resolvedReceiverId = new mongoose.Types.ObjectId(receiverUserId);
-      } else {
-        const receiverUser = await User.findOne({
-          $or: [{ username: receiverUserId }, { email: receiverUserId }],
-        });
-
-        if (!receiverUser) {
-          return res.status(404).send({
-            error: `Usuario receptor no encontrado: ${receiverUserId}`,
-          });
-        }
-
-        resolvedReceiverId = receiverUser._id as mongoose.Types.ObjectId;
+      if (!receiverUser) {
+        return sendError(
+          res,
+          `Usuario receptor no encontrado: ${receiverUserId}`,
+          404
+        );
       }
+
+      const resolvedReceiverId = receiverUser._id as mongoose.Types.ObjectId;
 
       const trade = new Trade({
         initiatorUserId,
@@ -74,7 +75,7 @@ tradeRouter.post(
       });
     } catch (error: any) {
       console.error('Error creando intercambio:', error);
-      res.status(400).send({ error: error.message });
+      return sendError(res, error.message, 400);
     }
   }
 );
@@ -89,33 +90,20 @@ tradeRouter.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const { page = 1, limit = 20, status, tradeType } = req.query;
-      const skip = (Number(page) - 1) * Number(limit);
 
       const filter: any = {};
       if (status) filter.status = status;
       if (tradeType) filter.tradeType = tradeType;
 
-      const trades = await Trade.find(filter)
-        .populate('initiatorUserId', 'username email')
-        .populate('receiverUserId', 'username email')
-        .populate('initiatorCards.cardId', 'name imageUrl rarity')
-        .populate('receiverCards.cardId', 'name imageUrl rarity')
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(Number(limit));
+      const result = await getPaginatedTrades(
+        filter,
+        Number(page),
+        Number(limit)
+      );
 
-      const total = await Trade.countDocuments(filter);
-      const totalPages = Math.ceil(total / Number(limit));
-
-      res.send({
-        page: Number(page),
-        totalPages,
-        totalResults: total,
-        resultsPerPage: Number(limit),
-        trades,
-      });
+      res.send(result);
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      return sendError(res, error.message, 500);
     }
   }
 );
@@ -129,20 +117,14 @@ tradeRouter.get(
   authMiddleware,
   async (req: AuthRequest, res: Response) => {
     try {
-      const trade = await Trade.findById(req.params.id)
-        .populate('initiatorUserId', 'username email')
-        .populate('receiverUserId', 'username email')
-        .populate('initiatorCards.cardId', 'name imageUrl rarity')
-        .populate('receiverCards.cardId', 'name imageUrl rarity');
+      const trade = await getPopulatedTrade(req.params.id);
 
       if (!trade) {
-        return res.status(404).send({ error: 'Intercambio no encontrado' });
+        return sendError(res, 'Intercambio no encontrado', 404);
       }
       res.send(trade);
     } catch (error) {
-      res
-        .status(500)
-        .send({ error: (error as Error).message ?? String(error) });
+      return sendError(res, error as Error, 500);
     }
   }
 );
@@ -156,18 +138,14 @@ tradeRouter.get(
   authMiddleware,
   async (req: AuthRequest, res: Response) => {
     try {
-      const trade = await Trade.findOne({
-        privateRoomCode: req.params.code,
-      })
-        .populate('initiatorUserId', 'username email')
-        .populate('receiverUserId', 'username email')
-        .populate('initiatorCards.cardId', 'name imageUrl rarity')
-        .populate('receiverCards.cardId', 'name imageUrl rarity');
+      const trade = await getTradeByRoomCode(req.params.code);
 
-      if (!trade) return res.status(404).send({ error: 'Sala no encontrada' });
+      if (!trade) {
+        return sendError(res, 'Sala no encontrada', 404);
+      }
       res.send(trade);
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      return sendError(res, error.message, 500);
     }
   }
 );

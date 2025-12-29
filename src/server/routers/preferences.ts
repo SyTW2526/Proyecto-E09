@@ -1,6 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import { User } from '../models/User.js';
+import { validateObjectId } from '../utils/mongoHelpers.js';
+import { sendError } from '../utils/responseHelpers.js';
 
 export const preferencesRouter = express.Router();
 
@@ -12,14 +14,14 @@ preferencesRouter.get('/users/:userId/preferences', async (req, res) => {
   try {
     const { userId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).send({ error: 'ID de usuario inválido' });
+    if (!validateObjectId(userId, res, 'ID de usuario')) {
+      return;
     }
 
     const user = await User.findById(userId).select('settings');
 
     if (!user) {
-      return res.status(404).send({ error: 'Usuario no encontrado' });
+      return sendError(res, 'Usuario no encontrado', 404);
     }
 
     res.send({
@@ -29,7 +31,7 @@ preferencesRouter.get('/users/:userId/preferences', async (req, res) => {
       privacy: user.settings?.privacy,
     });
   } catch (error) {
-    res.status(500).send({ error: (error as Error).message ?? String(error) });
+    return sendError(res, error as Error, 500);
   }
 });
 
@@ -42,8 +44,8 @@ preferencesRouter.patch('/users/:userId/preferences', async (req, res) => {
     const { userId } = req.params;
     const { language, darkMode, notifications, privacy } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).send({ error: 'ID de usuario inválido' });
+    if (!validateObjectId(userId, res, 'ID de usuario')) {
+      return;
     }
 
     // Validar idioma
@@ -84,7 +86,7 @@ preferencesRouter.patch('/users/:userId/preferences', async (req, res) => {
     ).select('settings');
 
     if (!user) {
-      return res.status(404).send({ error: 'Usuario no encontrado' });
+      return sendError(res, 'Usuario no encontrado', 404);
     }
 
     res.send({
@@ -97,6 +99,6 @@ preferencesRouter.patch('/users/:userId/preferences', async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).send({ error: (error as Error).message ?? String(error) });
+    return sendError(res, error as Error, 500);
   }
 });

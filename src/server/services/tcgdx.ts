@@ -88,57 +88,47 @@ export function getCardCategory(
  * Normaliza una URL de imagen para apuntar a la versión de alta resolución.
  * 
  * Maneja casos especiales:
- * - URLs que terminan en /high.png ya están normalizadas
+ * - Corrige URLs de TCGdex que faltan la serie: /jp/swsh1/ → /en/swsh/swsh1/
+ * - Cambia idioma de jp a en (solo queremos cartas en inglés)
  * - Reemplaza /small.png, /large.png, /low.png por /high.png
- * - Para URLs sin extensión, añade /high.png
- * - Corrige el formato de TCGdex para sets especiales (base, dp, ex, etc.)
  * 
  * @param url - URL de imagen a normalizar
  * @returns URL normalizada apuntando a versión high.png
  * 
  * @example
- * normalizeImageUrl('https://assets.tcgdex.net/en/ba/base1/2') 
- * // => 'https://assets.tcgdex.net/en/base/base1/2/high.png'
+ * normalizeImageUrl('https://assets.tcgdex.net/jp/swsh1/25/low.png')
+ * // => 'https://assets.tcgdex.net/en/swsh/swsh1/25/high.png'
  */
 export function normalizeImageUrl(url?: string | null): string {
   if (!url) return '';
-  const s = String(url).trim();
+  let s = String(url).trim();
   
-  // Si ya termina con /high.png, está correcta
-  if (/\/high\.png$/i.test(s)) return s;
+  // Corregir URLs de TCGdex que les falta la serie entre idioma y set
+  // Formato incorrecto: .../jp/swsh1/25/high.png
+  // Formato correcto: .../en/swsh/swsh1/25/high.png
+  const tcgdexMatch = s.match(/^(https?:\/\/assets\.tcgdex\.net\/)(?:jp|en)\/([a-z0-9.]+)\/(.+)$/i);
+  if (tcgdexMatch) {
+    const [, baseUrl, setCode, rest] = tcgdexMatch;
+    
+    // Extraer la serie del setCode (swsh1 → swsh, sm1 → sm, xy1 → xy, base1 → base)
+    const seriesMatch = setCode.match(/^([a-z]+)/i);
+    if (seriesMatch) {
+      const series = seriesMatch[1].toLowerCase();
+      // Reconstruir URL correcta: {baseUrl}en/{serie}/{set}/{resto}
+      s = `${baseUrl}en/${series}/${setCode.toLowerCase()}/${rest}`;
+    }
+  }
   
   // Reemplazar extensiones conocidas por /high.png
   if (/\/(?:small|large|low)\.png$/i.test(s)) {
     return s.replace(/\/(?:small|large|low)\.png$/i, '/high.png');
   }
   
+  // Si ya termina con /high.png, está correcta
+  if (/\/high\.png$/i.test(s)) return s;
+  
   // Si ya tiene una extensión de imagen, mantenerla
   if (/\.(png|jpe?g|gif|webp)$/i.test(s)) return s;
-  
-  // Caso especial: URLs de TCGdex que usan prefijos abreviados incorrectamente
-  // Ej: .../en/ba/base1/... debe ser .../en/base/base1/...
-  const tcgdexMatch = s.match(/^(https?:\/\/[^/]+\/[^/]+\/)([a-z]{2})(\/.+)$/i);
-  if (tcgdexMatch) {
-    const [, prefix, shortCode, rest] = tcgdexMatch;
-    
-    // Mapeo de códigos abreviados a nombres completos de series TCGdex
-    const seriesMap: Record<string, string> = {
-      'ba': 'base',
-      'ex': 'ex',
-      'dp': 'dp',
-      'pl': 'pl',
-      'hs': 'hgss',
-      'bw': 'bw',
-      'xy': 'xy',
-      'sm': 'sm',
-      'sw': 'swsh',
-      'sv': 'sv',
-    };
-    
-    const fullSeriesName = seriesMap[shortCode.toLowerCase()] || shortCode;
-    const normalized = `${prefix}${fullSeriesName}${rest}`;
-    return normalized.endsWith('/') ? `${normalized}high.png` : `${normalized}/high.png`;
-  }
   
   // Caso por defecto: añadir /high.png
   return s.endsWith('/') ? `${s}high.png` : `${s}/high.png`;

@@ -192,10 +192,24 @@ const DiscoverTradeCards: React.FC = () => {
 
   const normalizeImageUrl = (url?: string) => {
     if (!url) return '';
-    if (/\/(small|large|high|low)\.png$/i.test(url))
-      return url.replace(/\/(small|large|high|low)\.png$/i, '/high.png');
-    if (/\.(png|jpg|jpeg|gif|webp)$/i.test(url)) return url;
-    return url.endsWith('/') ? url + 'high.png' : url + '/high.png';
+    let s = String(url);
+    
+    // Correct malformed TCGdex URLs (missing series component)
+    const tcgdexMatch = s.match(/^(https?:\/\/assets\.tcgdex\.net\/)(?:jp|en)\/([a-z0-9.]+)\/(.+)$/i);
+    if (tcgdexMatch) {
+      const [, baseUrl, setCode, rest] = tcgdexMatch;
+      const seriesMatch = setCode.match(/^([a-z]+)/i);
+      if (seriesMatch) {
+        const series = seriesMatch[1].toLowerCase();
+        s = `${baseUrl}en/${series}/${setCode.toLowerCase()}/${rest}`;
+      }
+    }
+    
+    // Normalize quality to high
+    if (/\/(small|large|high|low)\.png$/i.test(s))
+      return s.replace(/\/(small|large|high|low)\.png$/i, '/high.png');
+    if (/\.(png|jpg|jpeg|gif|webp)$/i.test(s)) return s;
+    return s.endsWith('/') ? s + 'high.png' : s + '/high.png';
   };
 
   const normalizeApiCard = (raw: any): ApiCardNormalized => {
@@ -280,47 +294,61 @@ const DiscoverTradeCards: React.FC = () => {
         const data = await resp.json();
         const rawItems = data.cards || [];
 
-        const ids = [
-          ...new Set(rawItems.map((i: any) => i.pokemonTcgId).filter(Boolean)),
-        ];
-
-        const details = await Promise.all(
-          ids.map(async (id) => {
-            const r = await fetch(`${base}/cards`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ id }),
-            });
-            if (!r.ok) return null;
-            const d = await r.json();
-            return { id, card: normalizeApiCard(d.card || d) };
-          })
-        );
-
-        const map = new Map<string, ApiCardNormalized>();
-        details
-          .filter(
-            (x): x is { id: string; card: ApiCardNormalized } =>
-              x !== null && typeof x.id === 'string'
-          )
-          .forEach((x) => map.set(x.id, x.card));
-
+        // Agrupar cartas por pokemonTcgId
         const grouped = new Map<string, TradeCard>();
 
         for (const item of rawItems) {
           const id = item.pokemonTcgId;
-          if (!id) continue;
+          const cardData = item.cardId;
+          
+          if (!id || !cardData) continue;
 
-          const baseCard = map.get(id);
-          if (!baseCard) continue;
+          // Obtener la imagen con fallback
+          let image = '';
+          if (cardData.images) {
+            image = cardData.images.large || cardData.images.small || '';
+          }
+          if (!image && cardData.imageUrl) {
+            image = cardData.imageUrl;
+          }
+          if (!image && cardData.imageUrlHiRes) {
+            image = cardData.imageUrlHiRes;
+          }
+          
+          // Generar URL de TCGdex como fallback
+          if (!image && id) {
+            const [setCode, number] = id.split('-');
+            if (setCode && number) {
+              const series = setCode.slice(0, 2);
+              image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+            }
+          }
+
+          // Normalizar la carta desde los datos poblados
+          const normalizedCard: ApiCardNormalized = {
+            id: id,
+            name: cardData.name || '',
+            image: image,
+            hp: cardData.hp || '',
+            set: cardData.set?.name || cardData.set || '',
+            rarity: cardData.rarity || '',
+            price: cardData.price ? {
+              low: cardData.price.low,
+              mid: cardData.price.mid,
+              high: cardData.price.high,
+            } : undefined,
+            illustrator: cardData.illustrator || cardData.artist || '',
+            series: cardData.set?.series || cardData.series || '',
+          };
 
           const owner = {
             username: item.userId?.username || '',
             quantity: item.quantity ?? 1,
+            condition: item.condition,
           };
 
           if (!grouped.has(id)) {
-            grouped.set(id, { ...baseCard, owners: [owner] });
+            grouped.set(id, { ...normalizedCard, owners: [owner] });
           } else {
             grouped.get(id)!.owners.push(owner);
           }

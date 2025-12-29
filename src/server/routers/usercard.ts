@@ -119,8 +119,9 @@ userCardRouter.get('/usercards/discover', async (req, res) => {
     const total = await UserCard.countDocuments(filter);
 
     const cards = await UserCard.find(filter)
+      .select('userId cardId pokemonTcgId quantity forTrade condition collectionType createdAt')
       .populate('userId', 'username profileImage')
-      .populate('cardId', 'name images rarity set price pokemonTcgId category hp types abilities attacks')
+      .populate('cardId', 'name images rarity set price pokemonTcgId category hp types abilities attacks artist illustrator series')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit));

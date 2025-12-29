@@ -44,6 +44,7 @@ const TradePage: React.FC = () => {
   const [opponentCard, setOpponentCard] = useState<UserCard | null>(null);
   const [opponentName, setOpponentName] = useState<string>('');
   const [opponentImage, setOpponentImage] = useState<string>('/icono.png');
+  const [requestedCardDisplay, setRequestedCardDisplay] = useState<UserCard | null>(null);
 
   useEffect(() => {
     const fetchTrade = async () => {
@@ -194,6 +195,59 @@ const TradePage: React.FC = () => {
 
     if (username) fetchCards();
   }, [username, isFriendPrivateRoom]);
+
+  // Cargar la carta solicitada si el usuario NO es el propietario (es el iniciador)
+  useEffect(() => {
+    const fetchRequestedCard = async () => {
+      if (!requestedPokemonTcgId || !trade) return;
+      
+      // Si ya tengo la carta en mis cartas, no necesito cargarla
+      const myCard = userCards.find((c) => c.pokemonTcgId === requestedPokemonTcgId);
+      if (myCard) return;
+
+      try {
+        // Cargar la carta desde el endpoint de cards
+        const res = await fetch(`http://localhost:3000/cards`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: requestedPokemonTcgId }),
+        });
+        
+        if (!res.ok) return;
+        
+        const data = await res.json();
+        const card = data.card || data;
+
+        let image = card.imageUrl || card.imageUrlHiRes || card.image || '';
+        if (!image && card.images) {
+          image = card.images.large || card.images.small || '';
+        }
+
+        if (!image && requestedPokemonTcgId) {
+          const [setCode, number] = requestedPokemonTcgId.split('-');
+          const series = setCode ? setCode.slice(0, 2) : '';
+          if (setCode && number) {
+            image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+          }
+        }
+
+        const requestedCard: UserCard = {
+          id: requestedPokemonTcgId,
+          name: card.name || '',
+          image,
+          rarity: card.rarity || '',
+          pokemonTcgId: requestedPokemonTcgId,
+        };
+
+        setRequestedCardDisplay(requestedCard);
+      } catch (error) {
+        console.error('Error fetching requested card:', error);
+      }
+    };
+
+    fetchRequestedCard();
+  }, [requestedPokemonTcgId, trade, userCards]);
+
   const forcedCard = useMemo(() => {
     if (!requestedPokemonTcgId) return null;
     return (
@@ -219,8 +273,8 @@ const TradePage: React.FC = () => {
       user: username,
     };
 
+    // Solo enviar al servidor, el servidor lo devolverá via receiveMessage
     socket.emit('sendMessage', message);
-    setMessages((prev) => [...prev, message]);
     setInput('');
   };
 
@@ -435,6 +489,14 @@ const TradePage: React.FC = () => {
                 <div className="player-card">
                   {opponentCard ? (
                     <img src={opponentCard.image} className="selected-card" />
+                  ) : requestedCardDisplay && !isOwnerOfRequestedCard ? (
+                    // Mostrar la carta solicitada si el usuario es el iniciador
+                    <div className="requested-card-preview">
+                      <img src={requestedCardDisplay.image} className="selected-card" />
+                      <span className="requested-label">
+                        {t('tradeRoom.requestedCard', 'Requested')}
+                      </span>
+                    </div>
                   ) : (
                     <span className="no-card">
                       {t(

@@ -83,6 +83,51 @@ cardRouter.get('/cards', async (req, res) => {
 });
 
 /**
+ * GET /cards/featured
+ * Obtiene las cartas destacadas directamente desde TCGdex API (sin caché)
+ * Devuelve un array de cartas con imágenes de alta calidad garantizadas
+ * NOTA: Debe ir ANTES de /cards/:id para evitar que :id capture "featured"
+ */
+cardRouter.get('/cards/featured', async (req, res) => {
+  try {
+    // IDs de las cartas destacadas - solo sets SWSH (Sword & Shield) en inglés
+    const featuredIds = [
+      'swsh3-136',  // Pikachu VMAX
+      'swsh3-25',   // Pikachu V
+      'swsh4-74',   // Eternatus VMAX
+      'swsh1-25',   // Cinderace
+      'swsh2-192',  // Charizard VMAX
+      'swsh5-123',  // Zapdos
+      'swsh6-71',   // Leafeon VMAX
+    ];
+
+    // Obtener todas las cartas en paralelo desde TCGdex
+    const promises = featuredIds.map(async (id) => {
+      try {
+        const apiResp = await getCardById(id);
+        if (!apiResp) return null;
+        
+        // Usar buildPokemonCardData para construir los datos con imágenes correctas
+        const { buildPokemonCardData } = await import('../services/cardDataBuilder.js');
+        const cardData = buildPokemonCardData(apiResp);
+        
+        return cardData;
+      } catch (error) {
+        console.error(`Error fetching featured card ${id}:`, error);
+        return null;
+      }
+    });
+
+    const cards = (await Promise.all(promises)).filter((card) => card !== null);
+
+    return sendSuccess(res, cards);
+  } catch (error: any) {
+    console.error('Error in GET /cards/featured:', error);
+    return sendError(res, error);
+  }
+});
+
+/**
  * GET /cards/:id
  * Obtiene una carta específica por su ID local
  */

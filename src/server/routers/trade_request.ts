@@ -5,6 +5,12 @@ import { Trade } from '../models/Trade.js';
 import { User } from '../models/User.js';
 import { Notification } from '../models/Notification.js';
 import { authMiddleware, AuthRequest } from '../middleware/authMiddleware.js';
+import { findUserFlexible } from '../utils/mongoHelpers.js';
+import { sendError } from '../utils/responseHelpers.js';
+import {
+  getPaginatedTradeRequests,
+  getPopulatedTradeRequest,
+} from '../utils/tradeHelpers.js';
 
 export const tradeRequestRouter = express.Router();
 
@@ -52,16 +58,7 @@ tradeRequestRouter.post(
         return res.status(404).send({ error: 'Usuario actual no encontrado' });
       }
 
-      const receiver = await (mongoose.Types.ObjectId.isValid(
-        receiverIdentifier
-      )
-        ? User.findById(receiverIdentifier)
-        : User.findOne({
-            $or: [
-              { username: receiverIdentifier },
-              { email: receiverIdentifier },
-            ],
-          }));
+      const receiver = await findUserFlexible(receiverIdentifier);
 
       if (!receiver) {
         return res.status(404).send({ error: 'Usuario destino no encontrado' });

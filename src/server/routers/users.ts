@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
 import { ChatMessage } from '../models/Chat.js';
 import { UserCard } from '../models/UserCard.js';
@@ -34,6 +33,7 @@ import {
   validatePackTokens,
   consumePackToken,
   getPackOpenCount24h,
+  generatePackCards,
 } from '../utils/packHelpers.js';
 import {
   removeFriendRequest,
@@ -49,6 +49,8 @@ import {
   validateUsernameOwnership,
   validateRegistrationInput,
 } from '../utils/validationHelpers.js';
+import { generateAuthToken } from '../utils/jwtHelpers.js';
+import { emitToUser, emitMultipleToUser } from '../utils/socketHelpers.js';
 
 const MS_HOUR = 1000 * 60 * 60;
 
@@ -83,11 +85,13 @@ userRouter.post('/users/register', async (req: Request, res: Response) => {
     // Hashear la contraseña (10 rondas de salt)
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Crear nuevo usuario
+    // Crear nuevo usuario con pack tokens inicializados
     const newUser = new User({
       username,
       email,
       password: hashedPassword,
+      packTokens: 2,
+      packLastRefill: new Date(),
     });
 
     await newUser.save();
@@ -130,15 +134,11 @@ userRouter.post('/users/login', async (req: Request, res: Response) => {
       return sendError(res, 'Usuario o contraseña incorrectos', 401);
     }
 
-    const secret: string = process.env.JWT_SECRET || 'tu-clave-secreta';
     const expiresIn: string = process.env.JWT_EXPIRY || '7d';
-    const token = jwt.sign(
-      {
-        userId: user._id.toString(),
-        username: user.username,
-      },
-      secret,
-      { expiresIn: expiresIn as any }
+    const token = generateAuthToken(
+      user._id.toString(),
+      user.username,
+      expiresIn
     );
 
     // Login exitoso: devolver información del usuario + token
@@ -293,12 +293,7 @@ userRouter.patch(
       if (newEmail) user.email = newEmail;
 
       await user.save();
-      const secret = process.env.JWT_SECRET || 'tu-clave-secreta';
-      const token = jwt.sign(
-        { userId: user._id.toString(), username: user.username },
-        secret,
-        { expiresIn: '7d' }
-      );
+      const token = generateAuthToken(user._id.toString(), user.username);
 
       sendSuccess(res, {
         message: 'Perfil actualizado',
@@ -556,36 +551,8 @@ userRouter.post(
       if (!cards || cards.length === 0)
         return sendError(res, 'No se pudieron obtener cartas del set', 500);
 
-      // pick 9 random + 1 rare (reuse RARITY_ORDER logic client-side minimal)
-      const RARITY_ORDER = [
-        'Common',
-        'Uncommon',
-        'Rare',
-        'Holo Rare',
-        'Rare Holo',
-        'Ultra Rare',
-        'Secret Rare',
-      ];
-      const chosen: any[] = [];
-      const pool = [...cards];
-      for (let i = 0; i < 9; i++) {
-        if (pool.length === 0) break;
-        const idx = Math.floor(Math.random() * pool.length);
-        chosen.push(pool.splice(idx, 1)[0]);
-      }
-      const rarityIndex = RARITY_ORDER.indexOf('Rare');
-      const rarePool = cards.filter((c: any) => {
-        const r = (c.rarity || c.rarityText || '').toString();
-        const idx = RARITY_ORDER.findIndex(
-          (x) => x.toLowerCase() === r.toLowerCase()
-        );
-        return idx >= 0 && idx >= rarityIndex;
-      });
-      const pickRandom = (arr: any[]) =>
-        arr[Math.floor(Math.random() * arr.length)];
-      const last =
-        rarePool.length > 0 ? pickRandom(rarePool) : pickRandom(cards);
-      const pack = [...chosen, last];
+      // Generar pack de 10 cartas (9 aleatorias + 1 rara)
+      const pack = generatePackCards(cards);
 
       // persist PackOpen record
       await PackOpen.create({ userId: user._id });
@@ -680,8 +647,16 @@ userRouter.get(
       if (!validateOwnership(req.userId, user._id))
         return sendError(res, 'No autorizado', 403);
 
+      // Check if we need to initialize pack tokens
+      const needsInit = typeof (user as any).packTokens !== 'number' || !(user as any).packLastRefill;
+      
       // compute token-based status
       const { tokens, nextAllowed } = computePackTokens(user);
+      
+      // Save if we just initialized
+      if (needsInit) {
+        await user.save();
+      }
       
       // still return count24 for compatibility
       const count24 = await getPackOpenCount24h(PackOpen, user._id);
@@ -961,8 +936,7 @@ userRouter.post(
       await friend.save();
 
       // Notificar al amigo que la solicitud fue aceptada
-      const friendIdStr = friend._id.toString();
-      req.io.to(`user:${friendIdStr}`).emit('friendRequestAccepted', {
+      emitToUser(req.io, friend._id, 'friendRequestAccepted', {
         userId: me._id,
         username: me.username,
         profileImage: me.profileImage || '',
@@ -999,7 +973,7 @@ userRouter.post(
       await me.save();
 
       // Notificar al amigo que la solicitud fue rechazada
-      req.io.to(`user:${friend._id}`).emit('friendRequestRejected', {
+      emitToUser(req.io, friend._id, 'friendRequestRejected', {
         userId: me._id,
         username: me.username,
       });
@@ -1172,16 +1146,19 @@ userRouter.post(
         isRead: false,
       });
 
-      const friendIdStr = friend._id.toString();
-      req.io.to(`user:${friendIdStr}`).emit('notification', notification);
-      
-      // Emitir evento para actualizar la lista de solicitudes recibidas
-      req.io.to(`user:${friendIdStr}`).emit('friendRequestReceived', {
-        userId: me._id,
-        username: me.username,
-        email: me.email,
-        profileImage: me.profileImage || '',
-      });
+      // Emitir notificación y evento de solicitud recibida
+      emitMultipleToUser(req.io, friend._id, [
+        { eventName: 'notification', data: notification },
+        {
+          eventName: 'friendRequestReceived',
+          data: {
+            userId: me._id,
+            username: me.username,
+            email: me.email,
+            profileImage: me.profileImage || '',
+          },
+        },
+      ]);
 
       sendSuccess(res, { message: 'Solicitud enviada correctamente' });
     } catch (error) {

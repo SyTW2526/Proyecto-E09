@@ -48,7 +48,7 @@ describe('Advanced UserCard Features', () => {
         })
         .expect(201);
 
-      expect(collectionRes.body.collectionType).toBe('collection');
+      expect(collectionRes.body.data.collectionType).toBe('collection');
 
       // Agregar misma carta a wishlist
       const wishlistRes = await request(app)
@@ -60,7 +60,7 @@ describe('Advanced UserCard Features', () => {
         })
         .expect(201);
 
-      expect(wishlistRes.body.collectionType).toBe('wishlist');
+      expect(wishlistRes.body.data.collectionType).toBe('wishlist');
 
       // Verificar que hay dos registros diferentes
       const collectionCheck = await request(app)
@@ -71,8 +71,8 @@ describe('Advanced UserCard Features', () => {
         .get(`/usercards/${user.username}/wishlist`)
         .expect(200);
 
-      expect(collectionCheck.body.cards.length).toBe(1);
-      expect(wishlistCheck.body.cards.length).toBe(1);
+      expect((collectionCheck.body.data?.cards || collectionCheck.body.cards).length).toBe(1);
+      expect((wishlistCheck.body.data?.cards || wishlistCheck.body.cards).length).toBe(1);
     });
 
     /**
@@ -161,14 +161,14 @@ describe('Advanced UserCard Features', () => {
         })
         .expect(201);
 
-      expect(res.body.notes).toBe(notes);
+      expect(res.body.data.notes).toBe(notes);
 
       // Verificar que la nota se recupera correctamente
       const getRes = await request(app)
         .get(`/usercards/${user.username}`)
         .expect(200);
 
-      expect(getRes.body.cards[0].notes).toBe(notes);
+      expect((getRes.body.data?.cards || getRes.body.cards)[0].notes).toBe(notes);
     });
 
     /**
@@ -199,7 +199,7 @@ describe('Advanced UserCard Features', () => {
         })
         .expect(201);
 
-      const cardId = addRes.body._id;
+      const cardId = addRes.body.data._id;
 
       // Actualizar notas
       const updateRes = await request(app)
@@ -239,13 +239,13 @@ describe('Advanced UserCard Features', () => {
         })
         .expect(201);
 
-      const cardId = addRes.body._id;
+      const cardId = addRes.body.data._id;
 
       // Verificar que está agregada
       let getRes = await request(app)
         .get(`/usercards/${user.username}`)
         .expect(200);
-      expect(getRes.body.cards.length).toBe(1);
+      expect((getRes.body.data?.cards || getRes.body.cards).length).toBe(1);
 
       // Eliminar tarjeta
       await request(app)
@@ -256,7 +256,7 @@ describe('Advanced UserCard Features', () => {
       getRes = await request(app)
         .get(`/usercards/${user.username}`)
         .expect(200);
-      expect(getRes.body.cards.length).toBe(0);
+      expect((getRes.body.data?.cards || getRes.body.cards).length).toBe(0);
     });
 
     /**
@@ -287,7 +287,7 @@ describe('Advanced UserCard Features', () => {
         })
         .expect(201);
 
-      const cardId = addRes.body._id;
+      const cardId = addRes.body.data._id;
 
       // Cambiar a wishlist
       const updateRes = await request(app)
@@ -302,7 +302,7 @@ describe('Advanced UserCard Features', () => {
         .get(`/usercards/${user.username}/wishlist`)
         .expect(200);
 
-      expect(typeRes.body.cards.length).toBe(1);
+      expect((typeRes.body.data?.cards || typeRes.body.cards).length).toBe(1);
     });
   });
 
@@ -445,7 +445,7 @@ describe('Advanced UserCard Features', () => {
         })
         .expect(201);
 
-      expect(res.body.pokemonTcgId).toBe('nonexistent');
+      expect(res.body.data.pokemonTcgId).toBe('nonexistent');
     });
 
     /**

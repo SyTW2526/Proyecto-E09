@@ -64,7 +64,7 @@ describe("GET /users/:userId/preferences", () => {
       .get(`/users/invalid-id/preferences`)
       .expect(400);
 
-    expect(res.body.error).toContain("inválido");
+    expect(res.body.error).toContain("ID");
   });
 
   /**
@@ -168,7 +168,7 @@ describe("PATCH /users/:userId/preferences", () => {
       .send({ language: "en" })
       .expect(400);
 
-    expect(res.body.error).toContain("inválido");
+    expect(res.body.error).toContain("ID");
   });
 
   /**

@@ -28,6 +28,8 @@ import { cardRouter } from './routers/card.js';
 import { syncRouter } from './routers/api.js';
 import { notificationRouter } from './routers/notification.js';
 import { preferencesRouter } from './routers/preferences.js';
+import { tradeRequestRouter } from './routers/trade_request.js';
+import { friendTradeRoomsRouter } from './routers/friend_trade.js';
 
 /**
  * Instancia de la aplicación Express
@@ -66,6 +68,8 @@ app.use(preferencesRouter);
 app.use(syncRouter);
 app.use(cardRouter);
 app.use(tradeRouter);
+app.use(tradeRequestRouter);
+app.use(friendTradeRoomsRouter);
 app.use(userCardRouter);
 app.use(pokemonRouter);
 app.use(defaultRouter);

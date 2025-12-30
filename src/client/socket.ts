@@ -99,3 +99,20 @@ export function initSocket() {
 export function getSocket() {
   return socket;
 }
+
+/**
+ * Desconecta el socket del servidor
+ * Limpia la instancia global y cierra la conexión
+ *
+ * @function
+ * @returns {void}
+ *
+ * @example
+ * disconnectSocket();
+ */
+export function disconnectSocket() {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+}

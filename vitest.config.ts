@@ -88,10 +88,10 @@ export default defineConfig({
   resolve: {
     /**
      * Alias para importes
-     * @ apunta a src
+     * @ apunta a src/client
      */
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, './src/client'),
     },
   },
 })

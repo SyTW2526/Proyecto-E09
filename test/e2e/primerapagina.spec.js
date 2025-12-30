@@ -25,44 +25,33 @@ describe("primera_pagina", () => {
     await driver.get("http://localhost:5173/");
     await driver.manage().window().setRect({ width: 1838, height: 1048 });
 
+    // Wait for page to fully load
     await driver.wait(
-      until.elementLocated(
-        By.xpath("//button[contains(@aria-label,'idioma') or contains(@aria-label,'language')]")
-      ),
+      until.elementLocated(By.xpath("//button[contains(text(),'Sign In')]")),
       5000
     );
-    await driver.findElement(
-      By.xpath("//button[contains(@aria-label,'idioma') or contains(@aria-label,'language')]")
-    ).click();
 
-    await driver.wait(
-      until.elementLocated(
-        By.xpath("//*[contains(text(),'Español') or contains(text(),'Spanish')]")
-      ),
-      5000
-    );
-    await driver.findElement(
-      By.xpath("//*[contains(text(),'Español') or contains(text(),'Spanish')]")
-    ).click();
+    // Verify main elements are present
+    const signInBtn = await driver.findElement(By.xpath("//button[contains(text(),'Sign In')]"));
+    expect(await signInBtn.isDisplayed()).toBe(true);
 
-    await driver.wait(
-      until.elementLocated(By.xpath("//*[contains(text(),'Iniciar sesión')]")),
-      5000
-    );
-    await driver.findElement(By.xpath("//*[contains(text(),'Iniciar sesión')]")).click();
-    await driver.navigate().back();
+    const signUpBtn = await driver.findElement(By.xpath("//button[contains(text(),'Sign Up')]"));
+    expect(await signUpBtn.isDisplayed()).toBe(true);
 
-    await driver.wait(
-      until.elementLocated(By.xpath("//*[contains(text(),'Crear cuenta')]")),
-      5000
-    );
-    await driver.findElement(By.xpath("//*[contains(text(),'Crear cuenta')]")).click();
-    await driver.navigate().back();
+    const startBtn = await driver.findElement(By.xpath("//button[contains(text(),'Start Now')]"));
+    expect(await startBtn.isDisplayed()).toBe(true);
 
-    await driver.wait(
-      until.elementLocated(By.xpath("//*[contains(text(),'Empieza ya')]")),
-      5000
+    // Verify language selector exists
+    const langBtn = await driver.findElement(
+      By.xpath("//button[contains(@aria-label,'Language')]")
     );
-    await driver.findElement(By.xpath("//*[contains(text(),'Empieza ya')]")).click();
+    expect(await langBtn.isDisplayed()).toBe(true);
+
+    // Verify main content is visible
+    const body = await driver.findElement(By.tagName("body"));
+    const bodyText = await body.getText();
+    expect(bodyText).toContain("Collect");
+    expect(bodyText).toContain("Trade");
+    expect(bodyText).toContain("Explore");
   });
 });

@@ -28,14 +28,16 @@ describe("inicio_cuenta_1", () => {
     // 2 | setWindowSize | 1838x1048 |
     await driver.manage().window().setRect({ width: 1838, height: 1048 });
 
-    // 3 | click | "Empieza ya" |
-    // (React/i18n → mejor usar XPath en vez de linkText)
+    // Wait for page load
+    await driver.sleep(1000);
+
+    // 3 | click | "Start Now" (was "Empieza ya") |
     await driver.wait(
-      until.elementLocated(By.xpath("//*[contains(text(), 'Empieza ya')]")),
+      until.elementLocated(By.xpath("//*[contains(text(), 'Start Now')]")),
       5000
     );
     await driver
-      .findElement(By.xpath("//*[contains(text(), 'Empieza ya')]"))
+      .findElement(By.xpath("//*[contains(text(), 'Start Now')]"))
       .click();
 
     // 4 | click | name=username |

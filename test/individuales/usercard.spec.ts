@@ -61,8 +61,8 @@ describe("POST /usercards/:username/:type", () => {
       })
       .expect(201);
 
-    expect(res.body.collectionType).toBe("collection");
-    expect(res.body.userId).toBe(String(user._id));
+    expect(res.body.data.collectionType).toBe("collection");
+    expect(res.body.data.userId).toBe(String(user._id));
   });
 
   /**
@@ -236,7 +236,8 @@ describe("GET /usercards/:username/:type", () => {
     const res = await request(app)
       .get(`/usercards/${user.username}/invalid`)
       .expect(400);
-    expect(res.body.error).toBe("Tipo inválido");
+    expect(res.body.error).toContain("Tipo inválido. Use");
+
   });
 
   /**

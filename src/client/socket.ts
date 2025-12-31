@@ -12,6 +12,7 @@
  */
 
 import { io } from 'socket.io-client';
+import { API_BASE_URL } from './config/constants';
 
 /**
  * Instancia global de Socket.io
@@ -43,7 +44,7 @@ export function initSocket() {
    * Socket.io se conecta con autenticación por JWT
    * El token se envía en el handshake
    */
-  socket = io('http://localhost:3000', {
+  socket = io(API_BASE_URL, {
     auth: { token },
     transports: ['websocket'],
   });

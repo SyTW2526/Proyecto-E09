@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Socket } from 'socket.io-client';
 import { initSocket } from '../socket';
 import { normalizeImageUrl } from '../utils/imageHelpers';
+import { authenticatedFetch } from '../utils/fetchHelpers';
+import { API_BASE_URL } from '../config/constants';
 import Header from '../components/Header/Header';
 import Footer from '@/components/Footer';
 import { useTranslation } from 'react-i18next';
@@ -51,14 +53,8 @@ const TradePage: React.FC = () => {
     const fetchTrade = async () => {
       try {
         setLoadingTrade(true);
-        const token = localStorage.getItem('token') || '';
-        const res = await fetch(
-          `http://localhost:3000/trades/room/${roomCode}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+        const res = await authenticatedFetch(
+          `/trades/room/${roomCode}`
         );
         const data = await res.json();
         if (!res.ok) {
@@ -112,7 +108,7 @@ const TradePage: React.FC = () => {
         setOpponentName(opponent);
 
         try {
-          const res = await fetch(`http://localhost:3000/users/${opponent}`);
+          const res = await fetch(`${API_BASE_URL}/users/${opponent}`);
           const rival = await res.json();
           setOpponentImage(rival.profileImage || '/icono.png');
         } catch {
@@ -157,7 +153,7 @@ const TradePage: React.FC = () => {
         const query = isFriendPrivateRoom ? '' : '?forTrade=true';
 
         const res = await fetch(
-          `http://localhost:3000/usercards/${username}/collection${query}`
+          `${API_BASE_URL}/usercards/${username}/collection${query}`
         );
         const data = await res.json();
 
@@ -211,7 +207,7 @@ const TradePage: React.FC = () => {
 
       try {
         // Cargar la carta desde el endpoint de cards
-        const res = await fetch(`http://localhost:3000/cards`, {
+        const res = await fetch(`${API_BASE_URL}/cards`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: requestedPokemonTcgId }),
@@ -310,15 +306,10 @@ const TradePage: React.FC = () => {
         return;
       }
 
-      const token = localStorage.getItem('token') || '';
-      const res = await fetch(
-        `http://localhost:3000/trades/${trade._id}/complete`,
+      const res = await authenticatedFetch(
+        `/trades/${trade._id}/complete`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({
             myUserCardId: selectedCard.id,
             opponentUserCardId: opponentCard.id,
@@ -390,13 +381,8 @@ const TradePage: React.FC = () => {
         return;
       }
 
-      const token = localStorage.getItem('token') || '';
-      const res = await fetch(`http://localhost:3000/trades/${trade._id}`, {
+      const res = await authenticatedFetch(`/trades/${trade._id}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({ status: 'rejected' }),
       });
 

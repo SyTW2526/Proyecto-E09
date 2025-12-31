@@ -2,6 +2,7 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '../store/store';
 import { normalizeImageUrl } from '../utils/imageHelpers';
+import { API_BASE_URL } from '../config/constants';
 import {
   addToWishlist,
   removeFromWishlist,
@@ -56,10 +57,9 @@ const FeaturedCards: React.FC = () => {
     async function fetchCards() {
       try {
         setLoading(true);
-        const base = 'http://localhost:3000';
         
         // Usar el nuevo endpoint /cards/featured que obtiene cartas directamente de TCGdex
-        const resp = await fetch(`${base}/cards/featured`);
+        const resp = await fetch(`${API_BASE_URL}/cards/featured`);
         if (!resp.ok) {
           throw new Error(`Failed to fetch featured cards: ${resp.statusText}`);
         }
@@ -169,9 +169,8 @@ const FeaturedCards: React.FC = () => {
       const user = authService.getUser();
       if (!user || !authService.isAuthenticated()) return;
       try {
-        const base = 'http://localhost:3000';
         const resp = await fetch(
-          `${base}/users/${user.username}/cards?collection=wishlist`,
+          `${API_BASE_URL}/users/${user.username}/cards?collection=wishlist`,
           {
             headers: {
               ...authService.getAuthHeaders(),

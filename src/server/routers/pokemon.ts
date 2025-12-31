@@ -11,7 +11,12 @@ import {
   getAllSeries,
   searchCards,
 } from '../services/pokemon.js';
-import { sendSuccess, sendError, asyncHandler, ensureResourceExists } from '../utils/responseHelpers.js';
+import {
+  sendSuccess,
+  sendError,
+  asyncHandler,
+  ensureResourceExists,
+} from '../utils/responseHelpers.js';
 
 export const pokemonRouter = Router();
 
@@ -158,4 +163,3 @@ pokemonRouter.get(
     return sendSuccess(res, cards);
   })
 );
-

@@ -1,7 +1,12 @@
 import express from 'express';
 import { Notification } from '../models/Notification.js';
 import { validateObjectId } from '../utils/mongoHelpers.js';
-import { sendError, sendSuccess, asyncHandler, ensureResourceExists } from '../utils/responseHelpers.js';
+import {
+  sendError,
+  sendSuccess,
+  asyncHandler,
+  ensureResourceExists,
+} from '../utils/responseHelpers.js';
 
 export const notificationRouter = express.Router();
 
@@ -97,4 +102,3 @@ notificationRouter.delete(
     return sendSuccess(res, { message: 'Notificación eliminada exitosamente' });
   })
 );
-

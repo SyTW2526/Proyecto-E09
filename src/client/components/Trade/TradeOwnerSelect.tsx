@@ -64,7 +64,9 @@ export default function TradeOwnerSelect({
                 <button
                   key={o.value}
                   type="button"
-                  className={'tradeSelectItem' + (o.value === value ? ' isActive' : '')}
+                  className={
+                    'tradeSelectItem' + (o.value === value ? ' isActive' : '')
+                  }
                   onClick={() => {
                     onChange(o.value);
                     setOpen(false);

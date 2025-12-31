@@ -383,7 +383,7 @@
     "quickModalTitle": "Intercambio Rápido",
     "quickModalMessage": "¿Quieres rechazar esta solicitud de intercambio o crear una sala ?"
   },
-    "tradeModal": {
+  "tradeModal": {
     "title": "Enviar mensaje",
     "subtitle": "Elige un usuario y escribe tu oferta.",
     "cardAlt": "Carta",
@@ -394,14 +394,14 @@
     "units": "uds",
     "hintFill": "Selecciona un usuario y escribe un mensaje para enviar la solicitud."
   },
-    "tradeModeModal": {
+  "tradeModeModal": {
     "title": "Selecciona modo de intercambio",
     "subtitle": "¿Cómo quieres contactar con el usuario?",
     "sendMessage": "Enviar mensaje",
     "sendCard": "Enviar carta",
     "hint": "Luego podrás crear una sala desde las solicitudes si lo necesitas."
   },
-    "tradeOfferCardModal": {
+  "tradeOfferCardModal": {
     "title": "Intercambiar por carta",
     "subtitle": "Elige el usuario y selecciona una de tus cartas para ofrecer.",
     "targetCardAlt": "Carta objetivo",

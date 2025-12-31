@@ -51,7 +51,10 @@ const TradeOfferCardModal: React.FC<Props> = ({
   const ownerOptions = React.useMemo(() => {
     return owners.map((o) => ({
       value: o.username,
-      label: o.quantity > 1 ? `@${o.username} · ${o.quantity} ${t('tradeOfferCardModal.unitsShort', 'uds')}` : `@${o.username}`,
+      label:
+        o.quantity > 1
+          ? `@${o.username} · ${o.quantity} ${t('tradeOfferCardModal.unitsShort', 'uds')}`
+          : `@${o.username}`,
     }));
   }, [owners, t]);
 
@@ -77,12 +80,22 @@ const TradeOfferCardModal: React.FC<Props> = ({
 
   return (
     <div className="tradeModalOverlay" onClick={onClose}>
-      <div className="tradeModalCard tradeModalCard--wide" onClick={stop} role="dialog" aria-modal="true">
+      <div
+        className="tradeModalCard tradeModalCard--wide"
+        onClick={stop}
+        role="dialog"
+        aria-modal="true"
+      >
         <div className="tradeModalHeader">
           <div className="tradeModalTitleWrap">
-            <h2 className="tradeModalTitle">{t('tradeOfferCardModal.title', 'Trade for a card')}</h2>
+            <h2 className="tradeModalTitle">
+              {t('tradeOfferCardModal.title', 'Trade for a card')}
+            </h2>
             <p className="tradeModalSubtitle">
-              {t('tradeOfferCardModal.subtitle', 'Choose the user and pick one of your cards to offer.')}
+              {t(
+                'tradeOfferCardModal.subtitle',
+                'Choose the user and pick one of your cards to offer.'
+              )}
             </p>
           </div>
 
@@ -107,33 +120,55 @@ const TradeOfferCardModal: React.FC<Props> = ({
           </div>
 
           <div className="tradeModalRight">
-            <label className="tradeModalLabel">{t('tradeOfferCardModal.selectUser', 'User you want to trade with')}</label>
+            <label className="tradeModalLabel">
+              {t(
+                'tradeOfferCardModal.selectUser',
+                'User you want to trade with'
+              )}
+            </label>
 
             <TradeOwnerSelect
               value={selectedOwner}
               options={ownerOptions}
               onChange={onOwnerChange}
-              placeholder={t('tradeOfferCardModal.selectUser', 'User you want to trade with')}
+              placeholder={t(
+                'tradeOfferCardModal.selectUser',
+                'User you want to trade with'
+              )}
             />
 
             <label className="tradeModalLabel tradeModalLabel--spaced">
-              {t('tradeOfferCardModal.selectYourCard', 'Select one of your cards to offer')}
+              {t(
+                'tradeOfferCardModal.selectYourCard',
+                'Select one of your cards to offer'
+              )}
             </label>
 
             <div className="tradeOfferGrid">
               {paginated.length === 0 ? (
                 <div className="tradeModalEmpty">
-                  {t('tradeOfferCardModal.noCards', 'You have no cards marked for trade.')}
+                  {t(
+                    'tradeOfferCardModal.noCards',
+                    'You have no cards marked for trade.'
+                  )}
                 </div>
               ) : (
                 paginated.map((c) => (
                   <button
                     key={c.id}
                     type="button"
-                    className={'tradeOfferCard' + (selectedMyCard?.id === c.id ? ' isSelected' : '')}
+                    className={
+                      'tradeOfferCard' +
+                      (selectedMyCard?.id === c.id ? ' isSelected' : '')
+                    }
                     onClick={() => onSelectMyCard(c)}
-                    aria-label={t('tradeOfferCardModal.pickCardAria', 'Select this card')}
-                    title={c.name || t('tradeOfferCardModal.cardNoName', 'Card')}
+                    aria-label={t(
+                      'tradeOfferCardModal.pickCardAria',
+                      'Select this card'
+                    )}
+                    title={
+                      c.name || t('tradeOfferCardModal.cardNoName', 'Card')
+                    }
                   >
                     <img src={c.image} alt={c.name || 'card'} />
                   </button>
@@ -143,7 +178,12 @@ const TradeOfferCardModal: React.FC<Props> = ({
 
             {totalPages > 1 && (
               <div className="tradePager">
-                <button type="button" className="pagerBtn" onClick={goPrev} disabled={!canPrev}>
+                <button
+                  type="button"
+                  className="pagerBtn"
+                  onClick={goPrev}
+                  disabled={!canPrev}
+                >
                   ‹
                 </button>
 
@@ -151,14 +191,24 @@ const TradeOfferCardModal: React.FC<Props> = ({
                   {t('tradeOfferCardModal.page', 'Page')} {page} / {totalPages}
                 </span>
 
-                <button type="button" className="pagerBtn" onClick={goNext} disabled={!canNext}>
+                <button
+                  type="button"
+                  className="pagerBtn"
+                  onClick={goNext}
+                  disabled={!canNext}
+                >
                   ›
                 </button>
               </div>
             )}
 
             <div className="tradeModalActions">
-              <button type="button" className="modalBtn modalBtn--primary" disabled={!selectedMyCard} onClick={onSend}>
+              <button
+                type="button"
+                className="modalBtn modalBtn--primary"
+                disabled={!selectedMyCard}
+                onClick={onSend}
+              >
                 {t('tradeOfferCardModal.send', 'Send offer')}
               </button>
             </div>

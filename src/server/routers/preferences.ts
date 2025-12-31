@@ -1,7 +1,12 @@
 import express from 'express';
 import { User } from '../models/User.js';
 import { validateObjectId } from '../utils/mongoHelpers.js';
-import { sendError, sendSuccess, asyncHandler, ensureResourceExists } from '../utils/responseHelpers.js';
+import {
+  sendError,
+  sendSuccess,
+  asyncHandler,
+  ensureResourceExists,
+} from '../utils/responseHelpers.js';
 
 export const preferencesRouter = express.Router();
 
@@ -49,16 +54,17 @@ preferencesRouter.patch(
 
     if (language !== undefined) updateData['settings.language'] = language;
     if (darkMode !== undefined) updateData['settings.darkMode'] = darkMode;
-    
+
     if (notifications) {
       if (notifications.trades !== undefined)
         updateData['settings.notifications.trades'] = notifications.trades;
       if (notifications.messages !== undefined)
         updateData['settings.notifications.messages'] = notifications.messages;
       if (notifications.friendRequests !== undefined)
-        updateData['settings.notifications.friendRequests'] = notifications.friendRequests;
+        updateData['settings.notifications.friendRequests'] =
+          notifications.friendRequests;
     }
-    
+
     if (privacy) {
       if (privacy.showCollection !== undefined)
         updateData['settings.privacy.showCollection'] = privacy.showCollection;
@@ -86,4 +92,3 @@ preferencesRouter.patch(
     );
   })
 );
-

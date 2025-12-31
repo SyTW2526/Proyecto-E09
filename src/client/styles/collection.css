@@ -785,21 +785,21 @@ html.dark .btnLite--ghost {
   background: transparent;
 }
 
-.collectionToolbar{
+.collectionToolbar {
   width: 100%;
 }
 
-.toolbarRightGroup{
-  margin-left: auto;   
+.toolbarRightGroup {
+  margin-left: auto;
 }
 
-@media (max-width: 980px){
-  .collectionToolbar{
+@media (max-width: 980px) {
+  .collectionToolbar {
     justify-content: flex-end;
     flex-wrap: nowrap;
   }
 
-  .toolbarRightGroup{
+  .toolbarRightGroup {
     margin-left: auto !important;
     width: auto !important;
     flex-wrap: nowrap !important;
@@ -807,22 +807,21 @@ html.dark .btnLite--ghost {
     gap: 10px !important;
   }
 
-  .searchInput--right{
+  .searchInput--right {
     width: 280px !important;
     max-width: 280px !important;
     min-width: 280px !important;
   }
 }
 
-@media (max-width: 520px){
-  .toolbarRightGroup{
+@media (max-width: 520px) {
+  .toolbarRightGroup {
     margin-left: auto !important;
   }
 
-  .searchInput--right{
+  .searchInput--right {
     width: 220px !important;
     max-width: 220px !important;
     min-width: 220px !important;
   }
 }
-

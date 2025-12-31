@@ -20,14 +20,12 @@ interface UserCard {
   pokemonTcgId?: string;
 }
 
-type UiModalState =
-  | null
-  | {
-      title: string;
-      message: string;
-      variant: 'success' | 'error' | 'info';
-      afterClose?: () => void;
-    };
+type UiModalState = null | {
+  title: string;
+  message: string;
+  variant: 'success' | 'error' | 'info';
+  afterClose?: () => void;
+};
 
 const TradePage: React.FC = () => {
   const { t } = useTranslation();
@@ -90,7 +88,8 @@ const TradePage: React.FC = () => {
     if (roomCode) fetchTrade();
   }, [roomCode, t]);
 
-  const isFriendPrivateRoom = trade?.tradeType === 'private' && !trade?.requestId;
+  const isFriendPrivateRoom =
+    trade?.tradeType === 'private' && !trade?.requestId;
 
   const requestedPokemonTcgId: string | undefined =
     trade?.requestedPokemonTcgId || undefined;
@@ -133,7 +132,10 @@ const TradePage: React.FC = () => {
 
     const onTradeCompleted = () => {
       setUiModal({
-        title: t('tradeRoom.modalTradeCompletedTitle', 'Intercambio completado'),
+        title: t(
+          'tradeRoom.modalTradeCompletedTitle',
+          'Intercambio completado'
+        ),
         message: t('tradeRoom.tradeCompleted', 'Trade completed successfully.'),
         variant: 'success',
         afterClose: () => navigate('/discover'),
@@ -358,7 +360,10 @@ const TradePage: React.FC = () => {
       if (!selectedCard || !opponentCard) {
         setUiModal({
           title: t('tradeRoom.modalInfoTitle', 'Aviso'),
-          message: t('tradeRoom.mustSelectBoth', 'Both users must select a card.'),
+          message: t(
+            'tradeRoom.mustSelectBoth',
+            'Both users must select a card.'
+          ),
           variant: 'info',
         });
         return;
@@ -423,8 +428,14 @@ const TradePage: React.FC = () => {
 
       if (data.message === 'TRADE_COMPLETED') {
         setUiModal({
-          title: t('tradeRoom.modalTradeCompletedTitle', 'Intercambio completado'),
-          message: t('tradeRoom.tradeCompleted', 'Trade completed successfully.'),
+          title: t(
+            'tradeRoom.modalTradeCompletedTitle',
+            'Intercambio completado'
+          ),
+          message: t(
+            'tradeRoom.tradeCompleted',
+            'Trade completed successfully.'
+          ),
           variant: 'success',
           afterClose: () => navigate('/discover'),
         });
@@ -442,7 +453,10 @@ const TradePage: React.FC = () => {
     } catch {
       setUiModal({
         title: t('tradeRoom.modalErrorTitle', 'Error'),
-        message: t('tradeRoom.errorCompleteTrade', 'Error completing the trade.'),
+        message: t(
+          'tradeRoom.errorCompleteTrade',
+          'Error completing the trade.'
+        ),
         variant: 'error',
       });
     }
@@ -469,7 +483,8 @@ const TradePage: React.FC = () => {
         setUiModal({
           title: t('tradeRoom.modalErrorTitle', 'Error'),
           message:
-            data?.error || t('tradeRoom.errorReject', 'Error rejecting the trade.'),
+            data?.error ||
+            t('tradeRoom.errorReject', 'Error rejecting the trade.'),
           variant: 'error',
         });
         return;
@@ -602,12 +617,16 @@ const TradePage: React.FC = () => {
             <div className="trade-cards-grid">
               {pagedUserCards.map((card) => {
                 const disabled =
-                  isOwnerOfRequestedCard && forcedCard && card.id !== forcedCard.id;
+                  isOwnerOfRequestedCard &&
+                  forcedCard &&
+                  card.id !== forcedCard.id;
 
                 return (
                   <div
                     key={card.id}
-                    className={'trade-card' + (disabled ? ' trade-card-disabled' : '')}
+                    className={
+                      'trade-card' + (disabled ? ' trade-card-disabled' : '')
+                    }
                     onClick={() => !disabled && handleSelectCard(card)}
                     title=""
                   >
@@ -630,8 +649,7 @@ const TradePage: React.FC = () => {
                 </button>
 
                 <span className="pagerInfo">
-                 
-                 {cardsPage} / {totalPages}
+                  {cardsPage} / {totalPages}
                 </span>
 
                 <button
@@ -661,10 +679,13 @@ const TradePage: React.FC = () => {
                     key={i}
                     className={`chat-message-row ${m.user === username ? 'self' : 'other'}`}
                   >
-                    <div className={`chat-bubble-2 ${m.user === username ? 'self' : 'other'}`}>
+                    <div
+                      className={`chat-bubble-2 ${m.user === username ? 'self' : 'other'}`}
+                    >
                       {m.user !== username && (
                         <p className="sender-name">
-                          {opponentName || t('tradeRoom.otherUser', 'Other User')}
+                          {opponentName ||
+                            t('tradeRoom.otherUser', 'Other User')}
                         </p>
                       )}
                       <p>{m.text}</p>
@@ -680,7 +701,10 @@ const TradePage: React.FC = () => {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={
                   isFriendPrivateRoom
-                    ? t('tradeRoom.placeholderFriend', 'Send a message to your friend...')
+                    ? t(
+                        'tradeRoom.placeholderFriend',
+                        'Send a message to your friend...'
+                      )
                     : t('tradeRoom.placeholder', 'Send a message...')
                 }
                 className="chat-input"

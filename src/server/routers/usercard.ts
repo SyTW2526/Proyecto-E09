@@ -39,7 +39,7 @@ userCardRouter.post('/usercards/import', async (req, res) => {
     for (const c of cards) {
       // Usar upsertCardFromRaw para guardar la carta correctamente con el patrón discriminator
       let localCard = await upsertCardFromRaw(c);
-      
+
       if (!localCard) {
         console.warn(`No se pudo guardar la carta: ${c.id}`);
         continue;
@@ -78,7 +78,11 @@ userCardRouter.post('/usercards/:username/:type', async (req, res) => {
   try {
     const { username, type } = req.params;
     if (!isValidCollectionType(type)) {
-      return sendError(res, 'Tipo inválido. Use "collection" o "wishlist".', 400);
+      return sendError(
+        res,
+        'Tipo inválido. Use "collection" o "wishlist".',
+        400
+      );
     }
     const user = await findUserOrFail(username, res);
     if (!user) return;
@@ -119,9 +123,14 @@ userCardRouter.get('/usercards/discover', async (req, res) => {
     const total = await UserCard.countDocuments(filter);
 
     const cards = await UserCard.find(filter)
-      .select('userId cardId pokemonTcgId quantity forTrade condition collectionType createdAt')
+      .select(
+        'userId cardId pokemonTcgId quantity forTrade condition collectionType createdAt'
+      )
       .populate('userId', 'username profileImage')
-      .populate('cardId', 'name images rarity set price pokemonTcgId category hp types abilities attacks artist illustrator series')
+      .populate(
+        'cardId',
+        'name images rarity set price pokemonTcgId category hp types abilities attacks artist illustrator series'
+      )
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit));
@@ -148,7 +157,11 @@ userCardRouter.get('/usercards/:username', async (req, res) => {
     const { username } = req.params;
     const { page, limit, forTrade } = req.query;
 
-    const result = await getUserCardsPaginated(username, {}, { page, limit, forTrade });
+    const result = await getUserCardsPaginated(
+      username,
+      {},
+      { page, limit, forTrade }
+    );
 
     if (result.error) {
       return sendError(res, result.error, result.statusCode);
@@ -177,7 +190,11 @@ userCardRouter.get('/usercards/:username/:type', async (req, res) => {
     const { page, limit, forTrade } = req.query;
 
     if (!isValidCollectionType(type)) {
-      return sendError(res, 'Tipo inválido. Use "collection" o "wishlist".', 400);
+      return sendError(
+        res,
+        'Tipo inválido. Use "collection" o "wishlist".',
+        400
+      );
     }
 
     const result = await getUserCardsPaginated(

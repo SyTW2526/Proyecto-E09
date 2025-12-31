@@ -150,9 +150,9 @@ const TradeRequestsPage: React.FC = () => {
   useEffect(() => {
     if (userId) loadRequests();
   }, [userId]);
-const [quickDecision, setQuickDecision] = useState<{
-  requestId: string;
-} | null>(null);
+  const [quickDecision, setQuickDecision] = useState<{
+    requestId: string;
+  } | null>(null);
 
   const activeReceived = useMemo(
     () => receivedRequests.filter((r) => !isFinal(r)),
@@ -225,10 +225,7 @@ const [quickDecision, setQuickDecision] = useState<{
 
       setConfirmModal({
         title: t('tradeReq.acceptedStatus', 'Aceptada'),
-        message: t(
-          'tradeReq.accepted',
-          'Solicitud aceptada correctamente.'
-        ),
+        message: t('tradeReq.accepted', 'Solicitud aceptada correctamente.'),
         variant: 'success',
       });
 
@@ -266,10 +263,7 @@ const [quickDecision, setQuickDecision] = useState<{
 
       setConfirmModal({
         title: t('tradeReq.rejectedStatus', 'Rechazada'),
-        message: t(
-          'tradeReq.rejected',
-          'Solicitud rechazada.'
-        ),
+        message: t('tradeReq.rejected', 'Solicitud rechazada.'),
         variant: 'success',
       });
 
@@ -307,10 +301,7 @@ const [quickDecision, setQuickDecision] = useState<{
 
       setConfirmModal({
         title: t('tradeReq.cancelledStatus', 'Cancelada'),
-        message: t(
-          'tradeReq.cancelled',
-          'Solicitud cancelada.'
-        ),
+        message: t('tradeReq.cancelled', 'Solicitud cancelada.'),
         variant: 'success',
       });
 
@@ -347,7 +338,10 @@ const [quickDecision, setQuickDecision] = useState<{
       if (!resp.ok)
         throw new Error(
           data.error ||
-            t('tradeReq.errorOpenRoom', 'Error al crear la sala de intercambio.')
+            t(
+              'tradeReq.errorOpenRoom',
+              'Error al crear la sala de intercambio.'
+            )
         );
 
       if (data.privateRoomCode) {
@@ -417,30 +411,29 @@ const [quickDecision, setQuickDecision] = useState<{
       );
     return null;
   };
-const renderRoomChip = (req: TradeRequest) => {
-  const roomCode = req.tradeId?.privateRoomCode;
-  const tradeStatus = req.tradeId?.status;
+  const renderRoomChip = (req: TradeRequest) => {
+    const roomCode = req.tradeId?.privateRoomCode;
+    const tradeStatus = req.tradeId?.status;
 
-  if (!roomCode) return null;
+    if (!roomCode) return null;
 
-  if (tradeStatus !== 'pending') {
+    if (tradeStatus !== 'pending') {
+      return (
+        <span className="room-chip room-chip-disabled">
+          {t('tradeReq.roomUnavailable', 'Sala no disponible')}
+        </span>
+      );
+    }
+
     return (
-      <span className="room-chip room-chip-disabled">
-        {t('tradeReq.roomUnavailable', 'Sala no disponible')}
-      </span>
+      <button
+        className="btn-blue-small"
+        onClick={() => goToRoomIfAvailable(req)}
+      >
+        {t('tradeReq.goRoom', 'Ir a sala')}
+      </button>
     );
-  }
-
-  return (
-    <button
-      className="btn-blue-small"
-      onClick={() => goToRoomIfAvailable(req)}
-    >
-      {t('tradeReq.goRoom', 'Ir a sala')}
-    </button>
-  );
-};
-
+  };
 
   return (
     <div className="trade-requests-container trade-requests-page">
@@ -468,7 +461,10 @@ const renderRoomChip = (req: TradeRequest) => {
 
               {activeReceivedQuick.length === 0 ? (
                 <p className="trade-empty">
-                  {t('tradeReq.noQuickReceived', 'No tienes intercambios rápidos.')}
+                  {t(
+                    'tradeReq.noQuickReceived',
+                    'No tienes intercambios rápidos.'
+                  )}
                 </p>
               ) : (
                 <div className="trade-list">
@@ -477,9 +473,13 @@ const renderRoomChip = (req: TradeRequest) => {
                     const offered = req.offeredCard?.cardImage;
 
                     const targetP =
-                      typeof req.targetPrice === 'number' ? req.targetPrice : null;
+                      typeof req.targetPrice === 'number'
+                        ? req.targetPrice
+                        : null;
                     const offeredP =
-                      typeof req.offeredPrice === 'number' ? req.offeredPrice : null;
+                      typeof req.offeredPrice === 'number'
+                        ? req.offeredPrice
+                        : null;
 
                     const diffPct =
                       targetP && offeredP && targetP > 0
@@ -496,7 +496,9 @@ const renderRoomChip = (req: TradeRequest) => {
                                 alt={req.offeredCard?.cardName}
                               />
                             ) : (
-                              <div className="trade-card-placeholder-mini">?</div>
+                              <div className="trade-card-placeholder-mini">
+                                ?
+                              </div>
                             )}
                           </div>
 
@@ -506,7 +508,9 @@ const renderRoomChip = (req: TradeRequest) => {
                             {target ? (
                               <img src={target} alt={req.cardName} />
                             ) : (
-                              <div className="trade-card-placeholder-mini">?</div>
+                              <div className="trade-card-placeholder-mini">
+                                ?
+                              </div>
                             )}
                           </div>
                         </div>
@@ -516,7 +520,9 @@ const renderRoomChip = (req: TradeRequest) => {
                             <span className="trade-user">
                               {t('tradeReq.from', 'De')}{' '}
                               <strong>
-                                @{req.from?.username || t('tradeReq.unknown', 'desconocido')}
+                                @
+                                {req.from?.username ||
+                                  t('tradeReq.unknown', 'desconocido')}
                               </strong>
                             </span>
                             {renderStatusBadge(req.status)}
@@ -532,8 +538,7 @@ const renderRoomChip = (req: TradeRequest) => {
                             <span className="quick-label">
                               {t('tradeReq.for', 'Por')}:
                             </span>{' '}
-                            {req.cardName ||
-                              t('tradeReq.noName', 'Sin nombre')}
+                            {req.cardName || t('tradeReq.noName', 'Sin nombre')}
                           </p>
 
                           {(targetP !== null ||
@@ -568,7 +573,9 @@ const renderRoomChip = (req: TradeRequest) => {
                             </p>
                           )}
 
-                          <p className="trade-date">{formatDate(req.createdAt)}</p>
+                          <p className="trade-date">
+                            {formatDate(req.createdAt)}
+                          </p>
 
                           <div className="trade-actions">
                             {req.status === 'pending' && (
@@ -584,19 +591,18 @@ const renderRoomChip = (req: TradeRequest) => {
                                 >
                                   {t('tradeReq.acceptQuick', 'Aceptar')}
                                 </button>
-<button
-  className="btn-blue-small"
-  onClick={() => setQuickDecision({ requestId: req._id })}
->
-  {t('tradeReq.quickDecision', 'Decidir')}
-</button>
-
-
-
+                                <button
+                                  className="btn-blue-small"
+                                  onClick={() =>
+                                    setQuickDecision({ requestId: req._id })
+                                  }
+                                >
+                                  {t('tradeReq.quickDecision', 'Decidir')}
+                                </button>
                               </>
                             )}
-                           {req.tradeId?.privateRoomCode && renderRoomChip(req)}
-
+                            {req.tradeId?.privateRoomCode &&
+                              renderRoomChip(req)}
                           </div>
                         </div>
                       </div>
@@ -638,7 +644,9 @@ const renderRoomChip = (req: TradeRequest) => {
                           <span className="trade-user">
                             {t('tradeReq.from', 'De')}{' '}
                             <strong>
-                              @{req.from?.username || t('tradeReq.unknown', 'desconocido')}
+                              @
+                              {req.from?.username ||
+                                t('tradeReq.unknown', 'desconocido')}
                             </strong>
                           </span>
                           {renderStatusBadge(req.status)}
@@ -655,7 +663,9 @@ const renderRoomChip = (req: TradeRequest) => {
                           </p>
                         )}
 
-                        <p className="trade-date">{formatDate(req.createdAt)}</p>
+                        <p className="trade-date">
+                          {formatDate(req.createdAt)}
+                        </p>
 
                         <div className="trade-actions">
                           {req.status === 'pending' && (
@@ -726,7 +736,9 @@ const renderRoomChip = (req: TradeRequest) => {
                           <span className="trade-user">
                             {t('tradeReq.to', 'Para')}{' '}
                             <strong>
-                              @{req.to?.username || t('tradeReq.unknown', 'desconocido')}
+                              @
+                              {req.to?.username ||
+                                t('tradeReq.unknown', 'desconocido')}
                             </strong>
                           </span>
                           {renderStatusBadge(req.status)}
@@ -743,7 +755,9 @@ const renderRoomChip = (req: TradeRequest) => {
                           </p>
                         )}
 
-                        <p className="trade-date">{formatDate(req.createdAt)}</p>
+                        <p className="trade-date">
+                          {formatDate(req.createdAt)}
+                        </p>
 
                         <div className="trade-actions">
                           {req.status === 'pending' && (
@@ -803,12 +817,16 @@ const renderRoomChip = (req: TradeRequest) => {
                         <div className="trade-info">
                           <div className="trade-info-header">
                             <span className="trade-user">
-                              {isReceived ? t('tradeReq.from', 'De') : t('tradeReq.to', 'Para')}{' '}
+                              {isReceived
+                                ? t('tradeReq.from', 'De')
+                                : t('tradeReq.to', 'Para')}{' '}
                               <strong>
                                 @
                                 {isReceived
-                                  ? req.from?.username || t('tradeReq.unknown', 'desconocido')
-                                  : req.to?.username || t('tradeReq.unknown', 'desconocido')}
+                                  ? req.from?.username ||
+                                    t('tradeReq.unknown', 'desconocido')
+                                  : req.to?.username ||
+                                    t('tradeReq.unknown', 'desconocido')}
                               </strong>
                             </span>
                             {renderStatusBadge(req.status)}
@@ -825,17 +843,25 @@ const renderRoomChip = (req: TradeRequest) => {
                             </p>
                           )}
 
-                          <p className="trade-date">{formatDate(req.createdAt)}</p>
+                          <p className="trade-date">
+                            {formatDate(req.createdAt)}
+                          </p>
 
                           <div className="trade-actions">
                             {req.tradeId?.status === 'completed' && (
                               <span className="history-chip">
-                                {t('tradeReq.tradeDone', 'Intercambio completado')}
+                                {t(
+                                  'tradeReq.tradeDone',
+                                  'Intercambio completado'
+                                )}
                               </span>
                             )}
                             {req.tradeId?.status === 'cancelled' && (
                               <span className="history-chip">
-                                {t('tradeReq.tradeCancelled', 'Intercambio cancelado')}
+                                {t(
+                                  'tradeReq.tradeCancelled',
+                                  'Intercambio cancelado'
+                                )}
                               </span>
                             )}
                           </div>
@@ -869,8 +895,8 @@ const renderRoomChip = (req: TradeRequest) => {
             actionModal.type === 'accept'
               ? t('tradeReq.confirmAcceptTitle', 'Aceptar solicitud')
               : actionModal.type === 'reject'
-              ? t('tradeReq.confirmRejectTitle', 'Rechazar solicitud')
-              : t('tradeReq.confirmCancelTitle', 'Cancelar solicitud')
+                ? t('tradeReq.confirmRejectTitle', 'Rechazar solicitud')
+                : t('tradeReq.confirmCancelTitle', 'Cancelar solicitud')
           }
           message={
             actionModal.type === 'accept'
@@ -879,72 +905,69 @@ const renderRoomChip = (req: TradeRequest) => {
                   '¿Seguro que quieres aceptar esta solicitud de intercambio?'
                 )
               : actionModal.type === 'reject'
-              ? t(
-                  'tradeReq.confirmReject',
-                  '¿Seguro que quieres rechazar esta solicitud de intercambio?'
-                )
-              : t(
-                  'tradeReq.confirmCancel',
-                  '¿Seguro que quieres cancelar esta solicitud de intercambio?'
-                )
+                ? t(
+                    'tradeReq.confirmReject',
+                    '¿Seguro que quieres rechazar esta solicitud de intercambio?'
+                  )
+                : t(
+                    'tradeReq.confirmCancel',
+                    '¿Seguro que quieres cancelar esta solicitud de intercambio?'
+                  )
           }
           variant={actionModal.type === 'accept' ? 'success' : 'error'}
           onConfirm={executeAction}
           onClose={() => setActionModal(null)}
         />
       )}
-{quickDecision && (
-  <div className="modalOverlay" onClick={() => setQuickDecision(null)}>
-    <div className="modalCard" onClick={(e) => e.stopPropagation()}>
-      <button
-        className="modalClose"
-        aria-label={t('common.close', 'Cerrar')}
-        onClick={() => setQuickDecision(null)}
-      >
-        ×
-      </button>
+      {quickDecision && (
+        <div className="modalOverlay" onClick={() => setQuickDecision(null)}>
+          <div className="modalCard" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="modalClose"
+              aria-label={t('common.close', 'Cerrar')}
+              onClick={() => setQuickDecision(null)}
+            >
+              ×
+            </button>
 
-      <h3 className="modalTitle">
-        {t('tradeReq.quickModalTitle', 'Intercambio rápido')}
-      </h3>
+            <h3 className="modalTitle">
+              {t('tradeReq.quickModalTitle', 'Intercambio rápido')}
+            </h3>
 
-      <p className="modalMessage">
-        {t(
-          'tradeReq.quickModalMessage',
-          '¿Quieres rechazar o crear una sala para negociar?'
-        )}
-      </p>
+            <p className="modalMessage">
+              {t(
+                'tradeReq.quickModalMessage',
+                '¿Quieres rechazar o crear una sala para negociar?'
+              )}
+            </p>
 
-      <div className="modalActions">
-        <button
-          className="btn-red-small"
-          onClick={async () => {
-            const id = quickDecision.requestId;
-            setQuickDecision(null);
-            await handleReject(id);
-          }}
-        >
-          {t('tradeReq.reject', 'Rechazar')}
-        </button>
+            <div className="modalActions">
+              <button
+                className="btn-red-small"
+                onClick={async () => {
+                  const id = quickDecision.requestId;
+                  setQuickDecision(null);
+                  await handleReject(id);
+                }}
+              >
+                {t('tradeReq.reject', 'Rechazar')}
+              </button>
 
-        <button
-          className="btn-blue-small"
-          onClick={async () => {
-            const id = quickDecision.requestId;
-            setQuickDecision(null);
-            await handleOpenRoom(id);
-          }}
-        >
-          {t('tradeReq.openRoom', 'Crear sala')}
-        </button>
-      </div>
+              <button
+                className="btn-blue-small"
+                onClick={async () => {
+                  const id = quickDecision.requestId;
+                  setQuickDecision(null);
+                  await handleOpenRoom(id);
+                }}
+              >
+                {t('tradeReq.openRoom', 'Crear sala')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-)}
-
-
-    </div>
-    
   );
 };
 

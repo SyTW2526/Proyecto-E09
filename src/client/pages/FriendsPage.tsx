@@ -256,7 +256,7 @@ const FriendsPage: React.FC = () => {
       const res = await authenticatedFetch(`/friends/request/${id}`, {
         method: 'POST',
       });
-      
+
       if (!res.ok) {
         const errorData = await res.json();
         setToast({

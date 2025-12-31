@@ -25,8 +25,16 @@ const tradeRequestSchema = new mongoose.Schema(
     offeredPrice: { type: Number, default: null },
     targetPrice: { type: Number, default: null },
 
-    offeredUserCardId: { type: mongoose.Schema.Types.ObjectId, ref: 'UserCard', default: null },
-    targetUserCardId: { type: mongoose.Schema.Types.ObjectId, ref: 'UserCard', default: null },
+    offeredUserCardId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'UserCard',
+      default: null,
+    },
+    targetUserCardId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'UserCard',
+      default: null,
+    },
 
     status: {
       type: String,
@@ -36,7 +44,11 @@ const tradeRequestSchema = new mongoose.Schema(
 
     isManual: { type: Boolean, default: false },
 
-    tradeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Trade', default: null },
+    tradeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Trade',
+      default: null,
+    },
 
     finishedAt: { type: Date, default: null },
   },

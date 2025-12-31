@@ -34,9 +34,9 @@ const trainerCardSchema = new mongoose.Schema({
 /**
  * Modelo de Carta de Entrenador como discriminator de Card
  * Automáticamente hereda todos los campos de Card.
- * 
+ *
  * category='trainer' se establece automáticamente
- * 
+ *
  * @type {mongoose.Model}
  */
 export const TrainerCard = Card.discriminator('trainer', trainerCardSchema);

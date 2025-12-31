@@ -98,9 +98,9 @@ const pokemonCardSchema = new mongoose.Schema({
  * Modelo de Carta Pokémon como discriminator de Card
  * Automáticamente hereda todos los campos de Card
  * y añade los campos específicos definidos arriba.
- * 
+ *
  * category='pokemon' se establece automáticamente
- * 
+ *
  * @type {mongoose.Model}
  */
 export const PokemonCard = Card.discriminator('pokemon', pokemonCardSchema);

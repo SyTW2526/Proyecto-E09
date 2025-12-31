@@ -320,7 +320,7 @@
     "placeholderFriend": "Send a message to your friend...",
     "send": "Send",
     "acceptTrade": "Accept Trade",
-    "rejectTrade": "Reject Trade",   
+    "rejectTrade": "Reject Trade",
     "modalErrorTitle": "Error",
     "modalInfoTitle": "Info",
     "modalWaitingTitle": "Waiting for confirmation",
@@ -385,7 +385,7 @@
     "units": "units",
     "hintFill": "Select a user and write a message to send the request."
   },
-   "tradeModeModal": {
+  "tradeModeModal": {
     "title": "Choose trade mode",
     "subtitle": "How do you want to contact the user?",
     "sendMessage": "Send message",

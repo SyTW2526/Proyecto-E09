@@ -1,7 +1,7 @@
-import React from "react";
-import { X } from "lucide-react";
-import { useTranslation } from "react-i18next";
-import "../../styles/trade_modals.css";
+import React from 'react';
+import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import '../../styles/trade_modals.css';
 
 interface Props {
   visible: boolean;
@@ -33,12 +33,12 @@ const TradeModeModal: React.FC<Props> = ({
         <div className="tradeModalHeader">
           <div className="tradeModalTitleWrap">
             <h2 className="tradeModalTitle">
-              {t("tradeModeModal.title", "Choose trade mode")}
+              {t('tradeModeModal.title', 'Choose trade mode')}
             </h2>
             <p className="tradeModalSubtitle">
               {t(
-                "tradeModeModal.subtitle",
-                "How do you want to contact the user?"
+                'tradeModeModal.subtitle',
+                'How do you want to contact the user?'
               )}
             </p>
           </div>
@@ -47,8 +47,8 @@ const TradeModeModal: React.FC<Props> = ({
             type="button"
             className="tradeModalCloseBtn"
             onClick={onClose}
-            aria-label={t("common.close", "Close")}
-            title={t("common.close", "Close")}
+            aria-label={t('common.close', 'Close')}
+            title={t('common.close', 'Close')}
           >
             <X size={18} />
           </button>
@@ -60,7 +60,7 @@ const TradeModeModal: React.FC<Props> = ({
             className="tradeModeBtn tradeModeBtn--message"
             onClick={onSendMessage}
           >
-            {t("tradeModeModal.sendMessage", "Send message")}
+            {t('tradeModeModal.sendMessage', 'Send message')}
           </button>
 
           <button
@@ -68,7 +68,7 @@ const TradeModeModal: React.FC<Props> = ({
             className="tradeModeBtn tradeModeBtn--card"
             onClick={onSendCard}
           >
-            {t("tradeModeModal.sendCard", "Send card")}
+            {t('tradeModeModal.sendCard', 'Send card')}
           </button>
         </div>
       </div>

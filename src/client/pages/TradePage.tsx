@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { authService } from '../services/authService';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/trade-room.css';
+import ConfirmModal from '@/components/ConfirmModal';
 
 interface UserCard {
   id: string;
@@ -19,6 +20,15 @@ interface UserCard {
   pokemonTcgId?: string;
 }
 
+type UiModalState =
+  | null
+  | {
+      title: string;
+      message: string;
+      variant: 'success' | 'error' | 'info';
+      afterClose?: () => void;
+    };
+
 const TradePage: React.FC = () => {
   const { t } = useTranslation();
   const { code } = useParams<{ code: string }>();
@@ -27,7 +37,6 @@ const TradePage: React.FC = () => {
   const user = authService.getUser();
   const userImage = user?.profileImage || '/icono.png';
   const username = user?.username;
-  const userId = user?.id;
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
@@ -42,20 +51,27 @@ const TradePage: React.FC = () => {
   const [userCards, setUserCards] = useState<UserCard[]>([]);
   const [selectedCard, setSelectedCard] = useState<UserCard | null>(null);
   const [cardsPage, setCardsPage] = useState(1);
-  const PAGE_SIZE = 6;
+  const PAGE_SIZE = 10;
 
   const [opponentCard, setOpponentCard] = useState<UserCard | null>(null);
   const [opponentName, setOpponentName] = useState<string>('');
   const [opponentImage, setOpponentImage] = useState<string>('/icono.png');
-  const [requestedCardDisplay, setRequestedCardDisplay] = useState<UserCard | null>(null);
+  const [requestedCardDisplay, setRequestedCardDisplay] =
+    useState<UserCard | null>(null);
+
+  const [uiModal, setUiModal] = useState<UiModalState>(null);
+
+  const closeUiModal = () => {
+    const after = uiModal?.afterClose;
+    setUiModal(null);
+    if (after) after();
+  };
 
   useEffect(() => {
     const fetchTrade = async () => {
       try {
         setLoadingTrade(true);
-        const res = await authenticatedFetch(
-          `/trades/room/${roomCode}`
-        );
+        const res = await authenticatedFetch(`/trades/room/${roomCode}`);
         const data = await res.json();
         if (!res.ok) {
           setTradeError(
@@ -64,7 +80,7 @@ const TradePage: React.FC = () => {
           return;
         }
         setTrade(data);
-      } catch (e) {
+      } catch {
         setTradeError(t('tradeRoom.errorLoadingTrade', 'Error loading trade.'));
       } finally {
         setLoadingTrade(false);
@@ -74,8 +90,7 @@ const TradePage: React.FC = () => {
     if (roomCode) fetchTrade();
   }, [roomCode, t]);
 
-  const isFriendPrivateRoom =
-    trade?.tradeType === 'private' && !trade?.requestId;
+  const isFriendPrivateRoom = trade?.tradeType === 'private' && !trade?.requestId;
 
   const requestedPokemonTcgId: string | undefined =
     trade?.requestedPokemonTcgId || undefined;
@@ -85,7 +100,6 @@ const TradePage: React.FC = () => {
     if (!s) return;
 
     setSocket(s);
-
     s.emit('joinRoom', roomCode);
 
     const onReceiveMessage = (data: any) =>
@@ -118,15 +132,21 @@ const TradePage: React.FC = () => {
     };
 
     const onTradeCompleted = () => {
-      window.alert(
-        t('tradeRoom.tradeCompleted', 'Trade completed successfully.')
-      );
-      navigate('/discover');
+      setUiModal({
+        title: t('tradeRoom.modalTradeCompletedTitle', 'Intercambio completado'),
+        message: t('tradeRoom.tradeCompleted', 'Trade completed successfully.'),
+        variant: 'success',
+        afterClose: () => navigate('/discover'),
+      });
     };
 
     const onTradeRejected = () => {
-      window.alert(t('tradeRoom.tradeRejected', 'Trade rejected.'));
-      navigate('/discover');
+      setUiModal({
+        title: t('tradeRoom.modalTradeRejectedTitle', 'Intercambio rechazado'),
+        message: t('tradeRoom.tradeRejected', 'Trade rejected.'),
+        variant: 'info',
+        afterClose: () => navigate('/discover'),
+      });
     };
 
     s.on('receiveMessage', onReceiveMessage);
@@ -170,11 +190,11 @@ const TradePage: React.FC = () => {
           if (!image && pokemonTcgId) {
             const [setCode, number] = pokemonTcgId.split('-');
             if (setCode && number) {
-              // Usar normalizeImageUrl para corregir cualquier problema con la URL
-              image = normalizeImageUrl(`https://assets.tcgdex.net/en/${setCode}/${number}/high.png`);
+              image = normalizeImageUrl(
+                `https://assets.tcgdex.net/en/${setCode}/${number}/high.png`
+              );
             }
           } else {
-            // Normalizar la imagen que ya tenemos
             image = normalizeImageUrl(image);
           }
 
@@ -196,25 +216,24 @@ const TradePage: React.FC = () => {
     if (username) fetchCards();
   }, [username, isFriendPrivateRoom]);
 
-  // Cargar la carta solicitada si el usuario NO es el propietario (es el iniciador)
   useEffect(() => {
     const fetchRequestedCard = async () => {
       if (!requestedPokemonTcgId || !trade) return;
-      
-      // Si ya tengo la carta en mis cartas, no necesito cargarla
-      const myCard = userCards.find((c) => c.pokemonTcgId === requestedPokemonTcgId);
+
+      const myCard = userCards.find(
+        (c) => c.pokemonTcgId === requestedPokemonTcgId
+      );
       if (myCard) return;
 
       try {
-        // Cargar la carta desde el endpoint de cards
         const res = await fetch(`${API_BASE_URL}/cards`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: requestedPokemonTcgId }),
         });
-        
+
         if (!res.ok) return;
-        
+
         const data = await res.json();
         const card = data.card || data;
 
@@ -226,11 +245,11 @@ const TradePage: React.FC = () => {
         if (!image && requestedPokemonTcgId) {
           const [setCode, number] = requestedPokemonTcgId.split('-');
           if (setCode && number) {
-            // Usar normalizeImageUrl para corregir cualquier problema con la URL
-            image = normalizeImageUrl(`https://assets.tcgdex.net/en/${setCode}/${number}/high.png`);
+            image = normalizeImageUrl(
+              `https://assets.tcgdex.net/en/${setCode}/${number}/high.png`
+            );
           }
         } else {
-          // Normalizar la imagen que ya tenemos
           image = normalizeImageUrl(image);
         }
 
@@ -243,9 +262,7 @@ const TradePage: React.FC = () => {
         };
 
         setRequestedCardDisplay(requestedCard);
-      } catch (error) {
-        console.error('Error fetching requested card:', error);
-      }
+      } catch {}
     };
 
     fetchRequestedCard();
@@ -267,25 +284,59 @@ const TradePage: React.FC = () => {
     }
   }, [forcedCard, socket, username, roomCode]);
 
+  useEffect(() => {
+    setCardsPage(1);
+  }, [username, isFriendPrivateRoom, requestedPokemonTcgId, userCards.length]);
+
+  useEffect(() => {
+    if (!forcedCard || !isOwnerOfRequestedCard) return;
+
+    const idx = userCards.findIndex((c) => c.id === forcedCard.id);
+    if (idx < 0) return;
+
+    const pageForForced = Math.floor(idx / PAGE_SIZE) + 1;
+    if (pageForForced !== cardsPage) setCardsPage(pageForForced);
+  }, [forcedCard, isOwnerOfRequestedCard, userCards, cardsPage]);
+
+  const totalPages = useMemo(() => {
+    const n = Math.ceil(userCards.length / PAGE_SIZE);
+    return n > 0 ? n : 1;
+  }, [userCards.length]);
+
+  const pagedUserCards = useMemo(() => {
+    const start = (cardsPage - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    return userCards.slice(start, end);
+  }, [userCards, cardsPage]);
+
+  const canPrev = cardsPage > 1;
+  const canNext = cardsPage < totalPages;
+
+  const goPrev = () => setCardsPage((p) => Math.max(1, p - 1));
+  const goNext = () => setCardsPage((p) => Math.min(totalPages, p + 1));
+
   const handleSend = () => {
     if (!input.trim() || !socket) return;
 
-    const message = {
+    socket.emit('sendMessage', {
       text: input,
       roomCode,
       user: username,
-    };
+    });
 
-    // Solo enviar al servidor, el servidor lo devolverá via receiveMessage
-    socket.emit('sendMessage', message);
     setInput('');
   };
 
   const handleSelectCard = (card: UserCard) => {
     if (forcedCard && card.id !== forcedCard.id) {
-      window.alert(
-        t('tradeRoom.cardForcedOnly', 'You can only select the requested card.')
-      );
+      setUiModal({
+        title: t('tradeRoom.modalInfoTitle', 'Aviso'),
+        message: t(
+          'tradeRoom.cardForcedOnly',
+          'You can only select the requested card.'
+        ),
+        variant: 'info',
+      });
       return;
     }
 
@@ -296,88 +347,115 @@ const TradePage: React.FC = () => {
   const handleAccept = async () => {
     try {
       if (!trade) {
-        window.alert(t('tradeRoom.noTradeLoaded', 'No trade loaded.'));
-        return;
-      }
-      if (!selectedCard || !opponentCard) {
-        window.alert(
-          t('tradeRoom.mustSelectBoth', 'Both users must select a card.')
-        );
+        setUiModal({
+          title: t('tradeRoom.modalErrorTitle', 'Error'),
+          message: t('tradeRoom.noTradeLoaded', 'No trade loaded.'),
+          variant: 'error',
+        });
         return;
       }
 
-      const res = await authenticatedFetch(
-        `/trades/${trade._id}/complete`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            myUserCardId: selectedCard.id,
-            opponentUserCardId: opponentCard.id,
-          }),
-        }
-      );
+      if (!selectedCard || !opponentCard) {
+        setUiModal({
+          title: t('tradeRoom.modalInfoTitle', 'Aviso'),
+          message: t('tradeRoom.mustSelectBoth', 'Both users must select a card.'),
+          variant: 'info',
+        });
+        return;
+      }
+
+      const res = await authenticatedFetch(`/trades/${trade._id}/complete`, {
+        method: 'POST',
+        body: JSON.stringify({
+          myUserCardId: selectedCard.id,
+          opponentUserCardId: opponentCard.id,
+        }),
+      });
 
       const data = await res.json();
 
       if (!res.ok) {
         if (data?.error === 'TRADE_VALUE_DIFF_TOO_HIGH') {
-          window.alert(
-            t(
+          setUiModal({
+            title: t('tradeRoom.modalErrorTitle', 'Error'),
+            message: t(
               'tradeRoom.errorValueDiff',
               'The value difference between cards is too high.'
-            )
-          );
-        } else if (data?.error === 'REQUESTED_CARD_MISMATCH') {
-          window.alert(
-            t(
+            ),
+            variant: 'error',
+          });
+          return;
+        }
+
+        if (data?.error === 'REQUESTED_CARD_MISMATCH') {
+          setUiModal({
+            title: t('tradeRoom.modalErrorTitle', 'Error'),
+            message: t(
               'tradeRoom.errorRequestedMismatch',
               'The selected card does not match the requested card.'
-            )
-          );
-        } else {
-          window.alert(
-            data?.error ||
-              t('tradeRoom.errorCompleteTrade', 'Error completing the trade.')
-          );
+            ),
+            variant: 'error',
+          });
+          return;
         }
+
+        setUiModal({
+          title: t('tradeRoom.modalErrorTitle', 'Error'),
+          message:
+            data?.error ||
+            t('tradeRoom.errorCompleteTrade', 'Error completing the trade.'),
+          variant: 'error',
+        });
         return;
       }
 
       if (data.message === 'WAITING_OTHER_USER') {
-        window.alert(
-          t(
+        setUiModal({
+          title: t('tradeRoom.modalWaitingTitle', 'Esperando confirmación'),
+          message: t(
             'tradeRoom.waitingOtherUser',
             'Waiting for the other user to confirm.'
-          )
-        );
+          ),
+          variant: 'info',
+        });
         return;
       }
 
       if (data.message === 'TRADE_COMPLETED') {
-        window.alert(
-          t('tradeRoom.tradeCompleted', 'Trade completed successfully.')
-        );
-        navigate('/discover');
+        setUiModal({
+          title: t('tradeRoom.modalTradeCompletedTitle', 'Intercambio completado'),
+          message: t('tradeRoom.tradeCompleted', 'Trade completed successfully.'),
+          variant: 'success',
+          afterClose: () => navigate('/discover'),
+        });
         return;
       }
 
-      window.alert(
-        t(
+      setUiModal({
+        title: t('tradeRoom.modalInfoTitle', 'Aviso'),
+        message: t(
           'tradeRoom.unexpectedResponse',
           'Unexpected response from the server.'
-        )
-      );
+        ),
+        variant: 'info',
+      });
     } catch {
-      window.alert(
-        t('tradeRoom.errorCompleteTrade', 'Error completing the trade.')
-      );
+      setUiModal({
+        title: t('tradeRoom.modalErrorTitle', 'Error'),
+        message: t('tradeRoom.errorCompleteTrade', 'Error completing the trade.'),
+        variant: 'error',
+      });
     }
   };
 
   const handleReject = async () => {
     try {
       if (!trade) {
-        window.alert(t('tradeRoom.noTradeLoaded', 'No trade loaded.'));
+        setUiModal({
+          title: t('tradeRoom.modalErrorTitle', 'Error'),
+          message: t('tradeRoom.noTradeLoaded', 'No trade loaded.'),
+          variant: 'error',
+        });
         return;
       }
 
@@ -388,19 +466,30 @@ const TradePage: React.FC = () => {
 
       const data = await res.json();
       if (!res.ok) {
-        window.alert(
-          data?.error ||
-            t('tradeRoom.errorReject', 'Error rejecting the trade.')
-        );
+        setUiModal({
+          title: t('tradeRoom.modalErrorTitle', 'Error'),
+          message:
+            data?.error || t('tradeRoom.errorReject', 'Error rejecting the trade.'),
+          variant: 'error',
+        });
         return;
       }
 
-      window.alert(t('tradeRoom.tradeRejected', 'Trade rejected.'));
-      navigate('/discover');
+      setUiModal({
+        title: t('tradeRoom.modalTradeRejectedTitle', 'Intercambio rechazado'),
+        message: t('tradeRoom.tradeRejected', 'Trade rejected.'),
+        variant: 'success',
+        afterClose: () => navigate('/discover'),
+      });
     } catch {
-      window.alert(t('tradeRoom.errorReject', 'Error rejecting the trade.'));
+      setUiModal({
+        title: t('tradeRoom.modalErrorTitle', 'Error'),
+        message: t('tradeRoom.errorReject', 'Error rejecting the trade.'),
+        variant: 'error',
+      });
     }
   };
+
   if (!user || !authService.isAuthenticated()) {
     return (
       <div className="trade-page">
@@ -483,9 +572,11 @@ const TradePage: React.FC = () => {
                   {opponentCard ? (
                     <img src={opponentCard.image} className="selected-card" />
                   ) : requestedCardDisplay && !isOwnerOfRequestedCard ? (
-                    // Mostrar la carta solicitada si el usuario es el iniciador
                     <div className="requested-card-preview">
-                      <img src={requestedCardDisplay.image} className="selected-card" />
+                      <img
+                        src={requestedCardDisplay.image}
+                        className="selected-card"
+                      />
                       <span className="requested-label">
                         {t('tradeRoom.requestedCard', 'Requested')}
                       </span>
@@ -507,26 +598,53 @@ const TradePage: React.FC = () => {
                 ? t('tradeRoom.yourCards')
                 : t('tradeRoom.yourTradeCards')}
             </p>
+
             <div className="trade-cards-grid">
-              {userCards.map((card) => {
+              {pagedUserCards.map((card) => {
                 const disabled =
-                  isOwnerOfRequestedCard &&
-                  forcedCard &&
-                  card.id !== forcedCard.id;
+                  isOwnerOfRequestedCard && forcedCard && card.id !== forcedCard.id;
 
                 return (
                   <div
                     key={card.id}
-                    className={
-                      'trade-card' + (disabled ? ' trade-card-disabled' : '')
-                    }
+                    className={'trade-card' + (disabled ? ' trade-card-disabled' : '')}
                     onClick={() => !disabled && handleSelectCard(card)}
+                    title=""
                   >
-                    <img src={card.image} className="trade-card-img" />
+                    <img src={card.image} className="trade-card-img" alt="" />
                   </div>
                 );
               })}
             </div>
+
+            {userCards.length > PAGE_SIZE && (
+              <div className="collectionPager tradePager">
+                <button
+                  className="pagerBtn"
+                  onClick={goPrev}
+                  disabled={!canPrev}
+                  aria-label={t('tradeRoom.prev', 'Anterior')}
+                  title={t('tradeRoom.prev', 'Anterior')}
+                >
+                  ‹
+                </button>
+
+                <span className="pagerInfo">
+                 
+                 {cardsPage} / {totalPages}
+                </span>
+
+                <button
+                  className="pagerBtn"
+                  onClick={goNext}
+                  disabled={!canNext}
+                  aria-label={t('tradeRoom.next', 'Siguiente')}
+                  title={t('tradeRoom.next', 'Siguiente')}
+                >
+                  ›
+                </button>
+              </div>
+            )}
           </section>
 
           <aside className="trade-chat">
@@ -541,19 +659,12 @@ const TradePage: React.FC = () => {
                 {messages.map((m, i) => (
                   <div
                     key={i}
-                    className={`chat-message-row ${
-                      m.user === username ? 'self' : 'other'
-                    }`}
+                    className={`chat-message-row ${m.user === username ? 'self' : 'other'}`}
                   >
-                    <div
-                      className={`chat-bubble-2 ${
-                        m.user === username ? 'self' : 'other'
-                      }`}
-                    >
+                    <div className={`chat-bubble-2 ${m.user === username ? 'self' : 'other'}`}>
                       {m.user !== username && (
                         <p className="sender-name">
-                          {opponentName ||
-                            t('tradeRoom.otherUser', 'Other User')}
+                          {opponentName || t('tradeRoom.otherUser', 'Other User')}
                         </p>
                       )}
                       <p>{m.text}</p>
@@ -569,10 +680,7 @@ const TradePage: React.FC = () => {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={
                   isFriendPrivateRoom
-                    ? t(
-                        'tradeRoom.placeholderFriend',
-                        'Send a message to your friend...'
-                      )
+                    ? t('tradeRoom.placeholderFriend', 'Send a message to your friend...')
                     : t('tradeRoom.placeholder', 'Send a message...')
                 }
                 className="chat-input"
@@ -597,6 +705,16 @@ const TradePage: React.FC = () => {
       <footer className="trade-footer">
         <Footer />
       </footer>
+
+      {uiModal && (
+        <ConfirmModal
+          open={true}
+          title={uiModal.title}
+          message={uiModal.message}
+          variant={uiModal.variant}
+          onClose={closeUiModal}
+        />
+      )}
     </div>
   );
 };

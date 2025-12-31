@@ -625,49 +625,57 @@ const DiscoverTradeCards: React.FC = () => {
     setModeModalVisible(true);
   };
 
-  const loadMyCardsForTrade = async () => {
-    if (!currentUsername) return;
+const loadMyCardsForTrade = async () => {
+  if (!currentUsername) return;
 
-    const resp = await fetch(
-      `${API_BASE_URL}/usercards/${currentUsername}/collection?forTrade=true`
-    );
-    const data = await resp.json();
+  const resp = await authenticatedFetch(
+    `/usercards/${currentUsername}/collection?forTrade=true`
+  );
 
-    const normalized = (data.cards || []).map((item: any) => {
-      const card = item.cardId || item.card || {};
+  if (!resp.ok) {
+    const errData = await resp.json().catch(() => null);
+    console.error('loadMyCardsForTrade failed:', resp.status, errData);
+    setMyCards([]);
+    throw new Error(errData?.error || `HTTP ${resp.status}`);
+  }
 
-      let image =
-        card.image ||
-        card.imageUrl ||
-        card.imageUrlHiRes ||
-        card.images?.large ||
-        card.images?.small ||
-        '';
+  const data = await resp.json().catch(() => ({ cards: [] }));
 
-      const pokemonTcgId = item.pokemonTcgId || card.pokemonTcgId || '';
-      if (!image && pokemonTcgId.includes('-')) {
-        const [setCode, number] = pokemonTcgId.split('-');
-        if (setCode && number) {
-          // Usar normalizeImageUrl para manejar correctamente la construcción de URLs
-          image = normalizeImageUrl(`https://assets.tcgdex.net/en/${setCode}/${number}/high.png`);
-        }
-      } else {
-        // Normalizar cualquier imagen existente
-        image = normalizeImageUrl(image);
+  const normalized = (data.cards || []).map((item: any) => {
+    const card = item.cardId || item.card || {};
+
+    let image =
+      card.image ||
+      card.imageUrl ||
+      card.imageUrlHiRes ||
+      card.images?.large ||
+      card.images?.small ||
+      '';
+
+    const pokemonTcgId = item.pokemonTcgId || card.pokemonTcgId || '';
+    if (!image && pokemonTcgId.includes('-')) {
+      const [setCode, number] = pokemonTcgId.split('-');
+      if (setCode && number) {
+        image = normalizeImageUrl(
+          `https://assets.tcgdex.net/en/${setCode}/${number}/high.png`
+        );
       }
+    } else {
+      image = normalizeImageUrl(image);
+    }
 
-      return {
-        id: item._id || card._id || pokemonTcgId,
-        name: card.name || item.name || '',
-        image,
-        rarity: card.rarity || '',
-        pokemonTcgId,
-        price: item.price || card.price || card.prices,
-      };
-    });
+    return {
+      id: item._id || card._id || pokemonTcgId,
+      name: card.name || item.name || '',
+      image,
+      rarity: card.rarity || '',
+      pokemonTcgId,
+      price: item.price || card.price || card.prices,
+    };
+  });
 
-    setMyCards(normalized);
-  };
+  setMyCards(normalized);
+};
 
   const handleSendTradeRequest = async () => {
     if (!selectedCardForTrade) return;
@@ -1048,19 +1056,37 @@ const DiscoverTradeCards: React.FC = () => {
           )}
         </div>
 
-        <TradeModeModal
-          visible={modeModalVisible}
-          onClose={() => setModeModalVisible(false)}
-          onSendMessage={() => {
-            setModeModalVisible(false);
-            setMessageModalVisible(true);
-          }}
-          onSendCard={async () => {
-            setModeModalVisible(false);
-            await loadMyCardsForTrade();
-            setOfferModalVisible(true);
-          }}
-        />
+<TradeModeModal
+  visible={modeModalVisible}
+  onClose={() => setModeModalVisible(false)}
+  onSendMessage={() => {
+    setModeModalVisible(false);
+    setOfferModalVisible(false);
+    setMessageModalVisible(true);
+  }}
+  onSendCard={async () => {
+    setModeModalVisible(false);
+    setMessageModalVisible(false);
+
+    setSelectedMyCard(null);
+    setOfferModalVisible(true); 
+
+    try {
+      await loadMyCardsForTrade();
+    } catch (e) {
+      console.error(e);
+      setConfirmModal({
+        title: t('common.error', 'Error'),
+        message: t(
+          'common.errorLoadingCards',
+          'Error cargando tus cartas para intercambio.'
+        ),
+        variant: 'error',
+      });
+    }
+  }}
+/>
+
 
         {selectedCardForTrade && (
           <TradeMessageModal

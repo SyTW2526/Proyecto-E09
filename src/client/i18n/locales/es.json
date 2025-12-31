@@ -38,7 +38,8 @@
     "quantity": "Cantidad",
     "estimatedPrice": "Precio Estimado",
     "loading": "Cargando cartas...",
-    "error": "Error"
+    "error": "Error",
+    "loadingPrices": "Cargando precios de cartas..."
   },
   "createRoom": {
     "title": "Crear Sala",
@@ -329,7 +330,12 @@
     "placeholderFriend": "Envía un mensaje a tu amigo...",
     "send": "Enviar",
     "acceptTrade": "Aceptar Intercambio",
-    "rejectTrade": "Rechazar Intercambio"
+    "rejectTrade": "Rechazar Intercambio",
+    "modalErrorTitle": "Error",
+    "modalInfoTitle": "Aviso",
+    "modalWaitingTitle": "Esperando confirmación",
+    "modalTradeCompletedTitle": "Intercambio completado",
+    "modalTradeRejectedTitle": "Intercambio rechazado"
   },
   "tradeReq": {
     "errorReceived": "Error al cargar las solicitudes recibidas.",
@@ -372,6 +378,42 @@
     "errorDelete": "Error al eliminar la solicitud de intercambio.",
     "confirmAcceptTitle": "¿Aceptar Solicitud?",
     "confirmRejectTitle": "¿Rechazar Solicitud?",
-    "confirmCancelTitle": "¿Cancelar Solicitud?"
+    "confirmCancelTitle": "¿Cancelar Solicitud?",
+    "quickDecision": "Decidir",
+    "quickModalTitle": "Intercambio Rápido",
+    "quickModalMessage": "¿Quieres rechazar esta solicitud de intercambio o crear una sala ?"
+  },
+    "tradeModal": {
+    "title": "Enviar mensaje",
+    "subtitle": "Elige un usuario y escribe tu oferta.",
+    "cardAlt": "Carta",
+    "chooseUser": "Usuario con el que quieres intercambiar",
+    "offerLabel": "Mensaje o carta que ofreces",
+    "offerPlaceholder": "Describe la carta que ofreces o los términos del intercambio…",
+    "sendRequest": "Enviar solicitud",
+    "units": "uds",
+    "hintFill": "Selecciona un usuario y escribe un mensaje para enviar la solicitud."
+  },
+    "tradeModeModal": {
+    "title": "Selecciona modo de intercambio",
+    "subtitle": "¿Cómo quieres contactar con el usuario?",
+    "sendMessage": "Enviar mensaje",
+    "sendCard": "Enviar carta",
+    "hint": "Luego podrás crear una sala desde las solicitudes si lo necesitas."
+  },
+    "tradeOfferCardModal": {
+    "title": "Intercambiar por carta",
+    "subtitle": "Elige el usuario y selecciona una de tus cartas para ofrecer.",
+    "targetCardAlt": "Carta objetivo",
+    "selectUser": "Usuario con el que quieres intercambiar",
+    "selectYourCard": "Selecciona una de tus cartas para ofrecer",
+    "noCards": "No tienes cartas marcadas para intercambio.",
+    "send": "Enviar solicitud",
+    "page": "Página",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "pickCardAria": "Seleccionar esta carta",
+    "cardNoName": "Carta",
+    "units": "({{count}} uds)"
   }
 }

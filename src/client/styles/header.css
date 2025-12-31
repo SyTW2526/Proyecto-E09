@@ -18,7 +18,7 @@
   margin: 0;
   padding: 16px 44px;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(420px, 720px) auto;
   align-items: center;
   gap: 20px;
 }
@@ -187,7 +187,7 @@
   transform: scale(0.98);
 }
 .iconBtn--mobile {
-  display: none !important;
+  display: none;
 }
 
 .search {
@@ -427,69 +427,49 @@
 .mobileNav__link:hover {
   color: var(--primary);
 }
-@media (max-width: 1200px) {
-  .topNav {
-    display: none;
-  }
-
-  .iconBtn--mobile {
-    display: inline-flex !important;
-  }
-
-  .mobileNav {
-    display: block;
-  }
-}
 
 @media (max-width: 980px) {
   .siteHeader__inner {
-    padding: 10px 14px;
-    gap: 10px;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'left right'
+      'search search';
+    gap: 10px 12px;
+    padding: 12px 18px;
   }
-
   .siteHeader__left {
-    flex-shrink: 0;
-    min-width: max-content;
+    grid-area: left;
+    gap: 14px;
   }
-
+  .siteHeader__right {
+    grid-area: right;
+  }
   .siteHeader__search {
-    max-width: 360px;
+    grid-area: search;
+    max-width: 680px;
+    justify-self: center;
+    width: 100%;
   }
-
-  .topNav--auth {
-    display: flex !important;
-    gap: 8px;
-    max-width: 220px;
-    flex-shrink: 0;
-  }
-  .topNav--auth button,
-  .topNav--auth a {
-    padding: 6px 10px;
-    font-size: 14px;
-    white-space: nowrap;
-  }
-  .search {
-    height: 38px;
-    padding: 8px 12px;
-  }
-
-  .search__input {
-    font-size: 14px;
-  }
-
   .topNav {
     display: none;
   }
-
   .iconBtn--mobile {
     display: inline-flex;
   }
-
   .mobileNav {
     display: block;
   }
 }
 
+@media (min-width: 981px) {
+  .iconBtn--mobile {
+    display: none !important;
+  }
+
+  .mobileNav {
+    display: none !important;
+  }
+}
 .notification-dropdown,
 .language-dropdown {
   background-color: var(--panel-bg);
@@ -556,18 +536,4 @@
 
 .language-dropdown button.is-active:hover {
   background-color: color-mix(in srgb, var(--primary) 22%, transparent);
-}
-
-.topNav--auth {
-  display: flex;
-  gap: 10px;
-}
-@media (min-width: 1201px) {
-  .iconBtn--mobile {
-    display: none !important;
-  }
-
-  .mobileNav {
-    display: none !important;
-  }
 }

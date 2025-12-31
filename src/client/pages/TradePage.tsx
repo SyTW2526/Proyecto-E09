@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Socket } from 'socket.io-client';
 import { initSocket } from '../socket';
+import { normalizeImageUrl } from '../utils/imageHelpers';
 import Header from '../components/Header/Header';
 import Footer from '@/components/Footer';
 import { useTranslation } from 'react-i18next';
@@ -172,10 +173,13 @@ const TradePage: React.FC = () => {
 
           if (!image && pokemonTcgId) {
             const [setCode, number] = pokemonTcgId.split('-');
-            const series = setCode ? setCode.slice(0, 2) : '';
             if (setCode && number) {
-              image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+              // Usar normalizeImageUrl para corregir cualquier problema con la URL
+              image = normalizeImageUrl(`https://assets.tcgdex.net/en/${setCode}/${number}/high.png`);
             }
+          } else {
+            // Normalizar la imagen que ya tenemos
+            image = normalizeImageUrl(image);
           }
 
           return {
@@ -225,10 +229,13 @@ const TradePage: React.FC = () => {
 
         if (!image && requestedPokemonTcgId) {
           const [setCode, number] = requestedPokemonTcgId.split('-');
-          const series = setCode ? setCode.slice(0, 2) : '';
           if (setCode && number) {
-            image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+            // Usar normalizeImageUrl para corregir cualquier problema con la URL
+            image = normalizeImageUrl(`https://assets.tcgdex.net/en/${setCode}/${number}/high.png`);
           }
+        } else {
+          // Normalizar la imagen que ya tenemos
+          image = normalizeImageUrl(image);
         }
 
         const requestedCard: UserCard = {

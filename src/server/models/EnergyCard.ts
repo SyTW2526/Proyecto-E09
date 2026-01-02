@@ -34,9 +34,9 @@ const energyCardSchema = new mongoose.Schema({
 /**
  * Modelo de Carta de Energía como discriminator de Card
  * Automáticamente hereda todos los campos de Card.
- * 
+ *
  * category='energy' se establece automáticamente
- * 
+ *
  * @type {mongoose.Model}
  */
 export const EnergyCard = Card.discriminator('energy', energyCardSchema);

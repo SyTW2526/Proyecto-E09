@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import TradeOwnerSelect from './TradeOwnerSelect';
 import '../../styles/trade_modals.css';
 
 interface Props {
@@ -24,58 +27,121 @@ const TradeMessageModal: React.FC<Props> = ({
   note,
   onNoteChange,
 }) => {
-  if (!visible) return null;
+  const { t } = useTranslation();
 
   const stop = (e: React.MouseEvent) => e.stopPropagation();
 
+  const ownerOptions = useMemo(() => {
+    return owners.map((o) => ({
+      value: o.username,
+      label:
+        o.quantity > 1
+          ? `@${o.username} · ${t('tradeModal.units', 'units')} x${o.quantity}`
+          : `@${o.username}`,
+    }));
+  }, [owners, t]);
+
+  const canSend = Boolean(selectedOwner) && note.trim().length > 0;
+
+  if (!visible) return null;
+
   return (
-    <div className="trade-overlay" onClick={onClose}>
-      <div className="trade-offer-panel" onClick={stop}>
-        <h2 className="trade-mode-title">Enviar mensaje</h2>
-        <div className="trade-offer-body">
-          <div className="trade-offer-left">
-            <img src={cardImage} alt="card" className="trade-offer-img" />
+    <div className="tradeModalOverlay" onClick={onClose}>
+      <div
+        className="tradeModalCard"
+        onClick={stop}
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="tradeModalHeader">
+          <div className="tradeModalTitleWrap">
+            <h2 className="tradeModalTitle">
+              {t('tradeModal.title', 'Send trade message')}
+            </h2>
+            <p className="tradeModalSubtitle">
+              {t('tradeModal.subtitle', 'Choose a user and write your offer.')}
+            </p>
           </div>
 
-          <div className="trade-offer-right">
-            <label className="trade-request-label">
-              Usuario con el que quieres intercambiar
+          <button
+            type="button"
+            className="tradeModalCloseBtn"
+            onClick={onClose}
+            aria-label={t('common.close', 'Close')}
+            title={t('common.close', 'Close')}
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="tradeModalBody">
+          <div className="tradeModalLeft">
+            <div className="tradeModalImageWrap">
+              <img
+                src={cardImage}
+                alt={t('tradeModal.cardAlt', 'Card')}
+                className="tradeModalImage"
+              />
+            </div>
+          </div>
+
+          <div className="tradeModalRight">
+            <label className="tradeModalLabel">
+              {t('tradeModal.chooseUser', 'User you want to trade with')}
             </label>
 
-            <select
-              className="trade-request-select"
+            <TradeOwnerSelect
               value={selectedOwner}
-              onChange={(e) => onOwnerChange(e.target.value)}
-            >
-              {owners.map((o) => (
-                <option key={o.username} value={o.username}>
-                  @{o.username} {o.quantity > 1 ? `(${o.quantity} uds)` : ''}
-                </option>
-              ))}
-            </select>
+              options={ownerOptions}
+              onChange={onOwnerChange}
+              placeholder={t(
+                'tradeModal.chooseUser',
+                'User you want to trade with'
+              )}
+            />
 
-            <label
-              className="trade-request-label"
-              style={{ marginTop: '14px' }}
-            >
-              Mensaje o carta que ofreces
+            <label className="tradeModalLabel">
+              {t('tradeModal.offerLabel', 'Message / card you offer')}
             </label>
 
             <textarea
-              className="trade-request-textarea full-width"
+              className="tradeModalTextarea"
               value={note}
               onChange={(e) => onNoteChange(e.target.value)}
-              placeholder="Describe la carta que ofreces o los términos del intercambio…"
+              placeholder={t(
+                'tradeModal.offerPlaceholder',
+                'Describe the card you offer or the trade terms…'
+              )}
+              rows={5}
             />
 
-            <div className="trade-offer-actions">
-              <button className="trade-request-cancel" onClick={onClose}>
-                Cancelar
+            <div className="tradeModalActions">
+              <button
+                type="button"
+                className="btn-gray-small"
+                onClick={onClose}
+              >
+                {t('common.close', 'Close')}
               </button>
-              <button className="trade-request-submit" onClick={onSend}>
-                Enviar solicitud
+
+              <button
+                type="button"
+                className="btn-blue-small"
+                onClick={onSend}
+                disabled={!canSend}
+              >
+                {t('tradeModal.sendRequest', 'Send request')}
               </button>
             </div>
+
+            {!canSend && (
+              <p className="tradeModalHint tradeModalHint--soft">
+                {t(
+                  'tradeModal.hintFill',
+                  'Select a user and write a message to send the request.'
+                )}
+              </p>
+            )}
           </div>
         </div>
       </div>

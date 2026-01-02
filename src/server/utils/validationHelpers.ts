@@ -1,7 +1,7 @@
 /**
  * @file validationHelpers.ts
  * @description Helpers para validaciones comunes de usuarios
- * 
+ *
  * Centraliza la lógica de:
  * - Búsqueda por username o email
  * - Validación de existencia de credenciales

@@ -1,12 +1,16 @@
 /**
  * @file cardDataBuilder.ts
  * @description Builder para construir objetos de datos de cartas normalizados
- * 
+ *
  * Elimina duplicación masiva al centralizar la lógica de mapeo
  * de datos RAW de TCGdex a nuestros modelos internos.
  */
 
-import { normalizeImageUrl, extractPrices, sanitizeBriefCard } from './tcgdx.js';
+import {
+  normalizeImageUrl,
+  extractPrices,
+  sanitizeBriefCard,
+} from './tcgdx.js';
 
 /**
  * Tipo para los datos de precios normalizados
@@ -43,7 +47,7 @@ interface BaseCardData {
  */
 function buildBaseCardData(sanitized: any, rawPrices: any): BaseCardData {
   const prices = extractPrices(rawPrices);
-  
+
   return {
     pokemonTcgId: sanitized.id || '',
     name: sanitized.name || '',
@@ -99,8 +103,8 @@ export function buildTrainerCardData(raw: any) {
   return {
     ...base,
     category: 'trainer' as const,
-    text: Array.isArray(sanitized.text) 
-      ? sanitized.text.join('\n') 
+    text: Array.isArray(sanitized.text)
+      ? sanitized.text.join('\n')
       : sanitized.text || '',
     effect: sanitized.effect || '',
   };
@@ -117,8 +121,8 @@ export function buildEnergyCardData(raw: any) {
     ...base,
     category: 'energy' as const,
     energyType: sanitized.energyType || sanitized.subtype || '',
-    text: Array.isArray(sanitized.text) 
-      ? sanitized.text.join('\n') 
+    text: Array.isArray(sanitized.text)
+      ? sanitized.text.join('\n')
       : sanitized.text || '',
   };
 }

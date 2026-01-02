@@ -84,7 +84,7 @@ export async function syncAllCards() {
  * Inserta/actualiza una carta a partir del objeto crudo devuelto por la API externa.
  * Devuelve el documento guardado en la colección especializada (PokemonCard/TrainerCard/EnergyCard)
  * o en `Card` como fallback.
- * 
+ *
  * @param raw - Objeto raw de la API TCGdex
  * @returns Documento guardado en MongoDB o null si falla
  */

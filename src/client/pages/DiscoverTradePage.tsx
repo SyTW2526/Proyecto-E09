@@ -200,9 +200,11 @@ const DiscoverTradeCards: React.FC = () => {
   const normalizeImageUrl = (url?: string) => {
     if (!url) return '';
     let s = String(url);
-    
+
     // Correct malformed TCGdex URLs (missing series component)
-    const tcgdexMatch = s.match(/^(https?:\/\/assets\.tcgdex\.net\/)(?:jp|en)\/([a-z0-9.]+)\/(.+)$/i);
+    const tcgdexMatch = s.match(
+      /^(https?:\/\/assets\.tcgdex\.net\/)(?:jp|en)\/([a-z0-9.]+)\/(.+)$/i
+    );
     if (tcgdexMatch) {
       const [, baseUrl, setCode, rest] = tcgdexMatch;
       const seriesMatch = setCode.match(/^([a-z]+)/i);
@@ -211,7 +213,7 @@ const DiscoverTradeCards: React.FC = () => {
         s = `${baseUrl}en/${series}/${setCode.toLowerCase()}/${rest}`;
       }
     }
-    
+
     // Normalize quality to high
     if (/\/(small|large|high|low)\.png$/i.test(s))
       return s.replace(/\/(small|large|high|low)\.png$/i, '/high.png');
@@ -245,7 +247,9 @@ const DiscoverTradeCards: React.FC = () => {
       const [setCode, number] = id.split('-');
       if (setCode && number) {
         // Usar normalizeImageUrl para manejar correctamente la construcción de URLs
-        img = normalizeImageUrl(`https://assets.tcgdex.net/en/${setCode}/${number}/high.png`);
+        img = normalizeImageUrl(
+          `https://assets.tcgdex.net/en/${setCode}/${number}/high.png`
+        );
       }
     } else {
       // Normalizar cualquier imagen existente
@@ -309,9 +313,7 @@ const DiscoverTradeCards: React.FC = () => {
         params.set('limit', '200');
         if (currentUsername) params.set('excludeUsername', currentUsername);
 
-        const resp = await authenticatedFetch(
-          `/usercards/discover?${params}`
-        );
+        const resp = await authenticatedFetch(`/usercards/discover?${params}`);
 
         if (!resp.ok) throw new Error('Error cargando intercambio');
 
@@ -324,7 +326,7 @@ const DiscoverTradeCards: React.FC = () => {
         for (const item of rawItems) {
           const id = item.pokemonTcgId;
           const cardData = item.cardId;
-          
+
           if (!id || !cardData) continue;
 
           // Obtener la imagen con fallback
@@ -338,13 +340,15 @@ const DiscoverTradeCards: React.FC = () => {
           if (!image && cardData.imageUrlHiRes) {
             image = cardData.imageUrlHiRes;
           }
-          
+
           // Generar URL de TCGdex como fallback
           if (!image && id) {
             const [setCode, number] = id.split('-');
             if (setCode && number) {
               // Usar normalizeImageUrl para manejar correctamente la construcción de URLs
-              image = normalizeImageUrl(`https://assets.tcgdex.net/en/${setCode}/${number}/high.png`);
+              image = normalizeImageUrl(
+                `https://assets.tcgdex.net/en/${setCode}/${number}/high.png`
+              );
             }
           } else {
             // Normalizar cualquier imagen existente
@@ -359,11 +363,13 @@ const DiscoverTradeCards: React.FC = () => {
             hp: cardData.hp || '',
             set: cardData.set?.name || cardData.set || '',
             rarity: cardData.rarity || '',
-            price: cardData.price ? {
-              low: cardData.price.low,
-              mid: cardData.price.mid,
-              high: cardData.price.high,
-            } : undefined,
+            price: cardData.price
+              ? {
+                  low: cardData.price.low,
+                  mid: cardData.price.mid,
+                  high: cardData.price.high,
+                }
+              : undefined,
             illustrator: cardData.illustrator || cardData.artist || '',
             series: cardData.set?.series || cardData.series || '',
           };
@@ -627,10 +633,18 @@ const DiscoverTradeCards: React.FC = () => {
   const loadMyCardsForTrade = async () => {
     if (!currentUsername) return;
 
-    const resp = await fetch(
-      `${API_BASE_URL}/usercards/${currentUsername}/collection?forTrade=true`
+    const resp = await authenticatedFetch(
+      `/usercards/${currentUsername}/collection?forTrade=true`
     );
-    const data = await resp.json();
+
+    if (!resp.ok) {
+      const errData = await resp.json().catch(() => null);
+      console.error('loadMyCardsForTrade failed:', resp.status, errData);
+      setMyCards([]);
+      throw new Error(errData?.error || `HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json().catch(() => ({ cards: [] }));
 
     const normalized = (data.cards || []).map((item: any) => {
       const card = item.cardId || item.card || {};
@@ -647,11 +661,11 @@ const DiscoverTradeCards: React.FC = () => {
       if (!image && pokemonTcgId.includes('-')) {
         const [setCode, number] = pokemonTcgId.split('-');
         if (setCode && number) {
-          // Usar normalizeImageUrl para manejar correctamente la construcción de URLs
-          image = normalizeImageUrl(`https://assets.tcgdex.net/en/${setCode}/${number}/high.png`);
+          image = normalizeImageUrl(
+            `https://assets.tcgdex.net/en/${setCode}/${number}/high.png`
+          );
         }
       } else {
-        // Normalizar cualquier imagen existente
         image = normalizeImageUrl(image);
       }
 

@@ -170,7 +170,7 @@ io.on('connection', (socket) => {
       userId: socket.data.userId,
       text: data.text,
     };
-    
+
     // Enviar a todos en la sala incluyendo el remitente
     io.to(data.roomCode).emit('receiveMessage', message);
   });

@@ -59,15 +59,17 @@ const FeaturedCards: React.FC = () => {
       startLoading();
       
       try {
+        setLoading(true);
+
         // Usar el nuevo endpoint /cards/featured que obtiene cartas directamente de TCGdex
         const resp = await fetch(`${API_BASE_URL}/cards/featured`);
         if (!resp.ok) {
           throw new Error(`Failed to fetch featured cards: ${resp.statusText}`);
         }
-        
+
         const data = await resp.json();
         const cards = data.data || data;
-        
+
         if (!mounted) return;
 
         const normalized: Card[] = cards
@@ -82,61 +84,61 @@ const FeaturedCards: React.FC = () => {
               c.imageUrl || c.image
             );
 
-          const setName =
-            c.set?.name || c.set?.series || c.set || c.series || '';
+            const setName =
+              c.set?.name || c.set?.series || c.set || c.series || '';
 
-          let priceObj:
-            | { low?: number; mid?: number; high?: number }
-            | undefined = undefined;
-          if (c.price) {
-            priceObj = {
-              low:
-                c.price.cardmarketAvg ??
-                c.price.tcgplayerMarketPrice ??
-                undefined,
-              mid:
-                c.price.avg ??
-                c.price.tcgplayerMarketPrice ??
-                c.price.cardmarketAvg ??
-                undefined,
-              high:
-                c.price.cardmarketAvg ??
-                c.price.tcgplayerMarketPrice ??
-                undefined,
-            };
-          } else if (c.prices) {
-            priceObj = {
-              low: c.prices.low ?? c.prices.mid ?? c.prices.high,
-              mid: c.prices.mid ?? c.prices.low ?? c.prices.high,
-              high: c.prices.high ?? c.prices.mid ?? c.prices.low,
-            };
-          } else if (c.tcg?.prices) {
-            priceObj = {
-              low: c.tcg.prices.low ?? c.tcg.prices.mid ?? c.tcg.prices.high,
-              mid: c.tcg.prices.mid ?? c.tcg.prices.low ?? c.tcg.prices.high,
-              high: c.tcg.prices.high ?? c.tcg.prices.mid ?? c.tcg.prices.low,
-            };
-          } else if (typeof c.marketPrice === 'number') {
-            priceObj = {
-              low: c.marketPrice,
-              mid: c.marketPrice,
-              high: c.marketPrice,
-            };
-          }
+            let priceObj:
+              | { low?: number; mid?: number; high?: number }
+              | undefined = undefined;
+            if (c.price) {
+              priceObj = {
+                low:
+                  c.price.cardmarketAvg ??
+                  c.price.tcgplayerMarketPrice ??
+                  undefined,
+                mid:
+                  c.price.avg ??
+                  c.price.tcgplayerMarketPrice ??
+                  c.price.cardmarketAvg ??
+                  undefined,
+                high:
+                  c.price.cardmarketAvg ??
+                  c.price.tcgplayerMarketPrice ??
+                  undefined,
+              };
+            } else if (c.prices) {
+              priceObj = {
+                low: c.prices.low ?? c.prices.mid ?? c.prices.high,
+                mid: c.prices.mid ?? c.prices.low ?? c.prices.high,
+                high: c.prices.high ?? c.prices.mid ?? c.prices.low,
+              };
+            } else if (c.tcg?.prices) {
+              priceObj = {
+                low: c.tcg.prices.low ?? c.tcg.prices.mid ?? c.tcg.prices.high,
+                mid: c.tcg.prices.mid ?? c.tcg.prices.low ?? c.tcg.prices.high,
+                high: c.tcg.prices.high ?? c.tcg.prices.mid ?? c.tcg.prices.low,
+              };
+            } else if (typeof c.marketPrice === 'number') {
+              priceObj = {
+                low: c.marketPrice,
+                mid: c.marketPrice,
+                high: c.marketPrice,
+              };
+            }
 
-          return {
-            id,
-            name: c.name || 'Unknown',
-            image: normalizeImageUrl(rawImage),
-            hp: c.hp || '',
-            set: setName,
-            rarity: c.rarity || '',
-            price: priceObj as any,
-            illustrator: c.illustrator || undefined,
-            cardNumber: c.number || c.cardNumber || undefined,
-            series: c.set?.series || c.series || undefined,
-          };
-        });
+            return {
+              id,
+              name: c.name || 'Unknown',
+              image: normalizeImageUrl(rawImage),
+              hp: c.hp || '',
+              set: setName,
+              rarity: c.rarity || '',
+              price: priceObj as any,
+              illustrator: c.illustrator || undefined,
+              cardNumber: c.number || c.cardNumber || undefined,
+              series: c.set?.series || c.series || undefined,
+            };
+          });
 
         setFeaturedCards(normalized);
       } catch (err: any) {

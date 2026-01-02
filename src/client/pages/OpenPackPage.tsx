@@ -341,38 +341,61 @@ const OpenPackPage: React.FC = () => {
                     <span style={{ opacity: 0.8 }}>
                       {t('openPack.availableTokens', 'Tokens disponibles')}:
                     </span>{' '}
-                    <strong style={{ fontSize: '1.3em', color: (packStatus.remaining ?? 0) > 0 ? '#4CAF50' : '#f44336' }}>
+                    <strong
+                      style={{
+                        fontSize: '1.3em',
+                        color:
+                          (packStatus.remaining ?? 0) > 0
+                            ? '#4CAF50'
+                            : '#f44336',
+                      }}
+                    >
                       {packStatus.remaining ?? 0} / 2
                     </strong>
                   </div>
-                  
+
                   {(packStatus.remaining ?? 0) < 2 && timeUntilNext && (
-                    <div style={{ 
-                      fontSize: '0.95em', 
-                      opacity: 0.9,
-                      padding: '8px 12px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      borderRadius: '8px',
-                      marginTop: '8px'
-                    }}>
+                    <div
+                      style={{
+                        fontSize: '0.95em',
+                        opacity: 0.9,
+                        padding: '8px 12px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        borderRadius: '8px',
+                        marginTop: '8px',
+                      }}
+                    >
                       <div>
                         {t('openPack.nextTokenIn', 'Próximo token en')}:{' '}
-                        <strong style={{ color: '#FFB74D' }}>{timeUntilNext}</strong>
+                        <strong style={{ color: '#FFB74D' }}>
+                          {timeUntilNext}
+                        </strong>
                       </div>
                       {packStatus.remaining === 0 && (
-                        <small style={{ opacity: 0.7, display: 'block', marginTop: '4px' }}>
-                          {t('openPack.noTokensAvailable', 'No tienes tokens disponibles')}
+                        <small
+                          style={{
+                            opacity: 0.7,
+                            display: 'block',
+                            marginTop: '4px',
+                          }}
+                        >
+                          {t(
+                            'openPack.noTokensAvailable',
+                            'No tienes tokens disponibles'
+                          )}
                         </small>
                       )}
                     </div>
                   )}
-                  
+
                   {packStatus.remaining === 2 && (
-                    <div style={{ 
-                      fontSize: '0.9em', 
-                      opacity: 0.7,
-                      marginTop: '4px'
-                    }}>
+                    <div
+                      style={{
+                        fontSize: '0.9em',
+                        opacity: 0.7,
+                        marginTop: '4px',
+                      }}
+                    >
                       {t('openPack.maxTokens', 'Tienes el máximo de tokens')}
                     </div>
                   )}

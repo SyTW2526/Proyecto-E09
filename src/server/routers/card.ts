@@ -92,13 +92,13 @@ cardRouter.get('/cards/featured', async (req, res) => {
   try {
     // IDs de las cartas destacadas - solo sets SWSH (Sword & Shield) en inglés
     const featuredIds = [
-      'swsh3-136',  // Pikachu VMAX
-      'swsh3-25',   // Pikachu V
-      'swsh4-74',   // Eternatus VMAX
-      'swsh1-25',   // Cinderace
-      'swsh2-192',  // Charizard VMAX
-      'swsh5-123',  // Zapdos
-      'swsh6-71',   // Leafeon VMAX
+      'swsh3-136', // Pikachu VMAX
+      'swsh3-25', // Pikachu V
+      'swsh4-74', // Eternatus VMAX
+      'swsh1-25', // Cinderace
+      'swsh2-192', // Charizard VMAX
+      'swsh5-123', // Zapdos
+      'swsh6-71', // Leafeon VMAX
     ];
 
     // Obtener todas las cartas en paralelo desde TCGdex
@@ -106,11 +106,12 @@ cardRouter.get('/cards/featured', async (req, res) => {
       try {
         const apiResp = await getCardById(id);
         if (!apiResp) return null;
-        
+
         // Usar buildPokemonCardData para construir los datos con imágenes correctas
-        const { buildPokemonCardData } = await import('../services/cardDataBuilder.js');
+        const { buildPokemonCardData } =
+          await import('../services/cardDataBuilder.js');
         const cardData = buildPokemonCardData(apiResp);
-        
+
         return cardData;
       } catch (error) {
         console.error(`Error fetching featured card ${id}:`, error);
@@ -153,7 +154,7 @@ cardRouter.get('/cards/:id', async (req, res) => {
 cardRouter.post('/cards', async (req, res) => {
   try {
     const { id } = req.body as { id?: string };
-    
+
     if (!id) {
       return sendError(res, 'Missing card id in body', 400);
     }
@@ -167,14 +168,14 @@ cardRouter.post('/cards', async (req, res) => {
 
     // Fetch from external TCGdex API
     const apiResp = await getCardById(id);
-    
+
     if (!apiResp) {
       return sendError(res, 'Card not found in external API', 404);
     }
 
     // Use centralized upsert function
     const saved = await upsertCardFromRaw(apiResp);
-    
+
     if (!saved) {
       return sendError(res, 'Error saving card', 500);
     }
@@ -197,7 +198,7 @@ cardRouter.get('/cards/tcg/:tcgId', async (req, res) => {
     const found = await Card.findOne({ pokemonTcgId: tcgId });
 
     if (!ensureResourceExists(res, found, 'Card')) return;
-    
+
     // Responder directamente sin envolver para compatibilidad con cliente
     return res.status(200).send({ source: 'cache', card: found });
   } catch (err: any) {

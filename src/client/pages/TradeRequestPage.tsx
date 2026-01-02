@@ -23,14 +23,28 @@ interface TradeRef {
   status?: 'pending' | 'accepted' | 'rejected' | 'completed' | 'cancelled';
 }
 
+interface OfferedCard {
+  pokemonTcgId?: string;
+  cardName?: string;
+  cardImage?: string;
+}
+
 interface TradeRequest {
   _id: string;
   from: TradeUser;
   to: TradeUser;
+
   pokemonTcgId: string | null;
+  requestedPokemonTcgId?: string | null;
+
   cardName?: string;
   cardImage?: string;
   note?: string;
+
+  offeredCard?: OfferedCard;
+  targetPrice?: number | null;
+  offeredPrice?: number | null;
+
   status: 'pending' | 'accepted' | 'rejected' | 'cancelled';
   createdAt: string;
   tradeId?: TradeRef | null;
@@ -41,6 +55,7 @@ type Direction = 'received' | 'sent';
 
 const TradeRequestsPage: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const [user, setUser] = useState<any>(authService.getUser());
   const [receivedRequests, setReceivedRequests] = useState<TradeRequest[]>([]);
@@ -59,8 +74,6 @@ const TradeRequestsPage: React.FC = () => {
 
   const userId = user?.id;
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     if (!user) {
       const u = authService.getUser();
@@ -74,6 +87,9 @@ const TradeRequestsPage: React.FC = () => {
     if (tradeStatus && tradeStatus !== 'pending') return true;
     return false;
   };
+
+  const isQuickTrade = (req: TradeRequest) =>
+    !!req.offeredCard?.pokemonTcgId || !!req.offeredCard?.cardImage;
 
   const loadRequests = async () => {
     if (!userId) return;
@@ -91,18 +107,23 @@ const TradeRequestsPage: React.FC = () => {
         const data = await safeJsonParse<{ error?: string }>(recResp);
         throw new Error(
           data.error ||
-            t('tradeReq.errorReceived', 'Error loading received requests.')
-        );
-      }
-      if (!sentResp.ok) {
-        const data = await safeJsonParse<{ error?: string }>(sentResp);
-        throw new Error(
-          data.error || t('tradeReq.errorSent', 'Error loading sent requests.')
+            t(
+              'tradeReq.errorReceived',
+              'Error al cargar las solicitudes recibidas.'
+            )
         );
       }
 
-      const recData = await recResp.json();
-      const sentData = await sentResp.json();
+      if (!sentResp.ok) {
+        const data = await safeJsonParse<{ error?: string }>(sentResp);
+        throw new Error(
+          data.error ||
+            t('tradeReq.errorSent', 'Error al cargar las solicitudes enviadas.')
+        );
+      }
+
+      const recData = await recResp.json().catch(() => ({}));
+      const sentData = await sentResp.json().catch(() => ({}));
 
       setReceivedRequests(recData.requests || []);
       setSentRequests(sentData.requests || []);
@@ -111,7 +132,7 @@ const TradeRequestsPage: React.FC = () => {
         e.message ||
         t(
           'tradeReq.errorGeneral',
-          'An error occurred while loading trade requests.'
+          'Ha ocurrido un error al cargar las solicitudes.'
         );
 
       handleError(msg);
@@ -127,15 +148,27 @@ const TradeRequestsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (userId) {
-      loadRequests();
-    }
+    if (userId) loadRequests();
   }, [userId]);
+  const [quickDecision, setQuickDecision] = useState<{
+    requestId: string;
+  } | null>(null);
 
   const activeReceived = useMemo(
     () => receivedRequests.filter((r) => !isFinal(r)),
     [receivedRequests]
   );
+
+  const activeReceivedQuick = useMemo(
+    () => activeReceived.filter(isQuickTrade),
+    [activeReceived]
+  );
+
+  const activeReceivedNormal = useMemo(
+    () => activeReceived.filter((r) => !isQuickTrade(r)),
+    [activeReceived]
+  );
+
   const activeSent = useMemo(
     () => sentRequests.filter((r) => !isFinal(r)),
     [sentRequests]
@@ -154,21 +187,15 @@ const TradeRequestsPage: React.FC = () => {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
   }, [receivedRequests, sentRequests]);
+
   const executeAction = async () => {
     if (!actionModal) return;
-
     const { type, requestId } = actionModal;
 
     try {
-      if (type === 'accept') {
-        await handleAccept(requestId);
-      }
-      if (type === 'reject') {
-        await handleReject(requestId);
-      }
-      if (type === 'cancel') {
-        await handleCancel(requestId);
-      }
+      if (type === 'accept') await handleAccept(requestId);
+      if (type === 'reject') await handleReject(requestId);
+      if (type === 'cancel') await handleCancel(requestId);
     } finally {
       setActionModal(null);
     }
@@ -178,9 +205,7 @@ const TradeRequestsPage: React.FC = () => {
     try {
       const resp = await authenticatedFetch(
         `/trade-requests/${requestId}/accept`,
-        {
-          method: 'POST',
-        }
+        { method: 'POST' }
       );
 
       const data = await safeJsonParse<{ error?: string; privateRoomCode?: string }>(resp);
@@ -189,19 +214,25 @@ const TradeRequestsPage: React.FC = () => {
 
       if (data.privateRoomCode) {
         navigate(`/trade-room/${data.privateRoomCode}`);
-      } else {
-        setConfirmModal({
-          title: t('tradeReq.acceptedStatus'),
-          message: t('tradeReq.accepted', 'Request accepted successfully.'),
-          variant: 'success',
-        });
-
-        await loadRequests();
+        return;
       }
+
+      setConfirmModal({
+        title: t('tradeReq.acceptedStatus', 'Aceptada'),
+        message: t('tradeReq.accepted', 'Solicitud aceptada correctamente.'),
+        variant: 'success',
+      });
+
+      await loadRequests();
     } catch (e: any) {
       setConfirmModal({
         title: t('common.error', 'Error'),
-        message: e.message || t('tradeReq.errorAccept'),
+        message:
+          e.message ||
+          t(
+            'tradeReq.errorAccept',
+            'Error al aceptar la solicitud de intercambio.'
+          ),
         variant: 'error',
       });
     }
@@ -211,24 +242,28 @@ const TradeRequestsPage: React.FC = () => {
     try {
       const resp = await authenticatedFetch(
         `/trade-requests/${requestId}/reject`,
-        {
-          method: 'POST',
-        }
+        { method: 'POST' }
       );
 
       const data = await safeJsonParse<{ error?: string }>(resp);
       if (!resp.ok) throw new Error(data.error || t('tradeReq.errorReject'));
 
       setConfirmModal({
-        title: t('tradeReq.rejected', 'Request rejected.'),
-        message: t('tradeReq.rejected', 'Request rejected.'),
+        title: t('tradeReq.rejectedStatus', 'Rechazada'),
+        message: t('tradeReq.rejected', 'Solicitud rechazada.'),
         variant: 'success',
       });
-      loadRequests();
+
+      await loadRequests();
     } catch (e: any) {
       setConfirmModal({
         title: t('common.error', 'Error'),
-        message: e.message || t('tradeReq.errorAccept'),
+        message:
+          e.message ||
+          t(
+            'tradeReq.errorReject',
+            'Error al rechazar la solicitud de intercambio.'
+          ),
         variant: 'error',
       });
     }
@@ -238,24 +273,28 @@ const TradeRequestsPage: React.FC = () => {
     try {
       const resp = await authenticatedFetch(
         `/trade-requests/${requestId}/cancel`,
-        {
-          method: 'DELETE',
-        }
+        { method: 'DELETE' }
       );
 
       const data = await safeJsonParse<{ error?: string }>(resp);
       if (!resp.ok) throw new Error(data.error || t('tradeReq.errorCancel'));
 
       setConfirmModal({
-        title: t('tradeReq.cancelled', 'Request cancelled.'),
-        message: t('tradeReq.cancelled', 'Request cancelled.'),
+        title: t('tradeReq.openRoomCreatedTitle', 'Sala creada'),
+        message: t(
+          'tradeReq.openRoomCreated',
+          'Se ha creado una sala de intercambio.'
+        ),
         variant: 'success',
       });
-      loadRequests();
+
+      await loadRequests();
     } catch (e: any) {
       setConfirmModal({
         title: t('common.error', 'Error'),
-        message: e.message || t('tradeReq.errorAccept'),
+        message:
+          e.message ||
+          t('tradeReq.errorOpenRoom', 'Error al crear la sala de intercambio.'),
         variant: 'error',
       });
     }
@@ -264,10 +303,8 @@ const TradeRequestsPage: React.FC = () => {
   const goToRoomIfAvailable = (req: TradeRequest) => {
     const roomCode = req.tradeId?.privateRoomCode;
     const tradeStatus = req.tradeId?.status;
-
     const canGo = roomCode && tradeStatus === 'pending';
     if (!canGo) return;
-
     navigate(`/trade-room/${roomCode}`);
   };
 
@@ -281,30 +318,29 @@ const TradeRequestsPage: React.FC = () => {
     if (status === 'pending')
       return (
         <span className="status-badge status-pending">
-          {t('tradeReq.pending')}
+          {t('tradeReq.pending', 'Pendiente')}
         </span>
       );
     if (status === 'accepted')
       return (
         <span className="status-badge status-accepted">
-          {t('tradeReq.acceptedStatus')}
+          {t('tradeReq.acceptedStatus', 'Aceptada')}
         </span>
       );
     if (status === 'rejected')
       return (
         <span className="status-badge status-rejected">
-          {t('tradeReq.rejectedStatus')}
+          {t('tradeReq.rejectedStatus', 'Rechazada')}
         </span>
       );
     if (status === 'cancelled')
       return (
         <span className="status-badge status-cancelled">
-          {t('tradeReq.cancelledStatus')}
+          {t('tradeReq.cancelledStatus', 'Cancelada')}
         </span>
       );
     return null;
   };
-
   const renderRoomChip = (req: TradeRequest) => {
     const roomCode = req.tradeId?.privateRoomCode;
     const tradeStatus = req.tradeId?.status;
@@ -314,32 +350,35 @@ const TradeRequestsPage: React.FC = () => {
     if (tradeStatus !== 'pending') {
       return (
         <span className="room-chip room-chip-disabled">
-          {t('tradeReq.roomUnavailable')}
+          {t('tradeReq.roomUnavailable', 'Sala no disponible')}
         </span>
       );
     }
 
     return (
       <button
-        className="room-chip room-chip-active"
+        className="btn-blue-small"
         onClick={() => goToRoomIfAvailable(req)}
       >
-        {t('tradeReq.goRoom')}
+        {t('tradeReq.goRoom', 'Ir a sala')}
       </button>
     );
   };
+
   return (
     <div className="trade-requests-container trade-requests-page">
       <Header />
 
       <main className="trade-requests-main">
         <div className="discover-header">
-          <h1 className="trade-requests-title">{t('tradeReq.title')}</h1>
+          <h1 className="trade-requests-title">
+            {t('tradeReq.title', 'Solicitudes de intercambio')}
+          </h1>
         </div>
 
         {loading && (
           <p className="trade-requests-loading">
-            {t('tradeReq.loading', 'Loading trade requests...')}
+            {t('tradeReq.loading', 'Cargando solicitudes de intercambio...')}
           </p>
         )}
 
@@ -347,16 +386,174 @@ const TradeRequestsPage: React.FC = () => {
           <div className="trade-requests-columns">
             <section className="trade-panel">
               <h2 className="trade-panel-title">
-                {t('tradeReq.received', 'Received Requests')}
+                {t('tradeReq.quickReceived', 'Intercambios rápidos')}
               </h2>
 
-              {activeReceived.length === 0 ? (
+              {activeReceivedQuick.length === 0 ? (
                 <p className="trade-empty">
-                  {t('tradeReq.noReceived', 'No received requests.')}
+                  {t(
+                    'tradeReq.noQuickReceived',
+                    'No tienes intercambios rápidos.'
+                  )}
                 </p>
               ) : (
                 <div className="trade-list">
-                  {activeReceived.map((req) => (
+                  {activeReceivedQuick.map((req) => {
+                    const target = req.cardImage;
+                    const offered = req.offeredCard?.cardImage;
+
+                    const targetP =
+                      typeof req.targetPrice === 'number'
+                        ? req.targetPrice
+                        : null;
+                    const offeredP =
+                      typeof req.offeredPrice === 'number'
+                        ? req.offeredPrice
+                        : null;
+
+                    const diffPct =
+                      targetP && offeredP && targetP > 0
+                        ? (Math.abs(offeredP - targetP) / targetP) * 100
+                        : null;
+
+                    return (
+                      <div key={req._id} className="trade-row trade-row-quick">
+                        <div className="trade-card-preview trade-card-preview--pair">
+                          <div className="trade-card-mini">
+                            {offered ? (
+                              <img
+                                src={offered}
+                                alt={req.offeredCard?.cardName}
+                              />
+                            ) : (
+                              <div className="trade-card-placeholder-mini">
+                                ?
+                              </div>
+                            )}
+                          </div>
+
+                          <span className="trade-swap-icon">⇄</span>
+
+                          <div className="trade-card-mini">
+                            {target ? (
+                              <img src={target} alt={req.cardName} />
+                            ) : (
+                              <div className="trade-card-placeholder-mini">
+                                ?
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="trade-info">
+                          <div className="trade-info-header">
+                            <span className="trade-user">
+                              {t('tradeReq.from', 'De')}{' '}
+                              <strong>
+                                @
+                                {req.from?.username ||
+                                  t('tradeReq.unknown', 'desconocido')}
+                              </strong>
+                            </span>
+                            {renderStatusBadge(req.status)}
+                          </div>
+
+                          <p className="trade-card-name">
+                            <span className="quick-label">
+                              {t('tradeReq.offers', 'Ofrece')}:
+                            </span>{' '}
+                            {req.offeredCard?.cardName ||
+                              t('tradeReq.noName', 'Sin nombre')}
+                            <br />
+                            <span className="quick-label">
+                              {t('tradeReq.for', 'Por')}:
+                            </span>{' '}
+                            {req.cardName || t('tradeReq.noName', 'Sin nombre')}
+                          </p>
+
+                          {(targetP !== null ||
+                            offeredP !== null ||
+                            diffPct !== null) && (
+                            <p className="trade-quick-metrics">
+                              {typeof offeredP === 'number' && (
+                                <span>
+                                  {t('tradeReq.offeredPrice', 'Ofrecida')}:{' '}
+                                  {offeredP.toFixed(2)}€
+                                </span>
+                              )}
+                              {typeof targetP === 'number' && (
+                                <span>
+                                  {t('tradeReq.targetPrice', 'Objetivo')}:{' '}
+                                  {targetP.toFixed(2)}€
+                                </span>
+                              )}
+                              {typeof diffPct === 'number' && (
+                                <span>
+                                  {t('tradeReq.diff', 'Diferencia')}:{' '}
+                                  {diffPct.toFixed(1)}%
+                                </span>
+                              )}
+                            </p>
+                          )}
+
+                          {req.note && (
+                            <p className="trade-note">
+                              <span>{t('tradeReq.message', 'Mensaje')}:</span>{' '}
+                              {req.note}
+                            </p>
+                          )}
+
+                          <p className="trade-date">
+                            {formatDate(req.createdAt)}
+                          </p>
+
+                          <div className="trade-actions">
+                            {req.status === 'pending' && (
+                              <>
+                                <button
+                                  className="btn-green-small"
+                                  onClick={() =>
+                                    setActionModal({
+                                      type: 'accept',
+                                      requestId: req._id,
+                                    })
+                                  }
+                                >
+                                  {t('tradeReq.acceptQuick', 'Aceptar')}
+                                </button>
+                                <button
+                                  className="btn-blue-small"
+                                  onClick={() =>
+                                    setQuickDecision({ requestId: req._id })
+                                  }
+                                >
+                                  {t('tradeReq.quickDecision', 'Decidir')}
+                                </button>
+                              </>
+                            )}
+                            {req.tradeId?.privateRoomCode &&
+                              renderRoomChip(req)}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+
+            <section className="trade-panel">
+              <h2 className="trade-panel-title">
+                {t('tradeReq.received', 'Solicitudes recibidas')}
+              </h2>
+
+              {activeReceivedNormal.length === 0 ? (
+                <p className="trade-empty">
+                  {t('tradeReq.noReceived', 'No tienes solicitudes recibidas.')}
+                </p>
+              ) : (
+                <div className="trade-list">
+                  {activeReceivedNormal.map((req) => (
                     <div key={req._id} className="trade-row">
                       <div className="trade-card-preview">
                         {req.cardImage ? (
@@ -367,7 +564,7 @@ const TradeRequestsPage: React.FC = () => {
                           />
                         ) : (
                           <div className="trade-card-placeholder">
-                            {t('tradeReq.noImage')}
+                            {t('tradeReq.noImage', 'Sin imagen')}
                           </div>
                         )}
                       </div>
@@ -375,22 +572,23 @@ const TradeRequestsPage: React.FC = () => {
                       <div className="trade-info">
                         <div className="trade-info-header">
                           <span className="trade-user">
-                            {t('tradeReq.from')}{' '}
+                            {t('tradeReq.from', 'De')}{' '}
                             <strong>
-                              @{req.from?.username || t('tradeReq.unknown')}
+                              @
+                              {req.from?.username ||
+                                t('tradeReq.unknown', 'desconocido')}
                             </strong>
                           </span>
                           {renderStatusBadge(req.status)}
                         </div>
 
                         <p className="trade-card-name">
-                          {req.cardName ||
-                            t('tradeReq.noName', 'No name available')}
+                          {req.cardName || t('tradeReq.noName', 'Sin nombre')}
                         </p>
 
                         {req.note && (
                           <p className="trade-note">
-                            <span>{t('tradeReq.message', 'Message')}:</span>{' '}
+                            <span>{t('tradeReq.message', 'Mensaje')}:</span>{' '}
                             {req.note}
                           </p>
                         )}
@@ -403,7 +601,7 @@ const TradeRequestsPage: React.FC = () => {
                           {req.status === 'pending' && (
                             <>
                               <button
-                                className="btn-blue-small"
+                                className="btn-green-small"
                                 onClick={() =>
                                   setActionModal({
                                     type: 'accept',
@@ -411,7 +609,7 @@ const TradeRequestsPage: React.FC = () => {
                                   })
                                 }
                               >
-                                {t('tradeReq.accept')}
+                                {t('tradeReq.accept', 'Aceptar')}
                               </button>
                               <button
                                 className="btn-red-small"
@@ -422,7 +620,7 @@ const TradeRequestsPage: React.FC = () => {
                                   })
                                 }
                               >
-                                {t('tradeReq.reject')}
+                                {t('tradeReq.reject', 'Rechazar')}
                               </button>
                             </>
                           )}
@@ -438,12 +636,12 @@ const TradeRequestsPage: React.FC = () => {
 
             <section className="trade-panel">
               <h2 className="trade-panel-title">
-                {t('tradeReq.sent', 'Sent Requests')}
+                {t('tradeReq.sent', 'Solicitudes enviadas')}
               </h2>
 
               {activeSent.length === 0 ? (
                 <p className="trade-empty">
-                  {t('tradeReq.noSent', 'No sent requests.')}
+                  {t('tradeReq.noSent', 'No tienes solicitudes enviadas.')}
                 </p>
               ) : (
                 <div className="trade-list">
@@ -458,7 +656,7 @@ const TradeRequestsPage: React.FC = () => {
                           />
                         ) : (
                           <div className="trade-card-placeholder">
-                            {t('tradeReq.noImage')}
+                            {t('tradeReq.noImage', 'Sin imagen')}
                           </div>
                         )}
                       </div>
@@ -466,22 +664,23 @@ const TradeRequestsPage: React.FC = () => {
                       <div className="trade-info">
                         <div className="trade-info-header">
                           <span className="trade-user">
-                            {t('tradeReq.to')}{' '}
+                            {t('tradeReq.to', 'Para')}{' '}
                             <strong>
-                              @{req.to?.username || t('tradeReq.unknown')}
+                              @
+                              {req.to?.username ||
+                                t('tradeReq.unknown', 'desconocido')}
                             </strong>
                           </span>
                           {renderStatusBadge(req.status)}
                         </div>
 
                         <p className="trade-card-name">
-                          {req.cardName ||
-                            t('tradeReq.noName', 'No name available')}
+                          {req.cardName || t('tradeReq.noName', 'Sin nombre')}
                         </p>
 
                         {req.note && (
                           <p className="trade-note">
-                            <span>{t('tradeReq.message', 'Message')}:</span>{' '}
+                            <span>{t('tradeReq.message', 'Mensaje')}:</span>{' '}
                             {req.note}
                           </p>
                         )}
@@ -501,7 +700,7 @@ const TradeRequestsPage: React.FC = () => {
                                 })
                               }
                             >
-                              {t('tradeReq.cancel')}
+                              {t('tradeReq.cancel', 'Cancelar')}
                             </button>
                           )}
 
@@ -513,14 +712,15 @@ const TradeRequestsPage: React.FC = () => {
                 </div>
               )}
             </section>
+
             <section className="trade-panel trade-panel-history">
               <h2 className="trade-panel-title">
-                {t('tradeReq.history', 'History')}
+                {t('tradeReq.history', 'Historial')}
               </h2>
 
               {historyCombined.length === 0 ? (
                 <p className="trade-empty">
-                  {t('tradeReq.noHistory', 'No trade history available.')}
+                  {t('tradeReq.noHistory', 'No hay historial disponible.')}
                 </p>
               ) : (
                 <div className="trade-list">
@@ -539,7 +739,7 @@ const TradeRequestsPage: React.FC = () => {
                             />
                           ) : (
                             <div className="trade-card-placeholder">
-                              {t('tradeReq.noImage')}
+                              {t('tradeReq.noImage', 'Sin imagen')}
                             </div>
                           )}
                         </div>
@@ -548,26 +748,27 @@ const TradeRequestsPage: React.FC = () => {
                           <div className="trade-info-header">
                             <span className="trade-user">
                               {isReceived
-                                ? t('tradeReq.from')
-                                : t('tradeReq.to')}{' '}
+                                ? t('tradeReq.from', 'De')
+                                : t('tradeReq.to', 'Para')}{' '}
                               <strong>
                                 @
                                 {isReceived
-                                  ? req.from?.username || t('tradeReq.unknown')
-                                  : req.to?.username || t('tradeReq.unknown')}
+                                  ? req.from?.username ||
+                                    t('tradeReq.unknown', 'desconocido')
+                                  : req.to?.username ||
+                                    t('tradeReq.unknown', 'desconocido')}
                               </strong>
                             </span>
                             {renderStatusBadge(req.status)}
                           </div>
 
                           <p className="trade-card-name">
-                            {req.cardName ||
-                              t('tradeReq.noName', 'No name available')}
+                            {req.cardName || t('tradeReq.noName', 'Sin nombre')}
                           </p>
 
                           {req.note && (
                             <p className="trade-note">
-                              <span>{t('tradeReq.message', 'Message')}:</span>{' '}
+                              <span>{t('tradeReq.message', 'Mensaje')}:</span>{' '}
                               {req.note}
                             </p>
                           )}
@@ -579,14 +780,17 @@ const TradeRequestsPage: React.FC = () => {
                           <div className="trade-actions">
                             {req.tradeId?.status === 'completed' && (
                               <span className="history-chip">
-                                {t('tradeReq.tradeDone', 'Trade completed')}
+                                {t(
+                                  'tradeReq.tradeDone',
+                                  'Intercambio completado'
+                                )}
                               </span>
                             )}
                             {req.tradeId?.status === 'cancelled' && (
                               <span className="history-chip">
                                 {t(
                                   'tradeReq.tradeCancelled',
-                                  'Trade cancelled'
+                                  'Intercambio cancelado'
                                 )}
                               </span>
                             )}
@@ -603,6 +807,7 @@ const TradeRequestsPage: React.FC = () => {
       </main>
 
       <Footer />
+
       {confirmModal && (
         <ConfirmModal
           open={true}
@@ -612,36 +817,85 @@ const TradeRequestsPage: React.FC = () => {
           onClose={() => setConfirmModal(null)}
         />
       )}
+
       {actionModal && (
         <ConfirmModal
           open={true}
           title={
             actionModal.type === 'accept'
-              ? t('tradeReq.confirmAcceptTitle', 'Accept trade request')
+              ? t('tradeReq.confirmAcceptTitle', 'Aceptar solicitud')
               : actionModal.type === 'reject'
-                ? t('tradeReq.confirmRejectTitle', 'Reject trade request')
-                : t('tradeReq.confirmCancelTitle', 'Cancel trade request')
+                ? t('tradeReq.confirmRejectTitle', 'Rechazar solicitud')
+                : t('tradeReq.confirmCancelTitle', 'Cancelar solicitud')
           }
           message={
             actionModal.type === 'accept'
               ? t(
                   'tradeReq.confirmAccept',
-                  'Are you sure you want to accept this trade request?'
+                  '¿Seguro que quieres aceptar esta solicitud de intercambio?'
                 )
               : actionModal.type === 'reject'
                 ? t(
                     'tradeReq.confirmReject',
-                    'Are you sure you want to reject this trade request?'
+                    '¿Seguro que quieres rechazar esta solicitud de intercambio?'
                   )
                 : t(
                     'tradeReq.confirmCancel',
-                    'Are you sure you want to cancel this trade request?'
+                    '¿Seguro que quieres cancelar esta solicitud de intercambio?'
                   )
           }
           variant={actionModal.type === 'accept' ? 'success' : 'error'}
           onConfirm={executeAction}
           onClose={() => setActionModal(null)}
         />
+      )}
+      {quickDecision && (
+        <div className="modalOverlay" onClick={() => setQuickDecision(null)}>
+          <div className="modalCard" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="modalClose"
+              aria-label={t('common.close', 'Cerrar')}
+              onClick={() => setQuickDecision(null)}
+            >
+              ×
+            </button>
+
+            <h3 className="modalTitle">
+              {t('tradeReq.quickModalTitle', 'Intercambio rápido')}
+            </h3>
+
+            <p className="modalMessage">
+              {t(
+                'tradeReq.quickModalMessage',
+                '¿Quieres rechazar o crear una sala para negociar?'
+              )}
+            </p>
+
+            <div className="modalActions">
+              <button
+                className="btn-red-small"
+                onClick={async () => {
+                  const id = quickDecision.requestId;
+                  setQuickDecision(null);
+                  await handleReject(id);
+                }}
+              >
+                {t('tradeReq.reject', 'Rechazar')}
+              </button>
+
+              <button
+                className="btn-blue-small"
+                onClick={async () => {
+                  const id = quickDecision.requestId;
+                  setQuickDecision(null);
+                  await handleOpenRoom(id);
+                }}
+              >
+                {t('tradeReq.openRoom', 'Crear sala')}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

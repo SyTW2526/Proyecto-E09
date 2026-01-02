@@ -396,8 +396,7 @@ const TradeRequestsPage: React.FC = () => {
               {activeReceivedQuick.length === 0 ? (
                 <p className="trade-empty">
                   {t(
-                    'tradeReq.noQuickReceived',
-                    'No tienes intercambios rápidos.'
+                    'tradeReq.noQuickReceived'
                   )}
                 </p>
               ) : (

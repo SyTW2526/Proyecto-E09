@@ -45,7 +45,14 @@
     "resultsFound": "{{count}} results found",
     "loadingResults": "Loading results...",
     "errorLoadingResults": "Error loading results.",
-    "searching": "Searching..."
+    "searching": "Searching...",
+    "average": "Average",
+    "searchSets": "Search Sets",
+    "searchSet": "Search sets…",
+    "searchRarity": "Search rarities…",
+    "results": "Results",
+    "loadingSets": "Loading sets...",
+    "errorLoadingSets": "Error loading sets."
   },
   "createRoom": {
     "title": "Create Room",
@@ -378,7 +385,9 @@
     "confirmCancelTitle": "Cancel Request?",
     "quickDecision": "Decide",
     "quickModalTitle": "Quick Trade",
-    "quickModalMessage": "Do you want to accept or reject this trade request?"
+    "quickModalMessage": "Do you want to accept or reject this trade request?",
+    "quickReceived": "Quick Trades",
+    "noQuickReceived": "You have no quick trades."
   },
   "tradeModal": {
     "title": "Send trade message",

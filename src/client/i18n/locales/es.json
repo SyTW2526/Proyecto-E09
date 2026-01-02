@@ -50,7 +50,9 @@
     "loadingResults": "Cargando resultados...",
     "errorLoadingResults": "Error al cargar los resultados.",
     "average": "Precio",
-    "searching": "Buscando..."
+    "searching": "Buscando...",
+    "loadingSets": "Cargando sets...",
+    "errorLoadingSets": "Error al cargar los sets."
   },
   "createRoom": {
     "title": "Crear Sala",
@@ -392,7 +394,9 @@
     "confirmCancelTitle": "¿Cancelar Solicitud?",
     "quickDecision": "Decidir",
     "quickModalTitle": "Intercambio Rápido",
-    "quickModalMessage": "¿Quieres rechazar esta solicitud de intercambio o crear una sala ?"
+    "quickModalMessage": "¿Quieres rechazar esta solicitud de intercambio o crear una sala ?",
+    "quickReceived": "Intercambios rápidos",
+    "noquickReceived": "No tienes intercambios rápidos."
   },
   "tradeModal": {
     "title": "Enviar mensaje",

@@ -4,52 +4,9 @@ import Footer from '../components/Footer';
 import api from '../services/apiService';
 import { authService } from '../services/authService';
 import { authenticatedFetch } from '../utils/fetchHelpers';
-import { API_BASE_URL } from '../config/constants';
 import { useTranslation } from 'react-i18next';
 import confetti from 'canvas-confetti';
 import '../styles/open_pack.css';
-
-const RARITY_ORDER = [
-  'Common',
-  'Uncommon',
-  'Rare',
-  'Holo Rare',
-  'Rare Holo',
-  'Double rare',
-  'ACE SPEC Rare',
-  'Amazing Rare',
-  'Illustration rare',
-  'Special illustration rare',
-  'Ultra Rare',
-  'Holo Rare V',
-  'Holo Rare VMAX',
-  'Holo Rare VSTAR',
-  'Shiny rare',
-  'Shiny Ultra Rare',
-  'Shiny rare V',
-  'Shiny rare VMAX',
-  'Radiant Rare',
-  'Hyper rare',
-  'Mega Hyper Rare',
-  'Secret Rare',
-  'Rare PRIME',
-  'Rare Holo LV.X',
-  'LEGEND',
-  'Full Art Trainer',
-  'Classic Collection',
-  'Black White Rare',
-  'Crown',
-  'One Diamond',
-  'Two Diamond',
-  'Three Diamond',
-  'Four Diamond',
-  'One Star',
-  'Two Star',
-  'Three Star',
-  'One Shiny',
-  'Two Shiny',
-  'None',
-];
 
 const explodePack = () => {
   confetti({ particleCount: 180, spread: 70, origin: { y: 0.6 } });
@@ -74,45 +31,27 @@ const OpenPackPage: React.FC = () => {
   const [opening, setOpening] = useState(false);
   const [packOpened, setPackOpened] = useState(false);
   const [openedCards, setOpenedCards] = useState<any[]>([]);
-  const [packStatus, setPackStatus] = useState<{
-    remaining: number;
-    count24: number;
-    nextAllowed?: string | null;
-  } | null>(null);
+  const [packStatus, setPackStatus] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [resetCode, setResetCode] = useState('');
-  const [resetLoading, setResetLoading] = useState(false);
-  const [resetMessage, setResetMessage] = useState<string | null>(null);
-  const [showReset, setShowReset] = useState(false);
   const [timeUntilNext, setTimeUntilNext] = useState<string>('');
   const openedCardsRef = useRef<HTMLDivElement | null>(null);
 
   const SET_OPTIONS = [
-    {
-      id: 'me01',
-      label: t('openPack.setMegaEvolution', 'Mega Evolution (me01)'),
-    },
+    { id: 'me01', label: t('openPack.setMegaEvolution', 'Mega Evolution (me01)') },
     { id: 'sm9', label: t('openPack.setTeamUp', 'Team Up (sm9)') },
     { id: 'base1', label: t('openPack.setBaseSet', 'Base Set (base1)') },
     { id: 'bw9', label: t('openPack.setPlasmaFreeze', 'Plasma Freeze (bw9)') },
-    {
-      id: 'sv05',
-      label: t('openPack.setTemporalForces', 'Temporal Forces (sv05)'),
-    },
+    { id: 'sv05', label: t('openPack.setTemporalForces', 'Temporal Forces (sv05)') },
   ];
 
   const [selectedSet, setSelectedSet] = useState<string>(SET_OPTIONS[0].id);
 
   useEffect(() => {
     if (openedCards.length > 0) {
-      openedCardsRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
+      openedCardsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [openedCards]);
 
-  // Actualizar el tiempo restante cada segundo
   useEffect(() => {
     const updateTimer = () => {
       if (!packStatus?.nextAllowed) {
@@ -138,14 +77,13 @@ const OpenPackPage: React.FC = () => {
 
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
-
     return () => clearInterval(interval);
   }, [packStatus, t]);
 
   useEffect(() => {
     let mounted = true;
 
-    async function load() {
+    const loadSet = async () => {
       setLoadingSet(true);
       try {
         const resp = await api.getCardsFromTcgDexSet(selectedSet);
@@ -155,10 +93,9 @@ const OpenPackPage: React.FC = () => {
       } finally {
         if (mounted) setLoadingSet(false);
       }
-    }
-    load();
+    };
 
-    async function loadStatus() {
+    const loadStatus = async () => {
       const user = authService.getUser();
       if (!user) return;
 
@@ -169,15 +106,12 @@ const OpenPackPage: React.FC = () => {
 
         if (resp.ok) {
           const json = await resp.json();
-          console.log('Pack status loaded:', json); // Debug
-          setPackStatus(json.data || json); // Extraer data si existe
-        } else {
-          console.error('Failed to load pack status:', resp.status);
+          setPackStatus(json.data || json);
         }
-      } catch (err) {
-        console.error('Error loading pack status:', err);
-      }
-    }
+      } catch {}
+    };
+
+    loadSet();
     loadStatus();
 
     return () => {
@@ -196,8 +130,7 @@ const OpenPackPage: React.FC = () => {
       return v;
     }
 
-    if (imgs.symbol)
-      return typeof imgs.symbol === 'string' ? imgs.symbol : imgs.symbol.url;
+    if (imgs.symbol) return typeof imgs.symbol === 'string' ? imgs.symbol : imgs.symbol.url;
     if (setInfo.logo) return setInfo.logo;
 
     return '';
@@ -211,8 +144,8 @@ const OpenPackPage: React.FC = () => {
     try {
       const user = authService.getUser();
       if (!user) {
+        setError(t('openPack.mustLogin', 'Debes iniciar sesión'));
         setOpening(false);
-        setError('Debes iniciar sesión');
         return;
       }
 
@@ -247,7 +180,7 @@ const OpenPackPage: React.FC = () => {
 
       if (statusResp.ok) {
         const newStatus = await statusResp.json();
-        setPackStatus(newStatus.data || newStatus); // Extraer data si existe
+        setPackStatus(newStatus.data || newStatus);
       }
     } catch (e: any) {
       setError(e?.message ?? String(e));
@@ -262,31 +195,15 @@ const OpenPackPage: React.FC = () => {
       <Header />
       <div className="collection-inner">
         <div className="open-pack-title-wrapper">
-          <h2 className="open-pack-title">
-            {t('openPack.openPackTitle', 'Open Pack')}
-          </h2>
+          <h2 className="open-pack-title">{t('openPack.openPackTitle', 'Open Pack')}</h2>
         </div>
 
         <div className="open-pack-content">
           {loadingSet ? (
             <div>{t('common.loadingSet')}</div>
           ) : (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 20,
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  gap: 12,
-                  flexWrap: 'wrap',
-                  justifyContent: 'center',
-                }}
-              >
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
                 {SET_OPTIONS.map((s) => (
                   <button
                     key={s.id}
@@ -306,7 +223,7 @@ const OpenPackPage: React.FC = () => {
                 className="pack-container"
                 onClick={() => {
                   if (opening) return;
-                  if (!packStatus || packStatus.remaining <= 0) return;
+                  if (!packStatus || (packStatus.remaining ?? 0) <= 0) return;
 
                   explodePack();
                   setPackOpened(true);
@@ -317,22 +234,12 @@ const OpenPackPage: React.FC = () => {
                 }}
               >
                 <img
-                  src={
-                    packOpened
-                      ? '/assets/foil_pack_open.png'
-                      : '/assets/foil_pack.png'
-                  }
+                  src={packOpened ? '/assets/foil_pack_open.png' : '/assets/foil_pack.png'}
                   className="pack-base"
                   alt="Sobre"
                   draggable="false"
                 />
-                {getLogoUrl() && (
-                  <img
-                    src={getLogoUrl()}
-                    className="pack-logo"
-                    alt="Logo del set"
-                  />
-                )}
+                {getLogoUrl() && <img src={getLogoUrl()} className="pack-logo" alt="Logo del set" />}
               </div>
 
               {packStatus ? (
@@ -344,10 +251,7 @@ const OpenPackPage: React.FC = () => {
                     <strong
                       style={{
                         fontSize: '1.3em',
-                        color:
-                          (packStatus.remaining ?? 0) > 0
-                            ? '#4CAF50'
-                            : '#f44336',
+                        color: (packStatus.remaining ?? 0) > 0 ? '#4CAF50' : '#f44336',
                       }}
                     >
                       {packStatus.remaining ?? 0} / 2
@@ -367,78 +271,27 @@ const OpenPackPage: React.FC = () => {
                     >
                       <div>
                         {t('openPack.nextTokenIn', 'Próximo token en')}:{' '}
-                        <strong style={{ color: '#FFB74D' }}>
-                          {timeUntilNext}
-                        </strong>
+                        <strong style={{ color: '#FFB74D' }}>{timeUntilNext}</strong>
                       </div>
                       {packStatus.remaining === 0 && (
-                        <small
-                          style={{
-                            opacity: 0.7,
-                            display: 'block',
-                            marginTop: '4px',
-                          }}
-                        >
-                          {t(
-                            'openPack.noTokensAvailable',
-                            'No tienes tokens disponibles'
-                          )}
+                        <small style={{ opacity: 0.7, display: 'block', marginTop: '4px' }}>
+                          {t('openPack.noTokensAvailable', 'No tienes tokens disponibles')}
                         </small>
                       )}
                     </div>
                   )}
 
                   {packStatus.remaining === 2 && (
-                    <div
-                      style={{
-                        fontSize: '0.9em',
-                        opacity: 0.7,
-                        marginTop: '4px',
-                      }}
-                    >
+                    <div style={{ fontSize: '0.9em', opacity: 0.7, marginTop: '4px' }}>
                       {t('openPack.maxTokens', 'Tienes el máximo de tokens')}
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="open-pack-status">
-                  <div style={{ opacity: 0.6 }}>
-                    {t('common.loading', 'Cargando...')}
-                  </div>
+                  <div style={{ opacity: 0.6 }}>{t('common.loading', 'Cargando...')}</div>
                 </div>
               )}
-
-              <div>
-                {!showReset && (
-                  <button
-                    className="open-pack-reset-toggle"
-                    onClick={() => setShowReset(true)}
-                  >
-                    {t('openPack.code', 'Enter Reset Code')}
-                  </button>
-                )}
-
-                {showReset && (
-                  <div className="open-pack-reset-panel">
-                    <button
-                      className="open-pack-reset-close"
-                      onClick={() => setShowReset(false)}
-                      aria-label="Cerrar"
-                    >
-                      ✕
-                    </button>
-
-                    <input
-                      placeholder={t(
-                        'openPack.enterCode',
-                        'Enter your reset code'
-                      )}
-                      value={resetCode}
-                      onChange={(e) => setResetCode(e.target.value)}
-                    />
-                  </div>
-                )}
-              </div>
             </div>
           )}
         </div>

@@ -24,7 +24,8 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSwitch }) => {
     username: '',
     password: '',
   });
-  const { loading, error, startLoading, stopLoading, handleError, clearError } = useLoadingError();
+  const { loading, error, startLoading, stopLoading, handleError, clearError } =
+    useLoadingError();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

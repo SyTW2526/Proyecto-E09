@@ -24,9 +24,7 @@ export const FormInput: React.FC<FormInputProps> = ({
 }) => {
   return (
     <div className="w-4/5 flex flex-col">
-      <label className="text-base font-semibold mb-2 ml-1">
-        {label}
-      </label>
+      <label className="text-base font-semibold mb-2 ml-1">{label}</label>
       <input
         type={type}
         name={name}
@@ -75,11 +73,7 @@ export const FormButton: React.FC<FormButtonProps> = ({
   className = 'w-4/5 mt-6 bg-linear-to-r from-sky-600 to-blue-600 text-white font-semibold py-3 rounded-lg disabled:opacity-50',
 }) => {
   return (
-    <button
-      type={type}
-      disabled={disabled || loading}
-      className={className}
-    >
+    <button type={type} disabled={disabled || loading} className={className}>
       {loading ? loadingText : children}
     </button>
   );
@@ -99,9 +93,7 @@ export const FormHeader: React.FC<FormHeaderProps> = ({ title, subtitle }) => {
       <h2 className="text-4xl font-bold text-sky-700 mb-4 text-center">
         {title}
       </h2>
-      <p className="text-gray-500 mb-10 text-center text-lg">
-        {subtitle}
-      </p>
+      <p className="text-gray-500 mb-10 text-center text-lg">{subtitle}</p>
     </>
   );
 };

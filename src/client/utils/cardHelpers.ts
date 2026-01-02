@@ -7,12 +7,12 @@
  * @param pokemonTcgId - The card ID in format "setCode-number"
  * @param quality - Image quality: 'low', 'high' (default: 'high')
  * @returns TCGdex image URL or empty string if invalid ID
- * 
+ *
  * @example
  * ```typescript
  * const url = getTcgdexImageUrl('me01-178');
  * // Returns: https://assets.tcgdex.net/jp/me01/178/high.png
- * 
+ *
  * const url2 = getTcgdexImageUrl('swsh1-1', 'low');
  * // Returns: https://assets.tcgdex.net/en/swsh1/1/low.png
  * ```
@@ -43,7 +43,7 @@ export function getTcgdexImageUrl(
  * @param pokemonTcgId - Card ID for fallback generation
  * @param imageUrl - Alternative image URL
  * @returns Best available image URL
- * 
+ *
  * @example
  * ```typescript
  * const url = getCardImage(
@@ -73,12 +73,12 @@ export function getCardImage(
  * Extracts set code and number from a Pokémon TCG ID
  * @param pokemonTcgId - The card ID in format "setCode-number"
  * @returns Object with setCode and number, or null if invalid
- * 
+ *
  * @example
  * ```typescript
  * const parts = parseCardId('me01-178');
  * // Returns: { setCode: 'me01', number: '178' }
- * 
+ *
  * const invalid = parseCardId('invalid');
  * // Returns: null
  * ```

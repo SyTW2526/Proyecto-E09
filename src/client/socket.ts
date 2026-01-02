@@ -59,7 +59,7 @@ export function initSocket() {
       timeout: 5000,
       autoConnect: false, // No conectar automáticamente
     });
-    
+
     /**
      * Evento de conexión exitosa
      * Se dispara cuando se establece la conexión con el servidor
@@ -67,29 +67,29 @@ export function initSocket() {
     socket.on('connect', () => {
       console.log('Socket conectado:', socket.id);
     });
-    
-    /*
-   * Evento de nueva solicitud
-   */
-  socket.on('notification', (notification: Notification) => {
-    console.log('Notificación:', notification);
 
-    toast.push({
-      title: notification.title,
-      message: notification.message,
+    /*
+     * Evento de nueva solicitud
+     */
+    socket.on('notification', (notification: Notification) => {
+      console.log('Notificación:', notification);
+
+      toast.push({
+        title: notification.title,
+        message: notification.message,
+      });
+
+      store.dispatch(addNotification(notification));
     });
 
-    store.dispatch(addNotification(notification));
-  });
-
-  /**
+    /**
      * Evento de desconexión
      * Se dispara cuando se pierde la conexión con el servidor
      */
     socket.on('disconnect', () => {
       console.log('Socket desconectado');
     });
-    
+
     /**
      * Evento de error de conexión
      * Se dispara cuando hay un error al conectar
@@ -98,7 +98,7 @@ export function initSocket() {
       console.warn('Error de conexión Socket.io:', error.message);
       // No lanzar el error, solo loguearlo
     });
-    
+
     /**
      * Evento de error general
      * Se dispara cuando hay un error en el socket
@@ -107,10 +107,10 @@ export function initSocket() {
       console.warn('Error en Socket.io:', error.message);
       // No lanzar el error, solo loguearlo
     });
-    
+
     // Conectar manualmente
     socket.connect();
-    
+
     return socket;
   } catch (error) {
     console.warn('No se pudo inicializar Socket.io:', error);

@@ -60,7 +60,8 @@ const TradeRequestsPage: React.FC = () => {
   const [user, setUser] = useState<any>(authService.getUser());
   const [receivedRequests, setReceivedRequests] = useState<TradeRequest[]>([]);
   const [sentRequests, setSentRequests] = useState<TradeRequest[]>([]);
-  const { loading, error, startLoading, stopLoading, handleError, clearError } = useLoadingError(true);
+  const { loading, error, startLoading, stopLoading, handleError, clearError } =
+    useLoadingError(true);
   const [confirmModal, setConfirmModal] = useState<{
     title: string;
     message: string;
@@ -208,7 +209,10 @@ const TradeRequestsPage: React.FC = () => {
         { method: 'POST' }
       );
 
-      const data = await safeJsonParse<{ error?: string; privateRoomCode?: string }>(resp);
+      const data = await safeJsonParse<{
+        error?: string;
+        privateRoomCode?: string;
+      }>(resp);
 
       if (!resp.ok) throw new Error(data.error || t('tradeReq.errorAccept'));
 

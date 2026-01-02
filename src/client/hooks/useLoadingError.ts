@@ -1,12 +1,12 @@
 /**
  * @file useLoadingError.ts
  * @description Hook personalizado para manejo de estados de carga y error
- * 
+ *
  * Proporciona:
  * - Estado de carga (loading)
  * - Estado de error con mensaje
  * - Funciones para actualizar ambos estados
- * 
+ *
  * @module hooks/useLoadingError
  */
 
@@ -25,13 +25,13 @@ interface UseLoadingErrorReturn {
 
 /**
  * Hook personalizado para manejar estados de loading y error
- * 
+ *
  * @param {boolean} initialLoading - Estado inicial de carga (default: false)
  * @returns {UseLoadingErrorReturn} Objeto con estados y funciones
- * 
+ *
  * @example
  * const { loading, error, startLoading, stopLoading, handleError } = useLoadingError();
- * 
+ *
  * async function fetchData() {
  *   startLoading();
  *   try {

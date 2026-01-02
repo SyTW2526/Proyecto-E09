@@ -26,7 +26,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
     password: '',
     confirmPassword: '',
   });
-  const { loading, error, startLoading, stopLoading, handleError, clearError } = useLoadingError();
+  const { loading, error, startLoading, stopLoading, handleError, clearError } =
+    useLoadingError();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,7 +100,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
           type="password"
           value={formData.confirmPassword}
           onChange={handleInputChange}
-          placeholder={t('signUp.confirmPasswordPlaceholder', 'Confirm your password')}
+          placeholder={t(
+            'signUp.confirmPasswordPlaceholder',
+            'Confirm your password'
+          )}
         />
 
         <FormButton
@@ -109,7 +113,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitch }) => {
           {t('signUp.createButton', 'Create Account')}
         </FormButton>
       </form>
-      
+
       {onSwitch && (
         <SwitchFormLink
           onClick={onSwitch}

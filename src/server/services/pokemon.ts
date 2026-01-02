@@ -30,14 +30,18 @@ const TCGDEX_BASE_URL = 'https://api.tcgdex.net/v2/en';
 async function apiFetch(endpoint: string) {
   const url = `${TCGDEX_BASE_URL}${endpoint}`;
   console.log('[TCGdex] Fetching:', url);
-  
+
   const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',
     },
   });
 
-  console.log('[TCGdex] Response status:', response.status, response.statusText);
+  console.log(
+    '[TCGdex] Response status:',
+    response.status,
+    response.statusText
+  );
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -45,7 +49,10 @@ async function apiFetch(endpoint: string) {
     throw new Error(`TCGdex API Error: ${response.statusText} - ${errorText}`);
   }
   const data = await response.json();
-  console.log('[TCGdex] Response data type:', Array.isArray(data) ? 'array' : typeof data);
+  console.log(
+    '[TCGdex] Response data type:',
+    Array.isArray(data) ? 'array' : typeof data
+  );
   return data;
 }
 

@@ -39,7 +39,18 @@
     "estimatedPrice": "Precio Estimado",
     "loading": "Cargando cartas...",
     "error": "Error",
-    "loadingPrices": "Cargando precios de cartas..."
+    "loadingPrices": "Cargando precios de cartas...",
+    "searchSet": "Buscar sets…",
+    "searchRarity": "Buscar rarezas…",
+    "results": "Resultados",
+    "search": "Buscar",
+    "searchPlaceholder": "Escribe para buscar...",
+    "noResults": "No se encontraron resultados.",
+    "resultsFound": "{{count}} resultados encontrados",
+    "loadingResults": "Cargando resultados...",
+    "errorLoadingResults": "Error al cargar los resultados.",
+    "average": "Precio",
+    "searching": "Buscando..."
   },
   "createRoom": {
     "title": "Crear Sala",

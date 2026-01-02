@@ -112,11 +112,9 @@ tradeRequestRouter.post(
             .send({ error: 'La carta ofrecida (UserCard) no existe' });
 
         if (offeredUC.userId.toString() !== me._id.toString()) {
-          return res
-            .status(400)
-            .send({
-              error: 'La carta ofrecida no pertenece al usuario emisor',
-            });
+          return res.status(400).send({
+            error: 'La carta ofrecida no pertenece al usuario emisor',
+          });
         }
 
         if (normalizedOfferedCard) {
@@ -155,11 +153,9 @@ tradeRequestRouter.post(
             .status(404)
             .send({ error: 'La carta objetivo (UserCard) no existe' });
         if (targetUC.userId.toString() !== receiver._id.toString()) {
-          return res
-            .status(400)
-            .send({
-              error: 'La carta objetivo no pertenece al usuario receptor',
-            });
+          return res.status(400).send({
+            error: 'La carta objetivo no pertenece al usuario receptor',
+          });
         }
       }
 
@@ -496,11 +492,9 @@ tradeRequestRouter.post(
           .send({ error: 'La carta ofrecida no pertenece al usuario emisor' });
       }
       if (targetUC.userId.toString() !== request.to.toString()) {
-        return res
-          .status(400)
-          .send({
-            error: 'La carta objetivo no pertenece al usuario receptor',
-          });
+        return res.status(400).send({
+          error: 'La carta objetivo no pertenece al usuario receptor',
+        });
       }
 
       const offeredP =

@@ -6,7 +6,7 @@
  * Safely parses JSON from a Response, returning an empty object on failure
  * @param response - The Response object to parse
  * @returns Parsed JSON data or empty object
- * 
+ *
  * @example
  * ```typescript
  * const data = await safeJsonParse(response);
@@ -28,7 +28,7 @@ export async function safeJsonParse<T = any>(response: Response): Promise<T> {
  * @param response - The Response object to check
  * @param errorMessage - Default error message if response has no error property
  * @throws Error with message from response data or default message
- * 
+ *
  * @example
  * ```typescript
  * const response = await fetch('/api/data');
@@ -52,7 +52,7 @@ export async function checkResponse(
  * @param errorMessage - Default error message
  * @returns Parsed JSON data
  * @throws Error if response is not OK
- * 
+ *
  * @example
  * ```typescript
  * const response = await fetch('/api/data');

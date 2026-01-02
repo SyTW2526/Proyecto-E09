@@ -3,15 +3,15 @@ import { useState, useCallback } from 'react';
 /**
  * Custom hook for managing modal visibility state.
  * Provides a simple interface for showing/hiding modals.
- * 
+ *
  * @param initialState - Initial visibility state (default: false)
  * @returns Object with isOpen state and open/close/toggle functions
- * 
+ *
  * @example
  * ```tsx
  * const loginModal = useModal();
  * const confirmModal = useModal(false);
- * 
+ *
  * return (
  *   <>
  *     <button onClick={loginModal.open}>Open Login</button>

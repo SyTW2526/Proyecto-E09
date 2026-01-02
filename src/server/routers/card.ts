@@ -248,9 +248,12 @@ cardRouter.get('/cards/search/tcg', async (req, res) => {
     const apiResp = await (
       await import('../services/pokemon.js')
     ).searchCards(filters);
-    
-    console.log('[SEARCH] TCGdex response:', JSON.stringify(apiResp).substring(0, 200));
-    
+
+    console.log(
+      '[SEARCH] TCGdex response:',
+      JSON.stringify(apiResp).substring(0, 200)
+    );
+
     const raw = apiResp.data ?? apiResp;
     const cards = Array.isArray(raw) ? raw : (raw.cards ?? raw.data ?? []);
 

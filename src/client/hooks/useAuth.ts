@@ -1,12 +1,12 @@
 /**
  * @file useAuth.ts
  * @description Hook personalizado para manejo de autenticación
- * 
+ *
  * Proporciona:
  * - Estado del usuario actual
  * - Funciones de autenticación (login, logout)
  * - Verificación de autenticación
- * 
+ *
  * @module hooks/useAuth
  */
 
@@ -23,14 +23,14 @@ interface User {
 /**
  * Hook personalizado para manejar el estado de autenticación
  * @returns {object} Objeto con user, isAuthenticated, y funciones de auth
- * 
+ *
  * @example
  * const { user, isAuthenticated, logout } = useAuth();
  * if (!isAuthenticated) return <Navigate to="/login" />;
  */
 export function useAuth() {
   const [user, setUser] = useState<User | null>(() => authService.getUser());
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => 
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() =>
     authService.isAuthenticated()
   );
 

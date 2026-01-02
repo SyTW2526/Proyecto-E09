@@ -238,10 +238,14 @@ export function extractPrices(card: Record<string, any>) {
 export function normalizeSearchCard(card: any) {
   // TCGdex devuelve "image" (singular) sin extensión, necesitamos convertirlo a formato con small/large
   const imageUrl = card.image || card.imageUrl || '';
-  const images = card.images || (imageUrl ? { 
-    small: imageUrl, 
-    large: imageUrl 
-  } : {});
+  const images =
+    card.images ||
+    (imageUrl
+      ? {
+          small: imageUrl,
+          large: imageUrl,
+        }
+      : {});
 
   return {
     id: card.id || card._id || '',

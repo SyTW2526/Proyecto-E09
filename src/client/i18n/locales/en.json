@@ -38,7 +38,14 @@
     "quantity": "Quantity",
     "estimatedPrice": "Estimated Price",
     "loading": "Loading cards...",
-    "loadingPrices": "Loading card prices..."
+    "loadingPrices": "Loading card prices...",
+    "search": "Search",
+    "searchPlaceholder": "Type to search...",
+    "noResults": "No results found.",
+    "resultsFound": "{{count}} results found",
+    "loadingResults": "Loading results...",
+    "errorLoadingResults": "Error loading results.",
+    "searching": "Searching..."
   },
   "createRoom": {
     "title": "Create Room",
@@ -373,7 +380,6 @@
     "quickModalTitle": "Quick Trade",
     "quickModalMessage": "Do you want to accept or reject this trade request?"
   },
-
   "tradeModal": {
     "title": "Send trade message",
     "subtitle": "Choose a user and write your offer.",
@@ -392,7 +398,6 @@
     "sendCard": "Send card",
     "hint": "You can create a room later from requests if needed."
   },
-
   "tradeOfferCardModal": {
     "title": "Trade for a card",
     "subtitle": "Choose the user and select one of your cards to offer.",

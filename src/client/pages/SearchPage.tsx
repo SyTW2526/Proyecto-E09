@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
 import { normalizeImageUrl } from '../utils/imageHelpers';
 import '../styles/collection.css';
+import '../styles/search.css';
 import api from '../services/apiService';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -40,21 +41,31 @@ const SearchPage: React.FC = () => {
   const [results, setResults] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const { loading, error, startLoading, stopLoading, handleError } = useLoadingError();
+  const { loading, error, startLoading, stopLoading, handleError } =
+    useLoadingError();
+
   const [selectedSet, setSelectedSet] = useState('');
   const [selectedRarity, setSelectedRarity] = useState('');
+
   const [allSets, setAllSets] = useState<Array<{ id: string; name: string }>>(
     []
   );
   const [hoverDetails, setHoverDetails] = useState<Record<string, any>>({});
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
+  const [setOpen, setSetOpen] = useState(false);
+  const [setSearch, setSetSearch] = useState('');
+  const [rarityOpen, setRarityOpen] = useState(false);
+  const [raritySearch, setRaritySearch] = useState('');
+
+  const setWrapRef = useRef<HTMLDivElement | null>(null);
+  const rarityWrapRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     setQuery(qParam);
     setPage(1);
   }, [qParam]);
 
-  // load wishlist for heart state
   useEffect(() => {
     const user = authService.getUser();
     if (!user || !authService.isAuthenticated()) return;
@@ -99,14 +110,13 @@ const SearchPage: React.FC = () => {
     load();
   }, [query, page, selectedSet, selectedRarity]);
 
-  // fetch list of sets once to populate the Set dropdown with friendly names
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
         const payload: any = await api.getTcgDexSets();
         if (!mounted || !payload) return;
-        // payload may be { data: [...] } or an array
+
         let arr: any[] = [];
         if (Array.isArray(payload)) arr = payload;
         else if (Array.isArray(payload.data)) arr = payload.data;
@@ -120,15 +130,12 @@ const SearchPage: React.FC = () => {
           })
           .filter((s: any) => s.id);
 
-        // dedupe by id
         const map = new Map<string, string>();
         normalized.forEach((s: any) => map.set(s.id, s.name));
         setAllSets(
           Array.from(map.entries()).map(([id, name]) => ({ id, name }))
         );
-      } catch (e) {
-        // ignore
-      }
+      } catch (e) {}
     })();
     return () => {
       mounted = false;
@@ -140,15 +147,11 @@ const SearchPage: React.FC = () => {
     Math.ceil((total || results.length) / PAGE_SIZE)
   );
 
-  // const setsOptions = useMemo(() => [], []);
   const setsOptions = useMemo(() => {
-    // produce array of { id, name }
     const map = new Map<string, string>();
-    // include global sets first (from TCGdex)
     (allSets || []).forEach((s) => {
       if (s && s.id) map.set(s.id, s.name || s.id);
     });
-    // then overwrite/augment from current results
     if (Array.isArray(results)) {
       results.forEach((r) => {
         const id = r.setId || r.set || '';
@@ -167,10 +170,9 @@ const SearchPage: React.FC = () => {
       });
     }
     const arr = Array.from(s).filter(Boolean);
-    // fallback to canonical list when none discovered in results
     const fallback = RARITY_ORDER.slice();
     const finalArr = arr.length ? arr : fallback;
-    // try to order by canonical RARITY_ORDER
+
     const orderMap = new Map(RARITY_ORDER.map((v, i) => [v.toLowerCase(), i]));
     finalArr.sort((a, b) => {
       const ai = orderMap.has(a.toLowerCase())
@@ -185,24 +187,73 @@ const SearchPage: React.FC = () => {
     return finalArr;
   }, [results]);
 
-  return (
-    <div className="collectionPage">
-      <Header />
-      <div className="collectionMain">
-        <div className="collectionToolbar" style={{ flexDirection: 'column', gap: '1rem', alignItems: 'stretch' }}>
-          <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
-            <h2 style={{ margin: 0 }}>{t('common.searchCards')}</h2>
-            <p
-              style={{
-                margin: 0,
-                marginLeft: '.75rem',
-                color: 'var(--text-secondary)',
-              }}
-            >
-              {total} {t('common.results')}
-            </p>
-          </div>
+  const selectedSetLabel = useMemo(() => {
+    if (!selectedSet) return '';
+    const found = setsOptions.find((s) => s.id === selectedSet);
+    return found?.name || selectedSet;
+  }, [selectedSet, setsOptions]);
 
+  const filteredSetsOptions = useMemo(() => {
+    const q = setSearch.trim().toLowerCase();
+    if (!q) return setsOptions;
+    return setsOptions.filter((s) =>
+      (s.name || s.id).toLowerCase().includes(q)
+    );
+  }, [setsOptions, setSearch]);
+
+  const filteredRarityOptions = useMemo(() => {
+    const q = raritySearch.trim().toLowerCase();
+    if (!q) return raritiesOptions;
+    return raritiesOptions.filter((r) => r.toLowerCase().includes(q));
+  }, [raritiesOptions, raritySearch]);
+
+  useEffect(() => {
+    if (!setOpen && !rarityOpen) return;
+
+    const onDown = (e: MouseEvent) => {
+      const setEl = setWrapRef.current;
+      const rarEl = rarityWrapRef.current;
+      const target = e.target;
+
+      if (!(target instanceof Node)) return;
+
+      const clickInSet = !!setEl && setEl.contains(target);
+      const clickInRarity = !!rarEl && rarEl.contains(target);
+
+      if (!clickInSet) setSetOpen(false);
+      if (!clickInRarity) setRarityOpen(false);
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSetOpen(false);
+        setRarityOpen(false);
+      }
+    };
+
+    window.addEventListener('mousedown', onDown);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('mousedown', onDown);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [setOpen, rarityOpen]);
+
+  return (
+    <div className="collectionPage searchPage">
+      <Header />
+
+      <div className="collectionMain">
+        <div className="searchHeader">
+          <div className="searchHeaderTitleRow">
+            <h2 className="collectionTitle collectionTitleWord">
+              {t('common.results')}
+            </h2>
+            <span className="collectionTitleCount">{total}</span>
+          </div>
+        </div>
+
+        <div className="collectionToolbar">
           <div className="toolbarRightGroup">
             <input
               placeholder={t('common.searchPlaceholder')}
@@ -210,198 +261,333 @@ const SearchPage: React.FC = () => {
               onChange={(e) => setQuery(e.target.value)}
               className="header-search"
             />
-            <select
-              value={selectedSet}
-              onChange={(e) => {
-                setSelectedSet(e.target.value);
-                setPage(1);
-              }}
-            >
-              <option value="">{t('common.set')}</option>
-              {setsOptions.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name || s.id}
-                </option>
-              ))}
-            </select>
-            <select
-              value={selectedRarity}
-              onChange={(e) => {
-                setSelectedRarity(e.target.value);
-                setPage(1);
-              }}
-            >
-              <option value="">{t('common.rarity')}</option>
-              {raritiesOptions.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
+
+            <div className="selectWrap searchSetWrap" ref={setWrapRef}>
+              <button
+                type="button"
+                className="selectTrigger searchSelectTrigger"
+                onClick={() => {
+                  setSetOpen((v) => !v);
+                  setRarityOpen(false);
+                }}
+              >
+                <span
+                  className={`selectValue ${
+                    !selectedSet ? 'isPlaceholder' : ''
+                  }`}
+                >
+                  {selectedSet ? selectedSetLabel : t('common.set')}
+                </span>
+                <span className="selectChevron" aria-hidden="true" />
+              </button>
+
+              {setOpen && (
+                <div className="selectPopover selectPopover--natural searchSelectPopover">
+                  <div className="selectSearchRow">
+                    <input
+                      className="selectSearch"
+                      value={setSearch}
+                      onChange={(e) => setSetSearch(e.target.value)}
+                      placeholder={t('common.searchSet')}
+                      autoFocus
+                    />
+                  </div>
+
+                  <div
+                    className="selectList"
+                    style={{ ['--popMaxH' as any]: '360px' }}
+                  >
+                    <button
+                      type="button"
+                      className={`selectItem ${selectedSet === '' ? 'isActive' : ''}`}
+                      onClick={() => {
+                        setSelectedSet('');
+                        setPage(1);
+                        setSetOpen(false);
+                      }}
+                    >
+                      <span>{t('common.set')}</span>
+                      <span />
+                    </button>
+
+                    {filteredSetsOptions.length === 0 ? (
+                      <div className="selectEmpty">{t('common.noResults')}</div>
+                    ) : (
+                      filteredSetsOptions.map((s) => (
+                        <button
+                          key={s.id}
+                          type="button"
+                          className={`selectItem ${selectedSet === s.id ? 'isActive' : ''}`}
+                          onClick={() => {
+                            setSelectedSet(s.id);
+                            setPage(1);
+                            setSetOpen(false);
+                          }}
+                        >
+                          <span>{s.name || s.id}</span>
+                          <span />
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="selectWrap searchRarityWrap" ref={rarityWrapRef}>
+              <button
+                type="button"
+                className="selectTrigger searchSelectTrigger"
+                onClick={() => {
+                  setRarityOpen((v) => !v);
+                  setSetOpen(false);
+                }}
+              >
+                <span
+                  className={`selectValue ${
+                    !selectedRarity ? 'isPlaceholder' : ''
+                  }`}
+                >
+                  {selectedRarity ? selectedRarity : t('common.rarity')}
+                </span>
+                <span className="selectChevron" aria-hidden="true" />
+              </button>
+
+              {rarityOpen && (
+                <div className="selectPopover selectPopover--natural searchSelectPopover">
+                  <div className="selectSearchRow">
+                    <input
+                      className="selectSearch"
+                      value={raritySearch}
+                      onChange={(e) => setRaritySearch(e.target.value)}
+                      placeholder={t('common.searchRarity')}
+                      autoFocus
+                    />
+                  </div>
+
+                  <div
+                    className="selectList"
+                    style={{ ['--popMaxH' as any]: '360px' }}
+                  >
+                    <button
+                      type="button"
+                      className={`selectItem ${selectedRarity === '' ? 'isActive' : ''}`}
+                      onClick={() => {
+                        setSelectedRarity('');
+                        setPage(1);
+                        setRarityOpen(false);
+                      }}
+                    >
+                      <span>{t('common.rarity')}</span>
+                      <span />
+                    </button>
+
+                    {filteredRarityOptions.length === 0 ? (
+                      <div className="selectEmpty">{t('common.noResults')}</div>
+                    ) : (
+                      filteredRarityOptions.map((r) => (
+                        <button
+                          key={r}
+                          type="button"
+                          className={`selectItem ${selectedRarity === r ? 'isActive' : ''}`}
+                          onClick={() => {
+                            setSelectedRarity(r);
+                            setPage(1);
+                            setRarityOpen(false);
+                          }}
+                        >
+                          <span>{r}</span>
+                          <span />
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px', fontSize: '18px' }}>{t('common.loading')}</div>
-        ) : error ? (
-          <div style={{ textAlign: 'center', padding: '40px', fontSize: '18px', color: 'var(--error-color)' }}>
-            {error}
+          <div className="loadingState searchStateCenter">
+            {t('common.loading')}
           </div>
+        ) : error ? (
+          <div className="loadingState isError searchStateCenter">{error}</div>
         ) : !Array.isArray(results) || results.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', fontSize: '18px' }}>{t('common.noResults')}</div>
+          <div className="loadingState searchStateCenter">
+            {t('common.noResults')}
+          </div>
         ) : (
           <div className="cardsGrid">
             {results
               .filter((c: any) => {
-                // Filtrar cartas sin imagen válida
-                const rawImage = (c.images && (c.images.large || c.images.small)) || '';
-                const image = normalizeImageUrl(rawImage) || (c.imageUrl ? normalizeImageUrl(c.imageUrl) : '');
-                return image && image.endsWith('/high.png'); // Solo mostrar si tiene URL completa
+                const rawImage =
+                  (c.images && (c.images.large || c.images.small)) || '';
+                const image =
+                  normalizeImageUrl(rawImage) ||
+                  (c.imageUrl ? normalizeImageUrl(c.imageUrl) : '');
+                return image && image.endsWith('/high.png');
               })
               .map((c: any) => {
-              const isFlipped = hoveredId === c.id;
-              const rawImage =
-                (c.images && (c.images.large || c.images.small)) || '';
-              const image =
-                normalizeImageUrl(rawImage) ||
-                (c.imageUrl ? normalizeImageUrl(c.imageUrl) : '');
-              return (
-                <div key={c.id} className="cardTileBig">
-                  <div
-                    className={`flipCard ${isFlipped ? 'isFlipped' : ''}`}
-                    onMouseEnter={async () => {
-                      setHoveredId(c.id);
-                      if (hoverDetails[c.id]) return;
-                      const tcg = c.pokemonTcgId || c.id;
-                      if (!tcg) return;
-                      // try cached first
-                      let d = await api
-                        .getCachedCardByTcgId(tcg)
-                        .catch(() => null);
-                      if (!d) {
-                        // fallback: fetch directly from TCGdex (do not persist)
-                        try {
-                          const [setCode, number] = String(tcg).split('-');
-                          if (setCode && number) {
-                            const raw = await api
-                              .getTcgDexCard(setCode, number)
-                              .catch(() => null);
-                            const payload = raw?.data ?? raw ?? null;
-                            d = payload;
+                const isFlipped = hoveredId === c.id;
+                const rawImage =
+                  (c.images && (c.images.large || c.images.small)) || '';
+                const image =
+                  normalizeImageUrl(rawImage) ||
+                  (c.imageUrl ? normalizeImageUrl(c.imageUrl) : '');
+
+                return (
+                  <div key={c.id} className="cardTileBig">
+                    <div
+                      className={`flipCard ${isFlipped ? 'isFlipped' : ''}`}
+                      onMouseEnter={async () => {
+                        setHoveredId(c.id);
+                        if (hoverDetails[c.id]) return;
+
+                        const tcg = c.pokemonTcgId || c.id;
+                        if (!tcg) return;
+
+                        let d = await api
+                          .getCachedCardByTcgId(tcg)
+                          .catch(() => null);
+
+                        if (!d) {
+                          try {
+                            const [setCode, number] = String(tcg).split('-');
+                            if (setCode && number) {
+                              const raw = await api
+                                .getTcgDexCard(setCode, number)
+                                .catch(() => null);
+                              const payload = raw?.data ?? raw ?? null;
+                              d = payload;
+                            }
+                          } catch (e) {
+                            d = null;
                           }
-                        } catch (e) {
-                          d = null;
                         }
-                      }
 
-                      // normalize the detail to guarantee set and rarity presence
-                      const normalizeDetail = (x: any) => {
-                        if (!x) return null;
-                        const out: any = {};
-                        out.set =
-                          x.set?.name ||
-                          x.set ||
-                          x.series ||
-                          x.setName ||
-                          x.setCode ||
-                          '';
-                        out.rarity =
-                          x.rarity ||
-                          x.rarityText ||
-                          x.rarity_name ||
-                          x.set?.rarity ||
-                          '';
-                        out.illustrator =
-                          x.illustrator || x.artist || x?.authors || '';
-                        out.images =
-                          x.images ||
-                          (x.imageUrl
-                            ? { small: x.imageUrl, large: x.imageUrl }
-                            : x.image
-                              ? { small: x.image, large: x.image }
-                              : {});
-                        out.price =
-                          x.price && x.price.avg
-                            ? x.price
-                            : x.prices
-                              ? x.prices
-                              : x?.cardmarket
-                                ? x.cardmarket
-                                : null;
-                        // try other common shapes
-                        out.price = out.price || {
-                          avg:
-                            x.avg ??
-                            x.cardmarketAvg ??
-                            x.tcgplayerMarketPrice ??
-                            null,
+                        const normalizeDetail = (x: any) => {
+                          if (!x) return null;
+                          const out: any = {};
+                          out.set =
+                            x.set?.name ||
+                            x.set ||
+                            x.series ||
+                            x.setName ||
+                            x.setCode ||
+                            '';
+                          out.rarity =
+                            x.rarity ||
+                            x.rarityText ||
+                            x.rarity_name ||
+                            x.set?.rarity ||
+                            '';
+                          out.illustrator =
+                            x.illustrator || x.artist || x?.authors || '';
+                          out.images =
+                            x.images ||
+                            (x.imageUrl
+                              ? { small: x.imageUrl, large: x.imageUrl }
+                              : x.image
+                                ? { small: x.image, large: x.image }
+                                : {});
+                          out.price =
+                            x.price && x.price.avg
+                              ? x.price
+                              : x.prices
+                                ? x.prices
+                                : x?.cardmarket
+                                  ? x.cardmarket
+                                  : null;
+
+                          out.price = out.price || {
+                            avg:
+                              x.avg ??
+                              x.cardmarketAvg ??
+                              x.tcgplayerMarketPrice ??
+                              null,
+                          };
+                          return out;
                         };
-                        return out;
-                      };
 
-                      const nd = normalizeDetail(d);
-                      setHoverDetails((prev) => ({ ...prev, [c.id]: nd }));
-                    }}
-                    onMouseLeave={() => setHoveredId(null)}
-                  >
-                    <div className="flipFace flipFront">
-                      <div className="cardImageWrap">
-                        <img src={image} alt={c.name} />
+                        const nd = normalizeDetail(d);
+                        setHoverDetails((prev) => ({ ...prev, [c.id]: nd }));
+                      }}
+                      onMouseLeave={() => setHoveredId(null)}
+                    >
+                      <div className="flipFace flipFront">
+                        <div className="cardImageWrap">
+                          <img src={image} alt={c.name} />
+                        </div>
                       </div>
-                    </div>
-                    <div className="flipFace flipBack">
-                      <div className="backBody">
-                        <h3 className="backTitle">{c.name}</h3>
-                        <div className="backRow">
-                          <div className="backLabel">{t('common.rarity')}</div>
-                          <div className="backValue">
-                            {hoverDetails[c.id]?.rarity || c.rarity || '—'}
+
+                      <div className="flipFace flipBack">
+                        <div className="backBody">
+                          <h3 className="backTitle">{c.name}</h3>
+
+                          <div className="backAttrGrid">
+                            <div className="backAttrBox">
+                              <span className="backAttrLabel">
+                                {t('common.rarity')}
+                              </span>
+                              <div className="backAttrValue">
+                                {hoverDetails[c.id]?.rarity || c.rarity || '—'}
+                              </div>
+                            </div>
+
+                            <div className="backAttrBox">
+                              <span className="backAttrLabel">
+                                {t('common.set')}
+                              </span>
+                              <div className="backAttrValue">
+                                {hoverDetails[c.id]?.set || c.set || '—'}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                        <div className="backRow">
-                          <div className="backLabel">{t('common.set')}</div>
-                          <div className="backValue">
-                            {hoverDetails[c.id]?.set || c.set || '—'}
+
+                          <div className="backSection">
+                            <span className="backSectionTitle">
+                              {t('common.illustrator')}
+                            </span>
+                            <div className="backSectionValue">
+                              {(hoverDetails[c.id] &&
+                                hoverDetails[c.id].illustrator) ||
+                                '—'}
+                            </div>
                           </div>
-                        </div>
-                        <div className="backRow">
-                          <div className="backLabel">
-                            {t('common.illustrator')}
-                          </div>
-                          <div className="backValue">
-                            {(hoverDetails[c.id] &&
-                              hoverDetails[c.id].illustrator) ||
-                              '—'}
-                          </div>
-                        </div>
-                        <div className="backPrice">
-                          {hoverDetails[c.id] ? (
-                            (() => {
-                              const d = hoverDetails[c.id];
-                              const avg =
-                                d?.price?.avg ??
-                                d?.price?.average ??
-                                d?.avg ??
-                                d?.cardmarketAvg ??
-                                null;
-                              return (
-                                <div className="priceGrid">
-                                  <div style={{ fontWeight: 700 }}>
-                                    {t('common.average')}:
+
+                          <div className="backPrice">
+                            {hoverDetails[c.id] ? (
+                              (() => {
+                                const d = hoverDetails[c.id];
+                                const avg =
+                                  d?.price?.avg ??
+                                  d?.price?.average ??
+                                  d?.avg ??
+                                  d?.cardmarketAvg ??
+                                  null;
+
+                                return (
+                                  <div className="priceRow">
+                                    <div className="priceLabel">
+                                      {t('common.average')}
+                                    </div>
+                                    <div className="priceValue">
+                                      {avg == null
+                                        ? '—'
+                                        : `${Number(avg).toFixed(2)}€`}
+                                    </div>
                                   </div>
-                                  <div>
-                                    {avg == null
-                                      ? '—'
-                                      : `${Number(avg).toFixed(2)}€`}
-                                  </div>
-                                </div>
-                              );
-                            })()
-                          ) : (
-                            <div className="loading">{t('common.loading')}</div>
-                          )}
-                        </div>
-                        <div style={{ position: 'absolute', top: 8, right: 8 }}>
+                                );
+                              })()
+                            ) : (
+                              <div className="loadingTiny">
+                                {t('common.loading')}
+                              </div>
+                            )}
+                          </div>
+
                           <button
                             onClick={async (e) => {
                               e.stopPropagation();
@@ -413,6 +599,7 @@ const SearchPage: React.FC = () => {
                               const tcgId = c.pokemonTcgId || c.id;
                               const isFav =
                                 wishlistSet.has(tcgId) || wishlistSet.has(c.id);
+
                               if (!isFav) {
                                 dispatch(
                                   addToWishlist({
@@ -437,7 +624,8 @@ const SearchPage: React.FC = () => {
                                 });
                               }
                             }}
-                            className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg hover:scale-110 transition-transform z-30"
+                            className="wishlistBtn"
+                            aria-label={t('common.wishlist')}
                           >
                             <span style={{ fontSize: 20 }}>
                               {wishlistSet.has(c.pokemonTcgId || c.id)
@@ -448,11 +636,11 @@ const SearchPage: React.FC = () => {
                         </div>
                       </div>
                     </div>
+
+                    <div className="cardCaption">{c.name}</div>
                   </div>
-                  <div className="cardCaption">{c.name}</div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         )}
 
@@ -464,9 +652,11 @@ const SearchPage: React.FC = () => {
           >
             {t('common.prev')}
           </button>
-          <div style={{ alignSelf: 'center' }}>
+
+          <div>
             {page} / {totalPages}
           </div>
+
           <button
             disabled={page >= totalPages}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
@@ -476,6 +666,7 @@ const SearchPage: React.FC = () => {
           </button>
         </div>
       </div>
+
       <Footer />
     </div>
   );

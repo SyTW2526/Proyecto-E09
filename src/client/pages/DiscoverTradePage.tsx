@@ -166,7 +166,8 @@ const DiscoverTradeCards: React.FC = () => {
   const currentUsername = user?.username;
 
   const [tradeCards, setTradeCards] = useState<TradeCard[]>([]);
-  const { loading, error, startLoading, stopLoading, handleError } = useLoadingError(true);
+  const { loading, error, startLoading, stopLoading, handleError } =
+    useLoadingError(true);
 
   const [search, setSearch] = useState('');
   const [showFilters, setShowFilters] = useState(false);

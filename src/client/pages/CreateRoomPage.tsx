@@ -40,7 +40,8 @@ const CreateRoomPage: React.FC = () => {
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [search, setSearch] = useState<string>('');
 
-  const { loading, error, startLoading, stopLoading, handleError, clearError } = useLoadingError(true);
+  const { loading, error, startLoading, stopLoading, handleError, clearError } =
+    useLoadingError(true);
   const [confirmAction, setConfirmAction] = useState<{
     type: 'accept' | 'reject';
     inviteId: string;
@@ -50,7 +51,7 @@ const CreateRoomPage: React.FC = () => {
     messageKey: string;
   } | null>(null);
 
-  const userId = user?.id;
+  const userId = user?.id || user?._id;
 
   const navigate = useNavigate();
 
@@ -63,15 +64,22 @@ const CreateRoomPage: React.FC = () => {
 
   const loadFriends = async () => {
     try {
-      const resp = await authenticatedFetch('/friends');
+      const u = authService.getUser();
+      const uid = u?.id;
+      if (!uid) throw new Error(t('createRoom.errorLoadingFriends'));
 
+      const resp = await authenticatedFetch(`/friends/user/${uid}`);
       const data = await resp.json();
-      if (!resp.ok)
-        throw new Error(data.error || t('createRoom.errorLoadingFriends'));
 
-      setFriends(data.friends || []);
+      if (!resp.ok) {
+        throw new Error(data?.error || t('createRoom.errorLoadingFriends'));
+      }
+
+      const list = data?.friends || data?.data?.friends || [];
+      setFriends(Array.isArray(list) ? list : []);
     } catch (e: any) {
-      handleError(e.message || t('createRoom.errorLoadingFriends'));
+      handleError(e?.message || t('createRoom.errorLoadingFriends'));
+      setFriends([]);
     }
   };
 
@@ -97,7 +105,7 @@ const CreateRoomPage: React.FC = () => {
       stopLoading();
     };
 
-    if (userId) loadAll();
+    if (authService.isAuthenticated()) loadAll();
     else stopLoading();
   }, [userId]);
 

@@ -49,7 +49,8 @@ const FeaturedCards: React.FC = () => {
   ];
 
   const [featuredCards, setFeaturedCards] = React.useState<Card[]>([]);
-  const { loading, error, startLoading, stopLoading, handleError } = useLoadingError(true);
+  const { loading, error, startLoading, stopLoading, handleError } =
+    useLoadingError(true);
   const [wishlistSet, setWishlistSet] = React.useState<Set<string>>(new Set());
 
   React.useEffect(() => {
@@ -57,7 +58,7 @@ const FeaturedCards: React.FC = () => {
 
     async function fetchCards() {
       startLoading();
-      
+
       try {
         startLoading();
 
@@ -76,13 +77,9 @@ const FeaturedCards: React.FC = () => {
           .filter((c: any) => c != null)
           .map((c: any) => {
             const id = c.pokemonTcgId || c._id || c.id || '';
-            
+
             // Usar helper para obtener la mejor imagen disponible
-            const rawImage = getCardImage(
-              c.images,
-              id,
-              c.imageUrl || c.image
-            );
+            const rawImage = getCardImage(c.images, id, c.imageUrl || c.image);
 
             const setName =
               c.set?.name || c.set?.series || c.set || c.series || '';

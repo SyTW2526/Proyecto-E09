@@ -78,14 +78,17 @@ export const authService = {
     username: string,
     profileImage: string
   ): Promise<User> {
-    const response = await fetch(`${API_BASE_URL}/users/${username}/profile-image`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        ...this.getAuthHeaders(),
-      },
-      body: JSON.stringify({ profileImage }),
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/users/${username}/profile-image`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeaders(),
+        },
+        body: JSON.stringify({ profileImage }),
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -133,13 +136,16 @@ export const authService = {
    * Elimina la imagen de perfil del usuario
    */
   async deleteProfileImage(username: string): Promise<User> {
-    const response = await fetch(`${API_BASE_URL}/users/${username}/profile-image`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        ...this.getAuthHeaders(),
-      },
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/users/${username}/profile-image`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeaders(),
+        },
+      }
+    );
 
     const data = await response.json();
 

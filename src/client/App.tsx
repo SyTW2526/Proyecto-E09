@@ -38,12 +38,12 @@ const App: React.FC = () => {
 
   // Socket.io se inicializa bajo demanda en las páginas que lo necesiten (TradePage, FriendsPage)
   // No lo inicializamos aquí para evitar errores si el servidor no está disponible
-  
+
   useEffect(() => {
     try {
       const s = getSocket();
       if (!s) return;
-      
+
       const handler = (notification: any) => {
         dispatch(addNotification(notification));
         window.dispatchEvent(

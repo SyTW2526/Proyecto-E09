@@ -251,7 +251,14 @@ const SearchPage: React.FC = () => {
           <div style={{ textAlign: 'center', padding: '40px', fontSize: '18px' }}>{t('common.noResults')}</div>
         ) : (
           <div className="cardsGrid">
-            {results.map((c: any) => {
+            {results
+              .filter((c: any) => {
+                // Filtrar cartas sin imagen válida
+                const rawImage = (c.images && (c.images.large || c.images.small)) || '';
+                const image = normalizeImageUrl(rawImage) || (c.imageUrl ? normalizeImageUrl(c.imageUrl) : '');
+                return image && image.endsWith('/high.png'); // Solo mostrar si tiene URL completa
+              })
+              .map((c: any) => {
               const isFlipped = hoveredId === c.id;
               const rawImage =
                 (c.images && (c.images.large || c.images.small)) || '';
@@ -339,13 +346,7 @@ const SearchPage: React.FC = () => {
                   >
                     <div className="flipFace flipFront">
                       <div className="cardImageWrap">
-                        {image ? (
-                          <img src={image} alt={c.name} />
-                        ) : (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-secondary)' }}>
-                            {t('common.noImage') || 'Sin imagen'}
-                          </div>
-                        )}
+                        <img src={image} alt={c.name} />
                       </div>
                     </div>
                     <div className="flipFace flipBack">

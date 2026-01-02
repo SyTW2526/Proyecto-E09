@@ -28,16 +28,25 @@ const TCGDEX_BASE_URL = 'https://api.tcgdex.net/v2/en';
  * @throws {Error} Si la respuesta no es 200 OK
  */
 async function apiFetch(endpoint: string) {
-  const response = await fetch(`${TCGDEX_BASE_URL}${endpoint}`, {
+  const url = `${TCGDEX_BASE_URL}${endpoint}`;
+  console.log('[TCGdex] Fetching:', url);
+  
+  const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',
     },
   });
 
+  console.log('[TCGdex] Response status:', response.status, response.statusText);
+
   if (!response.ok) {
-    throw new Error(`TCGdex API Error: ${response.statusText}`);
+    const errorText = await response.text();
+    console.error('[TCGdex] Error response:', errorText);
+    throw new Error(`TCGdex API Error: ${response.statusText} - ${errorText}`);
   }
-  return response.json();
+  const data = await response.json();
+  console.log('[TCGdex] Response data type:', Array.isArray(data) ? 'array' : typeof data);
+  return data;
 }
 
 /**

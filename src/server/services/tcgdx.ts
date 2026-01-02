@@ -236,10 +236,17 @@ export function extractPrices(card: Record<string, any>) {
  * // Returns: { id: 'swsh3-25', name: 'Pikachu', images: {...}, set: 'Sword & Shield', ... }
  */
 export function normalizeSearchCard(card: any) {
+  // TCGdex devuelve "image" (singular) sin extensión, necesitamos convertirlo a formato con small/large
+  const imageUrl = card.image || card.imageUrl || '';
+  const images = card.images || (imageUrl ? { 
+    small: imageUrl, 
+    large: imageUrl 
+  } : {});
+
   return {
     id: card.id || card._id || '',
     name: card.name || card.title || '',
-    images: card.images || { small: card.imageUrl || card.image || '' },
+    images,
     // include both set id/code and human name when possible
     setId:
       card.set?.id ||

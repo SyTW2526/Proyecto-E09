@@ -1,88 +1,60 @@
-/**
- * @file TradeRequest.ts
- * @description Modelo de Solicitud de Intercambio de Cartas
- *
- * Registra solicitudes de intercambio entre usuarios,
- * incluyendo cartas específicas solicitadas y estados.
- *
- * @requires mongoose - ODM para MongoDB
- */
-
 import mongoose from 'mongoose';
 
-/**
- * Esquema de Solicitud de Trade
- *
- * @typedef {Object} TradeRequest
- * @property {ObjectId} from - ID del usuario que solicita
- * @property {ObjectId} to - ID del usuario destinatario
- * @property {string} pokemonTcgId - ID TCG de la carta solicitada
- * @property {string} cardName - Nombre de la carta
- * @property {string} cardImage - URL de la imagen de la carta
- * @property {string} note - Nota o comentario del solicitante
- * @property {string} status - Estado (pending, accepted, rejected, cancelled, completed)
- * @property {boolean} isManual - Si fue creada manualmente o automáticamente
- * @property {ObjectId} tradeId - ID del Trade relacionado
- * @property {Date} finishedAt - Fecha de finalización (se borra después de 2 días)
- * @property {Date} createdAt - Fecha de creación
- * @property {Date} updatedAt - Fecha de última actualización
- */
+const offeredCardSchema = new mongoose.Schema(
+  {
+    pokemonTcgId: { type: String, default: '' },
+    cardName: { type: String, default: '' },
+    cardImage: { type: String, default: '' },
+  },
+  { _id: false }
+);
+
 const tradeRequestSchema = new mongoose.Schema(
   {
-    from: {
+    from: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    to: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+
+    pokemonTcgId: { type: String, default: null },
+    requestedPokemonTcgId: { type: String, default: null },
+
+    cardName: { type: String, default: '' },
+    cardImage: { type: String, default: '' },
+    note: { type: String, default: '' },
+
+    offeredCard: { type: offeredCardSchema, default: null },
+    offeredPrice: { type: Number, default: null },
+    targetPrice: { type: Number, default: null },
+
+    offeredUserCardId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
+      ref: 'UserCard',
+      default: null,
     },
-    to: {
+    targetUserCardId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
+      ref: 'UserCard',
+      default: null,
     },
-    pokemonTcgId: {
-      type: String,
-      required: true,
-    },
-    cardName: {
-      type: String,
-      default: '',
-    },
-    cardImage: {
-      type: String,
-      default: '',
-    },
-    note: {
-      type: String,
-      default: '',
-    },
+
     status: {
       type: String,
       enum: ['pending', 'accepted', 'rejected', 'cancelled', 'completed'],
       default: 'pending',
     },
-    isManual: {
-      type: Boolean,
-      default: false,
-    },
+
+    isManual: { type: Boolean, default: false },
+
     tradeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Trade',
       default: null,
     },
-    finishedAt: {
-      type: Date,
-      default: null,
-    },
+
+    finishedAt: { type: Date, default: null },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-/**
- * Índice TTL para borrar solicitudes finalizadas después de 2 días
- * Libera espacio en base de datos automáticamente
- */
 tradeRequestSchema.index(
   { finishedAt: 1 },
   {
@@ -91,8 +63,4 @@ tradeRequestSchema.index(
   }
 );
 
-/**
- * Modelo de Solicitud de Trade exportado
- * @type {mongoose.Model}
- */
 export const TradeRequest = mongoose.model('TradeRequest', tradeRequestSchema);

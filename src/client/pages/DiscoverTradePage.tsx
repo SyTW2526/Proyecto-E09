@@ -1,8 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
+import { normalizeImageUrl } from '../utils/imageHelpers';
+import { authenticatedFetch } from '../utils/fetchHelpers';
+import { API_BASE_URL } from '../config/constants';
 import { authService } from '../services/authService';
 import { useTranslation } from 'react-i18next';
+import { useLoadingError, useModal } from '../hooks';
 import {
   Search,
   SlidersHorizontal,
@@ -162,8 +166,7 @@ const DiscoverTradeCards: React.FC = () => {
   const currentUsername = user?.username;
 
   const [tradeCards, setTradeCards] = useState<TradeCard[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { loading, error, startLoading, stopLoading, handleError } = useLoadingError(true);
 
   const [search, setSearch] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -183,9 +186,9 @@ const DiscoverTradeCards: React.FC = () => {
   const [selectedOwner, setSelectedOwner] = useState('');
   const [tradeNote, setTradeNote] = useState('');
 
-  const [modeModalVisible, setModeModalVisible] = useState(false);
-  const [messageModalVisible, setMessageModalVisible] = useState(false);
-  const [offerModalVisible, setOfferModalVisible] = useState(false);
+  const modeModal = useModal();
+  const messageModal = useModal();
+  const offerModal = useModal();
 
   const [myCards, setMyCards] = useState<UserCard[]>([]);
   const [selectedMyCard, setSelectedMyCard] = useState<UserCard | null>(null);
@@ -197,9 +200,11 @@ const DiscoverTradeCards: React.FC = () => {
   const normalizeImageUrl = (url?: string) => {
     if (!url) return '';
     let s = String(url);
-    
+
     // Correct malformed TCGdex URLs (missing series component)
-    const tcgdexMatch = s.match(/^(https?:\/\/assets\.tcgdex\.net\/)(?:jp|en)\/([a-z0-9.]+)\/(.+)$/i);
+    const tcgdexMatch = s.match(
+      /^(https?:\/\/assets\.tcgdex\.net\/)(?:jp|en)\/([a-z0-9.]+)\/(.+)$/i
+    );
     if (tcgdexMatch) {
       const [, baseUrl, setCode, rest] = tcgdexMatch;
       const seriesMatch = setCode.match(/^([a-z]+)/i);
@@ -208,7 +213,7 @@ const DiscoverTradeCards: React.FC = () => {
         s = `${baseUrl}en/${series}/${setCode.toLowerCase()}/${rest}`;
       }
     }
-    
+
     // Normalize quality to high
     if (/\/(small|large|high|low)\.png$/i.test(s))
       return s.replace(/\/(small|large|high|low)\.png$/i, '/high.png');
@@ -240,8 +245,15 @@ const DiscoverTradeCards: React.FC = () => {
 
     if (!img && id.includes('-')) {
       const [setCode, number] = id.split('-');
-      const series = (setCode.match(/^[a-zA-Z]+/) || ['xx'])[0];
-      img = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+      if (setCode && number) {
+        // Usar normalizeImageUrl para manejar correctamente la construcción de URLs
+        img = normalizeImageUrl(
+          `https://assets.tcgdex.net/en/${setCode}/${number}/high.png`
+        );
+      }
+    } else {
+      // Normalizar cualquier imagen existente
+      img = normalizeImageUrl(img);
     }
 
     let priceObj: { low?: number; mid?: number; high?: number } | undefined =
@@ -294,21 +306,14 @@ const DiscoverTradeCards: React.FC = () => {
     let mounted = true;
 
     const load = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+      startLoading();
 
-        const base = 'http://localhost:3000';
+      try {
         const params = new URLSearchParams();
         params.set('limit', '200');
         if (currentUsername) params.set('excludeUsername', currentUsername);
 
-        const resp = await fetch(`${base}/usercards/discover?${params}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            ...authService.getAuthHeaders(),
-          },
-        });
+        const resp = await authenticatedFetch(`/usercards/discover?${params}`);
 
         if (!resp.ok) throw new Error('Error cargando intercambio');
 
@@ -321,7 +326,7 @@ const DiscoverTradeCards: React.FC = () => {
         for (const item of rawItems) {
           const id = item.pokemonTcgId;
           const cardData = item.cardId;
-          
+
           if (!id || !cardData) continue;
 
           // Obtener la imagen con fallback
@@ -335,14 +340,19 @@ const DiscoverTradeCards: React.FC = () => {
           if (!image && cardData.imageUrlHiRes) {
             image = cardData.imageUrlHiRes;
           }
-          
+
           // Generar URL de TCGdex como fallback
           if (!image && id) {
             const [setCode, number] = id.split('-');
             if (setCode && number) {
-              const series = setCode.slice(0, 2);
-              image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+              // Usar normalizeImageUrl para manejar correctamente la construcción de URLs
+              image = normalizeImageUrl(
+                `https://assets.tcgdex.net/en/${setCode}/${number}/high.png`
+              );
             }
+          } else {
+            // Normalizar cualquier imagen existente
+            image = normalizeImageUrl(image);
           }
 
           // Normalizar la carta desde los datos poblados
@@ -353,11 +363,13 @@ const DiscoverTradeCards: React.FC = () => {
             hp: cardData.hp || '',
             set: cardData.set?.name || cardData.set || '',
             rarity: cardData.rarity || '',
-            price: cardData.price ? {
-              low: cardData.price.low,
-              mid: cardData.price.mid,
-              high: cardData.price.high,
-            } : undefined,
+            price: cardData.price
+              ? {
+                  low: cardData.price.low,
+                  mid: cardData.price.mid,
+                  high: cardData.price.high,
+                }
+              : undefined,
             illustrator: cardData.illustrator || cardData.artist || '',
             series: cardData.set?.series || cardData.series || '',
           };
@@ -378,9 +390,9 @@ const DiscoverTradeCards: React.FC = () => {
         if (!mounted) return;
         setTradeCards([...grouped.values()]);
       } catch (err: any) {
-        if (mounted) setError(err.message || 'Error');
+        if (mounted) handleError(err);
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) stopLoading();
       }
     };
 
@@ -615,16 +627,24 @@ const DiscoverTradeCards: React.FC = () => {
     setSelectedCardForTrade(card);
     setSelectedOwner(card.owners[0].username);
     setTradeNote('');
-    setModeModalVisible(true);
+    modeModal.open();
   };
 
   const loadMyCardsForTrade = async () => {
     if (!currentUsername) return;
 
-    const resp = await fetch(
-      `http://localhost:3000/usercards/${currentUsername}/collection?forTrade=true`
+    const resp = await authenticatedFetch(
+      `/usercards/${currentUsername}/collection?forTrade=true`
     );
-    const data = await resp.json();
+
+    if (!resp.ok) {
+      const errData = await resp.json().catch(() => null);
+      console.error('loadMyCardsForTrade failed:', resp.status, errData);
+      setMyCards([]);
+      throw new Error(errData?.error || `HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json().catch(() => ({ cards: [] }));
 
     const normalized = (data.cards || []).map((item: any) => {
       const card = item.cardId || item.card || {};
@@ -640,8 +660,13 @@ const DiscoverTradeCards: React.FC = () => {
       const pokemonTcgId = item.pokemonTcgId || card.pokemonTcgId || '';
       if (!image && pokemonTcgId.includes('-')) {
         const [setCode, number] = pokemonTcgId.split('-');
-        const series = (setCode.match(/^[a-zA-Z]+/) || ['xx'])[0];
-        image = `https://assets.tcgdex.net/en/${series}/${setCode}/${number}/high.png`;
+        if (setCode && number) {
+          image = normalizeImageUrl(
+            `https://assets.tcgdex.net/en/${setCode}/${number}/high.png`
+          );
+        }
+      } else {
+        image = normalizeImageUrl(image);
       }
 
       return {
@@ -660,15 +685,9 @@ const DiscoverTradeCards: React.FC = () => {
   const handleSendTradeRequest = async () => {
     if (!selectedCardForTrade) return;
 
-    const base = 'http://localhost:3000';
-
     try {
-      const resp = await fetch(`${base}/trade-requests`, {
+      const resp = await authenticatedFetch(`/trade-requests`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...authService.getAuthHeaders(),
-        },
         body: JSON.stringify({
           receiverIdentifier: selectedOwner,
           pokemonTcgId: selectedCardForTrade.id,
@@ -699,7 +718,7 @@ const DiscoverTradeCards: React.FC = () => {
         variant: 'success',
       });
       setSelectedCardForTrade(null);
-      setMessageModalVisible(false);
+      messageModal.close();
     } catch (err) {
       console.error(err);
       setConfirmModal({
@@ -713,15 +732,9 @@ const DiscoverTradeCards: React.FC = () => {
   const sendTradeWithCard = async () => {
     if (!selectedCardForTrade || !selectedMyCard) return;
 
-    const base = 'http://localhost:3000';
-
     try {
-      const resp = await fetch(`${base}/trade-requests`, {
+      const resp = await authenticatedFetch(`/trade-requests`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...authService.getAuthHeaders(),
-        },
         body: JSON.stringify({
           receiverIdentifier: selectedOwner,
           pokemonTcgId: selectedCardForTrade.id,
@@ -759,7 +772,7 @@ const DiscoverTradeCards: React.FC = () => {
         ),
         variant: 'success',
       });
-      setOfferModalVisible(false);
+      offerModal.close();
       setSelectedCardForTrade(null);
     } catch (err) {
       console.error(err);
@@ -1049,23 +1062,23 @@ const DiscoverTradeCards: React.FC = () => {
         </div>
 
         <TradeModeModal
-          visible={modeModalVisible}
-          onClose={() => setModeModalVisible(false)}
+          visible={modeModal.isOpen}
+          onClose={modeModal.close}
           onSendMessage={() => {
-            setModeModalVisible(false);
-            setMessageModalVisible(true);
+            modeModal.close();
+            messageModal.open();
           }}
           onSendCard={async () => {
-            setModeModalVisible(false);
+            modeModal.close();
             await loadMyCardsForTrade();
-            setOfferModalVisible(true);
+            offerModal.open();
           }}
         />
 
         {selectedCardForTrade && (
           <TradeMessageModal
-            visible={messageModalVisible}
-            onClose={() => setMessageModalVisible(false)}
+            visible={messageModal.isOpen}
+            onClose={messageModal.close}
             onSend={handleSendTradeRequest}
             cardImage={selectedCardForTrade.image}
             owners={selectedCardForTrade.owners}
@@ -1078,8 +1091,8 @@ const DiscoverTradeCards: React.FC = () => {
 
         {selectedCardForTrade && (
           <TradeOfferCardModal
-            visible={offerModalVisible}
-            onClose={() => setOfferModalVisible(false)}
+            visible={offerModal.isOpen}
+            onClose={offerModal.close}
             cardImage={selectedCardForTrade.image}
             owners={selectedCardForTrade.owners}
             selectedOwner={selectedOwner}

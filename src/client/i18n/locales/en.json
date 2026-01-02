@@ -37,7 +37,8 @@
     "price": "Price",
     "quantity": "Quantity",
     "estimatedPrice": "Estimated Price",
-    "loading": "Loading cards..."
+    "loading": "Loading cards...",
+    "loadingPrices": "Loading card prices..."
   },
   "createRoom": {
     "title": "Create Room",
@@ -319,7 +320,12 @@
     "placeholderFriend": "Send a message to your friend...",
     "send": "Send",
     "acceptTrade": "Accept Trade",
-    "rejectTrade": "Reject Trade"
+    "rejectTrade": "Reject Trade",
+    "modalErrorTitle": "Error",
+    "modalInfoTitle": "Info",
+    "modalWaitingTitle": "Waiting for confirmation",
+    "modalTradeCompletedTitle": "Trade completed",
+    "modalTradeRejectedTitle": "Trade rejected"
   },
   "tradeReq": {
     "errorReceived": "Error loading received requests.",
@@ -362,6 +368,44 @@
     "errorDelete": "Error deleting trade request.",
     "confirmAcceptTitle": "Accept Request?",
     "confirmRejectTitle": "Reject Request?",
-    "confirmCancelTitle": "Cancel Request?"
+    "confirmCancelTitle": "Cancel Request?",
+    "quickDecision": "Decide",
+    "quickModalTitle": "Quick Trade",
+    "quickModalMessage": "Do you want to accept or reject this trade request?"
+  },
+
+  "tradeModal": {
+    "title": "Send trade message",
+    "subtitle": "Choose a user and write your offer.",
+    "cardAlt": "Card",
+    "chooseUser": "User you want to trade with",
+    "offerLabel": "Message / card you offer",
+    "offerPlaceholder": "Describe the card you offer or the trade terms…",
+    "sendRequest": "Send request",
+    "units": "units",
+    "hintFill": "Select a user and write a message to send the request."
+  },
+  "tradeModeModal": {
+    "title": "Choose trade mode",
+    "subtitle": "How do you want to contact the user?",
+    "sendMessage": "Send message",
+    "sendCard": "Send card",
+    "hint": "You can create a room later from requests if needed."
+  },
+
+  "tradeOfferCardModal": {
+    "title": "Trade for a card",
+    "subtitle": "Choose the user and select one of your cards to offer.",
+    "targetCardAlt": "Target card",
+    "selectUser": "User you want to trade with",
+    "selectYourCard": "Select one of your cards to offer",
+    "noCards": "You have no cards marked for trade.",
+    "send": "Send offer",
+    "page": "Page",
+    "prev": "Previous",
+    "next": "Next",
+    "pickCardAria": "Select this card",
+    "cardNoName": "Card",
+    "units": "({{count}} pcs)"
   }
 }

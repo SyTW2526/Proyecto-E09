@@ -18,10 +18,7 @@ import {
   AuthRequest,
   optionalAuthMiddleware,
 } from '../middleware/authMiddleware.js';
-import {
-  sendSuccess,
-  sendError,
-} from '../utils/responseHelpers.js';
+import { sendSuccess, sendError } from '../utils/responseHelpers.js';
 import {
   findUserByIdentifier,
   validateOwnership,
@@ -65,7 +62,12 @@ userRouter.post('/users/register', async (req: Request, res: Response) => {
     const { username, email, password, confirmPassword } = req.body;
 
     // Validaciones básicas
-    const validation = validateRegistrationInput(username, email, password, confirmPassword);
+    const validation = validateRegistrationInput(
+      username,
+      email,
+      password,
+      confirmPassword
+    );
     if (!validation.valid) {
       return res.status(400).send({ error: validation.error });
     }
@@ -211,8 +213,7 @@ userRouter.patch(
         { new: true }
       );
 
-      if (!user)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!user) return sendError(res, 'Usuario no encontrado', 404);
 
       sendSuccess(res, {
         message: 'Imagen actualizada',
@@ -250,8 +251,7 @@ userRouter.delete(
         { new: true }
       );
 
-      if (!user)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!user) return sendError(res, 'Usuario no encontrado', 404);
 
       sendSuccess(res, {
         message: 'Foto eliminada',
@@ -284,7 +284,12 @@ userRouter.patch(
       if (!user) return sendError(res, 'USER_NOT_FOUND', 404);
 
       // Usar helper para validar cambios de username/email
-      const validation = await validateUsernameEmail(newUsername, newEmail, user.username, user.email);
+      const validation = await validateUsernameEmail(
+        newUsername,
+        newEmail,
+        user.username,
+        user.email
+      );
       if (!validation.valid) {
         return sendError(res, validation.error || 'Validation error', 400);
       }
@@ -358,8 +363,7 @@ userRouter.get(
       } = req.query as any;
 
       const user = await findUserByIdentifier(identifier);
-      if (!user)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!user) return sendError(res, 'Usuario no encontrado', 404);
 
       const skip = (Number(page) - 1) * Number(limit);
 
@@ -403,8 +407,7 @@ userRouter.post(
       const { identifier } = req.params;
 
       const user = await findUserByIdentifier(identifier);
-      if (!user)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!user) return sendError(res, 'Usuario no encontrado', 404);
 
       // sólo el propio usuario puede modificar su colección
       if (!validateOwnership(req.userId, user._id))
@@ -525,8 +528,7 @@ userRouter.post(
       const { setId } = req.body;
 
       const user = await findUserByIdentifier(identifier);
-      if (!user)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!user) return sendError(res, 'Usuario no encontrado', 404);
       if (!validateOwnership(req.userId, user._id))
         return sendError(res, 'No autorizado', 403);
 
@@ -556,7 +558,7 @@ userRouter.post(
 
       // persist PackOpen record
       await PackOpen.create({ userId: user._id });
-      
+
       // consume a token
       await consumePackToken(user);
 
@@ -642,22 +644,23 @@ userRouter.get(
       const { identifier } = req.params;
 
       const user = await findUserByIdentifier(identifier);
-      if (!user)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!user) return sendError(res, 'Usuario no encontrado', 404);
       if (!validateOwnership(req.userId, user._id))
         return sendError(res, 'No autorizado', 403);
 
       // Check if we need to initialize pack tokens
-      const needsInit = typeof (user as any).packTokens !== 'number' || !(user as any).packLastRefill;
-      
+      const needsInit =
+        typeof (user as any).packTokens !== 'number' ||
+        !(user as any).packLastRefill;
+
       // compute token-based status
       const { tokens, nextAllowed } = computePackTokens(user);
-      
+
       // Save if we just initialized
       if (needsInit) {
         await user.save();
       }
-      
+
       // still return count24 for compatibility
       const count24 = await getPackOpenCount24h(PackOpen, user._id);
       return sendSuccess(res, { remaining: tokens, count24, nextAllowed });
@@ -680,8 +683,7 @@ userRouter.post(
       const { code } = req.body || {};
 
       const user = await findUserByIdentifier(identifier);
-      if (!user)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!user) return sendError(res, 'Usuario no encontrado', 404);
       if (!validateOwnership(req.userId, user._id))
         return sendError(res, 'No autorizado', 403);
 
@@ -694,7 +696,9 @@ userRouter.post(
       (user as any).packTokens = 2;
       (user as any).packLastRefill = new Date();
       await user.save();
-      return sendSuccess(res, { message: 'Reset de límites de sobres realizado' });
+      return sendSuccess(res, {
+        message: 'Reset de límites de sobres realizado',
+      });
     } catch (err: any) {
       return sendError(res, err?.message ?? String(err), 500);
     }
@@ -713,8 +717,7 @@ userRouter.patch(
       const { identifier, userCardId } = req.params;
 
       const user = await findUserByIdentifier(identifier);
-      if (!user)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!user) return sendError(res, 'Usuario no encontrado', 404);
       if (!validateOwnership(req.userId, user._id))
         return sendError(res, 'No autorizado', 403);
 
@@ -729,15 +732,13 @@ userRouter.patch(
       ];
       const updates = Object.keys(req.body);
       const valid = updates.every((k) => allowed.includes(k));
-      if (!valid)
-        return sendError(res, 'Actualización no permitida', 400);
+      if (!valid) return sendError(res, 'Actualización no permitida', 400);
 
       const userCard = await UserCard.findOne({
         _id: userCardId,
         userId: user._id,
       });
-      if (!userCard)
-        return sendError(res, 'UserCard no encontrada', 404);
+      if (!userCard) return sendError(res, 'UserCard no encontrada', 404);
 
       updates.forEach((k) => ((userCard as any)[k] = req.body[k]));
       await userCard.save();
@@ -760,8 +761,7 @@ userRouter.delete(
       const { identifier, userCardId } = req.params;
 
       const user = await findUserByIdentifier(identifier);
-      if (!user)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!user) return sendError(res, 'Usuario no encontrado', 404);
       if (!validateOwnership(req.userId, user._id))
         return sendError(res, 'No autorizado', 403);
 
@@ -769,8 +769,7 @@ userRouter.delete(
         _id: userCardId,
         userId: user._id,
       });
-      if (!removed)
-        return sendError(res, 'UserCard no encontrada', 404);
+      if (!removed) return sendError(res, 'UserCard no encontrada', 404);
       sendSuccess(res, { message: 'UserCard eliminada', removed });
     } catch (error) {
       sendError(res, (error as Error).message ?? String(error), 500);
@@ -887,8 +886,7 @@ userRouter.get(
         'username email profileImage'
       );
 
-      if (!user)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!user) return sendError(res, 'Usuario no encontrado', 404);
 
       const requests = user.friendRequests.map((req: any) => ({
         requestId: req._id,
@@ -922,13 +920,16 @@ userRouter.post(
       if (!me) return;
 
       const friend = await findFriendByIdentifier(friendIdentifier);
-      if (!friend)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!friend) return sendError(res, 'Usuario no encontrado', 404);
 
       if (!hasPendingFriendRequest(me, friend._id)) {
-        return sendError(res, 'No había solicitud pendiente de este usuario', 400);
+        return sendError(
+          res,
+          'No había solicitud pendiente de este usuario',
+          400
+        );
       }
-      
+
       addFriendBidirectional(me, friend);
       removeFriendRequest(me, friend._id);
       const notification = await Notification.create({
@@ -977,8 +978,7 @@ userRouter.post(
       if (!me) return;
 
       const friend = await findFriendByIdentifier(friendIdentifier);
-      if (!friend)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!friend) return sendError(res, 'Usuario no encontrado', 404);
 
       removeFriendRequest(me, friend._id);
 
@@ -1013,7 +1013,11 @@ userRouter.get(
         return sendError(res, 'No autenticado', 401);
       }
 
-      const messages = await getChatHistoryBetween(ChatMessage, currentUserId, otherUserId);
+      const messages = await getChatHistoryBetween(
+        ChatMessage,
+        currentUserId,
+        otherUserId
+      );
 
       sendSuccess(res, { messages });
     } catch (error: any) {
@@ -1038,8 +1042,7 @@ userRouter.delete(
       if (!me) return;
 
       const friend = await findFriendByIdentifier(friendIdentifier);
-      if (!friend)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!friend) return sendError(res, 'Usuario no encontrado', 404);
 
       removeFriendBidirectional(me, friend);
       await deleteChatHistoryBetween(ChatMessage, currentUserId, friend._id);
@@ -1095,8 +1098,7 @@ userRouter.delete(
 
       const friend = await findFriendByIdentifier(friendIdentifier);
 
-      if (!friend)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!friend) return sendError(res, 'Usuario no encontrado', 404);
 
       friend.friendRequests = (friend.friendRequests as any).filter(
         (r: any) => r.from.toString() !== currentUserId!.toString()
@@ -1104,7 +1106,9 @@ userRouter.delete(
 
       await friend.save();
 
-      sendSuccess(res, { message: 'Solicitud enviada cancelada correctamente' });
+      sendSuccess(res, {
+        message: 'Solicitud enviada cancelada correctamente',
+      });
     } catch (error: any) {
       sendError(res, error.message, 500);
     }
@@ -1124,13 +1128,11 @@ userRouter.post(
       const currentUserId = req.userId;
 
       const me = await User.findById(currentUserId);
-      if (!me)
-        return sendError(res, 'Usuario actual no encontrado', 404);
+      if (!me) return sendError(res, 'Usuario actual no encontrado', 404);
 
       const friend = await findFriendByIdentifier(friendIdentifier);
 
-      if (!friend)
-        return sendError(res, 'Usuario no encontrado', 404);
+      if (!friend) return sendError(res, 'Usuario no encontrado', 404);
 
       if (friend._id.equals(me._id)) {
         return sendError(res, 'No puedes enviarte solicitud a ti mismo', 400);

@@ -3,6 +3,8 @@ import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
 import api from '../services/apiService';
 import { authService } from '../services/authService';
+import { authenticatedFetch } from '../utils/fetchHelpers';
+import { API_BASE_URL } from '../config/constants';
 import { useTranslation } from 'react-i18next';
 import confetti from 'canvas-confetti';
 import '../styles/open_pack.css';
@@ -161,9 +163,8 @@ const OpenPackPage: React.FC = () => {
       if (!user) return;
 
       try {
-        const resp = await fetch(
-          `http://localhost:3000/users/${encodeURIComponent(user.username || user.id)}/pack-status`,
-          { headers: { ...authService.getAuthHeaders() } }
+        const resp = await authenticatedFetch(
+          `/users/${encodeURIComponent(user.username || user.id)}/pack-status`
         );
 
         if (resp.ok) {
@@ -215,14 +216,10 @@ const OpenPackPage: React.FC = () => {
         return;
       }
 
-      const resp = await fetch(
-        `http://localhost:3000/users/${encodeURIComponent(user.username || user.id)}/open-pack`,
+      const resp = await authenticatedFetch(
+        `/users/${encodeURIComponent(user.username || user.id)}/open-pack`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...authService.getAuthHeaders(),
-          },
           body: JSON.stringify({ setId: selectedSet }),
         }
       );
@@ -244,9 +241,8 @@ const OpenPackPage: React.FC = () => {
 
       setOpenedCards(normalized);
 
-      const statusResp = await fetch(
-        `http://localhost:3000/users/${encodeURIComponent(user.username || user.id)}/pack-status`,
-        { headers: { ...authService.getAuthHeaders() } }
+      const statusResp = await authenticatedFetch(
+        `/users/${encodeURIComponent(user.username || user.id)}/pack-status`
       );
 
       if (statusResp.ok) {
@@ -345,38 +341,61 @@ const OpenPackPage: React.FC = () => {
                     <span style={{ opacity: 0.8 }}>
                       {t('openPack.availableTokens', 'Tokens disponibles')}:
                     </span>{' '}
-                    <strong style={{ fontSize: '1.3em', color: (packStatus.remaining ?? 0) > 0 ? '#4CAF50' : '#f44336' }}>
+                    <strong
+                      style={{
+                        fontSize: '1.3em',
+                        color:
+                          (packStatus.remaining ?? 0) > 0
+                            ? '#4CAF50'
+                            : '#f44336',
+                      }}
+                    >
                       {packStatus.remaining ?? 0} / 2
                     </strong>
                   </div>
-                  
+
                   {(packStatus.remaining ?? 0) < 2 && timeUntilNext && (
-                    <div style={{ 
-                      fontSize: '0.95em', 
-                      opacity: 0.9,
-                      padding: '8px 12px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      borderRadius: '8px',
-                      marginTop: '8px'
-                    }}>
+                    <div
+                      style={{
+                        fontSize: '0.95em',
+                        opacity: 0.9,
+                        padding: '8px 12px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        borderRadius: '8px',
+                        marginTop: '8px',
+                      }}
+                    >
                       <div>
                         {t('openPack.nextTokenIn', 'Próximo token en')}:{' '}
-                        <strong style={{ color: '#FFB74D' }}>{timeUntilNext}</strong>
+                        <strong style={{ color: '#FFB74D' }}>
+                          {timeUntilNext}
+                        </strong>
                       </div>
                       {packStatus.remaining === 0 && (
-                        <small style={{ opacity: 0.7, display: 'block', marginTop: '4px' }}>
-                          {t('openPack.noTokensAvailable', 'No tienes tokens disponibles')}
+                        <small
+                          style={{
+                            opacity: 0.7,
+                            display: 'block',
+                            marginTop: '4px',
+                          }}
+                        >
+                          {t(
+                            'openPack.noTokensAvailable',
+                            'No tienes tokens disponibles'
+                          )}
                         </small>
                       )}
                     </div>
                   )}
-                  
+
                   {packStatus.remaining === 2 && (
-                    <div style={{ 
-                      fontSize: '0.9em', 
-                      opacity: 0.7,
-                      marginTop: '4px'
-                    }}>
+                    <div
+                      style={{
+                        fontSize: '0.9em',
+                        opacity: 0.7,
+                        marginTop: '4px',
+                      }}
+                    >
                       {t('openPack.maxTokens', 'Tienes el máximo de tokens')}
                     </div>
                   )}

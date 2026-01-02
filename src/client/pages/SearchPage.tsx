@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
+import { normalizeImageUrl } from '../utils/imageHelpers';
 import '../styles/collection.css';
 import api from '../services/apiService';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +14,7 @@ import {
 import { authService } from '../services/authService';
 import { RootState, AppDispatch } from '../store/store';
 import { useSearchParams } from 'react-router-dom';
+import { useLoadingError } from '../hooks';
 
 const PAGE_SIZE = 12;
 
@@ -38,7 +40,7 @@ const SearchPage: React.FC = () => {
   const [results, setResults] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const { loading, error, startLoading, stopLoading, handleError } = useLoadingError();
   const [selectedSet, setSelectedSet] = useState('');
   const [selectedRarity, setSelectedRarity] = useState('');
   const [allSets, setAllSets] = useState<Array<{ id: string; name: string }>>(
@@ -68,28 +70,6 @@ const SearchPage: React.FC = () => {
     setWishlistSet(s);
   }, [wishlistState]);
 
-  function normalizeImageUrl(url?: string) {
-    if (!url) return '';
-    let s = String(url);
-    
-    // Correct malformed TCGdex URLs (missing series component)
-    const tcgdexMatch = s.match(/^(https?:\/\/assets\.tcgdex\.net\/)(?:jp|en)\/([a-z0-9.]+)\/(.+)$/i);
-    if (tcgdexMatch) {
-      const [, baseUrl, setCode, rest] = tcgdexMatch;
-      const seriesMatch = setCode.match(/^([a-z]+)/i);
-      if (seriesMatch) {
-        const series = seriesMatch[1].toLowerCase();
-        s = `${baseUrl}en/${series}/${setCode.toLowerCase()}/${rest}`;
-      }
-    }
-    
-    // Normalize quality to high
-    if (/\/(?:small|large|high|low)\.png$/i.test(s))
-      return s.replace(/\/(?:small|large|high|low)\.png$/i, '/high.png');
-    if (/\.(png|jpg|jpeg|gif|webp)$/i.test(s)) return s;
-    return s.endsWith('/') ? `${s}high.png` : `${s}/high.png`;
-  }
-
   useEffect(() => {
     const load = async () => {
       if (!query) {
@@ -97,7 +77,7 @@ const SearchPage: React.FC = () => {
         setTotal(0);
         return;
       }
-      setLoading(true);
+      startLoading();
       try {
         const resp = await api.searchTcgCards(
           query,
@@ -109,9 +89,11 @@ const SearchPage: React.FC = () => {
         setResults(resp.data || []);
         setTotal(resp.total || 0);
       } catch (e) {
-        // ignore
+        handleError(e);
+        setResults([]);
+        setTotal(0);
       } finally {
-        setLoading(false);
+        stopLoading();
       }
     };
     load();
@@ -257,6 +239,10 @@ const SearchPage: React.FC = () => {
 
         {loading ? (
           <div className="collection-empty">{t('common.loading')}</div>
+        ) : error ? (
+          <div className="collection-empty" style={{ color: 'var(--error-color)' }}>
+            {error}
+          </div>
         ) : results.length === 0 ? (
           <div className="collection-empty">{t('common.noResults')}</div>
         ) : (

@@ -1,7 +1,7 @@
 /**
  * @file friendHelpers.ts
  * @description Helpers para operaciones de amigos (friends management)
- * 
+ *
  * Centraliza la lógica de:
  * - Gestión de solicitudes de amistad
  * - Operaciones bidireccionales de amigos

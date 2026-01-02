@@ -4,7 +4,7 @@
  *
  * Este es el modelo base que contiene todos los campos comunes a todas las cartas.
  * Usa el patrón discriminator de Mongoose para soportar herencia con una sola colección.
- * 
+ *
  * Los modelos PokemonCard, TrainerCard y EnergyCard heredan de este modelo base
  * y añaden campos específicos de cada categoría.
  *
@@ -100,7 +100,7 @@ cardSchema.index({ set: 1, cardNumber: 1 });
 /**
  * Modelo BASE de Carta exportado
  * Los discriminators (PokemonCard, TrainerCard, EnergyCard) heredan de este modelo
- * 
+ *
  * @type {mongoose.Model}
  */
 export const Card = mongoose.model('Card', cardSchema);

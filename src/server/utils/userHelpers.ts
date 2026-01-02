@@ -1,7 +1,7 @@
 /**
  * @file userHelpers.ts
  * @description Utilidades para operaciones comunes con usuarios
- * 
+ *
  * Centraliza lógica repetitiva de búsqueda y validación de usuarios
  */
 
@@ -12,7 +12,7 @@ import { sendError } from './responseHelpers.js';
 
 /**
  * Busca un usuario por ID o username
- * 
+ *
  * @param identifier - ID de MongoDB o username del usuario
  * @returns Usuario encontrado o null
  */
@@ -22,41 +22,44 @@ export async function findUserByIdentifier(identifier: string) {
     const userById = await User.findById(identifier);
     if (userById) return userById;
   }
-  
+
   // Buscar por username
   return await User.findOne({ username: identifier });
 }
 
 /**
  * Busca un usuario y envía error 404 si no existe
- * 
+ *
  * @param identifier - ID o username
  * @param res - Response object de Express
  * @returns Usuario encontrado o null (con respuesta enviada)
  */
 export async function findUserOrFail(identifier: string, res: Response) {
   const user = await findUserByIdentifier(identifier);
-  
+
   if (!user) {
     sendError(res, 'Usuario no encontrado', 404);
     return null;
   }
-  
+
   return user;
 }
 
 /**
  * Verifica si un username o email ya están en uso
- * 
+ *
  * @param username - Username a verificar
  * @param email - Email a verificar
  * @returns true si ya existe, false si está disponible
  */
-export async function checkUserExists(username: string, email: string): Promise<boolean> {
+export async function checkUserExists(
+  username: string,
+  email: string
+): Promise<boolean> {
   const existing = await User.findOne({
     $or: [{ username }, { email }],
   });
-  
+
   return !!existing;
 }
 
@@ -66,11 +69,11 @@ export async function checkUserExists(username: string, email: string): Promise<
  */
 export function sanitizeUserData(user: any) {
   const sanitized: any = user.toObject ? user.toObject() : { ...user };
-  
+
   // Eliminar campos sensibles
   delete sanitized.password;
   delete sanitized.__v;
-  
+
   return {
     id: sanitized._id,
     username: sanitized.username,
@@ -92,7 +95,7 @@ export function isValidCollectionType(type: any): boolean {
 /**
  * NUEVA FUNCIÓN: Obtiene las cartas paginadas de un usuario con filtros
  * Consolida la lógica repetida de los 3 endpoints GET de usercard.ts
- * 
+ *
  * @param username - Username del usuario
  * @param filter - Filtro adicional (ej: { collectionType: 'collection' })
  * @param options - { page, limit, forTrade? }
@@ -123,7 +126,10 @@ export async function getUserCardsPaginated(
 
   // Ejecutar query con populate
   let query = UserCard.find(filter)
-    .populate('cardId', 'name images rarity set price pokemonTcgId category supertype series illustrator hp types attacks abilities')
+    .populate(
+      'cardId',
+      'name images rarity set price pokemonTcgId category supertype series illustrator hp types attacks abilities'
+    )
     .sort({ createdAt: -1 });
 
   if (skip) query = query.skip(skip);
@@ -148,17 +154,14 @@ export async function getUserCardsPaginated(
  * @param resourceUserId - ID del usuario propietario del recurso
  * @returns true si el usuario es propietario, false si no
  */
-export function validateOwnership(
-  userId: any,
-  resourceUserId: any
-): boolean {
+export function validateOwnership(userId: any, resourceUserId: any): boolean {
   return userId?.toString() === resourceUserId?.toString();
 }
 
 /**
  * Busca un amigo por ID o username (alias para findUserByIdentifier)
  * Se usa en endpoints de amigos para mayor claridad semántica
- * 
+ *
  * @param identifier - ID de MongoDB o username
  * @returns Usuario encontrado o null
  */
@@ -177,12 +180,12 @@ export async function getCurrentUserOrFail(userId: any, res?: Response) {
     if (res) sendError(res, 'No autenticado', 401);
     return null;
   }
-  
+
   const user = await User.findById(userId);
   if (!user && res) {
     sendError(res, 'Usuario actual no encontrado', 404);
     return null;
   }
-  
+
   return user;
 }

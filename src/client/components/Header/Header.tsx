@@ -86,10 +86,16 @@ const Header: React.FC = () => {
 
   const onSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchOpen(false);
-      setSearchResults([]);
+      handleSearch();
     }
+  };
+
+  const handleSearch = () => {
+    const trimmed = searchQuery.trim();
+    if (!trimmed) return;
+    navigate(`/search?q=${encodeURIComponent(trimmed)}`);
+    setSearchOpen(false);
+    setSearchResults([]);
   };
 
   const handleCardSelect = (card: any) => {
@@ -230,6 +236,16 @@ const Header: React.FC = () => {
               aria-expanded={searchOpen}
               aria-autocomplete="list"
             />
+            {searchQuery.trim() && (
+              <button
+                onClick={handleSearch}
+                className="search__button"
+                aria-label={t('header.searchButton', 'Buscar')}
+                title={t('header.searchButton', 'Buscar')}
+              >
+                <Search size={18} />
+              </button>
+            )}
           </div>
 
           {searchOpen && searchQuery.trim() && (

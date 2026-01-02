@@ -40,30 +40,64 @@ export function initSocket() {
   const token = localStorage.getItem('token');
   if (!token) return null;
 
-  /**
-   * Socket.io se conecta con autenticación por JWT
-   * El token se envía en el handshake
-   */
-  socket = io(API_BASE_URL, {
-    auth: { token },
-    transports: ['websocket'],
-  });
-  /**
-   * Evento de conexión exitosa
-   * Se dispara cuando se establece la conexión con el servidor
-   */
-  socket.on('connect', () => {
-    console.log('Socket conectado:', socket.id);
-  });
-  /**
-   * Evento de desconexión
-   * Se dispara cuando se pierde la conexión con el servidor
-   */
-  socket.on('disconnect', () => {
-    console.log('Socket desconectado');
-    socket = null;
-  });
-  return socket;
+  try {
+    /**
+     * Socket.io se conecta con autenticación por JWT
+     * El token se envía en el handshake
+     * autoConnect: false para conectar manualmente
+     */
+    socket = io(API_BASE_URL, {
+      auth: { token },
+      transports: ['websocket'],
+      reconnection: true,
+      reconnectionAttempts: 3,
+      reconnectionDelay: 1000,
+      timeout: 5000,
+      autoConnect: false, // No conectar automáticamente
+    });
+    
+    /**
+     * Evento de conexión exitosa
+     * Se dispara cuando se establece la conexión con el servidor
+     */
+    socket.on('connect', () => {
+      console.log('Socket conectado:', socket.id);
+    });
+    
+    /**
+     * Evento de desconexión
+     * Se dispara cuando se pierde la conexión con el servidor
+     */
+    socket.on('disconnect', () => {
+      console.log('Socket desconectado');
+    });
+    
+    /**
+     * Evento de error de conexión
+     * Se dispara cuando hay un error al conectar
+     */
+    socket.on('connect_error', (error: Error) => {
+      console.warn('Error de conexión Socket.io:', error.message);
+      // No lanzar el error, solo loguearlo
+    });
+    
+    /**
+     * Evento de error general
+     * Se dispara cuando hay un error en el socket
+     */
+    socket.on('error', (error: Error) => {
+      console.warn('Error en Socket.io:', error.message);
+      // No lanzar el error, solo loguearlo
+    });
+    
+    // Conectar manualmente
+    socket.connect();
+    
+    return socket;
+  } catch (error) {
+    console.warn('No se pudo inicializar Socket.io:', error);
+    return null;
+  }
 }
 
 /**

@@ -24,24 +24,44 @@ export function normalizeImageUrl(url?: string): string {
   if (!url) return '';
   let s = String(url);
 
-  // Detectar URLs de TCGdex
+  // Si ya tiene extensión de imagen válida, retornar como está
+  if (/\.(png|jpg|jpeg|gif|webp)$/i.test(s)) return s;
+
+  // Detectar URLs de TCGdex sin extensión
   const tcgdexUrlPattern = /^(https?:\/\/assets\.tcgdex\.net\/)(.+)$/i;
   const tcgdexMatch = s.match(tcgdexUrlPattern);
   
   if (tcgdexMatch) {
     const [, baseUrl, path] = tcgdexMatch;
     
-    // Intentar detectar formato con 3 segmentos: lang/serie/setCode/resto
-    const threeSegmentPattern = /^(?:jp|en)\/([a-z]+)\/([a-z]+\d+)\/(.+)$/i;
+    // Mapa de setCode prefijos a series correctas
+    const seriesMap: Record<string, string> = {
+      'det': 'sm',    // Detective Pikachu es parte de Sun & Moon
+      'cel': 'swsh',  // Celebrations es parte de Sword & Shield
+      'pl': 'pl',     // Platinum
+      'dp': 'dp',     // Diamond & Pearl
+      'ex': 'ex',     // EX series
+      'gym': 'gym',   // Gym series
+      'base': 'base', // Base set
+      'lc': 'base',   // Legendary Collection es base
+      'sm': 'sm',     // Sun & Moon
+      'xy': 'xy',     // XY
+      'bw': 'bw',     // Black & White
+      'swsh': 'swsh', // Sword & Shield
+    };
+    
+    // Intentar detectar formato con 3 segmentos: lang/serie/setCode/cardNumber
+    const threeSegmentPattern = /^(?:jp|en)\/([a-z]+)\/([a-z]+\d*[a-z]*)\/(\S+)$/i;
     const threeSegmentMatch = path.match(threeSegmentPattern);
     
     if (threeSegmentMatch) {
-      // Ya tiene formato de 3 segmentos - verificar si la serie es correcta
+      // Ya tiene formato de 3 segmentos - validar la serie
       const [, currentSeries, setCode, rest] = threeSegmentMatch;
-      const correctSeries = setCode.match(/^([a-z]+)/i)?.[1].toLowerCase();
+      const setPrefix = setCode.match(/^([a-z]+)/i)?.[1].toLowerCase();
+      const correctSeries = setPrefix ? seriesMap[setPrefix] || setPrefix : currentSeries;
       
       if (correctSeries && currentSeries.toLowerCase() !== correctSeries) {
-        // Serie incorrecta - corregir (ej: ba/base1 → base/base1)
+        // Serie incorrecta - corregir
         s = `${baseUrl}en/${correctSeries}/${setCode.toLowerCase()}/${rest}`;
       } else {
         // Serie correcta - solo asegurar idioma inglés
@@ -63,14 +83,19 @@ export function normalizeImageUrl(url?: string): string {
     }
   }
 
-  // Normalizar calidad a high
-  if (/\/(?:small|large|high|low)\.png$/i.test(s)) {
-    return s.replace(/\/(?:small|large|high|low)\.png$/i, '/high.png');
-  }
-  
-  // Si ya tiene extensión, retornar como está
+  // Si ya tiene extensión de imagen, retornar como está
   if (/\.(png|jpg|jpeg|gif|webp)$/i.test(s)) return s;
   
-  // Si no tiene extensión, agregar /high.png
-  return s.endsWith('/') ? `${s}high.png` : `${s}/high.png`;
+  // Para URLs de TCGdex sin extensión, agregar /high.png
+  // Las URLs de TCGdex como https://assets.tcgdex.net/en/pl/pl4/1 necesitan /high.png
+  if (/assets\.tcgdex\.net/.test(s) && !s.endsWith('/')) {
+    return `${s}/high.png`;
+  }
+  
+  // Para otras URLs, si termina con /, agregar high.png
+  if (s.endsWith('/')) {
+    return `${s}high.png`;
+  }
+  
+  return s;
 }

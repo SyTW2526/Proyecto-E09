@@ -98,7 +98,7 @@ const CreateRoomPage: React.FC = () => {
     };
 
     if (userId) loadAll();
-    else setLoading(false);
+    else stopLoading();
   }, [userId]);
 
   const filteredFriends = useMemo(() => {

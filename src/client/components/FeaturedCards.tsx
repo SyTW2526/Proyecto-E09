@@ -59,7 +59,7 @@ const FeaturedCards: React.FC = () => {
       startLoading();
       
       try {
-        setLoading(true);
+        startLoading();
 
         // Usar el nuevo endpoint /cards/featured que obtiene cartas directamente de TCGdex
         const resp = await fetch(`${API_BASE_URL}/cards/featured`);

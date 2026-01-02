@@ -888,7 +888,7 @@ const TradeRequestsPage: React.FC = () => {
                 onClick={async () => {
                   const id = quickDecision.requestId;
                   setQuickDecision(null);
-                  await handleOpenRoom(id);
+                  // await handleOpenRoom(id);
                 }}
               >
                 {t('tradeReq.openRoom', 'Crear sala')}

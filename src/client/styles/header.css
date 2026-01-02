@@ -228,6 +228,30 @@
   font-weight: 700;
 }
 
+.search__button {
+  background: var(--primary-500, #3078d3);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.search__button:hover {
+  background: var(--primary-600, #2563eb);
+  transform: scale(1.05);
+}
+
+.search__button:active {
+  transform: scale(0.98);
+}
+
 .dropdown {
   position: relative;
 }

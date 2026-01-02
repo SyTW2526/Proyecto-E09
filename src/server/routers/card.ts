@@ -243,11 +243,18 @@ cardRouter.get('/cards/search/tcg', async (req, res) => {
     if (set) filters.set = set;
     if (rarity) filters.rarity = rarity;
 
+    console.log('[SEARCH] Searching TCGdex with filters:', filters);
+
     const apiResp = await (
       await import('../services/pokemon.js')
     ).searchCards(filters);
+    
+    console.log('[SEARCH] TCGdex response:', JSON.stringify(apiResp).substring(0, 200));
+    
     const raw = apiResp.data ?? apiResp;
     const cards = Array.isArray(raw) ? raw : (raw.cards ?? raw.data ?? []);
+
+    console.log('[SEARCH] Extracted cards count:', cards.length);
 
     // Usar función reutilizable para normalizar cartas
     const normalized = (cards || []).map(normalizeSearchCard);
@@ -259,9 +266,12 @@ cardRouter.get('/cards/search/tcg', async (req, res) => {
     const start = (p - 1) * l;
     const pageItems = normalized.slice(start, start + l);
 
+    console.log('[SEARCH] Returning', pageItems.length, 'of', total, 'cards');
+
     return sendSuccess(res, { data: pageItems, total, page: p, limit: l });
   } catch (err: any) {
-    console.error('Error in /cards/search/tcg:', err);
-    return sendError(res, err);
+    console.error('[SEARCH ERROR] Error in /cards/search/tcg:', err.message);
+    console.error('[SEARCH ERROR] Stack:', err.stack);
+    return sendError(res, 'Error searching TCGdex: ' + err.message, 500);
   }
 });

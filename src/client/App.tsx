@@ -36,29 +36,33 @@ const App: React.FC = () => {
     }
   }, [dispatch]);
 
+  // Socket.io se inicializa bajo demanda en las páginas que lo necesiten (TradePage, FriendsPage)
+  // No lo inicializamos aquí para evitar errores si el servidor no está disponible
+  
   useEffect(() => {
-    initSocket();
-  }, []);
+    try {
+      const s = getSocket();
+      if (!s) return;
+      
+      const handler = (notification: any) => {
+        dispatch(addNotification(notification));
+        window.dispatchEvent(
+          new CustomEvent('toast', {
+            detail: {
+              title: notification.title,
+              message: notification.message,
+            },
+          })
+        );
+      };
 
-  useEffect(() => {
-    const s = getSocket();
-    if (!s) return;
-    const handler = (notification: any) => {
-      dispatch(addNotification(notification));
-      window.dispatchEvent(
-        new CustomEvent('toast', {
-          detail: {
-            title: notification.title,
-            message: notification.message,
-          },
-        })
-      );
-    };
-
-    s.on('notification', handler);
-    return () => {
-      s.off('notification', handler);
-    };
+      s.on('notification', handler);
+      return () => {
+        s.off('notification', handler);
+      };
+    } catch (error) {
+      console.warn('Error al configurar listener de notificaciones:', error);
+    }
   }, [dispatch]);
 
   useEffect(() => {

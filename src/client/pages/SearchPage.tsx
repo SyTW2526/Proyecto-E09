@@ -149,19 +149,23 @@ const SearchPage: React.FC = () => {
       if (s && s.id) map.set(s.id, s.name || s.id);
     });
     // then overwrite/augment from current results
-    results.forEach((r) => {
-      const id = r.setId || r.set || '';
-      const name = r.set || '';
-      if (id) map.set(id, name || id);
-    });
+    if (Array.isArray(results)) {
+      results.forEach((r) => {
+        const id = r.setId || r.set || '';
+        const name = r.set || '';
+        if (id) map.set(id, name || id);
+      });
+    }
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
-  }, [results]);
+  }, [results, allSets]);
 
   const raritiesOptions = useMemo(() => {
     const s = new Set<string>();
-    results.forEach((r) => {
-      if (r.rarity) s.add(r.rarity);
-    });
+    if (Array.isArray(results)) {
+      results.forEach((r) => {
+        if (r.rarity) s.add(r.rarity);
+      });
+    }
     const arr = Array.from(s).filter(Boolean);
     // fallback to canonical list when none discovered in results
     const fallback = RARITY_ORDER.slice();
@@ -182,10 +186,10 @@ const SearchPage: React.FC = () => {
   }, [results]);
 
   return (
-    <div className="collection-page">
+    <div className="collectionPage">
       <Header />
-      <div className="collection-inner">
-        <div className="collection-controls">
+      <div className="collectionMain">
+        <div className="collectionToolbar" style={{ flexDirection: 'column', gap: '1rem', alignItems: 'stretch' }}>
           <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
             <h2 style={{ margin: 0 }}>{t('common.searchCards')}</h2>
             <p
@@ -199,7 +203,7 @@ const SearchPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="collection-filters">
+          <div className="toolbarRightGroup">
             <input
               placeholder={t('common.searchPlaceholder')}
               value={query}
@@ -238,16 +242,23 @@ const SearchPage: React.FC = () => {
         </div>
 
         {loading ? (
-          <div className="collection-empty">{t('common.loading')}</div>
+          <div style={{ textAlign: 'center', padding: '40px', fontSize: '18px' }}>{t('common.loading')}</div>
         ) : error ? (
-          <div className="collection-empty" style={{ color: 'var(--error-color)' }}>
+          <div style={{ textAlign: 'center', padding: '40px', fontSize: '18px', color: 'var(--error-color)' }}>
             {error}
           </div>
-        ) : results.length === 0 ? (
-          <div className="collection-empty">{t('common.noResults')}</div>
+        ) : !Array.isArray(results) || results.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px', fontSize: '18px' }}>{t('common.noResults')}</div>
         ) : (
-          <div className="collection-grid">
-            {results.map((c: any) => {
+          <div className="cardsGrid">
+            {results
+              .filter((c: any) => {
+                // Filtrar cartas sin imagen válida
+                const rawImage = (c.images && (c.images.large || c.images.small)) || '';
+                const image = normalizeImageUrl(rawImage) || (c.imageUrl ? normalizeImageUrl(c.imageUrl) : '');
+                return image && image.endsWith('/high.png'); // Solo mostrar si tiene URL completa
+              })
+              .map((c: any) => {
               const isFlipped = hoveredId === c.id;
               const rawImage =
                 (c.images && (c.images.large || c.images.small)) || '';
@@ -255,9 +266,9 @@ const SearchPage: React.FC = () => {
                 normalizeImageUrl(rawImage) ||
                 (c.imageUrl ? normalizeImageUrl(c.imageUrl) : '');
               return (
-                <div key={c.id} className="collection-card">
+                <div key={c.id} className="cardTileBig">
                   <div
-                    className={`card-flip ${isFlipped ? 'is-flipped' : ''}`}
+                    className={`flipCard ${isFlipped ? 'isFlipped' : ''}`}
                     onMouseEnter={async () => {
                       setHoveredId(c.id);
                       if (hoverDetails[c.id]) return;
@@ -333,37 +344,37 @@ const SearchPage: React.FC = () => {
                     }}
                     onMouseLeave={() => setHoveredId(null)}
                   >
-                    <div className="card-front">
-                      <img src={image} alt={c.name} />
+                    <div className="flipFace flipFront">
+                      <div className="cardImageWrap">
+                        <img src={image} alt={c.name} />
+                      </div>
                     </div>
-                    <div className="card-back">
-                      <div className="card-back-inner collection-back-inner">
-                        <h3 className="back-name collection-back-name">
-                          {c.name}
-                        </h3>
-                        <div className="back-row collection-back-row">
-                          <div className="back-label">{t('common.rarity')}</div>
-                          <div className="back-value">
+                    <div className="flipFace flipBack">
+                      <div className="backBody">
+                        <h3 className="backTitle">{c.name}</h3>
+                        <div className="backRow">
+                          <div className="backLabel">{t('common.rarity')}</div>
+                          <div className="backValue">
                             {hoverDetails[c.id]?.rarity || c.rarity || '—'}
                           </div>
                         </div>
-                        <div className="back-row collection-back-row">
-                          <div className="back-label">{t('common.set')}</div>
-                          <div className="back-value">
+                        <div className="backRow">
+                          <div className="backLabel">{t('common.set')}</div>
+                          <div className="backValue">
                             {hoverDetails[c.id]?.set || c.set || '—'}
                           </div>
                         </div>
-                        <div className="back-row collection-back-row">
-                          <div className="back-label">
+                        <div className="backRow">
+                          <div className="backLabel">
                             {t('common.illustrator')}
                           </div>
-                          <div className="back-value">
+                          <div className="backValue">
                             {(hoverDetails[c.id] &&
                               hoverDetails[c.id].illustrator) ||
                               '—'}
                           </div>
                         </div>
-                        <div className="back-price collection-back-price">
+                        <div className="backPrice">
                           {hoverDetails[c.id] ? (
                             (() => {
                               const d = hoverDetails[c.id];
@@ -374,7 +385,7 @@ const SearchPage: React.FC = () => {
                                 d?.cardmarketAvg ??
                                 null;
                               return (
-                                <div className="price-grid collection-price-grid">
+                                <div className="priceGrid">
                                   <div style={{ fontWeight: 700 }}>
                                     {t('common.average')}:
                                   </div>
@@ -438,14 +449,14 @@ const SearchPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="card-name">{c.name}</div>
+                  <div className="cardCaption">{c.name}</div>
                 </div>
               );
             })}
           </div>
         )}
 
-        <div className="collection-pagination">
+        <div className="collectionPagination">
           <button
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}

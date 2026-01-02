@@ -27,7 +27,7 @@ import {
   UserOwnedCard,
 } from '../types';
 import { authService } from './authService';
-import { API_BASE_URL } from '../config/constants';
+import { API_BASE_URL, TCGDEX_API_URL } from '../config/constants';
 
 /**
  * URL base de la API local del servidor
@@ -126,7 +126,11 @@ class ApiService {
         `${API_BASE_URL}/cards/search/tcg?${params.toString()}`
       );
       if (!res.ok) throw new Error('Error searching TCGdex');
-      return await res.json();
+      const response = await res.json();
+      console.log('searchTcgCards response:', response);
+      // El servidor devuelve { success: true, data: { data: [...], total, page, limit } }
+      // Necesitamos extraer el objeto data interno
+      return response.data || response;
     } catch (err) {
       console.error('Error searchTcgCards:', err);
       return { data: [], total: 0, page, limit };
@@ -179,7 +183,7 @@ class ApiService {
 
   async fetchFromTcgDex(endpoint: string): Promise<any> {
     try {
-      const res = await fetch(`${TCGDEX_URL}/${endpoint}`);
+      const res = await fetch(`${TCGDEX_API_URL}/${endpoint}`);
       if (!res.ok) throw new Error('Error al conectar con TCGdex');
       return await res.json();
     } catch (err) {

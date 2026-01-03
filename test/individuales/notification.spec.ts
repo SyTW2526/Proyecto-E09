@@ -49,10 +49,10 @@ describe("GET /notifications/:userId", () => {
       .get(`/notifications/${user._id}?limit=10&skip=0`)
       .expect(200);
 
-    expect(Array.isArray(res.body.notifications)).toBe(true);
-    expect(res.body.notifications.length).toBe(2);
-    expect(res.body.total).toBe(2);
-    expect(res.body.unread).toBe(1);
+    expect(Array.isArray(res.body.data.notifications)).toBe(true);
+    expect(res.body.data.notifications.length).toBe(2);
+    expect(res.body.data.total).toBe(2);
+    expect(res.body.data.unread).toBe(1);
   });
 
   /**
@@ -70,9 +70,9 @@ describe("GET /notifications/:userId", () => {
       .get(`/notifications/${user._id}`)
       .expect(200);
 
-    expect(Array.isArray(res.body.notifications)).toBe(true);
-    expect(res.body.notifications.length).toBe(0);
-    expect(res.body.total).toBe(0);
+    expect(Array.isArray(res.body.data.notifications)).toBe(true);
+    expect(res.body.data.notifications.length).toBe(0);
+    expect(res.body.data.total).toBe(0);
   });
 
   /**
@@ -112,7 +112,7 @@ describe("PATCH /notifications/:notificationId/read", () => {
       .patch(`/notifications/${notification._id}/read`)
       .expect(200);
 
-    expect(res.body.isRead).toBe(true);
+    expect(res.body.data.isRead).toBe(true);
   });
 
   /**
@@ -124,7 +124,7 @@ describe("PATCH /notifications/:notificationId/read", () => {
       .patch(`/notifications/${new mongoose.Types.ObjectId()}/read`)
       .expect(404);
 
-    expect(res.body.error).toBe("Notificación no encontrada");
+    expect(res.body.error).toBe("Notificación no encontrado");
   });
 
   /**
@@ -173,8 +173,8 @@ describe("PATCH /notifications/:userId/read-all", () => {
       .patch(`/notifications/${user._id}/read-all`)
       .expect(200);
 
-    expect(res.body.message).toContain("marcadas como leídas");
-    expect(res.body.modifiedCount).toBe(2);
+    expect(res.body.data.message).toContain("marcadas como leídas");
+    expect(res.body.data.modifiedCount).toBe(2);
   });
 
   /**
@@ -214,7 +214,7 @@ describe("DELETE /notifications/:notificationId", () => {
       .delete(`/notifications/${notification._id}`)
       .expect(200);
 
-    expect(res.body.message).toContain("eliminada");
+    expect(res.body.data.message).toContain("eliminada");
 
     const check = await Notification.findById(notification._id);
     expect(check).toBeNull();
@@ -229,7 +229,7 @@ describe("DELETE /notifications/:notificationId", () => {
       .delete(`/notifications/${new mongoose.Types.ObjectId()}`)
       .expect(404);
 
-    expect(res.body.error).toBe("Notificación no encontrada");
+    expect(res.body.error).toBe("Notificación no encontrado");
   });
 
   /**

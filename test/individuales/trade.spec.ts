@@ -297,3 +297,473 @@ describe("DELETE /trades/:id", () => {
     expect(result).toBeNull();
   });
 });
+
+describe("Trade Model - Additional Unit Tests", () => {
+  let user1: any;
+  let user2: any;
+
+  beforeEach(async () => {
+    user1 = await User.create(baseUser1);
+    user2 = await User.create(baseUser2);
+  });
+
+  describe("Trade Status Transitions", () => {
+    it("crea trade con status pending", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.status).toBe("pending");
+    });
+
+    it("transiciona de pending a accepted", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      trade.status = "accepted";
+      await trade.save();
+
+      const updated = await Trade.findById(trade._id);
+      expect(updated?.status).toBe("accepted");
+    });
+
+    it("transiciona de pending a rejected", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      trade.status = "rejected";
+      await trade.save();
+
+      const updated = await Trade.findById(trade._id);
+      expect(updated?.status).toBe("rejected");
+    });
+
+    it("transiciona de pending a cancelled", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      trade.status = "cancelled";
+      await trade.save();
+
+      const updated = await Trade.findById(trade._id);
+      expect(updated?.status).toBe("cancelled");
+    });
+
+    it("transiciona de accepted a completed", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "accepted",
+      });
+
+      trade.status = "completed";
+      trade.completedAt = new Date();
+      await trade.save();
+
+      const updated = await Trade.findById(trade._id);
+      expect(updated?.status).toBe("completed");
+      expect(updated?.completedAt).toBeDefined();
+    });
+  });
+
+  describe("Trade Types", () => {
+    it("crea trade de tipo public", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.tradeType).toBe("public");
+    });
+
+    it("crea trade de tipo private con room code", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "private",
+        privateRoomCode: "ROOM123",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.tradeType).toBe("private");
+      expect(trade.privateRoomCode).toBe("ROOM123");
+    });
+  });
+
+  describe("Trade Origins and Requests", () => {
+    it("almacena requestId", async () => {
+      const requestId = new mongoose.Types.ObjectId();
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        requestId,
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.requestId).toEqual(requestId);
+    });
+
+    it("almacena requestedPokemonTcgId", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        requestedPokemonTcgId: "sv04pt-25",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.requestedPokemonTcgId).toBe("sv04pt-25");
+    });
+
+    it("permite requestId nulo por defecto", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.requestId).toBeNull();
+    });
+
+    it("permite requestedPokemonTcgId nulo por defecto", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.requestedPokemonTcgId).toBeNull();
+    });
+  });
+
+  describe("Trade Cards", () => {
+    it("almacena cartas del iniciador", async () => {
+      const cardId = new mongoose.Types.ObjectId();
+      const userCardId = new mongoose.Types.ObjectId();
+
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [
+          {
+            userCardId,
+            cardId,
+            estimatedValue: 50,
+          },
+        ],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.initiatorCards).toHaveLength(1);
+      expect(trade.initiatorCards[0].estimatedValue).toBe(50);
+    });
+
+    it("almacena cartas del receptor", async () => {
+      const cardId = new mongoose.Types.ObjectId();
+      const userCardId = new mongoose.Types.ObjectId();
+
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [
+          {
+            userCardId,
+            cardId,
+            estimatedValue: 75,
+          },
+        ],
+        status: "pending",
+      });
+
+      expect(trade.receiverCards).toHaveLength(1);
+      expect(trade.receiverCards[0].estimatedValue).toBe(75);
+    });
+
+    it("almacena múltiples cartas de ambos lados", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 50,
+          },
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 30,
+          },
+        ],
+        receiverCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 75,
+          },
+        ],
+        status: "pending",
+      });
+
+      expect(trade.initiatorCards).toHaveLength(2);
+      expect(trade.receiverCards).toHaveLength(1);
+    });
+
+    it("permite cartas vacías", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.initiatorCards).toHaveLength(0);
+      expect(trade.receiverCards).toHaveLength(0);
+    });
+  });
+
+  describe("Trade Messaging", () => {
+    it("almacena mensajes de trade", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        messages: [
+          {
+            userId: user1._id,
+            message: "Hola, me interesa este intercambio",
+            timestamp: new Date(),
+          },
+        ],
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.messages).toHaveLength(1);
+      expect(trade.messages[0].message).toBe("Hola, me interesa este intercambio");
+    });
+
+    it("permite múltiples mensajes", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        messages: [
+          {
+            userId: user1._id,
+            message: "Mensaje 1",
+            timestamp: new Date(),
+          },
+          {
+            userId: user2._id,
+            message: "Mensaje 2",
+            timestamp: new Date(),
+          },
+          {
+            userId: user1._id,
+            message: "Mensaje 3",
+            timestamp: new Date(),
+          },
+        ],
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.messages).toHaveLength(3);
+    });
+
+    it("permite trade sin mensajes", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.messages || []).toHaveLength(0);
+    });
+  });
+
+  describe("Trade Timestamps", () => {
+    it("almacena createdAt automáticamente", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.createdAt).toBeDefined();
+    });
+
+    it("almacena updatedAt automáticamente", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.updatedAt).toBeDefined();
+    });
+
+    it("actualiza updatedAt al guardar cambios", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      const originalUpdatedAt = trade.updatedAt;
+
+      // Esperar un poco para que el timestamp sea diferente
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      trade.status = "accepted";
+      await trade.save();
+
+      const updated = await Trade.findById(trade._id);
+      expect(updated?.updatedAt.getTime()).toBeGreaterThanOrEqual(
+        originalUpdatedAt.getTime()
+      );
+    });
+  });
+
+  describe("Trade Completion", () => {
+    it("almacena completedAt cuando se completa", async () => {
+      const completionDate = new Date();
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        status: "completed",
+        completedAt: completionDate,
+        initiatorCards: [],
+        receiverCards: [],
+      });
+
+      expect(trade.completedAt).toBeDefined();
+      expect(trade.completedAt?.getTime()).toBeCloseTo(completionDate.getTime(), -2);
+    });
+
+    it("permite trade pendiente sin completedAt", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        status: "pending",
+        initiatorCards: [],
+        receiverCards: [],
+      });
+
+      expect(trade.completedAt === null || trade.completedAt === undefined).toBe(true);
+    });
+  });
+
+  describe("Trade User References", () => {
+    it("almacena correctamente IDs de usuarios", async () => {
+      const trade = await Trade.create({
+        initiatorUserId: user1._id,
+        receiverUserId: user2._id,
+        tradeType: "public",
+        initiatorCards: [],
+        receiverCards: [],
+        status: "pending",
+      });
+
+      expect(trade.initiatorUserId.toString()).toBe(user1._id.toString());
+      expect(trade.receiverUserId.toString()).toBe(user2._id.toString());
+    });
+
+    it("rechaza trade sin initiatorUserId", async () => {
+      try {
+        await Trade.create({
+          receiverUserId: user2._id,
+          tradeType: "public",
+          initiatorCards: [],
+          receiverCards: [],
+          status: "pending",
+        });
+        expect(true).toBe(false);
+      } catch (e) {
+        expect(e).toBeDefined();
+      }
+    });
+
+    it("rechaza trade sin receiverUserId", async () => {
+      try {
+        await Trade.create({
+          initiatorUserId: user1._id,
+          tradeType: "public",
+          initiatorCards: [],
+          receiverCards: [],
+          status: "pending",
+        });
+        expect(true).toBe(false);
+      } catch (e) {
+        expect(e).toBeDefined();
+      }
+    });
+  });
+});

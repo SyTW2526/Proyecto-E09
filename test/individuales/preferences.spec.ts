@@ -29,10 +29,12 @@ describe("GET /users/:userId/preferences", () => {
       .get(`/users/${user._id}/preferences`)
       .expect(200);
 
-    expect(res.body).toHaveProperty("language");
-    expect(res.body).toHaveProperty("darkMode");
-    expect(res.body).toHaveProperty("notifications");
-    expect(res.body).toHaveProperty("privacy");
+    expect(res.body).toHaveProperty("success");
+    expect(res.body).toHaveProperty("data");
+    expect(res.body.data).toHaveProperty("language");
+    expect(res.body.data).toHaveProperty("darkMode");
+    expect(res.body.data).toHaveProperty("notifications");
+    expect(res.body.data).toHaveProperty("privacy");
   });
 
   /**
@@ -51,8 +53,8 @@ describe("GET /users/:userId/preferences", () => {
       .get(`/users/${user._id}/preferences`)
       .expect(200);
 
-    expect(res.body.language).toBe("es");
-    expect(res.body.darkMode).toBe(false);
+    expect(res.body.data.language).toBe("es");
+    expect(res.body.data.darkMode).toBe(false);
   });
 
   /**
@@ -97,7 +99,7 @@ describe("PATCH /users/:userId/preferences", () => {
       .send({ language: "en" })
       .expect(200);
 
-    expect(res.body.preferences.language).toBe("en");
+    expect(res.body.data.language).toBe("en");
   });
 
   /**
@@ -116,7 +118,7 @@ describe("PATCH /users/:userId/preferences", () => {
       .send({ darkMode: true })
       .expect(200);
 
-    expect(res.body.preferences.darkMode).toBe(true);
+    expect(res.body.data.darkMode).toBe(true);
   });
 
   /**

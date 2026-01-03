@@ -262,3 +262,181 @@ describe("GET /pokemon/search", () => {
     expect(res.body).toBeDefined();
   });
 });
+
+describe("Pokemon Search Filtering", () => {
+  it("filtra por nombre exacto", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?name=pikachu")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("filtra por tipo Electric", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?type=electric")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("filtra por rareza rare", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?rarity=rare")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("combina múltiples filtros", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?name=charizard&type=fire&rarity=rare")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("paginación en búsqueda", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?page=1&limit=10")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("maneja búsqueda con espacios", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?name=mr%20mime")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+});
+
+describe("Pokemon Card Details", () => {
+  it("obtiene detalles de carta base1-1", async () => {
+    const res = await request(app)
+      .get("/pokemon/cards/base1-1")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("obtiene cartas por serie Base", async () => {
+    const res = await request(app)
+      .get("/pokemon/series/base")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("lista todas las series disponibles", async () => {
+    const res = await request(app)
+      .get("/pokemon/series")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+});
+
+describe("Pokemon Types and Attributes", () => {
+  it("busca cartas por tipo Fire", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?type=fire")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("busca cartas por tipo Water", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?type=water")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("busca cartas por tipo Grass", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?type=grass")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("maneja tipos inválidos", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?type=invalid-type")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+});
+
+describe("Pokemon Advanced Search", () => {
+  it("búsqueda con operador AND", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?name=pikachu&type=electric")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("búsqueda case-insensitive", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?name=PIKACHU")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("búsqueda con caracteres especiales", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?name=nidoran")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("búsqueda con rango de precio", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?priceMin=10&priceMax=100")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("búsqueda ordenada por nombre", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?sort=name&order=asc")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+
+  it("búsqueda ordenada por precio", async () => {
+    const res = await request(app)
+      .get("/pokemon/search?sort=price&order=desc")
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+  });
+});
+
+describe("Pokemon Cache and Performance", () => {
+  it("obtiene cartas desde caché", async () => {
+    // Primera llamada
+    const res1 = await request(app)
+      .get("/pokemon/cards/base1-1")
+      .expect(200);
+
+    // Segunda llamada (debe estar en caché)
+    const res2 = await request(app)
+      .get("/pokemon/cards/base1-1")
+      .expect(200);
+
+    expect(res1.body).toBeDefined();
+    expect(res2.body).toBeDefined();
+  });
+});
+

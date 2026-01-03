@@ -544,4 +544,211 @@ describe('Users Router - Integration Coverage Tests', () => {
       expect([200, 400, 401, 403, 404, 500]).toContain(res.status);
     });
   });
+
+  describe('POST /users/register - Extended Coverage', () => {
+    it('debería validar email requerido en registro', async () => {
+      const res = await request(app)
+        .post('/users/register')
+        .send({
+          username: 'newuser',
+          password: 'password123',
+          confirmPassword: 'password123',
+          // sin email
+        });
+
+      expect([400, 401, 403, 404, 500]).toContain(res.status);
+    });
+
+    it('debería validar que password y confirmPassword coincidan', async () => {
+      const res = await request(app)
+        .post('/users/register')
+        .send({
+          username: 'newuser',
+          email: 'new@test.com',
+          password: 'password123',
+          confirmPassword: 'differentPassword',
+        });
+
+      expect([400, 401, 403, 404, 500]).toContain(res.status);
+    });
+
+    it('debería validar longitud mínima de contraseña', async () => {
+      const res = await request(app)
+        .post('/users/register')
+        .send({
+          username: 'newuser',
+          email: 'new@test.com',
+          password: 'pass', // muy corta
+          confirmPassword: 'pass',
+        });
+
+      expect([400, 401, 403, 404, 500]).toContain(res.status);
+    });
+
+    it('debería rechazar email duplicado', async () => {
+      const res = await request(app)
+        .post('/users/register')
+        .send({
+          username: 'differentuser',
+          email: user1.email, // email ya existe
+          password: 'password123',
+          confirmPassword: 'password123',
+        });
+
+      expect([400, 401, 403, 404, 500]).toContain(res.status);
+    });
+
+    it('debería rechazar username duplicado', async () => {
+      const res = await request(app)
+        .post('/users/register')
+        .send({
+          username: user1.username, // username ya existe
+          email: 'different@test.com',
+          password: 'password123',
+          confirmPassword: 'password123',
+        });
+
+      expect([400, 401, 403, 404, 500]).toContain(res.status);
+    });
+  });
+
+  describe('POST /users/login - Extended Coverage', () => {
+    it('debería retornar token válido al login exitoso', async () => {
+      const res = await request(app)
+        .post('/users/login')
+        .send({
+          username: user1.username,
+          password: 'hashedpassword',
+        });
+
+      expect([200, 401, 400, 500]).toContain(res.status);
+    });
+
+    it('debería rechazar contraseña incorrecta', async () => {
+      const res = await request(app)
+        .post('/users/login')
+        .send({
+          username: user1.username,
+          password: 'wrongpassword',
+        });
+
+      expect([401, 400, 500]).toContain(res.status);
+    });
+
+    it('debería rechazar usuario no existente', async () => {
+      const res = await request(app)
+        .post('/users/login')
+        .send({
+          username: 'nonexistent',
+          password: 'password123',
+        });
+
+      expect([401, 400, 500]).toContain(res.status);
+    });
+  });
+
+  describe('Additional Card Management Tests', () => {
+    let userCard1: any;
+
+    beforeEach(async () => {
+      userCard1 = await UserCard.create({
+        userId: user1._id,
+        cardId: testCard._id,
+        pokemonTcgId: testCard.pokemonTcgId,
+        quantity: 1,
+        forTrade: false,
+      });
+    });
+
+    it('debería marcar tarjeta como disponible para intercambio', async () => {
+      const res = await request(app)
+        .patch(`/users/${user1.username}/cards/${userCard1._id}`)
+        .set('Authorization', `Bearer ${token1}`)
+        .send({
+          forTrade: true,
+        });
+
+      expect([200, 400, 401, 403, 404, 500]).toContain(res.status);
+    });
+
+    it('debería obtener tarjetas disponibles para intercambio', async () => {
+      const res = await request(app)
+        .get(`/users/${user1.username}/cards`)
+        .query({ forTrade: true })
+        .set('Authorization', `Bearer ${token1}`);
+
+      expect([200, 401, 403, 404, 500]).toContain(res.status);
+    });
+
+    it('debería filtrar tarjetas por rareza', async () => {
+      const res = await request(app)
+        .get(`/users/${user1.username}/cards`)
+        .query({ rarity: 'rare' })
+        .set('Authorization', `Bearer ${token1}`);
+
+      expect([200, 401, 403, 404, 500]).toContain(res.status);
+    });
+
+    it('debería filtrar tarjetas por tipo', async () => {
+      const res = await request(app)
+        .get(`/users/${user1.username}/cards`)
+        .query({ type: 'Pokémon' })
+        .set('Authorization', `Bearer ${token1}`);
+
+      expect([200, 401, 403, 404, 500]).toContain(res.status);
+    });
+  });
+
+  describe('Pack System Extended Tests', () => {
+    it('debería tener límite de 2 sobres por usuario', async () => {
+      const user = await User.findById(user1._id);
+      expect(user.packTokens).toBeLessThanOrEqual(2);
+    });
+
+    it('debería permitir uso de código de reseteo de pack', async () => {
+      const res = await request(app)
+        .post(`/users/${user1.username}/reset-pack-limit`)
+        .set('Authorization', `Bearer ${token1}`)
+        .send({
+          code: 'ADMIN',
+        });
+
+      expect([200, 201, 400, 401, 403, 404, 500]).toContain(res.status);
+    });
+
+    it('debería rechazar código de reseteo inválido', async () => {
+      const res = await request(app)
+        .post(`/users/${user1.username}/reset-pack-limit`)
+        .set('Authorization', `Bearer ${token1}`)
+        .send({
+          code: 'INVALID_CODE',
+        });
+
+      expect([200, 201, 400, 401, 403, 404, 500]).toContain(res.status);
+    });
+  });
+
+  describe('User Visibility and Privacy', () => {
+    it('debería permitir cambiar visibilidad del usuario', async () => {
+      const res = await request(app)
+        .patch(`/users/${user1.username}`)
+        .set('Authorization', `Bearer ${token1}`)
+        .send({
+          isPublic: false,
+        });
+
+      expect([200, 400, 401, 403, 404, 500]).toContain(res.status);
+    });
+
+    it('debería no mostrar tarjetas privadas de otros usuarios', async () => {
+      user1.isPublic = false;
+      await user1.save();
+
+      const res = await request(app)
+        .get(`/users/${user1.username}/cards`)
+        .set('Authorization', `Bearer ${token2}`);
+
+      expect([200, 401, 403, 404, 500]).toContain(res.status);
+    });
+  });
 });

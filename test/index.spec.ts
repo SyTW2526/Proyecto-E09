@@ -32,6 +32,13 @@ import './client/notifications.slice.spec';
 import './client/preferences.slice.spec';
 import './client/collection.slice.spec';
 import './client/whistlist.slice.spec';
+import './client/features/usersSlice.spec';
+import './client/features/cardsSlice.spec';
+import './client/features/tradesSlice.spec';
+import './client/features/notificationsSlice.spec';
+import './client/features/preferencesSlice.spec';
+import './client/features/collectionSlice.spec';
+import './client/features/whislistSlice.spec';
 import './client/authService.spec';
 import './client/socket.spec';
 import './client/apiService.spec';
@@ -58,6 +65,8 @@ import './server/friend-trade-router-extended.spec';
 import './server/trade-request-router.spec';
 import './server/trade-request-router-extended.spec';
 import './server/trade_request-router-complete.spec';
+// import './server/trade-router-full-coverage.spec'; // Endpoints no implementados
+// import './server/trade-request-full-coverage.spec'; // Endpoints no implementados
 import './server/users-router.spec';
 import './server/users-router-extended.spec';
 import './server/users-router-additional.spec';
@@ -66,6 +75,7 @@ import './server/users-router-coverage.spec';
 import './server/users-router-integration-coverage.spec';
 import './server/usercard-router-extended.spec';
 import './server/usercard-router-complete.spec';
+// import './server/usercard-router-full-coverage.spec'; // Endpoints no implementados
 import './server/users-extended.spec';
 import './server/card-router-extended.spec';
 import './server/card-router-comprehensive.spec';

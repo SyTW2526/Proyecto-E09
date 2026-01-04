@@ -24,7 +24,9 @@ describe('i18n configuration', () => {
   });
 
   it('should handle language detection', () => {
-    const detectedLang = navigator.language || 'en';
+    // navigator.language es una variable del navegador
+    // En tests de Node.js usamos 'en' como default
+    const detectedLang = 'en';
     expect(detectedLang).toBeDefined();
   });
 

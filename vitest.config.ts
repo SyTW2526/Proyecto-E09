@@ -93,7 +93,8 @@ export default defineConfig({
         'src/server/utils/fetchHelpers.ts',
         'src/server/utils/responseHelpers.ts',
         'src/server/routers/api.ts',
-        'src/server/services/tcgdx.ts'
+        'src/server/services/tcgdx.ts',
+        'src/server/db/mongoose.ts'
       ],
     },
   },

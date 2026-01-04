@@ -116,7 +116,9 @@ describe('Trade Router - Comprehensive Tests', () => {
         { id: 'trade_1', status: 'pending' },
         { id: 'trade_2', status: 'accepted' },
       ];
-      const filtered = trades.filter((t) => t.status === mockRequest.query.status);
+      const filtered = trades.filter(
+        (t) => t.status === mockRequest.query.status
+      );
       expect(filtered).toHaveLength(1);
     });
 
@@ -235,7 +237,8 @@ describe('Trade Router - Comprehensive Tests', () => {
 
     it('no permite cambiar status si ya está completado', () => {
       const trade = { id: 'trade_1', status: 'completed' };
-      const canUpdate = trade.status === 'pending' || trade.status === 'accepted';
+      const canUpdate =
+        trade.status === 'pending' || trade.status === 'accepted';
       expect(canUpdate).toBe(false);
     });
 
@@ -265,7 +268,11 @@ describe('Trade Router - Comprehensive Tests', () => {
     });
 
     it('solo offerer puede eliminar trade en pending', () => {
-      const trade = { id: 'trade_1', offerer: mockRequest.user.id, status: 'pending' };
+      const trade = {
+        id: 'trade_1',
+        offerer: mockRequest.user.id,
+        status: 'pending',
+      };
       const canDelete =
         trade.offerer === mockRequest.user.id && trade.status === 'pending';
       expect(canDelete).toBe(true);

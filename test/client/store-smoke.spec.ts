@@ -4,13 +4,22 @@ import { describe, it, expect, vi } from 'vitest';
 vi.mock('../../src/client/services/apiService', () => ({
   default: {
     fetchFeaturedCards: vi.fn(async () => [{ id: 'c1', name: 'Pikachu' }]),
-    searchCards: vi.fn(async (q: string, page = 1) => ({ data: [{ id: 'x' }], total: 1, page, limit: 20 })),
+    searchCards: vi.fn(async (q: string, page = 1) => ({
+      data: [{ id: 'x' }],
+      total: 1,
+      page,
+      limit: 20,
+    })),
     getCardById: vi.fn(async (id: string) => ({ id, name: 'Charizard' })),
   },
 }));
 
 import { store } from '../../src/client/store/store';
-import { fetchFeaturedCards, searchCards, fetchCardById } from '../../src/client/features/cards/cardsSlice';
+import {
+  fetchFeaturedCards,
+  searchCards,
+  fetchCardById,
+} from '../../src/client/features/cards/cardsSlice';
 
 describe('Redux store - smoke test dispatching thunks', () => {
   it('dispatches fetchFeaturedCards and updates state', async () => {

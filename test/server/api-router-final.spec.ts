@@ -404,18 +404,12 @@ describe('API Router - Comprehensive Tests', () => {
     });
 
     it('agrega Content-Security-Policy', () => {
-      mockResponse.setHeader(
-        'Content-Security-Policy',
-        "default-src 'self'"
-      );
+      mockResponse.setHeader('Content-Security-Policy', "default-src 'self'");
       expect(mockResponse.setHeader).toHaveBeenCalled();
     });
 
     it('agrega Strict-Transport-Security', () => {
-      mockResponse.setHeader(
-        'Strict-Transport-Security',
-        'max-age=31536000'
-      );
+      mockResponse.setHeader('Strict-Transport-Security', 'max-age=31536000');
       expect(mockResponse.setHeader).toHaveBeenCalled();
     });
   });

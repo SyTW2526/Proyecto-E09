@@ -123,7 +123,8 @@ describe('Trade Router - Coverage Tests (líneas 54-530)', () => {
       mockRequest.query = { page: 1, limit: 20, tradeType: 'private' };
 
       const filter: any = {};
-      if (mockRequest.query.tradeType) filter.tradeType = mockRequest.query.tradeType;
+      if (mockRequest.query.tradeType)
+        filter.tradeType = mockRequest.query.tradeType;
 
       expect(filter.tradeType).toBe('private');
     });
@@ -429,8 +430,10 @@ describe('Trade Router - Coverage Tests (líneas 54-530)', () => {
         receiverUserId: receiverId,
       };
 
-      const isInitiator = trade.initiatorUserId.toString() === mockRequest.userId.toString();
-      const isReceiver = trade.receiverUserId.toString() === mockRequest.userId.toString();
+      const isInitiator =
+        trade.initiatorUserId.toString() === mockRequest.userId.toString();
+      const isReceiver =
+        trade.receiverUserId.toString() === mockRequest.userId.toString();
 
       expect(isInitiator).toBe(true);
       expect(isReceiver).toBe(false);
@@ -444,8 +447,10 @@ describe('Trade Router - Coverage Tests (líneas 54-530)', () => {
         receiverUserId: receiverId,
       };
 
-      const isInitiator = trade.initiatorUserId.toString() === mockRequest.userId.toString();
-      const isReceiver = trade.receiverUserId.toString() === mockRequest.userId.toString();
+      const isInitiator =
+        trade.initiatorUserId.toString() === mockRequest.userId.toString();
+      const isReceiver =
+        trade.receiverUserId.toString() === mockRequest.userId.toString();
 
       if (!isInitiator && !isReceiver) {
         mockResponse.status(403).send({

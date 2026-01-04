@@ -2,7 +2,14 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { configureStore } from '@reduxjs/toolkit';
 
 const apiMock = {
-  getUserById: vi.fn(async (id: string) => ({ id, username: 'u', email: 'u@e.com', collection: [], wishlist: [], trades: [] })),
+  getUserById: vi.fn(async (id: string) => ({
+    id,
+    username: 'u',
+    email: 'u@e.com',
+    collection: [],
+    wishlist: [],
+    trades: [],
+  })),
   getUserFriends: vi.fn(async () => [{ id: 'f1', username: 'f' }]),
   addFriend: vi.fn(async () => ({ id: 'f2', username: 'n' })),
   removeFriend: vi.fn(async () => true),
@@ -10,7 +17,13 @@ const apiMock = {
 
 vi.mock('../../src/client/services/apiService', () => ({ default: apiMock }));
 
-import usersReducer, { fetchUserById, fetchUserFriends, addFriend, removeFriend, logoutUser } from '../../src/client/features/users/usersSlice';
+import usersReducer, {
+  fetchUserById,
+  fetchUserFriends,
+  addFriend,
+  removeFriend,
+  logoutUser,
+} from '../../src/client/features/users/usersSlice';
 
 describe('usersSlice - cobertura principal', () => {
   let store: any;

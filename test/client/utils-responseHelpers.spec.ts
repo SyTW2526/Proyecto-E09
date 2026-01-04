@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { safeJsonParse, checkResponse, fetchJson } from '../../src/client/utils/responseHelpers';
+import {
+  safeJsonParse,
+  checkResponse,
+  fetchJson,
+} from '../../src/client/utils/responseHelpers';
 
 function makeResponse(ok: boolean, body: any) {
   return {
@@ -37,7 +41,9 @@ describe('responseHelpers (client utils)', () => {
 
   it('checkResponse throws with default message when no error provided', async () => {
     const res = makeResponse(false, { x: 1 });
-    await expect(checkResponse(res, 'Default Err')).rejects.toThrow('Default Err');
+    await expect(checkResponse(res, 'Default Err')).rejects.toThrow(
+      'Default Err'
+    );
   });
 
   it('fetchJson returns parsed JSON for OK', async () => {

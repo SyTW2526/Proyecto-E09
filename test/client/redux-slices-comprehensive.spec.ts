@@ -418,7 +418,9 @@ describe('Preferences Slice - Comprehensive', () => {
     });
 
     it('actualiza múltiples preferencias', () => {
-      store.dispatch(setNotificationPreferences({ trades: false, messages: false }));
+      store.dispatch(
+        setNotificationPreferences({ trades: false, messages: false })
+      );
       const notif = store.getState().preferences.preferences.notifications;
       expect(notif.trades).toBe(false);
       expect(notif.messages).toBe(false);
@@ -441,7 +443,9 @@ describe('Preferences Slice - Comprehensive', () => {
     });
 
     it('actualiza múltiples privacidades', () => {
-      store.dispatch(setPrivacyPreferences({ showCollection: false, showWishlist: false }));
+      store.dispatch(
+        setPrivacyPreferences({ showCollection: false, showWishlist: false })
+      );
       const privacy = store.getState().preferences.preferences.privacy;
       expect(privacy.showCollection).toBe(false);
       expect(privacy.showWishlist).toBe(false);
@@ -513,7 +517,12 @@ describe('Cards Slice - Comprehensive', () => {
           series: 'Test',
         },
       ];
-      const action = fetchFeaturedCards.fulfilled(payload, '', undefined, undefined);
+      const action = fetchFeaturedCards.fulfilled(
+        payload,
+        '',
+        undefined,
+        undefined
+      );
       const nextState = cardsReducer(undefined, action);
       expect(nextState.loading).toBe(false);
       expect(nextState.list).toEqual(payload);
@@ -585,7 +594,12 @@ describe('Collection Slice - Comprehensive', () => {
         { id: 'c1', quantity: 1 } as any,
         { id: 'c2', quantity: 2 } as any,
       ];
-      const action = fetchUserCollection.fulfilled(payload, '', 'user1', undefined);
+      const action = fetchUserCollection.fulfilled(
+        payload,
+        '',
+        'user1',
+        undefined
+      );
       const nextState = collectionReducer(undefined, action);
       expect(nextState.loading).toBe(false);
       expect(nextState.cards).toEqual(payload);
@@ -606,10 +620,7 @@ describe('Collection Slice - Comprehensive', () => {
 
   describe('removeFromCollection fulfilled', () => {
     it('remueve carta de la colección', () => {
-      const initialCards = [
-        { id: 'c1' } as any,
-        { id: 'c2' } as any,
-      ];
+      const initialCards = [{ id: 'c1' } as any, { id: 'c2' } as any];
       let state = collectionReducer(
         { cards: initialCards, loading: false, error: null },
         {
@@ -812,10 +823,7 @@ describe('Users Slice - Comprehensive', () => {
     it('remueve amigo de la lista', () => {
       const initialState = {
         currentUser: null,
-        friends: [
-          { id: 'f1' } as any,
-          { id: 'f2' } as any,
-        ],
+        friends: [{ id: 'f1' } as any, { id: 'f2' } as any],
         loading: false,
         error: null,
       };
@@ -915,10 +923,7 @@ describe('Wishlist Slice - Comprehensive', () => {
   describe('removeFromWishlist fulfilled', () => {
     it('remueve card del wishlist', () => {
       const initialState = {
-        cards: [
-          { id: 'c1' } as any,
-          { id: 'c2' } as any,
-        ],
+        cards: [{ id: 'c1' } as any, { id: 'c2' } as any],
         loading: false,
         error: null,
       };
@@ -976,7 +981,7 @@ describe('Redux Slices Integration', () => {
     store.dispatch(setLanguage('en'));
     store.dispatch(setNotificationsLoading(true));
     store.dispatch(setDarkMode(true));
-    
+
     const state = store.getState();
     expect(state.preferences.preferences.language).toBe('en');
     expect(state.notifications.loading).toBe(true);

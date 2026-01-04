@@ -108,9 +108,7 @@ describe('TCGdex Service - Comprehensive Tests', () => {
         { id: 'c2', type: 'Electric', hp: 120, rarity: 'Rare' },
         { id: 'c3', type: 'Fire', hp: 100, rarity: 'Rare' },
       ];
-      const filtered = cards.filter(
-        (c) => c.type === 'Electric' && c.hp >= 50
-      );
+      const filtered = cards.filter((c) => c.type === 'Electric' && c.hp >= 50);
       expect(filtered).toHaveLength(2);
     });
 

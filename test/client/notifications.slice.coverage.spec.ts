@@ -17,7 +17,8 @@ describe('notificationsSlice - cobertura principal', () => {
   let store: any;
 
   beforeEach(async () => {
-    const mod = await import('../../src/client/features/notifications/notificationsSlice');
+    const mod =
+      await import('../../src/client/features/notifications/notificationsSlice');
     reducer = mod.default;
     actions = mod;
     store = configureStore({ reducer: { notifications: reducer } });
@@ -39,7 +40,10 @@ describe('notificationsSlice - cobertura principal', () => {
   });
 
   it('setNotifications calcula unread y guarda en estado', () => {
-    const list = [sample({ _id: 'a', isRead: false }), sample({ _id: 'b', isRead: true })];
+    const list = [
+      sample({ _id: 'a', isRead: false }),
+      sample({ _id: 'b', isRead: true }),
+    ];
     store.dispatch(actions.setNotifications(list));
     const s = store.getState().notifications;
     expect(s.notifications.length).toBe(2);
@@ -47,7 +51,9 @@ describe('notificationsSlice - cobertura principal', () => {
   });
 
   it('addNotification incrementa unread y persiste', () => {
-    store.dispatch(actions.addNotification(sample({ _id: 'x', isRead: false })));
+    store.dispatch(
+      actions.addNotification(sample({ _id: 'x', isRead: false }))
+    );
     const s = store.getState().notifications;
     expect(s.unread).toBe(1);
     expect(ls.setItem).toHaveBeenCalled();
@@ -64,7 +70,12 @@ describe('notificationsSlice - cobertura principal', () => {
   });
 
   it('markAllAsRead pone unread a 0', () => {
-    store.dispatch(actions.setNotifications([sample({ _id: '1', isRead: false }), sample({ _id: '2', isRead: false })]));
+    store.dispatch(
+      actions.setNotifications([
+        sample({ _id: '1', isRead: false }),
+        sample({ _id: '2', isRead: false }),
+      ])
+    );
     store.dispatch(actions.markAllAsRead());
     const s = store.getState().notifications;
     expect(s.unread).toBe(0);
@@ -72,7 +83,12 @@ describe('notificationsSlice - cobertura principal', () => {
   });
 
   it('removeNotification elimina y ajusta unread si aplica', () => {
-    store.dispatch(actions.setNotifications([sample({ _id: '1', isRead: false }), sample({ _id: '2', isRead: true })]));
+    store.dispatch(
+      actions.setNotifications([
+        sample({ _id: '1', isRead: false }),
+        sample({ _id: '2', isRead: true }),
+      ])
+    );
     store.dispatch(actions.removeNotification('1'));
     const s = store.getState().notifications;
     expect(s.unread).toBe(0);

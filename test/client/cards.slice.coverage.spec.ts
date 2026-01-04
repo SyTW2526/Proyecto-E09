@@ -4,12 +4,21 @@ import { configureStore } from '@reduxjs/toolkit';
 vi.mock('../../src/client/services/apiService', () => ({
   default: {
     fetchFeaturedCards: vi.fn(async () => [{ id: 'c1', name: 'Pikachu' }]),
-    searchCards: vi.fn(async (q: string, page = 1, limit = 20) => ({ data: [{ id: 'c2' }], total: 3, page, limit })),
+    searchCards: vi.fn(async (q: string, page = 1, limit = 20) => ({
+      data: [{ id: 'c2' }],
+      total: 3,
+      page,
+      limit,
+    })),
     getCardById: vi.fn(async (id: string) => ({ id, name: 'Charizard' })),
   },
 }));
 
-import cardsReducer, { fetchFeaturedCards, searchCards, fetchCardById } from '../../src/client/features/cards/cardsSlice';
+import cardsReducer, {
+  fetchFeaturedCards,
+  searchCards,
+  fetchCardById,
+} from '../../src/client/features/cards/cardsSlice';
 
 describe('cardsSlice - cobertura de casos principales', () => {
   let store: any;

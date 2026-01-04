@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import cardsReducer, { fetchFeaturedCards, searchCards, fetchCardById } from '../../../src/client/features/cards/cardsSlice';
+import cardsReducer, {
+  fetchFeaturedCards,
+  searchCards,
+  fetchCardById,
+} from '../../../src/client/features/cards/cardsSlice';
 import { PokemonCard } from '../../../src/client/types';
 
 describe('cardsSlice', () => {

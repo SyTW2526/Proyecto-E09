@@ -44,7 +44,10 @@ describe('UserCard Router - Endpoints HTTP', () => {
 
     // Generar token JWT
     const secret = process.env.JWT_SECRET || 'test-secret';
-    token = jwt.sign({ userId: testUser._id, username: testUser.username }, secret);
+    token = jwt.sign(
+      { userId: testUser._id, username: testUser.username },
+      secret
+    );
   });
 
   afterEach(async () => {

@@ -87,7 +87,9 @@ describe('friend_trade router - Friend Trade Operations', () => {
 
     it('valida que amigos tenga las cartas solicitadas', () => {
       mockRequest.body.requestedCards = ['card_not_owned'];
-      mockResponse.status(400).json({ error: 'Friend does not own requested cards' });
+      mockResponse
+        .status(400)
+        .json({ error: 'Friend does not own requested cards' });
       expect(mockResponse.status).toHaveBeenCalledWith(400);
     });
 
@@ -172,15 +174,14 @@ describe('friend_trade router - Friend Trade Operations', () => {
         { id: 'trade_2', date: new Date('2024-01-05') },
       ];
       const sorted = trades.sort((a, b) => b.date.getTime() - a.date.getTime());
-      expect(sorted[0].date.getTime()).toBeGreaterThan(sorted[1].date.getTime());
+      expect(sorted[0].date.getTime()).toBeGreaterThan(
+        sorted[1].date.getTime()
+      );
     });
 
     it('calcula total de cartas intercambiadas', () => {
       mockResponse.json({
-        trades: [
-          { cards: 5 },
-          { cards: 3 },
-        ],
+        trades: [{ cards: 5 }, { cards: 3 }],
         totalCards: 8,
       });
       expect(mockResponse.json).toHaveBeenCalled();

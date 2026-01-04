@@ -173,7 +173,8 @@ describe('Trade Request Router - Coverage Tests (54.76% -> 90%)', () => {
       if (exists) {
         mockResponse.status(400).send({
           errorCode: 'TRADE_ALREADY_EXISTS',
-          error: 'Ya existe una invitación pendiente de sala entre estos usuarios',
+          error:
+            'Ya existe una invitación pendiente de sala entre estos usuarios',
         });
       }
 
@@ -299,7 +300,9 @@ describe('Trade Request Router - Coverage Tests (54.76% -> 90%)', () => {
         relatedUserId: userId,
       };
 
-      mockRequest.io.to(`user:${receiverId}`).emit('notification', notification);
+      mockRequest.io
+        .to(`user:${receiverId}`)
+        .emit('notification', notification);
 
       expect(mockRequest.io.to).toHaveBeenCalledWith(`user:${receiverId}`);
     });
@@ -418,9 +421,7 @@ describe('Trade Request Router - Coverage Tests (54.76% -> 90%)', () => {
       const tradeRequest = null;
 
       if (!tradeRequest) {
-        mockResponse
-          .status(404)
-          .send({ error: 'Solicitud no encontrada' });
+        mockResponse.status(404).send({ error: 'Solicitud no encontrada' });
       }
 
       expect(mockResponse.status).toHaveBeenCalledWith(404);
@@ -432,9 +433,7 @@ describe('Trade Request Router - Coverage Tests (54.76% -> 90%)', () => {
       };
 
       if (tradeRequest.status !== 'pending') {
-        mockResponse
-          .status(400)
-          .send({ error: 'Solicitud ya fue procesada' });
+        mockResponse.status(400).send({ error: 'Solicitud ya fue procesada' });
       }
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
@@ -486,9 +485,7 @@ describe('Trade Request Router - Coverage Tests (54.76% -> 90%)', () => {
       const tradeRequest = null;
 
       if (!tradeRequest) {
-        mockResponse
-          .status(404)
-          .send({ error: 'Solicitud no encontrada' });
+        mockResponse.status(404).send({ error: 'Solicitud no encontrada' });
       }
 
       expect(mockResponse.status).toHaveBeenCalledWith(404);
@@ -500,9 +497,7 @@ describe('Trade Request Router - Coverage Tests (54.76% -> 90%)', () => {
       };
 
       if (tradeRequest.status !== 'pending') {
-        mockResponse
-          .status(400)
-          .send({ error: 'Solicitud ya fue procesada' });
+        mockResponse.status(400).send({ error: 'Solicitud ya fue procesada' });
       }
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
@@ -542,9 +537,7 @@ describe('Trade Request Router - Coverage Tests (54.76% -> 90%)', () => {
       const tradeRequest = null;
 
       if (!tradeRequest) {
-        mockResponse
-          .status(404)
-          .send({ error: 'Solicitud no encontrada' });
+        mockResponse.status(404).send({ error: 'Solicitud no encontrada' });
       }
 
       expect(mockResponse.status).toHaveBeenCalledWith(404);

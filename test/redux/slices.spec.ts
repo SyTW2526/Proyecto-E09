@@ -153,9 +153,7 @@ describe('Redux Slices - State Management', () => {
       };
       const newState = {
         wishlists: state.wishlists.map((w) =>
-          w.id === '1'
-            ? { ...w, cards: [...w.cards, { id: 'c2' }] }
-            : w
+          w.id === '1' ? { ...w, cards: [...w.cards, { id: 'c2' }] } : w
         ),
       };
 

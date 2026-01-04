@@ -23,10 +23,12 @@ describe('fetchHelpers (client utils)', () => {
     if (!(globalThis as any).localStorage) {
       vi.stubGlobal('localStorage', {
         getItem: (key: string) => mockLocalStorage[key] || null,
-        setItem: (key: string, value: string) => (mockLocalStorage[key] = value),
+        setItem: (key: string, value: string) =>
+          (mockLocalStorage[key] = value),
         removeItem: (key: string) => delete mockLocalStorage[key],
         clear: () => {
-          for (const k of Object.keys(mockLocalStorage)) delete mockLocalStorage[k];
+          for (const k of Object.keys(mockLocalStorage))
+            delete mockLocalStorage[k];
         },
         key: (index: number) => Object.keys(mockLocalStorage)[index] || null,
         length: 0,
@@ -67,7 +69,10 @@ describe('fetchHelpers (client utils)', () => {
 
   it('getAuthHeaders includes Authorization and Content-Type', () => {
     (globalThis as any).localStorage.setItem('token', 'tkn');
-    const headers = getAuthHeaders({ 'X-Custom': 'yes' }) as Record<string, string>;
+    const headers = getAuthHeaders({ 'X-Custom': 'yes' }) as Record<
+      string,
+      string
+    >;
     expect(headers['Content-Type']).toBe('application/json');
     expect(headers['Authorization']).toBe('Bearer tkn');
     expect(headers['X-Custom']).toBe('yes');
@@ -91,7 +96,9 @@ describe('fetchHelpers (client utils)', () => {
   });
 
   it('authenticatedGet throws on non-OK', async () => {
-    await expect(authenticatedGet<any>('/error')).rejects.toThrow('HTTP error! status: 500');
+    await expect(authenticatedGet<any>('/error')).rejects.toThrow(
+      'HTTP error! status: 500'
+    );
   });
 
   it('authenticatedPost sends JSON body and returns parsed JSON', async () => {

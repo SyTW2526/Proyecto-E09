@@ -159,9 +159,7 @@ describe('UserCard Router - Integration Tests (76.59% Coverage)', () => {
     it('debe validar tipo válido (línea 82-86)', () => {
       mockReq.params = { type: 'invalid' };
 
-      const isValid = ['collection', 'wishlist'].includes(
-        mockReq.params.type
-      );
+      const isValid = ['collection', 'wishlist'].includes(mockReq.params.type);
 
       if (!isValid) {
         mockRes.status(400).send({
@@ -175,9 +173,7 @@ describe('UserCard Router - Integration Tests (76.59% Coverage)', () => {
     it('debe aceptar tipo collection', () => {
       mockReq.params = { type: 'collection' };
 
-      const isValid = ['collection', 'wishlist'].includes(
-        mockReq.params.type
-      );
+      const isValid = ['collection', 'wishlist'].includes(mockReq.params.type);
 
       expect(isValid).toBe(true);
     });
@@ -185,9 +181,7 @@ describe('UserCard Router - Integration Tests (76.59% Coverage)', () => {
     it('debe aceptar tipo wishlist', () => {
       mockReq.params = { type: 'wishlist' };
 
-      const isValid = ['collection', 'wishlist'].includes(
-        mockReq.params.type
-      );
+      const isValid = ['collection', 'wishlist'].includes(mockReq.params.type);
 
       expect(isValid).toBe(true);
     });
@@ -405,9 +399,7 @@ describe('UserCard Router - Integration Tests (76.59% Coverage)', () => {
         cards: [{ cardId: 'id1' }, { cardId: 'id2' }],
       };
 
-      const cards = Array.isArray(mockReq.body.cards)
-        ? mockReq.body.cards
-        : [];
+      const cards = Array.isArray(mockReq.body.cards) ? mockReq.body.cards : [];
 
       expect(Array.isArray(cards)).toBe(true);
       expect(cards).toHaveLength(2);

@@ -11,7 +11,7 @@ import mongoose from 'mongoose';
  * E2E Tests - Pruebas de flujo completo de Trading
  * Estos tests verifican el flujo de negocio completo desde la creación de usuarios
  * hasta la realización de intercambios.
- * 
+ *
  * NOTA: Muchos tests están comentados como .skip porque requieren autenticación funcional
  * que aún no está disponible en modo test. Deberán activarse cuando la autenticación esté lista.
  */

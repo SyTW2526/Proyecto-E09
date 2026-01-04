@@ -55,14 +55,12 @@ describe('UserCard Router - Missing Coverage', () => {
 
   describe('POST /usercards/import - Lines 28-63 (API import)', () => {
     it('importa cartas desde la API - LINE 28-63', async () => {
-      const res = await request(app)
-        .post('/usercards/import')
-        .send({
-          username: user.username,
-          query: 'Pikachu',
-          limit: 3,
-          forTrade: true,
-        });
+      const res = await request(app).post('/usercards/import').send({
+        username: user.username,
+        query: 'Pikachu',
+        limit: 3,
+        forTrade: true,
+      });
 
       expect([200, 404, 500]).toContain(res.status);
       if (res.status === 200) {
@@ -72,38 +70,32 @@ describe('UserCard Router - Missing Coverage', () => {
     });
 
     it('retorna 404 para usuario no encontrado - LINE 28-63', async () => {
-      const res = await request(app)
-        .post('/usercards/import')
-        .send({
-          username: 'nonexistent_user',
-          query: 'Pikachu',
-          limit: 5,
-        });
+      const res = await request(app).post('/usercards/import').send({
+        username: 'nonexistent_user',
+        query: 'Pikachu',
+        limit: 5,
+      });
 
       expect([404, 500]).toContain(res.status);
     });
 
     it('maneja resultado vacío de API - LINE 28-63', async () => {
-      const res = await request(app)
-        .post('/usercards/import')
-        .send({
-          username: user.username,
-          query: 'XYZ_NONEXISTENT_CARD_99999',
-          limit: 5,
-        });
+      const res = await request(app).post('/usercards/import').send({
+        username: user.username,
+        query: 'XYZ_NONEXISTENT_CARD_99999',
+        limit: 5,
+      });
 
       expect([404, 200, 500]).toContain(res.status);
     });
 
     it('respeta parámetro limit - LINE 28-63', async () => {
-      const res = await request(app)
-        .post('/usercards/import')
-        .send({
-          username: user.username,
-          query: 'a',
-          limit: 1,
-          forTrade: false,
-        });
+      const res = await request(app).post('/usercards/import').send({
+        username: user.username,
+        query: 'a',
+        limit: 1,
+        forTrade: false,
+      });
 
       expect([200, 404, 500]).toContain(res.status);
       if (res.status === 200 && res.body.cards) {
@@ -112,27 +104,23 @@ describe('UserCard Router - Missing Coverage', () => {
     });
 
     it('maneja forTrade=true - LINE 28-63', async () => {
-      const res = await request(app)
-        .post('/usercards/import')
-        .send({
-          username: user.username,
-          query: 'test',
-          limit: 2,
-          forTrade: true,
-        });
+      const res = await request(app).post('/usercards/import').send({
+        username: user.username,
+        query: 'test',
+        limit: 2,
+        forTrade: true,
+      });
 
       expect([200, 404, 500]).toContain(res.status);
     });
 
     it('maneja forTrade=false - LINE 28-63', async () => {
-      const res = await request(app)
-        .post('/usercards/import')
-        .send({
-          username: user.username,
-          query: 'test',
-          limit: 2,
-          forTrade: false,
-        });
+      const res = await request(app).post('/usercards/import').send({
+        username: user.username,
+        query: 'test',
+        limit: 2,
+        forTrade: false,
+      });
 
       expect([200, 404, 500]).toContain(res.status);
     });
@@ -235,7 +223,9 @@ describe('UserCard Router - Missing Coverage', () => {
     });
 
     it('obtiene cartas de colección - LINE 179', async () => {
-      const res = await request(app).get(`/usercards/${user.username}/collection`);
+      const res = await request(app).get(
+        `/usercards/${user.username}/collection`
+      );
 
       expect([200, 404]).toContain(res.status);
       if (res.status === 200) {
@@ -245,8 +235,9 @@ describe('UserCard Router - Missing Coverage', () => {
     });
 
     it('soporta paginación - LINE 219', async () => {
-      const res = await request(app)
-        .get(`/usercards/${user.username}/collection?page=1&limit=2`);
+      const res = await request(app).get(
+        `/usercards/${user.username}/collection?page=1&limit=2`
+      );
 
       expect([200, 404]).toContain(res.status);
       if (res.status === 200 && res.body.cards) {
@@ -255,8 +246,9 @@ describe('UserCard Router - Missing Coverage', () => {
     });
 
     it('soporta ordenamiento - LINE 219', async () => {
-      const res = await request(app)
-        .get(`/usercards/${user.username}/collection?sort=name&order=asc`);
+      const res = await request(app).get(
+        `/usercards/${user.username}/collection?sort=name&order=asc`
+      );
 
       expect([200, 404]).toContain(res.status);
     });
@@ -277,7 +269,9 @@ describe('UserCard Router - Missing Coverage', () => {
         quantity: 1,
       });
 
-      const res = await request(app).get(`/usercards/${user.username}/wishlist`);
+      const res = await request(app).get(
+        `/usercards/${user.username}/wishlist`
+      );
 
       expect([200, 404, 500]).toContain(res.status);
     });
@@ -292,7 +286,9 @@ describe('UserCard Router - Missing Coverage', () => {
         quantity: 2,
       });
 
-      const res = await request(app).get(`/usercards/${user.username}/fortrade`);
+      const res = await request(app).get(
+        `/usercards/${user.username}/fortrade`
+      );
 
       expect([200, 404, 500]).toContain(res.status);
     });
@@ -351,11 +347,9 @@ describe('UserCard Router - Missing Coverage', () => {
     });
 
     it('actualiza cantidad de cartas - LINE 279', async () => {
-      const res = await request(app)
-        .patch(`/usercards/${userCard._id}`)
-        .send({
-          quantity: 3,
-        });
+      const res = await request(app).patch(`/usercards/${userCard._id}`).send({
+        quantity: 3,
+      });
 
       expect([200, 400, 404, 500]).toContain(res.status);
       if (res.status === 200) {
@@ -364,11 +358,9 @@ describe('UserCard Router - Missing Coverage', () => {
     });
 
     it('actualiza condición de carta - LINE 279', async () => {
-      const res = await request(app)
-        .patch(`/usercards/${userCard._id}`)
-        .send({
-          condition: 'Good',
-        });
+      const res = await request(app).patch(`/usercards/${userCard._id}`).send({
+        condition: 'Good',
+      });
 
       expect([200, 400, 404, 500]).toContain(res.status);
       if (res.status === 200) {
@@ -379,21 +371,17 @@ describe('UserCard Router - Missing Coverage', () => {
     it('retorna 404 para card inexistente - LINE 279', async () => {
       const nonExistentId = new mongoose.Types.ObjectId();
 
-      const res = await request(app)
-        .patch(`/usercards/${nonExistentId}`)
-        .send({
-          quantity: 5,
-        });
+      const res = await request(app).patch(`/usercards/${nonExistentId}`).send({
+        quantity: 5,
+      });
 
       expect([404, 400, 500]).toContain(res.status);
     });
 
     it('maneja validación de cantidad - LINE 279', async () => {
-      const res = await request(app)
-        .patch(`/usercards/${userCard._id}`)
-        .send({
-          quantity: -1,
-        });
+      const res = await request(app).patch(`/usercards/${userCard._id}`).send({
+        quantity: -1,
+      });
 
       expect([400, 200, 404, 500]).toContain(res.status);
     });
@@ -462,11 +450,9 @@ describe('UserCard Router - Missing Coverage', () => {
       });
 
       // Try to update type (if supported)
-      const res = await request(app)
-        .patch(`/usercards/${uc._id}`)
-        .send({
-          collectionType: 'wishlist',
-        });
+      const res = await request(app).patch(`/usercards/${uc._id}`).send({
+        collectionType: 'wishlist',
+      });
 
       expect([200, 400, 404, 500]).toContain(res.status);
     });

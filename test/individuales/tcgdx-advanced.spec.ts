@@ -230,7 +230,11 @@ describe('tcgdx utilities', () => {
 
     it('normaliza barras diagonales', () => {
       const url = 'https://example.com//card.jpg';
-      const normalized = url.replace(/\/+/g, '/').replace('://', '___').replace(/\/+/g, '/').replace('___', '://');
+      const normalized = url
+        .replace(/\/+/g, '/')
+        .replace('://', '___')
+        .replace(/\/+/g, '/')
+        .replace('___', '://');
       expect(normalized).toContain('example.com');
     });
 
@@ -334,7 +338,7 @@ describe('tcgdx utilities', () => {
     });
 
     it('maneja precios en diferentes monedas', () => {
-      const prices = { usd: 5.25, eur: 4.99, gbp: 4.50 };
+      const prices = { usd: 5.25, eur: 4.99, gbp: 4.5 };
       expect(Object.keys(prices).length).toBe(3);
     });
 
@@ -674,8 +678,8 @@ describe('tcgdx utilities', () => {
     });
 
     it('maneja nombres con caracteres especiales', () => {
-      const names = ['Pikachu', 'Mr. Mime', 'Type: Null', "Nidoran♀"];
-      names.forEach(name => {
+      const names = ['Pikachu', 'Mr. Mime', 'Type: Null', 'Nidoran♀'];
+      names.forEach((name) => {
         expect(name.length).toBeGreaterThan(0);
       });
     });
@@ -685,7 +689,7 @@ describe('tcgdx utilities', () => {
         'https://example.com/card.jpg',
         'http://cdn.tcgdex.com/image.png',
       ];
-      urls.forEach(url => {
+      urls.forEach((url) => {
         expect(url).toMatch(/^https?:\/\//);
       });
     });
@@ -698,14 +702,14 @@ describe('tcgdx utilities', () => {
 
     it('valida rareza válida', () => {
       const rarities = ['C', 'U', 'R', 'RR', 'UR', 'SR'];
-      rarities.forEach(rarity => {
+      rarities.forEach((rarity) => {
         expect(rarity.length).toBeGreaterThan(0);
       });
     });
 
     it('maneja HP en rango válido', () => {
       const hps = [20, 60, 100, 150, 200, 300, 340];
-      hps.forEach(hp => {
+      hps.forEach((hp) => {
         expect(hp).toBeGreaterThan(0);
         expect(hp % 10).toBe(0);
       });
@@ -743,7 +747,7 @@ describe('tcgdx utilities', () => {
 
     it('filtra precios inválidos', () => {
       const prices = ['25.99', 'invalid', '100', null];
-      const validPrices = prices.filter(p => !isNaN(parseFloat(p as any)));
+      const validPrices = prices.filter((p) => !isNaN(parseFloat(p as any)));
       expect(validPrices.length).toBeLessThan(prices.length);
     });
 
@@ -808,7 +812,7 @@ describe('tcgdx utilities', () => {
     it('valida extensión de archivo', () => {
       const extensions = ['jpg', 'jpeg', 'png', 'webp'];
       const url = 'https://example.com/image.jpg';
-      const hasValidExt = extensions.some(ext => url.endsWith('.' + ext));
+      const hasValidExt = extensions.some((ext) => url.endsWith('.' + ext));
       expect(hasValidExt).toBe(true);
     });
 
@@ -924,7 +928,7 @@ describe('tcgdx utilities', () => {
 
     it('maneja valores extremos numéricos', () => {
       const values = [0, -1, 999999, Number.MAX_VALUE];
-      values.forEach(v => {
+      values.forEach((v) => {
         expect(typeof v).toBe('number');
       });
     });
@@ -946,13 +950,13 @@ describe('tcgdx utilities', () => {
         { id: '', name: 'Invalid' },
         { id: '3', name: 'Card 3' },
       ];
-      const valid = cards.filter(c => c.id !== '');
+      const valid = cards.filter((c) => c.id !== '');
       expect(valid.length).toBe(2);
     });
 
     it('mapea propiedades', () => {
       const cards = [{ name: 'Pikachu' }, { name: 'Charizard' }];
-      const names = cards.map(c => c.name);
+      const names = cards.map((c) => c.name);
       expect(names).toEqual(['Pikachu', 'Charizard']);
     });
 

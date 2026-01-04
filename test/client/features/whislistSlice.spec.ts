@@ -224,7 +224,9 @@ describe('whislistSlice', () => {
     });
 
     it('debería remover última tarjeta', () => {
-      const cards: UserOwnedCard[] = [{ id: '1', quantity: 1 } as UserOwnedCard];
+      const cards: UserOwnedCard[] = [
+        { id: '1', quantity: 1 } as UserOwnedCard,
+      ];
 
       let state = {
         ...initialState,

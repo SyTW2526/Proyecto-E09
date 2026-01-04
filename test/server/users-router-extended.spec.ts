@@ -30,8 +30,14 @@ describe('Users Router - Endpoints HTTP', () => {
 
     // Generar tokens JWT
     const secret = process.env.JWT_SECRET || 'test-secret';
-    token = jwt.sign({ userId: testUser._id, username: testUser.username }, secret);
-    token2 = jwt.sign({ userId: testUser2._id, username: testUser2.username }, secret);
+    token = jwt.sign(
+      { userId: testUser._id, username: testUser.username },
+      secret
+    );
+    token2 = jwt.sign(
+      { userId: testUser2._id, username: testUser2.username },
+      secret
+    );
   });
 
   afterEach(async () => {
@@ -40,13 +46,11 @@ describe('Users Router - Endpoints HTTP', () => {
 
   describe('POST /users/register', () => {
     it('registra un nuevo usuario', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'newuser',
-          email: 'newuser@test.com',
-          password: 'password123',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'newuser',
+        email: 'newuser@test.com',
+        password: 'password123',
+      });
 
       expect(res.status).toBeLessThan(500);
     });
@@ -62,23 +66,19 @@ describe('Users Router - Endpoints HTTP', () => {
 
   describe('POST /users/login', () => {
     it('inicia sesión con credenciales correctas', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          email: 'apiuser1@test.com',
-          password: 'hashed_password',
-        });
+      const res = await request(app).post('/users/login').send({
+        email: 'apiuser1@test.com',
+        password: 'hashed_password',
+      });
 
       expect(res.status).toBeLessThan(500);
     });
 
     it('rechaza credenciales incorrectas', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          email: 'apiuser1@test.com',
-          password: 'wrongpassword',
-        });
+      const res = await request(app).post('/users/login').send({
+        email: 'apiuser1@test.com',
+        password: 'wrongpassword',
+      });
 
       expect([401, 400, 500]).toContain(res.status);
     });

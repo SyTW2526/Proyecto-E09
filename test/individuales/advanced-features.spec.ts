@@ -202,7 +202,7 @@ describe('Advanced User Features - Amigos y Bloqueos', () => {
 
       // Desbloquear usuario
       user1.blockedUsers = user1.blockedUsers.filter(
-        id => id.toString() !== user2._id.toString()
+        (id) => id.toString() !== user2._id.toString()
       );
       await user1.save();
 

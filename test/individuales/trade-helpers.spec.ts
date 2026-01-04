@@ -1,16 +1,16 @@
-import { describe, it, beforeEach, afterEach, expect } from "vitest";
-import mongoose from "mongoose";
-import { 
+import { describe, it, beforeEach, afterEach, expect } from 'vitest';
+import mongoose from 'mongoose';
+import {
   TRADE_POPULATE_FIELDS,
   getPopulatedTrade,
   getTradeByRoomCode,
   getPaginatedTrades,
   getPopulatedTradeRequest,
   getPaginatedTradeRequests,
-} from "../../src/server/utils/tradeHelpers.js";
-import { Trade } from "../../src/server/models/Trade.js";
-import { TradeRequest } from "../../src/server/models/TradeRequest.js";
-import { User } from "../../src/server/models/User.js";
+} from '../../src/server/utils/tradeHelpers.js';
+import { Trade } from '../../src/server/models/Trade.js';
+import { TradeRequest } from '../../src/server/models/TradeRequest.js';
+import { User } from '../../src/server/models/User.js';
 
 /**
  * Tests exhaustivos para tradeHelpers.ts
@@ -28,38 +28,38 @@ afterEach(async () => {
   await User.deleteMany();
 });
 
-describe("Trade Helpers", () => {
+describe('Trade Helpers', () => {
   const user1Data = {
-    username: "trader1",
-    email: "trader1@example.com",
-    password: "pass123",
+    username: 'trader1',
+    email: 'trader1@example.com',
+    password: 'pass123',
   };
 
   const user2Data = {
-    username: "trader2",
-    email: "trader2@example.com",
-    password: "pass456",
+    username: 'trader2',
+    email: 'trader2@example.com',
+    password: 'pass456',
   };
 
-  describe("TRADE_POPULATE_FIELDS", () => {
-    it("contiene los campos de populate esperados", () => {
+  describe('TRADE_POPULATE_FIELDS', () => {
+    it('contiene los campos de populate esperados', () => {
       expect(TRADE_POPULATE_FIELDS).toBeInstanceOf(Array);
       expect(TRADE_POPULATE_FIELDS.length).toBeGreaterThan(0);
-      expect(TRADE_POPULATE_FIELDS[0]).toHaveProperty("path");
-      expect(TRADE_POPULATE_FIELDS[0]).toHaveProperty("select");
+      expect(TRADE_POPULATE_FIELDS[0]).toHaveProperty('path');
+      expect(TRADE_POPULATE_FIELDS[0]).toHaveProperty('select');
     });
   });
 
-  describe("getPopulatedTrade", () => {
-    it("obtiene un trade con populate completo", async () => {
+  describe('getPopulatedTrade', () => {
+    it('obtiene un trade con populate completo', async () => {
       const user1 = await User.create(user1Data);
       const user2 = await User.create(user2Data);
 
       const trade = await Trade.create({
         initiatorUserId: user1._id,
         receiverUserId: user2._id,
-        tradeType: "public",
-        status: "pending",
+        tradeType: 'public',
+        status: 'pending',
         initiatorCards: [],
         receiverCards: [],
       });
@@ -71,7 +71,7 @@ describe("Trade Helpers", () => {
       expect(result?.initiatorUserId).toBeDefined();
     });
 
-    it("retorna null si el trade no existe", async () => {
+    it('retorna null si el trade no existe', async () => {
       const fakeId = new mongoose.Types.ObjectId();
       const result = await getPopulatedTrade(String(fakeId));
 
@@ -79,44 +79,44 @@ describe("Trade Helpers", () => {
     });
   });
 
-  describe("getTradeByRoomCode", () => {
-    it("obtiene un trade por código de sala", async () => {
+  describe('getTradeByRoomCode', () => {
+    it('obtiene un trade por código de sala', async () => {
       const user1 = await User.create(user1Data);
       const user2 = await User.create(user2Data);
 
       const trade = await Trade.create({
         initiatorUserId: user1._id,
         receiverUserId: user2._id,
-        tradeType: "private",
-        status: "pending",
-        privateRoomCode: "TEST123",
+        tradeType: 'private',
+        status: 'pending',
+        privateRoomCode: 'TEST123',
         initiatorCards: [],
         receiverCards: [],
       });
 
-      const result = await getTradeByRoomCode("TEST123");
+      const result = await getTradeByRoomCode('TEST123');
 
       expect(result).toBeDefined();
       expect(result?._id).toEqual(trade._id);
     });
 
-    it("retorna null si el código de sala no existe", async () => {
-      const result = await getTradeByRoomCode("NONEXISTENT");
+    it('retorna null si el código de sala no existe', async () => {
+      const result = await getTradeByRoomCode('NONEXISTENT');
 
       expect(result).toBeNull();
     });
   });
 
-  describe("getPaginatedTrades", () => {
-    it("obtiene trades con paginación", async () => {
+  describe('getPaginatedTrades', () => {
+    it('obtiene trades con paginación', async () => {
       const user1 = await User.create(user1Data);
       const user2 = await User.create(user2Data);
 
       await Trade.create({
         initiatorUserId: user1._id,
         receiverUserId: user2._id,
-        tradeType: "public",
-        status: "pending",
+        tradeType: 'public',
+        status: 'pending',
         initiatorCards: [],
         receiverCards: [],
       });
@@ -130,15 +130,15 @@ describe("Trade Helpers", () => {
       expect(result.totalPages).toBe(1);
     });
 
-    it("filtra trades por estado", async () => {
+    it('filtra trades por estado', async () => {
       const user1 = await User.create(user1Data);
       const user2 = await User.create(user2Data);
 
       await Trade.create({
         initiatorUserId: user1._id,
         receiverUserId: user2._id,
-        tradeType: "public",
-        status: "pending",
+        tradeType: 'public',
+        status: 'pending',
         initiatorCards: [],
         receiverCards: [],
       });
@@ -146,19 +146,19 @@ describe("Trade Helpers", () => {
       await Trade.create({
         initiatorUserId: user1._id,
         receiverUserId: user2._id,
-        tradeType: "public",
-        status: "completed",
+        tradeType: 'public',
+        status: 'completed',
         initiatorCards: [],
         receiverCards: [],
       });
 
-      const result = await getPaginatedTrades({ status: "pending" }, 1, 10);
+      const result = await getPaginatedTrades({ status: 'pending' }, 1, 10);
 
       expect(result.trades.length).toBe(1);
-      expect(result.trades[0].status).toBe("pending");
+      expect(result.trades[0].status).toBe('pending');
     });
 
-    it("respeta el límite de resultados por página", async () => {
+    it('respeta el límite de resultados por página', async () => {
       const user1 = await User.create(user1Data);
       const user2 = await User.create(user2Data);
 
@@ -166,8 +166,8 @@ describe("Trade Helpers", () => {
         await Trade.create({
           initiatorUserId: user1._id,
           receiverUserId: user2._id,
-          tradeType: "public",
-          status: "pending",
+          tradeType: 'public',
+          status: 'pending',
           initiatorCards: [],
           receiverCards: [],
         });
@@ -180,7 +180,7 @@ describe("Trade Helpers", () => {
       expect(result.totalPages).toBe(3);
     });
 
-    it("pagina correctamente", async () => {
+    it('pagina correctamente', async () => {
       const user1 = await User.create(user1Data);
       const user2 = await User.create(user2Data);
 
@@ -188,8 +188,8 @@ describe("Trade Helpers", () => {
         await Trade.create({
           initiatorUserId: user1._id,
           receiverUserId: user2._id,
-          tradeType: "public",
-          status: "pending",
+          tradeType: 'public',
+          status: 'pending',
           initiatorCards: [],
           receiverCards: [],
         });
@@ -202,15 +202,15 @@ describe("Trade Helpers", () => {
     });
   });
 
-  describe("getPopulatedTradeRequest", () => {
-    it("obtiene una solicitud de intercambio con populate", async () => {
+  describe('getPopulatedTradeRequest', () => {
+    it('obtiene una solicitud de intercambio con populate', async () => {
       const user1 = await User.create(user1Data);
       const user2 = await User.create(user2Data);
 
       const request = await TradeRequest.create({
         senderId: user1._id,
         receiverId: user2._id,
-        cardName: "Pikachu",
+        cardName: 'Pikachu',
         isManual: true,
       });
 
@@ -220,7 +220,7 @@ describe("Trade Helpers", () => {
       expect(result?._id).toEqual(request._id);
     });
 
-    it("retorna null si la solicitud no existe", async () => {
+    it('retorna null si la solicitud no existe', async () => {
       const fakeId = new mongoose.Types.ObjectId();
       const result = await getPopulatedTradeRequest(String(fakeId));
 
@@ -228,15 +228,15 @@ describe("Trade Helpers", () => {
     });
   });
 
-  describe("getPaginatedTradeRequests", () => {
-    it("obtiene solicitudes con paginación", async () => {
+  describe('getPaginatedTradeRequests', () => {
+    it('obtiene solicitudes con paginación', async () => {
       const user1 = await User.create(user1Data);
       const user2 = await User.create(user2Data);
 
       await TradeRequest.create({
         senderId: user1._id,
         receiverId: user2._id,
-        cardName: "Charizard",
+        cardName: 'Charizard',
         isManual: true,
       });
 
@@ -248,33 +248,37 @@ describe("Trade Helpers", () => {
       expect(result.totalPages).toBe(1);
     });
 
-    it("filtra solicitudes por estado", async () => {
+    it('filtra solicitudes por estado', async () => {
       const user1 = await User.create(user1Data);
       const user2 = await User.create(user2Data);
 
       await TradeRequest.create({
         senderId: user1._id,
         receiverId: user2._id,
-        cardName: "Blastoise",
+        cardName: 'Blastoise',
         isManual: true,
-        status: "pending",
+        status: 'pending',
       });
 
       await TradeRequest.create({
         senderId: user1._id,
         receiverId: user2._id,
-        cardName: "Venusaur",
+        cardName: 'Venusaur',
         isManual: true,
-        status: "accepted",
+        status: 'accepted',
       });
 
-      const result = await getPaginatedTradeRequests({ status: "accepted" }, 1, 10);
+      const result = await getPaginatedTradeRequests(
+        { status: 'accepted' },
+        1,
+        10
+      );
 
       expect(result.requests.length).toBe(1);
-      expect(result.requests[0].status).toBe("accepted");
+      expect(result.requests[0].status).toBe('accepted');
     });
 
-    it("respeta el límite de resultados", async () => {
+    it('respeta el límite de resultados', async () => {
       const user1 = await User.create(user1Data);
       const user2 = await User.create(user2Data);
 

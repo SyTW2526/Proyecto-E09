@@ -95,12 +95,10 @@ describe('UserCard Router - Full Coverage Tests', () => {
     });
 
     it('debería rechazar sin autenticación', async () => {
-      const res = await request(app)
-        .post('/usercards')
-        .send({
-          cardId: card1._id.toString(),
-          quantity: 1,
-        });
+      const res = await request(app).post('/usercards').send({
+        cardId: card1._id.toString(),
+        quantity: 1,
+      });
 
       expect([501, 401, 400, 403, 404, 500]).toContain(res.status);
     });
@@ -154,15 +152,15 @@ describe('UserCard Router - Full Coverage Tests', () => {
 
   describe('GET /usercards/:userCardId - Get Card Details', () => {
     it('debería obtener detalles de tarjeta de usuario', async () => {
-      const res = await request(app)
-        .get(`/usercards/${userCard1._id}`);
+      const res = await request(app).get(`/usercards/${userCard1._id}`);
 
       expect([501, 200, 401, 403, 404, 500]).toContain(res.status);
     });
 
     it('debería retornar 404 para tarjeta inexistente', async () => {
-      const res = await request(app)
-        .get(`/usercards/${new mongoose.Types.ObjectId()}`);
+      const res = await request(app).get(
+        `/usercards/${new mongoose.Types.ObjectId()}`
+      );
 
       expect([501, 401, 404, 500]).toContain(res.status);
     });
@@ -242,15 +240,15 @@ describe('UserCard Router - Full Coverage Tests', () => {
 
   describe('GET /usercards/stats/:userId - User Card Statistics', () => {
     it('debería obtener estadísticas de tarjetas de usuario', async () => {
-      const res = await request(app)
-        .get(`/usercards/stats/${user1._id}`);
+      const res = await request(app).get(`/usercards/stats/${user1._id}`);
 
       expect([501, 200, 401, 403, 404, 500]).toContain(res.status);
     });
 
     it('debería retornar 404 para usuario inexistente', async () => {
-      const res = await request(app)
-        .get(`/usercards/stats/${new mongoose.Types.ObjectId()}`);
+      const res = await request(app).get(
+        `/usercards/stats/${new mongoose.Types.ObjectId()}`
+      );
 
       expect([501, 401, 404, 500]).toContain(res.status);
     });
@@ -258,8 +256,14 @@ describe('UserCard Router - Full Coverage Tests', () => {
 
   describe('POST /usercards/bulk - Bulk Add Cards', () => {
     it('debería agregar múltiples tarjetas en lote', async () => {
-      const card2 = await Card.create({ pokemonTcgId: 'sv04pt-002', name: 'Charizard' });
-      const card3 = await Card.create({ pokemonTcgId: 'sv04pt-003', name: 'Blastoise' });
+      const card2 = await Card.create({
+        pokemonTcgId: 'sv04pt-002',
+        name: 'Charizard',
+      });
+      const card3 = await Card.create({
+        pokemonTcgId: 'sv04pt-003',
+        name: 'Blastoise',
+      });
 
       const res = await request(app)
         .post('/usercards/bulk')

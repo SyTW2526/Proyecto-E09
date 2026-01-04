@@ -2,14 +2,20 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { configureStore } from '@reduxjs/toolkit';
 
 const apiMock = {
-  getUserCollection: vi.fn(async (_username: string) => [{ id: 'u1', name: 'Card 1', image: '', rarity: 'Common', forTrade: false }]),
+  getUserCollection: vi.fn(async (_username: string) => [
+    { id: 'u1', name: 'Card 1', image: '', rarity: 'Common', forTrade: false },
+  ]),
   addToCollection: vi.fn(async () => true),
   removeFromCollection: vi.fn(async () => true),
 };
 
 vi.mock('../../src/client/services/apiService', () => ({ default: apiMock }));
 
-import collectionReducer, { fetchUserCollection, addToCollection, removeFromCollection } from '../../src/client/features/collection/collectionSlice';
+import collectionReducer, {
+  fetchUserCollection,
+  addToCollection,
+  removeFromCollection,
+} from '../../src/client/features/collection/collectionSlice';
 
 describe('collectionSlice - cobertura principal', () => {
   let store: any;
@@ -28,7 +34,9 @@ describe('collectionSlice - cobertura principal', () => {
   it('removeFromCollection -> fulfilled filtra por id', async () => {
     // Pre-carga estado
     await store.dispatch<any>(fetchUserCollection('userA'));
-    await store.dispatch<any>(removeFromCollection({ userId: 'u', cardId: 'u1' }));
+    await store.dispatch<any>(
+      removeFromCollection({ userId: 'u', cardId: 'u1' })
+    );
     const state = store.getState().collection;
     expect(state.cards.find((c: any) => c.id === 'u1')).toBeUndefined();
   });

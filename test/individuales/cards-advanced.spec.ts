@@ -90,9 +90,9 @@ describe('cards service - Card Management', () => {
 
     it('asigna modelo correcto por categoría', () => {
       const mappings = {
-        'Pokémon': 'PokemonCard',
-        'Trainer': 'TrainerCard',
-        'Energy': 'EnergyCard',
+        Pokémon: 'PokemonCard',
+        Trainer: 'TrainerCard',
+        Energy: 'EnergyCard',
       };
       expect(Object.keys(mappings).length).toBe(3);
     });

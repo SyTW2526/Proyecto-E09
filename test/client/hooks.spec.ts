@@ -21,7 +21,11 @@ describe('Custom Hooks Utilities - Unit Tests', () => {
 
     it('maneja cambio de múltiples campos', () => {
       const formState = { username: '', password: '', email: '' };
-      const updated = { ...formState, username: 'user', email: 'user@test.com' };
+      const updated = {
+        ...formState,
+        username: 'user',
+        email: 'user@test.com',
+      };
       expect(updated.username).toBe('user');
       expect(updated.email).toBe('user@test.com');
       expect(updated.password).toBe('');
@@ -42,7 +46,11 @@ describe('Custom Hooks Utilities - Unit Tests', () => {
     });
 
     it('preserva valores sin cambios', () => {
-      const formState = { field1: 'value1', field2: 'value2', field3: 'value3' };
+      const formState = {
+        field1: 'value1',
+        field2: 'value2',
+        field3: 'value3',
+      };
       const updated = { ...formState, field2: 'updated' };
       expect(updated.field1).toBe('value1');
       expect(updated.field3).toBe('value3');
@@ -79,7 +87,7 @@ describe('Custom Hooks Utilities - Unit Tests', () => {
       state = { ...state, loading: true, error: 'Error 1' };
       expect(state.loading).toBe(true);
       expect(state.error).toBe('Error 1');
-      
+
       state = { ...state, loading: false, error: null };
       expect(state.loading).toBe(false);
       expect(state.error).toBeNull();
@@ -108,7 +116,7 @@ describe('Custom Hooks Utilities - Unit Tests', () => {
       let state = { isOpen: false };
       state = { ...state, isOpen: !state.isOpen };
       expect(state.isOpen).toBe(true);
-      
+
       state = { ...state, isOpen: !state.isOpen };
       expect(state.isOpen).toBe(false);
     });
@@ -130,17 +138,25 @@ describe('Custom Hooks Utilities - Unit Tests', () => {
 
   describe('Form Input - Input Handler Logic', () => {
     it('extrae name y value de evento', () => {
-      const event = { target: { name: 'username', value: 'testuser', type: 'text' } };
+      const event = {
+        target: { name: 'username', value: 'testuser', type: 'text' },
+      };
       const { name, value } = event.target;
       expect(name).toBe('username');
       expect(value).toBe('testuser');
     });
 
     it('maneja tipos de input diferentes', () => {
-      const textInput = { target: { name: 'text', value: 'text value', type: 'text' } };
-      const numberInput = { target: { name: 'number', value: '42', type: 'number' } };
-      const emailInput = { target: { name: 'email', value: 'test@test.com', type: 'email' } };
-      
+      const textInput = {
+        target: { name: 'text', value: 'text value', type: 'text' },
+      };
+      const numberInput = {
+        target: { name: 'number', value: '42', type: 'number' },
+      };
+      const emailInput = {
+        target: { name: 'email', value: 'test@test.com', type: 'email' },
+      };
+
       expect(textInput.target.type).toBe('text');
       expect(numberInput.target.type).toBe('number');
       expect(emailInput.target.type).toBe('email');
@@ -157,13 +173,19 @@ describe('Custom Hooks Utilities - Unit Tests', () => {
 
     it('maneja textarea correctamente', () => {
       const textareaEvent = {
-        target: { name: 'message', value: 'Multi-line\ntext', type: 'textarea' },
+        target: {
+          name: 'message',
+          value: 'Multi-line\ntext',
+          type: 'textarea',
+        },
       };
       expect(textareaEvent.target.value).toContain('\n');
     });
 
     it('maneja select correctly', () => {
-      const selectEvent = { target: { name: 'category', value: 'selected', type: 'select' } };
+      const selectEvent = {
+        target: { name: 'category', value: 'selected', type: 'select' },
+      };
       expect(selectEvent.target.type).toBe('select');
       expect(selectEvent.target.value).toBe('selected');
     });
@@ -174,7 +196,7 @@ describe('Custom Hooks Utilities - Unit Tests', () => {
       let state = { status: 'idle', error: null };
       state = { ...state, status: 'loading' };
       expect(state.status).toBe('loading');
-      
+
       state = { ...state, status: 'done' };
       expect(state.status).toBe('done');
     });
@@ -183,7 +205,7 @@ describe('Custom Hooks Utilities - Unit Tests', () => {
       let state = { status: 'idle', error: null };
       state = { ...state, status: 'loading' };
       state = { ...state, status: 'error', error: 'Network error' };
-      
+
       expect(state.status).toBe('error');
       expect(state.error).toBe('Network error');
     });
@@ -194,7 +216,7 @@ describe('Custom Hooks Utilities - Unit Tests', () => {
       let state = { isOpen: false };
       state = { ...state, isOpen: true };
       expect(state.isOpen).toBe(true);
-      
+
       state = { ...state, isOpen: false };
       expect(state.isOpen).toBe(false);
     });
@@ -203,7 +225,7 @@ describe('Custom Hooks Utilities - Unit Tests', () => {
       let state = { isOpen: false, data: null };
       state = { ...state, data: { value: 'test' }, isOpen: true };
       expect(state.data?.value).toBe('test');
-      
+
       state = { ...state, isOpen: false };
       expect(state.data?.value).toBe('test'); // Data persiste
     });

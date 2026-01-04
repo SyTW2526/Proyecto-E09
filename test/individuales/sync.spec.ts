@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import request from "supertest";
-import { app } from "../../src/server/api.js";
+import { describe, it, expect } from 'vitest';
+import request from 'supertest';
+import { app } from '../../src/server/api.js';
 
 /**
  * Tests para la sincronización de cartas con el API de Pokémon TCG

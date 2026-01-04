@@ -201,8 +201,7 @@ describe('Card Router Comprehensive', () => {
     });
 
     it('should handle invalid MongoDB ID format', async () => {
-      const res = await request(app)
-        .get('/cards/invalid-id');
+      const res = await request(app).get('/cards/invalid-id');
 
       expect([400, 404, 500]).toContain(res.status);
     });
@@ -222,25 +221,19 @@ describe('Card Router Comprehensive', () => {
     });
 
     it('should return error for empty body', async () => {
-      const res = await request(app)
-        .post('/cards')
-        .send(null);
+      const res = await request(app).post('/cards').send(null);
 
       expect([400, 422, 500]).toContain(res.status);
     });
 
     it('should handle card with null id', async () => {
-      const res = await request(app)
-        .post('/cards')
-        .send({ id: null });
+      const res = await request(app).post('/cards').send({ id: null });
 
       expect([400, 422, 500]).toContain(res.status);
     });
 
     it('should handle card with empty string id', async () => {
-      const res = await request(app)
-        .post('/cards')
-        .send({ id: '' });
+      const res = await request(app).post('/cards').send({ id: '' });
 
       expect([400, 422, 500]).toContain(res.status);
     });
@@ -253,9 +246,15 @@ describe('Card Router Comprehensive', () => {
           extra: 'property',
           another: 123,
         })
-        .expect((r) => expect([200, 201, 400, 401, 403, 404, 409, 422, 500, 501]).toContain(r.status));
+        .expect((r) =>
+          expect([200, 201, 400, 401, 403, 404, 409, 422, 500, 501]).toContain(
+            r.status
+          )
+        );
 
-      expect([200, 201, 400, 401, 403, 404, 409, 422, 500, 501]).toContain(res.status);
+      expect([200, 201, 400, 401, 403, 404, 409, 422, 500, 501]).toContain(
+        res.status
+      );
     });
   });
 
@@ -278,7 +277,9 @@ describe('Card Router Comprehensive', () => {
       if (res.status === 200) {
         expect(res.body).toBeDefined();
         if (res.body.success) {
-          expect(Array.isArray(res.body.data) || Array.isArray(res.body)).toBe(true);
+          expect(Array.isArray(res.body.data) || Array.isArray(res.body)).toBe(
+            true
+          );
         }
       }
     });
@@ -342,8 +343,7 @@ describe('Card Router Comprehensive', () => {
       });
       await card.save();
 
-      const res = await request(app)
-        .get('/cards/search/quick?q=pikachu');
+      const res = await request(app).get('/cards/search/quick?q=pikachu');
 
       expect([200, 400, 500]).toContain(res.status);
       if (res.status === 200 && res.body) {
@@ -352,8 +352,7 @@ describe('Card Router Comprehensive', () => {
     });
 
     it('should handle empty query string', async () => {
-      const res = await request(app)
-        .get('/cards/search/quick?q=');
+      const res = await request(app).get('/cards/search/quick?q=');
 
       expect([200, 400, 500]).toContain(res.status);
     });
@@ -369,18 +368,22 @@ describe('Card Router Comprehensive', () => {
         await card.save();
       }
 
-      const res = await request(app)
-        .get('/cards/search/quick?q=test');
+      const res = await request(app).get('/cards/search/quick?q=test');
 
       expect([200, 400, 500]).toContain(res.status);
-      if (res.status === 200 && res.body?.data && Array.isArray(res.body.data)) {
+      if (
+        res.status === 200 &&
+        res.body?.data &&
+        Array.isArray(res.body.data)
+      ) {
         expect(res.body.data.length).toBeLessThanOrEqual(10);
       }
     });
 
     it('should handle special characters in query', async () => {
-      const res = await request(app)
-        .get('/cards/search/quick?q=pikachu%20%26%20raichu');
+      const res = await request(app).get(
+        '/cards/search/quick?q=pikachu%20%26%20raichu'
+      );
 
       expect([200, 400, 500]).toContain(res.status);
     });
@@ -393,8 +396,7 @@ describe('Card Router Comprehensive', () => {
       });
       await card.save();
 
-      const res = await request(app)
-        .get('/cards/search/quick?q=pikachu');
+      const res = await request(app).get('/cards/search/quick?q=pikachu');
 
       expect([200, 400, 500]).toContain(res.status);
     });
@@ -421,37 +423,38 @@ describe('Card Router Comprehensive', () => {
     });
 
     it('should return paginated results if successful', async () => {
-      const res = await request(app)
-        .get('/cards/search/tcg?q=pikachu&page=1&limit=10');
+      const res = await request(app).get(
+        '/cards/search/tcg?q=pikachu&page=1&limit=10'
+      );
 
       // May return 200, 500 or 502 depending on TCGdex API availability
       expect([200, 400, 500, 502, 503]).toContain(res.status);
     });
 
     it('should handle pagination parameters', async () => {
-      const res = await request(app)
-        .get('/cards/search/tcg?q=pikachu&page=2&limit=20');
+      const res = await request(app).get(
+        '/cards/search/tcg?q=pikachu&page=2&limit=20'
+      );
 
       expect([200, 400, 500, 502, 503]).toContain(res.status);
     });
 
     it('should handle optional filters', async () => {
-      const res = await request(app)
-        .get('/cards/search/tcg?q=pikachu&set=swsh1&rarity=Rare');
+      const res = await request(app).get(
+        '/cards/search/tcg?q=pikachu&set=swsh1&rarity=Rare'
+      );
 
       expect([200, 400, 500, 502, 503]).toContain(res.status);
     });
 
     it('should handle special characters in query', async () => {
-      const res = await request(app)
-        .get('/cards/search/tcg?q=mr%20mime');
+      const res = await request(app).get('/cards/search/tcg?q=mr%20mime');
 
       expect([200, 400, 500, 502, 503]).toContain(res.status);
     });
 
     it('should return results structure if successful', async () => {
-      const res = await request(app)
-        .get('/cards/search/tcg?q=pikachu');
+      const res = await request(app).get('/cards/search/tcg?q=pikachu');
 
       expect([200, 400, 500, 502, 503]).toContain(res.status);
       if (res.status === 200 && res.body?.success) {

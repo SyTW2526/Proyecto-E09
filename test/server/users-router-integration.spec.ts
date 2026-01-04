@@ -135,9 +135,7 @@ describe('Users Router - Integration Tests (27.07% Coverage)', () => {
       };
 
       if (!mockReq.body.username) {
-        mockRes
-          .status(400)
-          .send({ error: 'Username y contraseña requeridos' });
+        mockRes.status(400).send({ error: 'Username y contraseña requeridos' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -149,9 +147,7 @@ describe('Users Router - Integration Tests (27.07% Coverage)', () => {
       };
 
       if (!mockReq.body.password) {
-        mockRes
-          .status(400)
-          .send({ error: 'Username y contraseña requeridos' });
+        mockRes.status(400).send({ error: 'Username y contraseña requeridos' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -161,9 +157,7 @@ describe('Users Router - Integration Tests (27.07% Coverage)', () => {
       const user = null;
 
       if (!user) {
-        mockRes
-          .status(401)
-          .send({ error: 'Usuario o contraseña incorrectos' });
+        mockRes.status(401).send({ error: 'Usuario o contraseña incorrectos' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(401);
@@ -173,9 +167,7 @@ describe('Users Router - Integration Tests (27.07% Coverage)', () => {
       const isPasswordValid = false;
 
       if (!isPasswordValid) {
-        mockRes
-          .status(401)
-          .send({ error: 'Usuario o contraseña incorrectos' });
+        mockRes.status(401).send({ error: 'Usuario o contraseña incorrectos' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(401);
@@ -288,9 +280,7 @@ describe('Users Router - Integration Tests (27.07% Coverage)', () => {
       const isOwner = mockReq.username === mockReq.params.username;
 
       if (!isOwner) {
-        mockRes
-          .status(403)
-          .send({ error: 'No puedes modificar otro usuario' });
+        mockRes.status(403).send({ error: 'No puedes modificar otro usuario' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(403);
@@ -340,9 +330,7 @@ describe('Users Router - Integration Tests (27.07% Coverage)', () => {
       const isOwner = mockReq.username === mockReq.params.username;
 
       if (!isOwner) {
-        mockRes
-          .status(403)
-          .send({ error: 'No puedes modificar otro usuario' });
+        mockRes.status(403).send({ error: 'No puedes modificar otro usuario' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(403);

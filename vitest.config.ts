@@ -85,6 +85,8 @@ export default defineConfig({
         'src/client/socket.ts',
         'src/client/services/apiService.ts',
         'src/client/utils/imageHelpers.ts',
+        'src/client/utils/fetchHelpers.ts',
+        'src/client/utils/responseHelpers.ts',
         'src/server/scripts/**',
         'src/server/index.ts',
         'src/server/api.ts',

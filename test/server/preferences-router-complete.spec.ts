@@ -475,7 +475,7 @@ describe('Preferences Router - Complete Coverage', () => {
         .send({ language: 'fr' });
 
       const results = await Promise.all([update1, update2]);
-      results.forEach(res => {
+      results.forEach((res) => {
         expect([200, 400, 500, 501]).toContain(res.status);
       });
     });

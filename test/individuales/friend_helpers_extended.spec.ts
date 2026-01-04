@@ -12,25 +12,21 @@ describe('friendHelpers', () => {
   describe('removeFriendRequest', () => {
     it('elimina una solicitud de amistad específica', () => {
       const user = {
-        friendRequests: [
-          { from: '123' },
-          { from: '456' },
-          { from: '789' },
-        ],
+        friendRequests: [{ from: '123' }, { from: '456' }, { from: '789' }],
       };
 
       removeFriendRequest(user, '456');
 
       expect(user.friendRequests).toHaveLength(2);
-      expect(user.friendRequests.map((r: any) => r.from)).toEqual(['123', '789']);
+      expect(user.friendRequests.map((r: any) => r.from)).toEqual([
+        '123',
+        '789',
+      ]);
     });
 
     it('no afecta otras solicitudes', () => {
       const user = {
-        friendRequests: [
-          { from: '123' },
-          { from: '456' },
-        ],
+        friendRequests: [{ from: '123' }, { from: '456' }],
       };
 
       removeFriendRequest(user, '999');
@@ -42,10 +38,7 @@ describe('friendHelpers', () => {
   describe('hasPendingFriendRequest', () => {
     it('retorna true si hay solicitud pendiente', () => {
       const user = {
-        friendRequests: [
-          { from: '123' },
-          { from: '456' },
-        ],
+        friendRequests: [{ from: '123' }, { from: '456' }],
       };
 
       const result = hasPendingFriendRequest(user, '123');
@@ -55,9 +48,7 @@ describe('friendHelpers', () => {
 
     it('retorna false si no hay solicitud pendiente', () => {
       const user = {
-        friendRequests: [
-          { from: '123' },
-        ],
+        friendRequests: [{ from: '123' }],
       };
 
       const result = hasPendingFriendRequest(user, '999');

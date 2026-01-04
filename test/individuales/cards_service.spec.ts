@@ -1,10 +1,10 @@
-import { describe, it, beforeEach, expect, afterEach, vi } from "vitest";
-import mongoose from "mongoose";
-import { Card } from "../../src/server/models/Card.js";
-import { PokemonCard } from "../../src/server/models/PokemonCard.js";
-import { TrainerCard } from "../../src/server/models/TrainerCard.js";
-import { EnergyCard } from "../../src/server/models/EnergyCard.js";
-import { upsertCardFromRaw } from "../../src/server/services/cards.js";
+import { describe, it, beforeEach, expect, afterEach, vi } from 'vitest';
+import mongoose from 'mongoose';
+import { Card } from '../../src/server/models/Card.js';
+import { PokemonCard } from '../../src/server/models/PokemonCard.js';
+import { TrainerCard } from '../../src/server/models/TrainerCard.js';
+import { EnergyCard } from '../../src/server/models/EnergyCard.js';
+import { upsertCardFromRaw } from '../../src/server/services/cards.js';
 
 beforeEach(async () => {
   await Card.deleteMany();
@@ -20,40 +20,40 @@ afterEach(async () => {
   await EnergyCard.deleteMany();
 });
 
-describe("cards service", () => {
-  describe("upsertCardFromRaw", () => {
+describe('cards service', () => {
+  describe('upsertCardFromRaw', () => {
     const mockPokemonCardRaw = {
-      id: "sv04.5-001",
-      cardName: "Pikachu",
-      name: "Pikachu",
-      hp: "60",
-      types: ["Electric"],
-      rarity: "Common",
-      cardImage: "https://example.com/pikachu.jpg",
-      image: "https://example.com/pikachu.jpg",
-      category: "pokemon",
-      pokemonTcgId: "sv04.5-001",
+      id: 'sv04.5-001',
+      cardName: 'Pikachu',
+      name: 'Pikachu',
+      hp: '60',
+      types: ['Electric'],
+      rarity: 'Common',
+      cardImage: 'https://example.com/pikachu.jpg',
+      image: 'https://example.com/pikachu.jpg',
+      category: 'pokemon',
+      pokemonTcgId: 'sv04.5-001',
     };
 
     const mockTrainerCardRaw = {
-      id: "sv04-200",
-      cardName: "Switch",
-      name: "Switch",
-      effect: "Switch your Active Pokémon with one of your Benched Pokémon.",
-      category: "trainer",
-      pokemonTcgId: "sv04-200",
+      id: 'sv04-200',
+      cardName: 'Switch',
+      name: 'Switch',
+      effect: 'Switch your Active Pokémon with one of your Benched Pokémon.',
+      category: 'trainer',
+      pokemonTcgId: 'sv04-200',
     };
 
     const mockEnergyCardRaw = {
-      id: "sv04-211",
-      cardName: "Grass Energy",
-      name: "Grass Energy",
-      effect: "This card is a basic Energy card.",
-      category: "energy",
-      pokemonTcgId: "sv04-211",
+      id: 'sv04-211',
+      cardName: 'Grass Energy',
+      name: 'Grass Energy',
+      effect: 'This card is a basic Energy card.',
+      category: 'energy',
+      pokemonTcgId: 'sv04-211',
     };
 
-    it("inserta una carta Pokémon correctamente en formato raw", async () => {
+    it('inserta una carta Pokémon correctamente en formato raw', async () => {
       const result = await upsertCardFromRaw({
         ...mockPokemonCardRaw,
         data: mockPokemonCardRaw,
@@ -63,7 +63,7 @@ describe("cards service", () => {
       expect(result === null || result?._id).toBeTruthy();
     });
 
-    it("inserta una carta Trainer correctamente", async () => {
+    it('inserta una carta Trainer correctamente', async () => {
       const result = await upsertCardFromRaw({
         ...mockTrainerCardRaw,
         data: mockTrainerCardRaw,
@@ -72,7 +72,7 @@ describe("cards service", () => {
       expect(result === null || result?._id).toBeTruthy();
     });
 
-    it("inserta una carta Energy correctamente", async () => {
+    it('inserta una carta Energy correctamente', async () => {
       const result = await upsertCardFromRaw({
         ...mockEnergyCardRaw,
         data: mockEnergyCardRaw,
@@ -81,7 +81,7 @@ describe("cards service", () => {
       expect(result === null || result?._id).toBeTruthy();
     });
 
-    it("actualiza carta existente sin crear duplicados", async () => {
+    it('actualiza carta existente sin crear duplicados', async () => {
       // Insert first time
       const first = await upsertCardFromRaw({
         ...mockPokemonCardRaw,
@@ -101,12 +101,12 @@ describe("cards service", () => {
       expect(allCards.length).toBeLessThanOrEqual(1);
     });
 
-    it("maneja datos raw sin wrapper", async () => {
+    it('maneja datos raw sin wrapper', async () => {
       const simpleRaw = {
-        id: "test-001",
-        name: "Test Card",
-        cardName: "Test Card",
-        pokemonTcgId: "test-001",
+        id: 'test-001',
+        name: 'Test Card',
+        cardName: 'Test Card',
+        pokemonTcgId: 'test-001',
       };
 
       const result = await upsertCardFromRaw(simpleRaw);
@@ -117,10 +117,10 @@ describe("cards service", () => {
     it("maneja datos raw con wrapper 'data'", async () => {
       const wrappedRaw = {
         data: {
-          id: "test-002",
-          name: "Test Card Wrapped",
-          cardName: "Test Card Wrapped",
-          pokemonTcgId: "test-002",
+          id: 'test-002',
+          name: 'Test Card Wrapped',
+          cardName: 'Test Card Wrapped',
+          pokemonTcgId: 'test-002',
         },
       };
 
@@ -129,13 +129,13 @@ describe("cards service", () => {
       expect(result === null || result?._id).toBeTruthy();
     });
 
-    it("maneja array de datos en raw", async () => {
+    it('maneja array de datos en raw', async () => {
       const arrayRaw = [
         {
-          id: "test-003",
-          name: "Test Card Array",
-          cardName: "Test Card Array",
-          pokemonTcgId: "test-003",
+          id: 'test-003',
+          name: 'Test Card Array',
+          cardName: 'Test Card Array',
+          pokemonTcgId: 'test-003',
         },
       ];
 
@@ -144,25 +144,25 @@ describe("cards service", () => {
       expect(result === null || result?._id).toBeTruthy();
     });
 
-    it("retorna null para datos inválidos", async () => {
+    it('retorna null para datos inválidos', async () => {
       const result = await upsertCardFromRaw(null);
 
       expect(result).toBeNull();
     });
 
-    it("retorna null para objeto vacío", async () => {
+    it('retorna null para objeto vacío', async () => {
       const result = await upsertCardFromRaw({});
 
       // Should either return null or create a default card
       expect(result === null || result?._id).toBeTruthy();
     });
 
-    it("mantiene pokemonTcgId consistente", async () => {
+    it('mantiene pokemonTcgId consistente', async () => {
       const cardWithId = {
-        id: "sv04.5-123",
-        name: "Test Card",
-        cardName: "Test Card",
-        pokemonTcgId: "sv04.5-123",
+        id: 'sv04.5-123',
+        name: 'Test Card',
+        cardName: 'Test Card',
+        pokemonTcgId: 'sv04.5-123',
       };
 
       const result = await upsertCardFromRaw(cardWithId);
@@ -171,11 +171,26 @@ describe("cards service", () => {
       expect(result === null || result?._id).toBeTruthy();
     });
 
-    it("maneja múltiples inserciones secuenciales", async () => {
+    it('maneja múltiples inserciones secuenciales', async () => {
       const cards = [
-        { id: "card-1", name: "Card 1", cardName: "Card 1", pokemonTcgId: "card-1" },
-        { id: "card-2", name: "Card 2", cardName: "Card 2", pokemonTcgId: "card-2" },
-        { id: "card-3", name: "Card 3", cardName: "Card 3", pokemonTcgId: "card-3" },
+        {
+          id: 'card-1',
+          name: 'Card 1',
+          cardName: 'Card 1',
+          pokemonTcgId: 'card-1',
+        },
+        {
+          id: 'card-2',
+          name: 'Card 2',
+          cardName: 'Card 2',
+          pokemonTcgId: 'card-2',
+        },
+        {
+          id: 'card-3',
+          name: 'Card 3',
+          cardName: 'Card 3',
+          pokemonTcgId: 'card-3',
+        },
       ];
 
       const results = await Promise.all(
@@ -185,21 +200,21 @@ describe("cards service", () => {
       expect(results.length).toBeGreaterThanOrEqual(0);
     });
 
-    it("actualiza campos al hacer upsert", async () => {
+    it('actualiza campos al hacer upsert', async () => {
       const cardV1 = {
-        id: "update-test-001",
-        name: "Original Name",
-        cardName: "Original Name",
-        rarity: "Common",
-        pokemonTcgId: "update-test-001",
+        id: 'update-test-001',
+        name: 'Original Name',
+        cardName: 'Original Name',
+        rarity: 'Common',
+        pokemonTcgId: 'update-test-001',
       };
 
       const cardV2 = {
-        id: "update-test-001",
-        name: "Updated Name",
-        cardName: "Updated Name",
-        rarity: "Rare",
-        pokemonTcgId: "update-test-001",
+        id: 'update-test-001',
+        name: 'Updated Name',
+        cardName: 'Updated Name',
+        rarity: 'Rare',
+        pokemonTcgId: 'update-test-001',
       };
 
       const first = await upsertCardFromRaw(cardV1);
@@ -210,14 +225,14 @@ describe("cards service", () => {
       }
     });
 
-    it("maneja datos con valores null y undefined", async () => {
+    it('maneja datos con valores null y undefined', async () => {
       const cardWithNulls = {
-        id: "null-test-001",
-        name: "Test Card",
-        cardName: "Test Card",
+        id: 'null-test-001',
+        name: 'Test Card',
+        cardName: 'Test Card',
         effect: null,
         hp: undefined,
-        pokemonTcgId: "null-test-001",
+        pokemonTcgId: 'null-test-001',
       };
 
       const result = await upsertCardFromRaw(cardWithNulls);
@@ -225,12 +240,12 @@ describe("cards service", () => {
       expect(result === null || result?._id).toBeTruthy();
     });
 
-    it("maneja cartas con información incompleta", async () => {
+    it('maneja cartas con información incompleta', async () => {
       const incompleteCard = {
-        id: "incomplete-001",
-        name: "Incomplete",
-        cardName: "Incomplete",
-        pokemonTcgId: "incomplete-001",
+        id: 'incomplete-001',
+        name: 'Incomplete',
+        cardName: 'Incomplete',
+        pokemonTcgId: 'incomplete-001',
       };
 
       const result = await upsertCardFromRaw(incompleteCard);
@@ -238,14 +253,14 @@ describe("cards service", () => {
       expect(result === null || result?._id).toBeTruthy();
     });
 
-    it("preserva datos durante upsert", async () => {
+    it('preserva datos durante upsert', async () => {
       const originalCard = {
-        id: "preserve-test-001",
-        name: "Preserve Card",
-        cardName: "Preserve Card",
-        rarity: "Rare",
-        hp: "100",
-        pokemonTcgId: "preserve-test-001",
+        id: 'preserve-test-001',
+        name: 'Preserve Card',
+        cardName: 'Preserve Card',
+        rarity: 'Rare',
+        hp: '100',
+        pokemonTcgId: 'preserve-test-001',
       };
 
       const result = await upsertCardFromRaw(originalCard);
@@ -254,13 +269,13 @@ describe("cards service", () => {
       expect(result === null || result?._id).toBeTruthy();
     });
 
-    it("maneja caracteres especiales en nombres", async () => {
+    it('maneja caracteres especiales en nombres', async () => {
       const specialCard = {
-        id: "special-001",
-        name: "Pokémon éxtraordinário!!!",
-        cardName: "Pokémon éxtraordinário!!!",
-        cardImage: "https://example.com/pokémon.jpg",
-        pokemonTcgId: "special-001",
+        id: 'special-001',
+        name: 'Pokémon éxtraordinário!!!',
+        cardName: 'Pokémon éxtraordinário!!!',
+        cardImage: 'https://example.com/pokémon.jpg',
+        pokemonTcgId: 'special-001',
       };
 
       const result = await upsertCardFromRaw(specialCard);
@@ -268,13 +283,13 @@ describe("cards service", () => {
       expect(result === null || result?._id).toBeTruthy();
     });
 
-    it("maneja URLs largas en images", async () => {
+    it('maneja URLs largas en images', async () => {
       const cardWithLongUrl = {
-        id: "url-001",
-        name: "URL Test",
-        cardName: "URL Test",
-        cardImage: "https://example.com/" + "a".repeat(500) + ".jpg",
-        pokemonTcgId: "url-001",
+        id: 'url-001',
+        name: 'URL Test',
+        cardName: 'URL Test',
+        cardImage: 'https://example.com/' + 'a'.repeat(500) + '.jpg',
+        pokemonTcgId: 'url-001',
       };
 
       const result = await upsertCardFromRaw(cardWithLongUrl);
@@ -282,12 +297,12 @@ describe("cards service", () => {
       expect(result === null || result?._id).toBeTruthy();
     });
 
-    it("es idempotente - misma inserción múltiples veces", async () => {
+    it('es idempotente - misma inserción múltiples veces', async () => {
       const card = {
-        id: "idempotent-001",
-        name: "Test",
-        cardName: "Test",
-        pokemonTcgId: "idempotent-001",
+        id: 'idempotent-001',
+        name: 'Test',
+        cardName: 'Test',
+        pokemonTcgId: 'idempotent-001',
       };
 
       const result1 = await upsertCardFromRaw(card);

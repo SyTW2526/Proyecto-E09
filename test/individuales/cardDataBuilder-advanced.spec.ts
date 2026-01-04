@@ -174,7 +174,9 @@ describe('cardDataBuilder - Card Data Construction', () => {
     it('maneja un solo precio disponible', () => {
       const cardmarketAvg = 5.5;
       const tcgplayerMarketPrice = null;
-      const avg = tcgplayerMarketPrice ? (cardmarketAvg + tcgplayerMarketPrice) / 2 : cardmarketAvg;
+      const avg = tcgplayerMarketPrice
+        ? (cardmarketAvg + tcgplayerMarketPrice) / 2
+        : cardmarketAvg;
 
       expect(avg).toBe(5.5);
     });

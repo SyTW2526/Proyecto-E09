@@ -43,7 +43,9 @@ describe('trade_request router - Trade Request Management', () => {
         { id: 'req_1', createdAt: new Date('2024-01-10') },
         { id: 'req_2', createdAt: new Date('2024-01-15') },
       ];
-      const sorted = requests.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      const sorted = requests.sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+      );
       expect(sorted[0].id).toBe('req_2');
     });
 
@@ -220,7 +222,9 @@ describe('trade_request router - Trade Request Management', () => {
     });
 
     it('no permite rechazar solicitud completada', () => {
-      mockResponse.status(400).json({ error: 'Cannot reject completed request' });
+      mockResponse
+        .status(400)
+        .json({ error: 'Cannot reject completed request' });
       expect(mockResponse.status).toHaveBeenCalledWith(400);
     });
   });
@@ -251,7 +255,9 @@ describe('trade_request router - Trade Request Management', () => {
     });
 
     it('no permite cancelar solicitud completada', () => {
-      mockResponse.status(400).json({ error: 'Cannot cancel completed request' });
+      mockResponse
+        .status(400)
+        .json({ error: 'Cannot cancel completed request' });
       expect(mockResponse.status).toHaveBeenCalledWith(400);
     });
   });
@@ -315,7 +321,9 @@ describe('trade_request router - Trade Request Management', () => {
         { id: 'req_1', date: new Date('2024-01-05') },
         { id: 'req_2', date: new Date('2024-01-15') },
       ];
-      const sorted = requests.sort((a, b) => b.date.getTime() - a.date.getTime());
+      const sorted = requests.sort(
+        (a, b) => b.date.getTime() - a.date.getTime()
+      );
       expect(sorted[0].id).toBe('req_2');
     });
 
@@ -335,7 +343,8 @@ describe('trade_request router - Trade Request Management', () => {
       const createdAt = new Date('2024-01-01');
       const expiresIn = 7;
       const now = new Date('2024-01-10');
-      const isExpired = now.getTime() - createdAt.getTime() > expiresIn * 24 * 60 * 60 * 1000;
+      const isExpired =
+        now.getTime() - createdAt.getTime() > expiresIn * 24 * 60 * 60 * 1000;
       expect(isExpired).toBe(true);
     });
 
@@ -399,7 +408,10 @@ describe('trade_request router - Trade Request Management', () => {
     });
 
     it('valida límites de cartas', () => {
-      mockRequest.body.offeredCards = Array(101).fill({ cardId: 'card_1', quantity: 1 });
+      mockRequest.body.offeredCards = Array(101).fill({
+        cardId: 'card_1',
+        quantity: 1,
+      });
       mockResponse.status(400).json({ error: 'Too many items' });
       expect(mockResponse.status).toHaveBeenCalledWith(400);
     });
@@ -428,7 +440,9 @@ describe('trade_request router - Trade Request Management', () => {
     });
 
     it('maneja transacción duplicada', () => {
-      mockResponse.status(400).json({ error: 'Similar request already exists' });
+      mockResponse
+        .status(400)
+        .json({ error: 'Similar request already exists' });
       expect(mockResponse.status).toHaveBeenCalledWith(400);
     });
 

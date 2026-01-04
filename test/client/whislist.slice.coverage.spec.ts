@@ -2,14 +2,20 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { configureStore } from '@reduxjs/toolkit';
 
 const apiMock = {
-  getUserWishlist: vi.fn(async () => [{ id: 'w1', name: 'Wish', image: '', rarity: 'Common', forTrade: false }]),
+  getUserWishlist: vi.fn(async () => [
+    { id: 'w1', name: 'Wish', image: '', rarity: 'Common', forTrade: false },
+  ]),
   addToWishlist: vi.fn(async () => true),
   removeFromWishlist: vi.fn(async () => true),
 };
 
 vi.mock('../../src/client/services/apiService', () => ({ default: apiMock }));
 
-import wishlistReducer, { fetchWishlist, addToWishlist, removeFromWishlist } from '../../src/client/features/whislist/whislistSlice';
+import wishlistReducer, {
+  fetchWishlist,
+  addToWishlist,
+  removeFromWishlist,
+} from '../../src/client/features/whislist/whislistSlice';
 
 describe('whislistSlice - cobertura principal', () => {
   let store: any;
@@ -28,7 +34,9 @@ describe('whislistSlice - cobertura principal', () => {
   it('add/remove -> actualiza lista correctamente', async () => {
     await store.dispatch<any>(fetchWishlist('userX'));
     await store.dispatch<any>(addToWishlist({ userId: 'u1', cardId: 'w2' }));
-    await store.dispatch<any>(removeFromWishlist({ userId: 'u1', cardId: 'w1' }));
+    await store.dispatch<any>(
+      removeFromWishlist({ userId: 'u1', cardId: 'w1' })
+    );
     const state = store.getState().wishlist;
     expect(Array.isArray(state.cards)).toBe(true);
   });

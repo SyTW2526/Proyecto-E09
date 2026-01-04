@@ -267,9 +267,7 @@ describe('card router - Card Management Extended', () => {
     it('retorna cartas de rareza especificada', () => {
       mockResponse.json({
         rarity: 'Rare Holo',
-        cards: [
-          { id: 'card_1', rarity: 'Rare Holo' },
-        ],
+        cards: [{ id: 'card_1', rarity: 'Rare Holo' }],
       });
       expect(mockResponse.json).toHaveBeenCalled();
     });
@@ -323,9 +321,7 @@ describe('card router - Card Management Extended', () => {
     it('retorna cartas con HP exacto', () => {
       mockResponse.json({
         hp: 60,
-        cards: [
-          { id: 'card_1', hp: 60 },
-        ],
+        cards: [{ id: 'card_1', hp: 60 }],
       });
       expect(mockResponse.json).toHaveBeenCalled();
     });

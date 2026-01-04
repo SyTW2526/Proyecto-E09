@@ -1,12 +1,13 @@
-import { describe, it, beforeEach, expect } from "vitest";
-import request from "supertest";
-import mongoose from "mongoose";
-import { app } from "../../src/server/api.js";
-import { Card } from "../../src/server/models/Card.js";
+import { describe, it, beforeEach, expect } from 'vitest';
+import request from 'supertest';
+import mongoose from 'mongoose';
+import { app } from '../../src/server/api.js';
+import { Card } from '../../src/server/models/Card.js';
 
 beforeEach(async () => {
   await Card.deleteMany();
-  const { PokemonCard } = await import('../../src/server/models/PokemonCard.js');
+  const { PokemonCard } =
+    await import('../../src/server/models/PokemonCard.js');
   await PokemonCard.deleteMany();
 });
 
@@ -78,7 +79,9 @@ describe('GET /cards', () => {
     ]);
 
     const res = await request(app)
-      .get('/cards?name=Bulb&rarity=Common&series=Base&set=Grass%20Set&type=Grass')
+      .get(
+        '/cards?name=Bulb&rarity=Common&series=Base&set=Grass%20Set&type=Grass'
+      )
       .expect(200);
 
     // Si hay resultados, validar que son correctos; si no, aceptar el array vacío
@@ -142,8 +145,9 @@ describe('GET /cards/tcg/:tcgId', () => {
    * Verifica que se pueda recuperar una carta usando su ID de la API de Pokemon TCG
    */
   it('devuelve una carta por pokemonTcgId', async () => {
-    const { PokemonCard } = await import('../../src/server/models/PokemonCard.js');
-    
+    const { PokemonCard } =
+      await import('../../src/server/models/PokemonCard.js');
+
     const card = await PokemonCard.create({
       pokemonTcgId: 'test-tcg-sv04pt-1',
       name: 'Pecharunt',
@@ -155,7 +159,9 @@ describe('GET /cards/tcg/:tcgId', () => {
       artist: 'Test',
     });
 
-    const res = await request(app).get(`/cards/tcg/test-tcg-sv04pt-1`).expect(200);
+    const res = await request(app)
+      .get(`/cards/tcg/test-tcg-sv04pt-1`)
+      .expect(200);
 
     expect(res.body.card).toBeDefined();
     expect(res.body.card.pokemonTcgId).toBe('test-tcg-sv04pt-1');
@@ -166,7 +172,9 @@ describe('GET /cards/tcg/:tcgId', () => {
    * Verifica que retorna 404 cuando no existe una carta con el TCG ID especificado
    */
   it('devuelve 404 si no existe carta con ese tcgId', async () => {
-    const res = await request(app).get(`/cards/tcg/nonexistent-id-999`).expect(404);
+    const res = await request(app)
+      .get(`/cards/tcg/nonexistent-id-999`)
+      .expect(404);
 
     expect(res.body.error).toBe('Card no encontrado');
   });
@@ -212,7 +220,9 @@ describe('GET /cards/search/quick', () => {
     expect(res.body.data).toBeDefined();
     expect(Array.isArray(res.body.data?.data)).toBe(true);
     expect(res.body.data.count).toBeGreaterThan(0);
-    expect(res.body.data.data.some((c: any) => c.name.includes('Char'))).toBe(true);
+    expect(res.body.data.data.some((c: any) => c.name.includes('Char'))).toBe(
+      true
+    );
   });
 
   /**
@@ -234,9 +244,7 @@ describe('GET /cards/search/quick', () => {
    * Verifica que retorna error cuando no se proporciona término de búsqueda
    */
   it('retorna 400 sin parámetro q', async () => {
-    const res = await request(app)
-      .get('/cards/search/quick')
-      .expect(400);
+    const res = await request(app).get('/cards/search/quick').expect(400);
 
     expect(res.body.error).toBeDefined();
   });

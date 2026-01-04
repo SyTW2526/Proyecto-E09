@@ -58,7 +58,10 @@ describe('preferencesSlice', () => {
           showWishlist: false,
         },
       };
-      const state = preferencesReducer(initialState, setPreferences(newPreferences));
+      const state = preferencesReducer(
+        initialState,
+        setPreferences(newPreferences)
+      );
       expect(state.preferences).toEqual(newPreferences);
     });
 
@@ -76,7 +79,10 @@ describe('preferencesSlice', () => {
           showWishlist: true,
         },
       };
-      const state = preferencesReducer(initialState, setPreferences(newPreferences));
+      const state = preferencesReducer(
+        initialState,
+        setPreferences(newPreferences)
+      );
       expect(state.preferences.language).toBe('en');
       expect(state.preferences.darkMode).toBe(true);
     });
@@ -90,7 +96,10 @@ describe('preferencesSlice', () => {
 
     it('debería cambiar idioma a spanish', () => {
       const state = preferencesReducer(
-        { ...initialState, preferences: { ...initialState.preferences, language: 'en' } },
+        {
+          ...initialState,
+          preferences: { ...initialState.preferences, language: 'en' },
+        },
         setLanguage('es')
       );
       expect(state.preferences.language).toBe('es');
@@ -139,7 +148,10 @@ describe('preferencesSlice', () => {
 
     it('debería desactivar modo oscuro', () => {
       const state = preferencesReducer(
-        { ...initialState, preferences: { ...initialState.preferences, darkMode: true } },
+        {
+          ...initialState,
+          preferences: { ...initialState.preferences, darkMode: true },
+        },
         setDarkMode(false)
       );
       expect(state.preferences.darkMode).toBe(false);

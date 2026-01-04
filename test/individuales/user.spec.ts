@@ -144,15 +144,17 @@ beforeEach(async () => {
 //   });
 // });
 
-
-
 describe('GET /users/:identifier', () => {
   /**
    * Test: Obtener usuario por nombre de usuario
    * Verifica que se pueda recuperar un usuario existente usando su username
    */
   it('devuelve un usuario por username', async () => {
-    await new User({ username: 'pepe', email: 'pepe@example.com', password: '123' }).save();
+    await new User({
+      username: 'pepe',
+      email: 'pepe@example.com',
+      password: '123',
+    }).save();
     const res = await request(app).get('/users/pepe');
     expect(res.status).toBe(200);
     expect(res.body.username).toBe('pepe');
@@ -163,7 +165,11 @@ describe('GET /users/:identifier', () => {
    * Verifica que se pueda recuperar un usuario existente usando su ObjectId de MongoDB
    */
   it('devuelve un usuario por id', async () => {
-    const user = await new User({ username: 'pepa', email: 'pepa@example.com', password: '123' }).save();
+    const user = await new User({
+      username: 'pepa',
+      email: 'pepa@example.com',
+      password: '123',
+    }).save();
     const res = await request(app).get(`/users/${user._id}`);
     expect(res.status).toBe(200);
     expect(res.body.username).toBe('pepa');
@@ -179,20 +185,24 @@ describe('GET /users/:identifier', () => {
   });
 });
 
-
-
-
-
 describe('GET /users/:identifier', () => {
   it('devuelve un usuario por username', async () => {
-    await new User({ username: 'pepe', email: 'pepe@example.com', password: '123' }).save();
+    await new User({
+      username: 'pepe',
+      email: 'pepe@example.com',
+      password: '123',
+    }).save();
     const res = await request(app).get('/users/pepe');
     expect(res.status).toBe(200);
     expect(res.body.username).toBe('pepe');
   });
 
   it('devuelve un usuario por id', async () => {
-    const user = await new User({ username: 'pepa', email: 'pepa@example.com', password: '123' }).save();
+    const user = await new User({
+      username: 'pepa',
+      email: 'pepa@example.com',
+      password: '123',
+    }).save();
     const res = await request(app).get(`/users/${user._id}`);
     expect(res.status).toBe(200);
     expect(res.body.username).toBe('pepa');
@@ -287,8 +297,6 @@ describe('GET /users/:identifier', () => {
 //   });
 // });
 
-
-
 describe('DELETE /users/:identifier', () => {
   /**
    * Placeholder para tests de DELETE
@@ -298,7 +306,7 @@ describe('DELETE /users/:identifier', () => {
   it('placeholder - todos los tests requieren autenticación', async () => {
     expect(true).toBe(true);
   });
-  
+
   // Comentado: Requiere autenticación que no está funcionando en test mode
   // it('elimina por id', async () => {
   //   const user = await new User({ username: 'del', email: 'del@example.com', password: '123' }).save();
@@ -320,8 +328,6 @@ describe('DELETE /users/:identifier', () => {
   // });
 });
 
-
-
 describe('GET /users/:identifier/cards', () => {
   /**
    * Test: Obtener cartas públicas de un usuario
@@ -330,8 +336,12 @@ describe('GET /users/:identifier/cards', () => {
   it('obtiene cartas públicas del usuario', async () => {
     const { UserCard } = await import('../../src/server/models/UserCard');
     const { Card } = await import('../../src/server/models/Card');
-    
-    const user = await new User({ username: 'carduser', email: 'cards@example.com', password: '123' }).save();
+
+    const user = await new User({
+      username: 'carduser',
+      email: 'cards@example.com',
+      password: '123',
+    }).save();
     const card = await Card.create({
       pokemonTcgId: 'test-1',
       name: 'Test Card',
@@ -347,11 +357,15 @@ describe('GET /users/:identifier/cards', () => {
       quantity: 2,
     });
 
-    const res = await request(app).get(`/users/${user.username}/cards?collection=collection`);
-    
+    const res = await request(app).get(
+      `/users/${user.username}/cards?collection=collection`
+    );
+
     expect(res.status).toBe(200);
     expect(res.body.data?.page || res.body.page).toBe(1);
-    expect((res.body.data?.totalResults || res.body.totalResults)).toBeGreaterThanOrEqual(1);
+    expect(
+      res.body.data?.totalResults || res.body.totalResults
+    ).toBeGreaterThanOrEqual(1);
   });
 
   /**
@@ -371,8 +385,12 @@ describe('GET /users/:identifier/cards', () => {
   it('no muestra cartas privadas de otros usuarios', async () => {
     const { UserCard } = await import('../../src/server/models/UserCard');
     const { Card } = await import('../../src/server/models/Card');
-    
-    const user = await new User({ username: 'privateuser', email: 'private@example.com', password: '123' }).save();
+
+    const user = await new User({
+      username: 'privateuser',
+      email: 'private@example.com',
+      password: '123',
+    }).save();
     const card = await Card.create({
       pokemonTcgId: 'private-1',
       name: 'Private Card',
@@ -387,21 +405,11 @@ describe('GET /users/:identifier/cards', () => {
       quantity: 1,
     });
 
-    const res = await request(app).get(`/users/${user.username}/cards?collection=collection`);
-    
+    const res = await request(app).get(
+      `/users/${user.username}/cards?collection=collection`
+    );
+
     expect(res.status).toBe(200);
     expect((res.body.data?.cards || res.body.cards)?.length || 0).toBe(0);
   });
 });
-
-
-
-
-
-
-
-
-
-
-
-

@@ -166,7 +166,9 @@ describe('Users Router - Comprehensive Coverage Tests (27.07% -> 90%)', () => {
 
       const user = null;
       if (!user) {
-        mockResponse.status(401).send({ error: 'Usuario o contraseña incorrectos' });
+        mockResponse
+          .status(401)
+          .send({ error: 'Usuario o contraseña incorrectos' });
       }
 
       expect(mockResponse.status).toHaveBeenCalledWith(401);
@@ -177,7 +179,9 @@ describe('Users Router - Comprehensive Coverage Tests (27.07% -> 90%)', () => {
       const passwordValid = false; // bcrypt.compare retorna false
 
       if (!passwordValid) {
-        mockResponse.status(401).send({ error: 'Usuario o contraseña incorrectos' });
+        mockResponse
+          .status(401)
+          .send({ error: 'Usuario o contraseña incorrectos' });
       }
 
       expect(mockResponse.status).toHaveBeenCalledWith(401);
@@ -297,7 +301,9 @@ describe('Users Router - Comprehensive Coverage Tests (27.07% -> 90%)', () => {
       const isOwner = mockRequest.username === mockRequest.params.username;
 
       if (!isOwner) {
-        mockResponse.status(403).send({ error: 'No puedes modificar otro usuario' });
+        mockResponse
+          .status(403)
+          .send({ error: 'No puedes modificar otro usuario' });
       }
 
       expect(mockResponse.status).toHaveBeenCalledWith(403);
@@ -357,7 +363,9 @@ describe('Users Router - Comprehensive Coverage Tests (27.07% -> 90%)', () => {
       const isOwner = mockRequest.username === mockRequest.params.username;
 
       if (!isOwner) {
-        mockResponse.status(403).send({ error: 'No puedes modificar otro usuario' });
+        mockResponse
+          .status(403)
+          .send({ error: 'No puedes modificar otro usuario' });
       }
 
       expect(mockResponse.status).toHaveBeenCalledWith(403);

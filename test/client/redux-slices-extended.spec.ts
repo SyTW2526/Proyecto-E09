@@ -151,14 +151,18 @@ describe('Redux Slices Coverage - Preferences', () => {
   });
 
   it('setNotificationPreferences actualiza notificaciones', () => {
-    store.dispatch(setNotificationPreferences({ trades: false, messages: true }));
+    store.dispatch(
+      setNotificationPreferences({ trades: false, messages: true })
+    );
     const state = store.getState().preferences;
     expect(state.preferences.notifications.trades).toBe(false);
     expect(state.preferences.notifications.messages).toBe(true);
   });
 
   it('setPrivacyPreferences actualiza privacidad', () => {
-    store.dispatch(setPrivacyPreferences({ showCollection: false, showWishlist: true }));
+    store.dispatch(
+      setPrivacyPreferences({ showCollection: false, showWishlist: true })
+    );
     const state = store.getState().preferences;
     expect(state.preferences.privacy.showCollection).toBe(false);
     expect(state.preferences.privacy.showWishlist).toBe(true);
@@ -295,7 +299,7 @@ describe('Redux Slices - Integration', () => {
     store.dispatch(setLanguage('en'));
     const langState = store.getState().preferences.preferences.language;
     const notificationState = store.getState().notifications.notifications;
-    
+
     expect(langState).toBe('en');
     expect(notificationState).toEqual([]);
   });
@@ -314,7 +318,7 @@ describe('Redux Slices - Integration', () => {
       updatedAt: new Date().toISOString(),
     };
     store.dispatch(setNotifications([notification]));
-    
+
     const state = store.getState();
     expect(state.preferences.preferences.language).toBe('es');
     expect(state.preferences.preferences.darkMode).toBe(true);

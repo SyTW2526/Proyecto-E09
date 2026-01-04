@@ -16,8 +16,16 @@ describe('POST /friend-trade-rooms/invite', () => {
    * Verifica que un usuario pueda invitar a un amigo a una sala de intercambio privada
    */
   it('crea una invitación a una sala de intercambio con un amigo', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     // Hacer amigos
     u1.friends.push(u2._id);
@@ -44,8 +52,16 @@ describe('POST /friend-trade-rooms/invite', () => {
    * Verifica que sólo se puede invitar a usuarios que sean amigos
    */
   it('rechaza invitar a usuario que no es amigo', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     // No son amigos
     const invite = await FriendTradeRoomInvite.create({
@@ -63,7 +79,11 @@ describe('POST /friend-trade-rooms/invite', () => {
    * Verifica que un usuario no pueda invitarse a sí mismo
    */
   it('rechaza invitación a sí mismo', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
 
     const invite = await FriendTradeRoomInvite.create({
       from: u1._id,
@@ -82,9 +102,21 @@ describe('GET /friend-trade-rooms/invites', () => {
    * Verifica que se puedan recuperar las invitaciones del usuario actual
    */
   it('obtiene invitaciones recibidas y enviadas', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
-    const u3 = await new User({ username: 'user3', email: 'user3@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
+    const u3 = await new User({
+      username: 'user3',
+      email: 'user3@example.com',
+      password: '123',
+    }).save();
 
     // u2 envía invitación a u1
     const invite1 = await FriendTradeRoomInvite.create({
@@ -115,7 +147,11 @@ describe('GET /friend-trade-rooms/invites', () => {
    * Verifica que se devuelven arrays vacíos cuando el usuario no tiene invitaciones
    */
   it('devuelve arrays vacíos si no hay invitaciones', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
 
     const received = await FriendTradeRoomInvite.find({ to: u1._id });
     const sent = await FriendTradeRoomInvite.find({ from: u1._id });
@@ -131,8 +167,16 @@ describe('POST /friend-trade-rooms/invites/:id/accept', () => {
    * Verifica que se pueda aceptar una invitación y se cree un Trade asociado
    */
   it('acepta una invitación y crea un trade', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const invite = await FriendTradeRoomInvite.create({
       from: u1._id,
@@ -154,9 +198,21 @@ describe('POST /friend-trade-rooms/invites/:id/accept', () => {
    * Verifica que solo el usuario destino puede aceptar la invitación
    */
   it('solo el receptor puede aceptar la invitación', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
-    const u3 = await new User({ username: 'user3', email: 'user3@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
+    const u3 = await new User({
+      username: 'user3',
+      email: 'user3@example.com',
+      password: '123',
+    }).save();
 
     const invite = await FriendTradeRoomInvite.create({
       from: u1._id,
@@ -176,8 +232,16 @@ describe('POST /friend-trade-rooms/invites/:id/accept', () => {
    * Verifica que no se pueda aceptar una invitación que ya no está pendiente
    */
   it('rechaza aceptar invitación no pendiente', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const invite = await FriendTradeRoomInvite.create({
       from: u1._id,
@@ -198,8 +262,16 @@ describe('POST /friend-trade-rooms/invites/:id/reject', () => {
    * Verifica que se pueda rechazar una invitación pendiente
    */
   it('rechaza una invitación de sala de intercambio', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const invite = await FriendTradeRoomInvite.create({
       from: u1._id,
@@ -220,8 +292,16 @@ describe('POST /friend-trade-rooms/invites/:id/reject', () => {
    * Verifica que solo el usuario destino puede rechazar la invitación
    */
   it('solo el receptor puede rechazar la invitación', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const invite = await FriendTradeRoomInvite.create({
       from: u1._id,
@@ -240,8 +320,16 @@ describe('POST /friend-trade-rooms/invites/:id/reject', () => {
    * Verifica que no se pueda rechazar una invitación que ya no está pendiente
    */
   it('rechaza rechazar invitación no pendiente', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const invite = await FriendTradeRoomInvite.create({
       from: u1._id,

@@ -6,7 +6,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('../../src/client/services/authService', () => ({
   authService: {
-    getAuthHeaders: vi.fn().mockReturnValue({ 'Authorization': 'Bearer mock-token' }),
+    getAuthHeaders: vi
+      .fn()
+      .mockReturnValue({ Authorization: 'Bearer mock-token' }),
     getToken: vi.fn().mockReturnValue('mock-token'),
   },
 }));
@@ -150,7 +152,7 @@ describe('apiService - Comprehensive Tests', () => {
       });
 
       it('incluye token en headers', () => {
-        const headers = { 'Authorization': 'Bearer mock-token' };
+        const headers = { Authorization: 'Bearer mock-token' };
         expect(headers['Authorization']).toContain('Bearer');
       });
 
@@ -519,7 +521,7 @@ describe('apiService - Comprehensive Tests', () => {
   // ============ Request/Response Format ============
   describe('Request/Response Format', () => {
     it('incluye headers de autenticación', () => {
-      const headers = { 'Authorization': 'Bearer token' };
+      const headers = { Authorization: 'Bearer token' };
       expect(headers['Authorization']).toBeDefined();
     });
 

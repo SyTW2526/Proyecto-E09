@@ -14,7 +14,11 @@ import { Card } from '../../src/server/models/Card';
 import { UserCard } from '../../src/server/models/UserCard';
 
 describe('tradeHelpers - Functional Tests', () => {
-  let testUser1: any, testUser2: any, testCard: any, testUserCard1: any, testUserCard2: any;
+  let testUser1: any,
+    testUser2: any,
+    testCard: any,
+    testUserCard1: any,
+    testUserCard2: any;
   let testTrade: any, testTradeRequest: any;
 
   beforeEach(async () => {
@@ -96,8 +100,8 @@ describe('tradeHelpers - Functional Tests', () => {
     it('contiene los campos de populate correctos', () => {
       expect(TRADE_POPULATE_FIELDS).toBeInstanceOf(Array);
       expect(TRADE_POPULATE_FIELDS.length).toBeGreaterThan(0);
-      
-      TRADE_POPULATE_FIELDS.forEach(field => {
+
+      TRADE_POPULATE_FIELDS.forEach((field) => {
         expect(field).toHaveProperty('path');
         expect(field).toHaveProperty('select');
         expect(typeof field.path).toBe('string');
@@ -106,13 +110,13 @@ describe('tradeHelpers - Functional Tests', () => {
     });
 
     it('incluye campos para iniciador y receptor', () => {
-      const paths = TRADE_POPULATE_FIELDS.map(f => f.path);
+      const paths = TRADE_POPULATE_FIELDS.map((f) => f.path);
       expect(paths).toContain('initiatorUserId');
       expect(paths).toContain('receiverUserId');
     });
 
     it('incluye campos para cartas del iniciador y receptor', () => {
-      const paths = TRADE_POPULATE_FIELDS.map(f => f.path);
+      const paths = TRADE_POPULATE_FIELDS.map((f) => f.path);
       expect(paths).toContain('initiatorCards.cardId');
       expect(paths).toContain('receiverCards.cardId');
     });
@@ -121,7 +125,7 @@ describe('tradeHelpers - Functional Tests', () => {
   describe('getPopulatedTrade', () => {
     it('retorna un trade poblado por ID', async () => {
       const result = await getPopulatedTrade(testTrade._id.toString());
-      
+
       expect(result).toBeDefined();
       expect(result?.status).toBe('pending');
       expect(result?.initiatorUserId).toBeDefined();
@@ -135,7 +139,7 @@ describe('tradeHelpers - Functional Tests', () => {
 
     it('popula correctamente los usuarios', async () => {
       const result = await getPopulatedTrade(testTrade._id.toString());
-      
+
       expect(result?.initiatorUserId).toBeDefined();
       expect((result?.initiatorUserId as any).username).toBe('tradeuser1');
       expect((result?.receiverUserId as any).username).toBe('tradeuser2');
@@ -145,7 +149,7 @@ describe('tradeHelpers - Functional Tests', () => {
   describe('getTradeByRoomCode', () => {
     it('retorna un trade por código de sala', async () => {
       const result = await getTradeByRoomCode('TRADE-ABC-123');
-      
+
       expect(result).toBeDefined();
       expect(result?.status).toBe('pending');
     });
@@ -157,19 +161,17 @@ describe('tradeHelpers - Functional Tests', () => {
 
     it('popula correctamente los datos con roomCode', async () => {
       const result = await getTradeByRoomCode('TRADE-ABC-123');
-      
+
       expect(result?.initiatorUserId).toBeDefined();
-      expect((result?.initiatorUserId as any).email).toBe('tradeuser1@test.com');
+      expect((result?.initiatorUserId as any).email).toBe(
+        'tradeuser1@test.com'
+      );
     });
   });
 
   describe('getPaginatedTrades', () => {
     it('retorna trades con paginación correcta', async () => {
-      const result = await getPaginatedTrades(
-        { status: 'pending' },
-        1,
-        10
-      );
+      const result = await getPaginatedTrades({ status: 'pending' }, 1, 10);
 
       expect(result.trades).toBeInstanceOf(Array);
       expect(result.page).toBe(1);

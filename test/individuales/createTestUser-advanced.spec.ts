@@ -113,7 +113,9 @@ describe('createTestUser - Test User Creation', () => {
 
     it('rechaza password débil', () => {
       const password = '123456';
-      const isStrong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/.test(password);
+      const isStrong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/.test(
+        password
+      );
       expect(isStrong).toBe(false);
     });
   });
@@ -260,10 +262,7 @@ describe('createTestUser - Test User Creation', () => {
     });
 
     it('previene duplicados en lista de amigos', () => {
-      const friends = [
-        { userId: 'user_123' },
-        { userId: 'user_456' },
-      ];
+      const friends = [{ userId: 'user_123' }, { userId: 'user_456' }];
       const userId = 'user_123';
       const isDuplicate = friends.some((f) => f.userId === userId);
       expect(isDuplicate).toBe(true);

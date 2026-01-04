@@ -43,11 +43,9 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
       };
 
       if (!mockReq.body.receiverIdentifier) {
-        mockRes
-          .status(400)
-          .send({
-            error: 'receiverIdentifier es requerido',
-          });
+        mockRes.status(400).send({
+          error: 'receiverIdentifier es requerido',
+        });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -62,8 +60,7 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
 
       if (!mockReq.body.isManual && !mockReq.body.pokemonTcgId) {
         mockRes.status(400).send({
-          error:
-            'pokemonTcgId es obligatorio para solicitudes de carta',
+          error: 'pokemonTcgId es obligatorio para solicitudes de carta',
         });
       }
 
@@ -74,11 +71,9 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
       const me = null;
 
       if (!me) {
-        mockRes
-          .status(404)
-          .send({
-            error: 'Usuario actual no encontrado',
-          });
+        mockRes.status(404).send({
+          error: 'Usuario actual no encontrado',
+        });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -88,11 +83,9 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
       const receiver = null;
 
       if (!receiver) {
-        mockRes
-          .status(404)
-          .send({
-            error: 'Usuario destino no encontrado',
-          });
+        mockRes.status(404).send({
+          error: 'Usuario destino no encontrado',
+        });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -104,8 +97,7 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
 
       if (receiver._id.equals(me._id)) {
         mockRes.status(400).send({
-          error:
-            'No puedes enviarte una solicitud a ti mismo',
+          error: 'No puedes enviarte una solicitud a ti mismo',
         });
       }
 
@@ -159,8 +151,7 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
       };
 
       const normalized = {
-        pokemonTcgId:
-          String(offeredCard.pokemonTcgId || ''),
+        pokemonTcgId: String(offeredCard.pokemonTcgId || ''),
         cardName: String(offeredCard.cardName || ''),
         cardImage: '',
       };
@@ -173,8 +164,7 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
 
       if (!offeredUC) {
         mockRes.status(404).send({
-          error:
-            'La carta ofrecida (UserCard) no existe',
+          error: 'La carta ofrecida (UserCard) no existe',
         });
       }
 
@@ -187,13 +177,9 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
         userId: receiverId,
       };
 
-      if (
-        offeredUC.userId.toString() !==
-        me._id.toString()
-      ) {
+      if (offeredUC.userId.toString() !== me._id.toString()) {
         mockRes.status(400).send({
-          error:
-            'La carta ofrecida no pertenece al usuario emisor',
+          error: 'La carta ofrecida no pertenece al usuario emisor',
         });
       }
 
@@ -212,8 +198,7 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
 
       if (!targetUC) {
         mockRes.status(404).send({
-          error:
-            'La carta objetivo (UserCard) no existe',
+          error: 'La carta objetivo (UserCard) no existe',
         });
       }
 
@@ -244,17 +229,13 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
         },
       ];
 
-      expect(
-        requests.every((r) => r.status === 'pending')
-      ).toBe(true);
+      expect(requests.every((r) => r.status === 'pending')).toBe(true);
     });
 
     it('debe filtrar por dirección', () => {
       mockReq.query = { direction: 'received' };
 
-      const requests = [
-        { _id: requestId, from: receiverId, to: userId },
-      ];
+      const requests = [{ _id: requestId, from: receiverId, to: userId }];
 
       expect(requests[0].to).toEqual(userId);
     });
@@ -275,9 +256,7 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
       try {
         throw error;
       } catch (err: any) {
-        mockRes
-          .status(500)
-          .send({ error: err.message });
+        mockRes.status(500).send({ error: err.message });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
@@ -325,9 +304,7 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
         .to(`user:${userId}`)
         .emit('notification', { type: 'trade_accepted' });
 
-      expect(mockReq.io.to).toHaveBeenCalledWith(
-        `user:${userId}`
-      );
+      expect(mockReq.io.to).toHaveBeenCalledWith(`user:${userId}`);
     });
 
     it('debe manejar errores en aceptación', () => {
@@ -336,9 +313,7 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
       try {
         throw error;
       } catch (err: any) {
-        mockRes
-          .status(400)
-          .send({ error: err.message });
+        mockRes.status(400).send({ error: err.message });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -371,15 +346,11 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
     });
 
     it('debe emitir notificación de rechazo', () => {
-      mockReq.io
-        .to(`user:${userId}`)
-        .emit('notification', {
-          type: 'trade_rejected',
-        });
+      mockReq.io.to(`user:${userId}`).emit('notification', {
+        type: 'trade_rejected',
+      });
 
-      expect(mockReq.io.to).toHaveBeenCalledWith(
-        `user:${userId}`
-      );
+      expect(mockReq.io.to).toHaveBeenCalledWith(`user:${userId}`);
     });
 
     it('debe manejar errores en rechazo', () => {
@@ -388,9 +359,7 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
       try {
         throw error;
       } catch (err: any) {
-        mockRes
-          .status(400)
-          .send({ error: err.message });
+        mockRes.status(400).send({ error: err.message });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -413,13 +382,9 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
     it('debe validar autoría', () => {
       const tradeRequest = { from: receiverId };
 
-      if (
-        tradeRequest.from.toString() !==
-        userId.toString()
-      ) {
+      if (tradeRequest.from.toString() !== userId.toString()) {
         mockRes.status(403).send({
-          error:
-            'No puedes eliminar esta solicitud',
+          error: 'No puedes eliminar esta solicitud',
         });
       }
 
@@ -431,8 +396,7 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
 
       if (tradeRequest.status !== 'pending') {
         mockRes.status(400).send({
-          error:
-            'Solo puedes eliminar solicitudes pendientes',
+          error: 'Solo puedes eliminar solicitudes pendientes',
         });
       }
 
@@ -440,15 +404,11 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
     });
 
     it('debe emitir notificación de cancelación', () => {
-      mockReq.io
-        .to(`user:${receiverId}`)
-        .emit('notification', {
-          type: 'trade_cancelled',
-        });
+      mockReq.io.to(`user:${receiverId}`).emit('notification', {
+        type: 'trade_cancelled',
+      });
 
-      expect(mockReq.io.to).toHaveBeenCalledWith(
-        `user:${receiverId}`
-      );
+      expect(mockReq.io.to).toHaveBeenCalledWith(`user:${receiverId}`);
     });
 
     it('debe manejar errores en eliminación', () => {
@@ -457,9 +417,7 @@ describe('Trade Request Router - Real Code Execution Tests (54.76% Coverage)', (
       try {
         throw error;
       } catch (err: any) {
-        mockRes
-          .status(400)
-          .send({ error: err.message });
+        mockRes.status(400).send({ error: err.message });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);

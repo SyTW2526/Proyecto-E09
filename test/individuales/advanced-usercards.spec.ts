@@ -71,8 +71,12 @@ describe('Advanced UserCard Features', () => {
         .get(`/usercards/${user.username}/wishlist`)
         .expect(200);
 
-      expect((collectionCheck.body.data?.cards || collectionCheck.body.cards).length).toBe(1);
-      expect((wishlistCheck.body.data?.cards || wishlistCheck.body.cards).length).toBe(1);
+      expect(
+        (collectionCheck.body.data?.cards || collectionCheck.body.cards).length
+      ).toBe(1);
+      expect(
+        (wishlistCheck.body.data?.cards || wishlistCheck.body.cards).length
+      ).toBe(1);
     });
 
     /**
@@ -168,7 +172,9 @@ describe('Advanced UserCard Features', () => {
         .get(`/usercards/${user.username}`)
         .expect(200);
 
-      expect((getRes.body.data?.cards || getRes.body.cards)[0].notes).toBe(notes);
+      expect((getRes.body.data?.cards || getRes.body.cards)[0].notes).toBe(
+        notes
+      );
     });
 
     /**
@@ -417,9 +423,7 @@ describe('Advanced UserCard Features', () => {
      * Verifica que retorna 404 cuando se intenta acceder a cartas de un usuario inexistente
      */
     it('debe retornar 404 cuando el usuario no existe', async () => {
-      const res = await request(app)
-        .get('/usercards/nonexistent')
-        .expect(404);
+      const res = await request(app).get('/usercards/nonexistent').expect(404);
 
       expect(res.body.error).toContain('Usuario no encontrado');
     });
@@ -460,7 +464,9 @@ describe('Advanced UserCard Features', () => {
       });
 
       const res = await request(app)
-        .patch(`/usercards/${user.username}/cards/${new mongoose.Types.ObjectId()}`)
+        .patch(
+          `/usercards/${user.username}/cards/${new mongoose.Types.ObjectId()}`
+        )
         .send({ notes: 'updated' })
         .expect(404);
 

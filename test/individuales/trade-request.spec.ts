@@ -18,8 +18,16 @@ describe('POST /trade-requests', () => {
    * Verifica que se pueda crear una solicitud para intercambiar una carta específica
    */
   it('crea una solicitud de intercambio por carta', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const tradeReq = await TradeRequest.create({
       from: u1._id,
@@ -45,8 +53,16 @@ describe('POST /trade-requests', () => {
    * Verifica que se pueda crear una invitación manual a una sala privada
    */
   it('crea una invitación a sala privada (manual)', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const tradeReq = await TradeRequest.create({
       from: u1._id,
@@ -68,7 +84,11 @@ describe('POST /trade-requests', () => {
    * Verifica que no se pueda crear una solicitud dirigida al mismo usuario
    */
   it('rechaza solicitud a sí mismo', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
 
     const tradeReq = await TradeRequest.create({
       from: u1._id,
@@ -87,8 +107,16 @@ describe('POST /trade-requests', () => {
    * Verifica que no existan solicitudes duplicadas pendientes entre dos usuarios
    */
   it('rechaza solicitudes duplicadas pendientes', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const req1 = await TradeRequest.create({
       from: u1._id,
@@ -117,9 +145,21 @@ describe('GET /trade-requests/received/:userId', () => {
    * Verifica que se puedan recuperar las solicitudes que ha recibido el usuario
    */
   it('obtiene solicitudes recibidas', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
-    const u3 = await new User({ username: 'user3', email: 'user3@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
+    const u3 = await new User({
+      username: 'user3',
+      email: 'user3@example.com',
+      password: '123',
+    }).save();
 
     // u2 envía a u1
     await TradeRequest.create({
@@ -142,8 +182,8 @@ describe('GET /trade-requests/received/:userId', () => {
     const received = await TradeRequest.find({ to: u1._id });
 
     expect(received).toHaveLength(2);
-    expect(received.map(r => r.from.toString())).toContain(u2._id.toString());
-    expect(received.map(r => r.from.toString())).toContain(u3._id.toString());
+    expect(received.map((r) => r.from.toString())).toContain(u2._id.toString());
+    expect(received.map((r) => r.from.toString())).toContain(u3._id.toString());
   });
 
   /**
@@ -151,7 +191,11 @@ describe('GET /trade-requests/received/:userId', () => {
    * Verifica que se devuelva un array vacío cuando no hay solicitudes recibidas
    */
   it('devuelve array vacío si no hay solicitudes recibidas', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
 
     const received = await TradeRequest.find({ to: u1._id });
 
@@ -165,9 +209,21 @@ describe('GET /trade-requests/sent/:userId', () => {
    * Verifica que se puedan recuperar las solicitudes que ha enviado el usuario
    */
   it('obtiene solicitudes enviadas', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
-    const u3 = await new User({ username: 'user3', email: 'user3@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
+    const u3 = await new User({
+      username: 'user3',
+      email: 'user3@example.com',
+      password: '123',
+    }).save();
 
     // u1 envía a u2
     await TradeRequest.create({
@@ -190,8 +246,8 @@ describe('GET /trade-requests/sent/:userId', () => {
     const sent = await TradeRequest.find({ from: u1._id });
 
     expect(sent).toHaveLength(2);
-    expect(sent.map(r => r.to.toString())).toContain(u2._id.toString());
-    expect(sent.map(r => r.to.toString())).toContain(u3._id.toString());
+    expect(sent.map((r) => r.to.toString())).toContain(u2._id.toString());
+    expect(sent.map((r) => r.to.toString())).toContain(u3._id.toString());
   });
 
   /**
@@ -199,7 +255,11 @@ describe('GET /trade-requests/sent/:userId', () => {
    * Verifica que se devuelva un array vacío cuando no hay solicitudes enviadas
    */
   it('devuelve array vacío si no hay solicitudes enviadas', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
 
     const sent = await TradeRequest.find({ from: u1._id });
 
@@ -213,8 +273,16 @@ describe('POST /trade-requests/:id/accept', () => {
    * Verifica que se pueda aceptar una solicitud y se cree un Trade asociado
    */
   it('acepta una solicitud y crea un trade', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const tradeReq = await TradeRequest.create({
       from: u1._id,
@@ -252,9 +320,21 @@ describe('POST /trade-requests/:id/accept', () => {
    * Verifica que solo el usuario destino puede aceptar la solicitud
    */
   it('solo el receptor puede aceptar', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
-    const u3 = await new User({ username: 'user3', email: 'user3@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
+    const u3 = await new User({
+      username: 'user3',
+      email: 'user3@example.com',
+      password: '123',
+    }).save();
 
     const tradeReq = await TradeRequest.create({
       from: u1._id,
@@ -273,8 +353,16 @@ describe('POST /trade-requests/:id/accept', () => {
    * Verifica que no se pueda aceptar una solicitud que ya no está pendiente
    */
   it('rechaza aceptar solicitud no pendiente', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const tradeReq = await TradeRequest.create({
       from: u1._id,
@@ -294,8 +382,16 @@ describe('POST /trade-requests/:id/reject', () => {
    * Verifica que se pueda rechazar una solicitud pendiente
    */
   it('rechaza una solicitud de intercambio', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const tradeReq = await TradeRequest.create({
       from: u1._id,
@@ -316,8 +412,16 @@ describe('POST /trade-requests/:id/reject', () => {
    * Verifica que solo el usuario destino puede rechazar la solicitud
    */
   it('solo el receptor puede rechazar', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const tradeReq = await TradeRequest.create({
       from: u1._id,
@@ -336,8 +440,16 @@ describe('POST /trade-requests/:id/reject', () => {
    * Verifica que no se pueda rechazar una solicitud que ya no está pendiente
    */
   it('rechaza rechazar solicitud no pendiente', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const tradeReq = await TradeRequest.create({
       from: u1._id,
@@ -357,8 +469,16 @@ describe('DELETE /trade-requests/:id/cancel', () => {
    * Verifica que el remitente pueda cancelar una solicitud pendiente
    */
   it('cancela una solicitud enviada', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const tradeReq = await TradeRequest.create({
       from: u1._id,
@@ -379,8 +499,16 @@ describe('DELETE /trade-requests/:id/cancel', () => {
    * Verifica que solo el usuario que envió la solicitud puede cancelarla
    */
   it('solo el remitente puede cancelar', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const tradeReq = await TradeRequest.create({
       from: u1._id,
@@ -399,8 +527,16 @@ describe('DELETE /trade-requests/:id/cancel', () => {
    * Verifica que no se pueda cancelar una solicitud que ya no está pendiente
    */
   it('rechaza cancelar solicitud no pendiente', async () => {
-    const u1 = await new User({ username: 'user1', email: 'user1@example.com', password: '123' }).save();
-    const u2 = await new User({ username: 'user2', email: 'user2@example.com', password: '123' }).save();
+    const u1 = await new User({
+      username: 'user1',
+      email: 'user1@example.com',
+      password: '123',
+    }).save();
+    const u2 = await new User({
+      username: 'user2',
+      email: 'user2@example.com',
+      password: '123',
+    }).save();
 
     const tradeReq = await TradeRequest.create({
       from: u1._id,

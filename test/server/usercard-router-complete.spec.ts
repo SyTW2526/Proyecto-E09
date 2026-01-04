@@ -77,61 +77,51 @@ describe('UserCard Router - Complete Coverage', () => {
   // ============================================
   describe('POST /usercards/import - Import Cards from API', () => {
     it('should import cards from API for user', async () => {
-      const res = await request(app)
-        .post('/usercards/import')
-        .send({
-          username: testUser.username,
-          query: 'Pikachu',
-          limit: 3,
-          forTrade: true,
-        });
+      const res = await request(app).post('/usercards/import').send({
+        username: testUser.username,
+        query: 'Pikachu',
+        limit: 3,
+        forTrade: true,
+      });
 
       expect([200, 400, 404, 500, 501]).toContain(res.status);
     });
 
     it('should handle non-existent user', async () => {
-      const res = await request(app)
-        .post('/usercards/import')
-        .send({
-          username: 'nonexistent',
-          query: 'Pikachu',
-          limit: 5,
-        });
+      const res = await request(app).post('/usercards/import').send({
+        username: 'nonexistent',
+        query: 'Pikachu',
+        limit: 5,
+      });
 
       expect([200, 400, 404, 500, 501]).toContain(res.status);
     });
 
     it('should use default query parameter', async () => {
-      const res = await request(app)
-        .post('/usercards/import')
-        .send({
-          username: testUser.username,
-        });
+      const res = await request(app).post('/usercards/import').send({
+        username: testUser.username,
+      });
 
       expect([200, 400, 404, 500, 501]).toContain(res.status);
     });
 
     it('should handle empty query results', async () => {
-      const res = await request(app)
-        .post('/usercards/import')
-        .send({
-          username: testUser.username,
-          query: 'xyzabc123nonexistentcard',
-          limit: 5,
-        });
+      const res = await request(app).post('/usercards/import').send({
+        username: testUser.username,
+        query: 'xyzabc123nonexistentcard',
+        limit: 5,
+      });
 
       expect([200, 400, 404, 500, 501]).toContain(res.status);
     });
 
     it('should respect limit parameter', async () => {
-      const res = await request(app)
-        .post('/usercards/import')
-        .send({
-          username: testUser.username,
-          query: 'Charizard',
-          limit: 1,
-          forTrade: false,
-        });
+      const res = await request(app).post('/usercards/import').send({
+        username: testUser.username,
+        query: 'Charizard',
+        limit: 1,
+        forTrade: false,
+      });
 
       expect([200, 400, 404, 500, 501]).toContain(res.status);
     });
@@ -247,9 +237,7 @@ describe('UserCard Router - Complete Coverage', () => {
   // ============================================
   describe('GET /usercards/:username - List All User Cards', () => {
     it('should get all user cards', async () => {
-      const res = await request(app).get(
-        `/usercards/${testUser.username}`
-      );
+      const res = await request(app).get(`/usercards/${testUser.username}`);
 
       expect([200, 400, 404, 500, 501]).toContain(res.status);
       if (res.status === 200) {
@@ -388,7 +376,7 @@ describe('UserCard Router - Complete Coverage', () => {
     });
 
     it('should handle non-existent card', async () => {
-      const fakeId = new (require('mongoose')).Types.ObjectId();
+      const fakeId = new (require('mongoose').Types.ObjectId)();
       const res = await request(app)
         .patch(`/usercards/${fakeId.toString()}`)
         .send({ isPublic: true });
@@ -426,10 +414,8 @@ describe('UserCard Router - Complete Coverage', () => {
     });
 
     it('should handle deleting non-existent card', async () => {
-      const fakeId = new (require('mongoose')).Types.ObjectId();
-      const res = await request(app).delete(
-        `/usercards/${fakeId.toString()}`
-      );
+      const fakeId = new (require('mongoose').Types.ObjectId)();
+      const res = await request(app).delete(`/usercards/${fakeId.toString()}`);
 
       expect([200, 204, 400, 404, 500, 501]).toContain(res.status);
     });
@@ -516,10 +502,8 @@ describe('UserCard Router - Complete Coverage', () => {
         request(app)
           .get(`/usercards/${testUser.username}`)
           .query({ isPublic: true }),
-        request(app)
-          .get(`/usercards/${testUser.username}/collection`),
-        request(app)
-          .get(`/usercards/${testUser.username}/wishlist`),
+        request(app).get(`/usercards/${testUser.username}/collection`),
+        request(app).get(`/usercards/${testUser.username}/wishlist`),
       ];
 
       const results = await Promise.all(promises);

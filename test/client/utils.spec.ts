@@ -4,9 +4,7 @@ import {
   getCardImage,
   parseCardId,
 } from '../../src/client/utils/cardHelpers';
-import {
-  normalizeImageUrl,
-} from '../../src/client/utils/imageHelpers';
+import { normalizeImageUrl } from '../../src/client/utils/imageHelpers';
 
 describe('cardHelpers - getTcgdexImageUrl', () => {
   it('genera URL correcta para cartas inglesas no ambiguas', () => {
@@ -114,7 +112,9 @@ describe('cardHelpers - getCardImage', () => {
 
 describe('imageHelpers - normalizeImageUrl', () => {
   it('normaliza URLs de TCGdex', () => {
-    const url = normalizeImageUrl('https://assets.tcgdex.net/en/swsh1/1/high.png');
+    const url = normalizeImageUrl(
+      'https://assets.tcgdex.net/en/swsh1/1/high.png'
+    );
     expect(url).toBeTruthy();
   });
 
@@ -127,12 +127,16 @@ describe('imageHelpers - normalizeImageUrl', () => {
   });
 
   it('retorna string para URLs válidas', () => {
-    const url = normalizeImageUrl('https://assets.tcgdex.net/jp/sv01/100/high.png');
+    const url = normalizeImageUrl(
+      'https://assets.tcgdex.net/jp/sv01/100/high.png'
+    );
     expect(typeof url).toBe('string');
   });
 
   it('normaliza URLs con calidad baja', () => {
-    const url = normalizeImageUrl('https://assets.tcgdex.net/en/swsh1/1/low.png');
+    const url = normalizeImageUrl(
+      'https://assets.tcgdex.net/en/swsh1/1/low.png'
+    );
     expect(url).toContain('high.png');
   });
 
@@ -148,7 +152,9 @@ describe('imageHelpers - normalizeImageUrl', () => {
   });
 
   it('maneja URLs con más de 4 partes', () => {
-    const url = normalizeImageUrl('https://assets.tcgdex.net/en/swsh1/1/extra/part');
+    const url = normalizeImageUrl(
+      'https://assets.tcgdex.net/en/swsh1/1/extra/part'
+    );
     expect(typeof url).toBe('string');
   });
 
@@ -173,7 +179,9 @@ describe('imageHelpers - normalizeImageUrl', () => {
   });
 
   it('normaliza URLs con formato incorrecto de serie', () => {
-    const url = normalizeImageUrl('https://assets.tcgdex.net/en/invalid/sv01/100');
+    const url = normalizeImageUrl(
+      'https://assets.tcgdex.net/en/invalid/sv01/100'
+    );
     expect(typeof url).toBe('string');
   });
 
@@ -188,19 +196,25 @@ describe('imageHelpers - normalizeImageUrl', () => {
   });
 
   it('normaliza URLs con 4 partes donde primera es serie válida', () => {
-    const url = normalizeImageUrl('https://assets.tcgdex.net/en/swsh/swsh1/100');
+    const url = normalizeImageUrl(
+      'https://assets.tcgdex.net/en/swsh/swsh1/100'
+    );
     expect(url).toContain('high.png');
     expect(url).toContain('en');
   });
 
   it('normaliza URLs con 4 partes donde primera NO es serie válida', () => {
-    const url = normalizeImageUrl('https://assets.tcgdex.net/en/notaseries/sv01/100');
+    const url = normalizeImageUrl(
+      'https://assets.tcgdex.net/en/notaseries/sv01/100'
+    );
     // Si no encuentra la serie, retorna la URL original sin cambios
     expect(url).toBe('https://assets.tcgdex.net/en/notaseries/sv01/100');
   });
 
   it('maneja URLs de TCGdex con slash final después de quality', () => {
-    const url = normalizeImageUrl('https://assets.tcgdex.net/en/swsh1/100/high.png/');
+    const url = normalizeImageUrl(
+      'https://assets.tcgdex.net/en/swsh1/100/high.png/'
+    );
     expect(typeof url).toBe('string');
   });
 
@@ -220,7 +234,9 @@ describe('imageHelpers - normalizeImageUrl', () => {
   });
 
   it('normaliza URLs de TCGdex correctas sin cambios innecesarios', () => {
-    const url = normalizeImageUrl('https://assets.tcgdex.net/en/swsh/swsh1/100/high.png');
+    const url = normalizeImageUrl(
+      'https://assets.tcgdex.net/en/swsh/swsh1/100/high.png'
+    );
     expect(url).toContain('high.png');
   });
 
@@ -290,4 +306,3 @@ describe('cardHelpers - parseCardId', () => {
     expect(result).toEqual({ setCode: 'sv01', number: '999' });
   });
 });
-

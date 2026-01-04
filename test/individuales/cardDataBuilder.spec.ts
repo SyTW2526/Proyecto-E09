@@ -7,7 +7,11 @@ import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('../../src/server/services/tcgdx.ts', () => ({
   normalizeImageUrl: vi.fn((url) => url || 'default.png'),
-  extractPrices: vi.fn(() => ({ cardmarketAvg: null, tcgplayerMarketPrice: null, avg: 0 })),
+  extractPrices: vi.fn(() => ({
+    cardmarketAvg: null,
+    tcgplayerMarketPrice: null,
+    avg: 0,
+  })),
   sanitizeBriefCard: vi.fn((obj) => obj),
 }));
 

@@ -60,18 +60,18 @@ describe('userHelpers - Functional Tests', () => {
 
     // Mock Response object
     mockRes = {
-      status: function(code: number) { 
+      status: function (code: number) {
         this.statusCode = code;
-        return this; 
+        return this;
       },
-      json: function(data: any) { 
+      json: function (data: any) {
         this.jsonData = data;
-        return this; 
+        return this;
       },
-      send: function(data: any) {
+      send: function (data: any) {
         this.sendData = data;
         return this;
-      }
+      },
     };
   });
 
@@ -122,7 +122,7 @@ describe('userHelpers - Functional Tests', () => {
     it('encuentra por ID o username', async () => {
       const resultById = await findUserOrFail(testUser._id.toString(), mockRes);
       const resultByUsername = await findUserOrFail('helpertest', mockRes);
-      
+
       expect(resultById?._id).toEqual(resultByUsername?._id);
     });
   });
@@ -134,7 +134,10 @@ describe('userHelpers - Functional Tests', () => {
     });
 
     it('retorna true si el email existe', async () => {
-      const result = await checkUserExists('newusername', 'helpertest@test.com');
+      const result = await checkUserExists(
+        'newusername',
+        'helpertest@test.com'
+      );
       expect(result).toBe(true);
     });
 
@@ -146,7 +149,7 @@ describe('userHelpers - Functional Tests', () => {
     it('chequea ambos con OR logic', async () => {
       const result1 = await checkUserExists('helpertest', 'anything@test.com');
       const result2 = await checkUserExists('anything', 'helpertest@test.com');
-      
+
       expect(result1).toBe(true);
       expect(result2).toBe(true);
     });
@@ -254,7 +257,11 @@ describe('userHelpers - Functional Tests', () => {
     });
 
     it('obtiene cartas del usuario paginadas', async () => {
-      const result = await getUserCardsPaginated('helpertest', {}, { page: '1', limit: 10 });
+      const result = await getUserCardsPaginated(
+        'helpertest',
+        {},
+        { page: '1', limit: 10 }
+      );
 
       expect(result.cards).toBeDefined();
       expect(result.pageNum).toBe(1);
@@ -278,13 +285,21 @@ describe('userHelpers - Functional Tests', () => {
     });
 
     it('respeta el límite de resultados', async () => {
-      const result = await getUserCardsPaginated('helpertest', {}, { page: '1', limit: 2 });
+      const result = await getUserCardsPaginated(
+        'helpertest',
+        {},
+        { page: '1', limit: 2 }
+      );
 
       expect(result.cards.length).toBeLessThanOrEqual(2);
     });
 
     it('retorna error si el usuario no existe', async () => {
-      const result = await getUserCardsPaginated('nonexistentuser', {}, { page: '1', limit: 10 });
+      const result = await getUserCardsPaginated(
+        'nonexistentuser',
+        {},
+        { page: '1', limit: 10 }
+      );
 
       expect(result.error).toBe('Usuario no encontrado');
       expect(result.statusCode).toBe(404);
@@ -306,7 +321,11 @@ describe('userHelpers - Functional Tests', () => {
     });
 
     it('calcula totalPages correctamente', async () => {
-      const result1 = await getUserCardsPaginated('helpertest', {}, { page: '1', limit: 2 });
+      const result1 = await getUserCardsPaginated(
+        'helpertest',
+        {},
+        { page: '1', limit: 2 }
+      );
       const total = result1.total;
       const expectedPages = Math.ceil(total / 2);
 
@@ -337,7 +356,9 @@ describe('userHelpers - Functional Tests', () => {
     });
 
     it('compara mediante toString()', () => {
-      expect(validateOwnership(testUser._id, testUser._id.toString())).toBe(true);
+      expect(validateOwnership(testUser._id, testUser._id.toString())).toBe(
+        true
+      );
     });
   });
 
@@ -373,7 +394,10 @@ describe('userHelpers - Functional Tests', () => {
     });
 
     it('retorna null si el usuario no existe', async () => {
-      const result = await getCurrentUserOrFail('507f1f77bcf86cd799439999', mockRes);
+      const result = await getCurrentUserOrFail(
+        '507f1f77bcf86cd799439999',
+        mockRes
+      );
       expect(result).toBeNull();
     });
 
@@ -454,7 +478,10 @@ describe('userHelpers - Functional Tests', () => {
     });
 
     it('confirma que usuario no existe', async () => {
-      const result = await checkUserExists('nonexistentuser', 'nonexistent@test.com');
+      const result = await checkUserExists(
+        'nonexistentuser',
+        'nonexistent@test.com'
+      );
       expect(result).toBe(false);
     });
 

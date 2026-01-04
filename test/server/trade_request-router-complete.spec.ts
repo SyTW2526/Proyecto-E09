@@ -434,7 +434,9 @@ describe('Trade Request Router - Complete Coverage', () => {
           isManual: false,
         });
 
-      expect([200, 201, 400, 401, 404, 409, 413, 500, 501]).toContain(res.status);
+      expect([200, 201, 400, 401, 404, 409, 413, 500, 501]).toContain(
+        res.status
+      );
     });
 
     it('should handle special characters in card names', async () => {

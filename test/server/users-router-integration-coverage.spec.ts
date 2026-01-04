@@ -74,12 +74,10 @@ describe('Users Router - Integration Coverage Tests', () => {
 
   describe('POST /users/login - Lines 788-805 (Login endpoint)', () => {
     it('debería loguear usuario con username válido - LINE 788-805', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          username: 'testuser1',
-          password: 'hashedpassword',
-        });
+      const res = await request(app).post('/users/login').send({
+        username: 'testuser1',
+        password: 'hashedpassword',
+      });
 
       expect([200, 401, 400, 500]).toContain(res.status);
       if (res.status === 200) {
@@ -89,32 +87,26 @@ describe('Users Router - Integration Coverage Tests', () => {
     });
 
     it('debería rechazar credenciales inválidas - LINE 788-805', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          username: 'testuser1',
-          password: 'wrongpassword',
-        });
+      const res = await request(app).post('/users/login').send({
+        username: 'testuser1',
+        password: 'wrongpassword',
+      });
 
       expect([401, 400, 500]).toContain(res.status);
     });
 
     it('debería rechazar login sin username - LINE 788-805', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          password: 'somepassword',
-        });
+      const res = await request(app).post('/users/login').send({
+        password: 'somepassword',
+      });
 
       expect([400, 401, 500]).toContain(res.status);
     });
 
     it('debería rechazar login sin password - LINE 788-805', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          username: 'testuser1',
-        });
+      const res = await request(app).post('/users/login').send({
+        username: 'testuser1',
+      });
 
       expect([400, 401, 500]).toContain(res.status);
     });
@@ -369,8 +361,8 @@ describe('Users Router - Integration Coverage Tests', () => {
 
       expect([200, 401, 403, 404, 500]).toContain(res.status);
       if (res.status === 200) {
-        expect(res.body).toHaveProperty('success') || 
-        expect(res.body).toHaveProperty('data');
+        expect(res.body).toHaveProperty('success') ||
+          expect(res.body).toHaveProperty('data');
       }
     });
 
@@ -503,7 +495,9 @@ describe('Users Router - Integration Coverage Tests', () => {
 
     it('debería retornar 404 para tarjeta inexistente - LINE 1126-1179', async () => {
       const res = await request(app)
-        .delete(`/users/${user1.username}/cards/${new mongoose.Types.ObjectId()}`)
+        .delete(
+          `/users/${user1.username}/cards/${new mongoose.Types.ObjectId()}`
+        )
         .set('Authorization', `Bearer ${token1}`);
 
       expect([401, 404, 500]).toContain(res.status);
@@ -547,66 +541,56 @@ describe('Users Router - Integration Coverage Tests', () => {
 
   describe('POST /users/register - Extended Coverage', () => {
     it('debería validar email requerido en registro', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'newuser',
-          password: 'password123',
-          confirmPassword: 'password123',
-          // sin email
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'newuser',
+        password: 'password123',
+        confirmPassword: 'password123',
+        // sin email
+      });
 
       expect([400, 401, 403, 404, 500]).toContain(res.status);
     });
 
     it('debería validar que password y confirmPassword coincidan', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'newuser',
-          email: 'new@test.com',
-          password: 'password123',
-          confirmPassword: 'differentPassword',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'newuser',
+        email: 'new@test.com',
+        password: 'password123',
+        confirmPassword: 'differentPassword',
+      });
 
       expect([400, 401, 403, 404, 500]).toContain(res.status);
     });
 
     it('debería validar longitud mínima de contraseña', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'newuser',
-          email: 'new@test.com',
-          password: 'pass', // muy corta
-          confirmPassword: 'pass',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'newuser',
+        email: 'new@test.com',
+        password: 'pass', // muy corta
+        confirmPassword: 'pass',
+      });
 
       expect([400, 401, 403, 404, 500]).toContain(res.status);
     });
 
     it('debería rechazar email duplicado', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'differentuser',
-          email: user1.email, // email ya existe
-          password: 'password123',
-          confirmPassword: 'password123',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'differentuser',
+        email: user1.email, // email ya existe
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
 
       expect([400, 401, 403, 404, 500]).toContain(res.status);
     });
 
     it('debería rechazar username duplicado', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: user1.username, // username ya existe
-          email: 'different@test.com',
-          password: 'password123',
-          confirmPassword: 'password123',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: user1.username, // username ya existe
+        email: 'different@test.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
 
       expect([400, 401, 403, 404, 500]).toContain(res.status);
     });
@@ -614,34 +598,28 @@ describe('Users Router - Integration Coverage Tests', () => {
 
   describe('POST /users/login - Extended Coverage', () => {
     it('debería retornar token válido al login exitoso', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          username: user1.username,
-          password: 'hashedpassword',
-        });
+      const res = await request(app).post('/users/login').send({
+        username: user1.username,
+        password: 'hashedpassword',
+      });
 
       expect([200, 401, 400, 500]).toContain(res.status);
     });
 
     it('debería rechazar contraseña incorrecta', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          username: user1.username,
-          password: 'wrongpassword',
-        });
+      const res = await request(app).post('/users/login').send({
+        username: user1.username,
+        password: 'wrongpassword',
+      });
 
       expect([401, 400, 500]).toContain(res.status);
     });
 
     it('debería rechazar usuario no existente', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          username: 'nonexistent',
-          password: 'password123',
-        });
+      const res = await request(app).post('/users/login').send({
+        username: 'nonexistent',
+        password: 'password123',
+      });
 
       expect([401, 400, 500]).toContain(res.status);
     });

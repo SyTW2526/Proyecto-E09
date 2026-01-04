@@ -541,13 +541,16 @@ describe('Card Data Builder Service', () => {
       );
       const after = new Date();
 
-      [pokemon.lastPriceUpdate, trainer.lastPriceUpdate, energy.lastPriceUpdate, generic.lastPriceUpdate].forEach(
-        (timestamp) => {
-          expect(timestamp).toBeInstanceOf(Date);
-          expect(timestamp.getTime()).toBeGreaterThanOrEqual(before.getTime());
-          expect(timestamp.getTime()).toBeLessThanOrEqual(after.getTime());
-        }
-      );
+      [
+        pokemon.lastPriceUpdate,
+        trainer.lastPriceUpdate,
+        energy.lastPriceUpdate,
+        generic.lastPriceUpdate,
+      ].forEach((timestamp) => {
+        expect(timestamp).toBeInstanceOf(Date);
+        expect(timestamp.getTime()).toBeGreaterThanOrEqual(before.getTime());
+        expect(timestamp.getTime()).toBeLessThanOrEqual(after.getTime());
+      });
     });
   });
 });

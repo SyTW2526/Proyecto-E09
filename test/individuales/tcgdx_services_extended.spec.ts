@@ -172,8 +172,7 @@ describe('TCGdex Service Functions', () => {
     });
 
     it('should normalize /small.png to /high.png', () => {
-      const url =
-        'https://assets.tcgdex.net/en/swsh/swsh1/25/small.png';
+      const url = 'https://assets.tcgdex.net/en/swsh/swsh1/25/small.png';
       expect(normalizeImageUrl(url)).toBe(
         'https://assets.tcgdex.net/en/swsh/swsh1/25/high.png'
       );
@@ -220,7 +219,9 @@ describe('TCGdex Service Functions', () => {
     it('should trim whitespace', () => {
       const url = '  https://assets.tcgdex.net/en/swsh/swsh1/25/high.png  ';
       const result = normalizeImageUrl(url);
-      expect(result).toBe('https://assets.tcgdex.net/en/swsh/swsh1/25/high.png');
+      expect(result).toBe(
+        'https://assets.tcgdex.net/en/swsh/swsh1/25/high.png'
+      );
     });
 
     it('should handle URLs without file extension by adding /high.png', () => {

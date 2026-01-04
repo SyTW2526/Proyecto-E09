@@ -2,14 +2,39 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { configureStore } from '@reduxjs/toolkit';
 
 const apiMock = {
-  getUserTrades: vi.fn(async () => [{ id: 't1', from: 'a', to: 'b', offeredCards: [], requestedCards: [], status: 'pending', createdAt: new Date() }]),
-  createTrade: vi.fn(async () => ({ id: 't2', from: 'a', to: 'b', offeredCards: [], requestedCards: [], status: 'pending', createdAt: new Date() })),
-  updateTradeStatus: vi.fn(async (_id: string, _s: string) => ({ id: 't2', status: 'accepted' })),
+  getUserTrades: vi.fn(async () => [
+    {
+      id: 't1',
+      from: 'a',
+      to: 'b',
+      offeredCards: [],
+      requestedCards: [],
+      status: 'pending',
+      createdAt: new Date(),
+    },
+  ]),
+  createTrade: vi.fn(async () => ({
+    id: 't2',
+    from: 'a',
+    to: 'b',
+    offeredCards: [],
+    requestedCards: [],
+    status: 'pending',
+    createdAt: new Date(),
+  })),
+  updateTradeStatus: vi.fn(async (_id: string, _s: string) => ({
+    id: 't2',
+    status: 'accepted',
+  })),
 };
 
 vi.mock('../../src/client/services/apiService', () => ({ default: apiMock }));
 
-import tradesReducer, { fetchUserTrades, createTrade, updateTradeStatus } from '../../src/client/features/trades/tradesSlice';
+import tradesReducer, {
+  fetchUserTrades,
+  createTrade,
+  updateTradeStatus,
+} from '../../src/client/features/trades/tradesSlice';
 
 describe('tradesSlice - cobertura principal', () => {
   let store: any;
@@ -34,11 +59,15 @@ describe('tradesSlice - cobertura principal', () => {
   });
 
   it('createTrade -> pending/fulfilled agrega trade y updateTradeStatus actualiza estado', async () => {
-    await store.dispatch<any>(createTrade({ initiatorUserId: 'a', receiverUserId: 'b' } as any));
+    await store.dispatch<any>(
+      createTrade({ initiatorUserId: 'a', receiverUserId: 'b' } as any)
+    );
     let state = store.getState().trades;
     expect(state.list.find((t: any) => t.id === 't2')).toBeTruthy();
 
-    await store.dispatch<any>(updateTradeStatus({ tradeId: 't2', status: 'accepted' } as any));
+    await store.dispatch<any>(
+      updateTradeStatus({ tradeId: 't2', status: 'accepted' } as any)
+    );
     state = store.getState().trades;
     expect(state.list.find((t: any) => t.id === 't2')?.status).toBe('accepted');
   });

@@ -9,7 +9,10 @@ import { Card } from '../../src/server/models/Card.js';
 import { PokemonCard } from '../../src/server/models/PokemonCard.js';
 import { TrainerCard } from '../../src/server/models/TrainerCard.js';
 import { EnergyCard } from '../../src/server/models/EnergyCard.js';
-import { syncAllCards, upsertCardFromRaw } from '../../src/server/services/cards.js';
+import {
+  syncAllCards,
+  upsertCardFromRaw,
+} from '../../src/server/services/cards.js';
 import * as pokemonService from '../../src/server/services/pokemon.js';
 import * as tcgdxService from '../../src/server/services/tcgdx.js';
 
@@ -204,7 +207,9 @@ describe('Cards Service', () => {
       expect(updated?.illustrator).toBe('Artist v2');
 
       // Verify only one document exists
-      const count = await PokemonCard.countDocuments({ pokemonTcgId: 'swsh1-25' });
+      const count = await PokemonCard.countDocuments({
+        pokemonTcgId: 'swsh1-25',
+      });
       expect(count).toBe(1);
     });
 

@@ -394,11 +394,7 @@ const TradeRequestsPage: React.FC = () => {
               </h2>
 
               {activeReceivedQuick.length === 0 ? (
-                <p className="trade-empty">
-                  {t(
-                    'tradeReq.noQuickReceived'
-                  )}
-                </p>
+                <p className="trade-empty">{t('tradeReq.noQuickReceived')}</p>
               ) : (
                 <div className="trade-list">
                   {activeReceivedQuick.map((req) => {

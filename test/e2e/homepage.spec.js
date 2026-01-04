@@ -1,18 +1,18 @@
-import { Builder, By, until } from "selenium-webdriver";
-import chrome from "selenium-webdriver/chrome";
-import { describe, it, beforeEach, afterEach } from "vitest";
+import { Builder, By, until } from 'selenium-webdriver';
+import chrome from 'selenium-webdriver/chrome';
+import { describe, it, beforeEach, afterEach } from 'vitest';
 
-describe("homepage_loads", () => {
+describe('homepage_loads', () => {
   let driver;
 
   beforeEach(async () => {
     const options = new chrome.Options();
-    options.addArguments("--headless");
-    options.addArguments("--no-sandbox");
-    options.addArguments("--disable-dev-shm-usage");
+    options.addArguments('--headless');
+    options.addArguments('--no-sandbox');
+    options.addArguments('--disable-dev-shm-usage');
 
     driver = await new Builder()
-      .forBrowser("chrome")
+      .forBrowser('chrome')
       .setChromeOptions(options)
       .build();
   });
@@ -21,8 +21,8 @@ describe("homepage_loads", () => {
     if (driver) await driver.quit();
   });
 
-  it("homepage_loads_with_buttons", async () => {
-    await driver.get("http://localhost:5173/");
+  it('homepage_loads_with_buttons', async () => {
+    await driver.get('http://localhost:5173/');
     await driver.manage().window().setRect({ width: 1838, height: 1048 });
 
     // Wait for Sign In button to be present
@@ -56,8 +56,8 @@ describe("homepage_loads", () => {
     expect(await langBtn.isDisplayed()).toBe(true);
   });
 
-  it("can_navigate_to_signin", async () => {
-    await driver.get("http://localhost:5173/");
+  it('can_navigate_to_signin', async () => {
+    await driver.get('http://localhost:5173/');
     await driver.manage().window().setRect({ width: 1838, height: 1048 });
 
     // Wait for Sign In button and click it
@@ -65,20 +65,20 @@ describe("homepage_loads", () => {
       until.elementLocated(By.xpath("//button[contains(text(),'Sign In')]")),
       5000
     );
-    await driver.findElement(
-      By.xpath("//button[contains(text(),'Sign In')]")
-    ).click();
+    await driver
+      .findElement(By.xpath("//button[contains(text(),'Sign In')]"))
+      .click();
 
     // Wait for page to change and verify we're on login
     await driver.sleep(1000);
     const pageSource = await driver.getPageSource();
-    
+
     // Check if we navigated somewhere (URL should change or page content should change)
     expect(pageSource).toBeDefined();
   });
 
-  it("can_navigate_to_signup", async () => {
-    await driver.get("http://localhost:5173/");
+  it('can_navigate_to_signup', async () => {
+    await driver.get('http://localhost:5173/');
     await driver.manage().window().setRect({ width: 1838, height: 1048 });
 
     // Wait for Sign Up button and click it
@@ -86,14 +86,14 @@ describe("homepage_loads", () => {
       until.elementLocated(By.xpath("//button[contains(text(),'Sign Up')]")),
       5000
     );
-    await driver.findElement(
-      By.xpath("//button[contains(text(),'Sign Up')]")
-    ).click();
+    await driver
+      .findElement(By.xpath("//button[contains(text(),'Sign Up')]"))
+      .click();
 
     // Wait for page to change
     await driver.sleep(1000);
     const pageSource = await driver.getPageSource();
-    
+
     // Check if we navigated somewhere
     expect(pageSource).toBeDefined();
   });

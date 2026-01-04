@@ -37,18 +37,27 @@ const OpenPackPage: React.FC = () => {
   const openedCardsRef = useRef<HTMLDivElement | null>(null);
 
   const SET_OPTIONS = [
-    { id: 'me01', label: t('openPack.setMegaEvolution', 'Mega Evolution (me01)') },
+    {
+      id: 'me01',
+      label: t('openPack.setMegaEvolution', 'Mega Evolution (me01)'),
+    },
     { id: 'sm9', label: t('openPack.setTeamUp', 'Team Up (sm9)') },
     { id: 'base1', label: t('openPack.setBaseSet', 'Base Set (base1)') },
     { id: 'bw9', label: t('openPack.setPlasmaFreeze', 'Plasma Freeze (bw9)') },
-    { id: 'sv05', label: t('openPack.setTemporalForces', 'Temporal Forces (sv05)') },
+    {
+      id: 'sv05',
+      label: t('openPack.setTemporalForces', 'Temporal Forces (sv05)'),
+    },
   ];
 
   const [selectedSet, setSelectedSet] = useState<string>(SET_OPTIONS[0].id);
 
   useEffect(() => {
     if (openedCards.length > 0) {
-      openedCardsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      openedCardsRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
     }
   }, [openedCards]);
 
@@ -130,7 +139,8 @@ const OpenPackPage: React.FC = () => {
       return v;
     }
 
-    if (imgs.symbol) return typeof imgs.symbol === 'string' ? imgs.symbol : imgs.symbol.url;
+    if (imgs.symbol)
+      return typeof imgs.symbol === 'string' ? imgs.symbol : imgs.symbol.url;
     if (setInfo.logo) return setInfo.logo;
 
     return '';
@@ -195,15 +205,31 @@ const OpenPackPage: React.FC = () => {
       <Header />
       <div className="collection-inner">
         <div className="open-pack-title-wrapper">
-          <h2 className="open-pack-title">{t('openPack.openPackTitle', 'Open Pack')}</h2>
+          <h2 className="open-pack-title">
+            {t('openPack.openPackTitle', 'Open Pack')}
+          </h2>
         </div>
 
         <div className="open-pack-content">
           {loadingSet ? (
             <div>{t('common.loadingSet')}</div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 20,
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 12,
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                }}
+              >
                 {SET_OPTIONS.map((s) => (
                   <button
                     key={s.id}
@@ -234,12 +260,22 @@ const OpenPackPage: React.FC = () => {
                 }}
               >
                 <img
-                  src={packOpened ? '/assets/foil_pack_open.png' : '/assets/foil_pack.png'}
+                  src={
+                    packOpened
+                      ? '/assets/foil_pack_open.png'
+                      : '/assets/foil_pack.png'
+                  }
                   className="pack-base"
                   alt="Sobre"
                   draggable="false"
                 />
-                {getLogoUrl() && <img src={getLogoUrl()} className="pack-logo" alt="Logo del set" />}
+                {getLogoUrl() && (
+                  <img
+                    src={getLogoUrl()}
+                    className="pack-logo"
+                    alt="Logo del set"
+                  />
+                )}
               </div>
 
               {packStatus ? (
@@ -251,7 +287,10 @@ const OpenPackPage: React.FC = () => {
                     <strong
                       style={{
                         fontSize: '1.3em',
-                        color: (packStatus.remaining ?? 0) > 0 ? '#4CAF50' : '#f44336',
+                        color:
+                          (packStatus.remaining ?? 0) > 0
+                            ? '#4CAF50'
+                            : '#f44336',
                       }}
                     >
                       {packStatus.remaining ?? 0} / 2
@@ -271,25 +310,44 @@ const OpenPackPage: React.FC = () => {
                     >
                       <div>
                         {t('openPack.nextTokenIn', 'Próximo token en')}:{' '}
-                        <strong style={{ color: '#FFB74D' }}>{timeUntilNext}</strong>
+                        <strong style={{ color: '#FFB74D' }}>
+                          {timeUntilNext}
+                        </strong>
                       </div>
                       {packStatus.remaining === 0 && (
-                        <small style={{ opacity: 0.7, display: 'block', marginTop: '4px' }}>
-                          {t('openPack.noTokensAvailable', 'No tienes tokens disponibles')}
+                        <small
+                          style={{
+                            opacity: 0.7,
+                            display: 'block',
+                            marginTop: '4px',
+                          }}
+                        >
+                          {t(
+                            'openPack.noTokensAvailable',
+                            'No tienes tokens disponibles'
+                          )}
                         </small>
                       )}
                     </div>
                   )}
 
                   {packStatus.remaining === 2 && (
-                    <div style={{ fontSize: '0.9em', opacity: 0.7, marginTop: '4px' }}>
+                    <div
+                      style={{
+                        fontSize: '0.9em',
+                        opacity: 0.7,
+                        marginTop: '4px',
+                      }}
+                    >
                       {t('openPack.maxTokens', 'Tienes el máximo de tokens')}
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="open-pack-status">
-                  <div style={{ opacity: 0.6 }}>{t('common.loading', 'Cargando...')}</div>
+                  <div style={{ opacity: 0.6 }}>
+                    {t('common.loading', 'Cargando...')}
+                  </div>
                 </div>
               )}
             </div>

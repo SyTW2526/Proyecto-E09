@@ -198,7 +198,9 @@ describe('Trade Router - Full Coverage Tests', () => {
 
       expect([501, 200, 401, 403, 404, 500]).toContain(res.status);
       if (res.status === 200) {
-        expect(Array.isArray(res.body) || typeof res.body === 'object').toBe(true);
+        expect(Array.isArray(res.body) || typeof res.body === 'object').toBe(
+          true
+        );
       }
     });
 
@@ -221,8 +223,7 @@ describe('Trade Router - Full Coverage Tests', () => {
     });
 
     it('debería rechazar sin autenticación', async () => {
-      const res = await request(app)
-        .get('/trades');
+      const res = await request(app).get('/trades');
 
       expect([501, 401, 403, 404, 500]).toContain(res.status);
     });
@@ -420,8 +421,7 @@ describe('Trade Router - Full Coverage Tests', () => {
     });
 
     it('debería listar intercambios públicos sin autenticación', async () => {
-      const res = await request(app)
-        .get('/trades/public');
+      const res = await request(app).get('/trades/public');
 
       expect([501, 200, 404, 500]).toContain(res.status);
     });

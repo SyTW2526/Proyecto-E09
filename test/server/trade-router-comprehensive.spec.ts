@@ -127,7 +127,7 @@ describe('Trade Router - Comprehensive', () => {
   describe('GET /trades/:id - Get Trade Details', () => {
     it('should retrieve trade by ID', async () => {
       const res = await request(app)
-        .get(`/trades/${new (require('mongoose')).Types.ObjectId()}`)
+        .get(`/trades/${new (require('mongoose').Types.ObjectId)()}`)
         .set('Authorization', `Bearer ${testToken}`);
 
       expect([200, 400, 404, 500, 501]).toContain(res.status);
@@ -135,7 +135,7 @@ describe('Trade Router - Comprehensive', () => {
 
     it('should return 404 for non-existent trade', async () => {
       const res = await request(app)
-        .get(`/trades/${new (require('mongoose')).Types.ObjectId()}`)
+        .get(`/trades/${new (require('mongoose').Types.ObjectId)()}`)
         .set('Authorization', `Bearer ${testToken}`);
 
       expect([200, 400, 404, 500, 501]).toContain(res.status);
@@ -143,7 +143,7 @@ describe('Trade Router - Comprehensive', () => {
 
     it('should include trade details', async () => {
       const res = await request(app)
-        .get(`/trades/${new (require('mongoose')).Types.ObjectId()}`)
+        .get(`/trades/${new (require('mongoose').Types.ObjectId)()}`)
         .set('Authorization', `Bearer ${testToken}`);
 
       expect([200, 400, 404, 500, 501]).toContain(res.status);
@@ -155,7 +155,7 @@ describe('Trade Router - Comprehensive', () => {
 
     it('should require authentication', async () => {
       const res = await request(app).get(
-        `/trades/${new (require('mongoose')).Types.ObjectId()}`
+        `/trades/${new (require('mongoose').Types.ObjectId)()}`
       );
 
       expect([401, 403, 404, 500, 501]).toContain(res.status);
@@ -192,7 +192,7 @@ describe('Trade Router - Comprehensive', () => {
         .post('/trades')
         .set('Authorization', `Bearer ${testToken}`)
         .send({
-          receiver: new (require('mongoose')).Types.ObjectId(),
+          receiver: new (require('mongoose').Types.ObjectId)(),
           cardsFrom: [],
           cardsTo: [],
         });
@@ -214,13 +214,11 @@ describe('Trade Router - Comprehensive', () => {
     });
 
     it('should require authentication', async () => {
-      const res = await request(app)
-        .post('/trades')
-        .send({
-          receiver: otherUser._id,
-          cardsFrom: [],
-          cardsTo: [],
-        });
+      const res = await request(app).post('/trades').send({
+        receiver: otherUser._id,
+        cardsFrom: [],
+        cardsTo: [],
+      });
 
       expect([401, 403, 500, 501]).toContain(res.status);
     });
@@ -257,7 +255,7 @@ describe('Trade Router - Comprehensive', () => {
   describe('PATCH /trades/:id - Update Trade', () => {
     it('should update trade status', async () => {
       const res = await request(app)
-        .patch(`/trades/${new (require('mongoose')).Types.ObjectId()}`)
+        .patch(`/trades/${new (require('mongoose').Types.ObjectId)()}`)
         .set('Authorization', `Bearer ${testToken}`)
         .send({ status: 'accepted' });
 
@@ -266,7 +264,7 @@ describe('Trade Router - Comprehensive', () => {
 
     it('should require authentication', async () => {
       const res = await request(app)
-        .patch(`/trades/${new (require('mongoose')).Types.ObjectId()}`)
+        .patch(`/trades/${new (require('mongoose').Types.ObjectId)()}`)
         .send({ status: 'accepted' });
 
       expect([401, 403, 404, 500, 501]).toContain(res.status);
@@ -274,7 +272,7 @@ describe('Trade Router - Comprehensive', () => {
 
     it('should validate status values', async () => {
       const res = await request(app)
-        .patch(`/trades/${new (require('mongoose')).Types.ObjectId()}`)
+        .patch(`/trades/${new (require('mongoose').Types.ObjectId)()}`)
         .set('Authorization', `Bearer ${testToken}`)
         .send({ status: 'invalid-status' });
 
@@ -298,7 +296,7 @@ describe('Trade Router - Comprehensive', () => {
       );
 
       const res = await request(app)
-        .patch(`/trades/${new (require('mongoose')).Types.ObjectId()}`)
+        .patch(`/trades/${new (require('mongoose').Types.ObjectId)()}`)
         .set('Authorization', `Bearer ${otherToken}`)
         .send({ status: 'accepted' });
 
@@ -312,7 +310,7 @@ describe('Trade Router - Comprehensive', () => {
   describe('DELETE /trades/:id - Delete Trade', () => {
     it('should delete trade', async () => {
       const res = await request(app)
-        .delete(`/trades/${new (require('mongoose')).Types.ObjectId()}`)
+        .delete(`/trades/${new (require('mongoose').Types.ObjectId)()}`)
         .set('Authorization', `Bearer ${testToken}`);
 
       expect([200, 204, 400, 404, 500, 501]).toContain(res.status);
@@ -320,7 +318,7 @@ describe('Trade Router - Comprehensive', () => {
 
     it('should require authentication', async () => {
       const res = await request(app).delete(
-        `/trades/${new (require('mongoose')).Types.ObjectId()}`
+        `/trades/${new (require('mongoose').Types.ObjectId)()}`
       );
 
       expect([401, 403, 404, 500, 501]).toContain(res.status);
@@ -342,7 +340,7 @@ describe('Trade Router - Comprehensive', () => {
       );
 
       const res = await request(app)
-        .delete(`/trades/${new (require('mongoose')).Types.ObjectId()}`)
+        .delete(`/trades/${new (require('mongoose').Types.ObjectId)()}`)
         .set('Authorization', `Bearer ${otherToken}`);
 
       expect([400, 401, 403, 404, 500, 501]).toContain(res.status);
@@ -355,7 +353,7 @@ describe('Trade Router - Comprehensive', () => {
   describe('Trade Acceptance/Rejection', () => {
     it('should accept trade', async () => {
       const res = await request(app)
-        .post(`/trades/${new (require('mongoose')).Types.ObjectId()}/accept`)
+        .post(`/trades/${new (require('mongoose').Types.ObjectId)()}/accept`)
         .set('Authorization', `Bearer ${testToken}`);
 
       expect([200, 400, 404, 501, 500]).toContain(res.status);
@@ -363,7 +361,7 @@ describe('Trade Router - Comprehensive', () => {
 
     it('should reject trade', async () => {
       const res = await request(app)
-        .post(`/trades/${new (require('mongoose')).Types.ObjectId()}/reject`)
+        .post(`/trades/${new (require('mongoose').Types.ObjectId)()}/reject`)
         .set('Authorization', `Bearer ${testToken}`);
 
       expect([200, 400, 404, 501, 500]).toContain(res.status);
@@ -371,7 +369,7 @@ describe('Trade Router - Comprehensive', () => {
 
     it('should require authentication for accept', async () => {
       const res = await request(app).post(
-        `/trades/${new (require('mongoose')).Types.ObjectId()}/accept`
+        `/trades/${new (require('mongoose').Types.ObjectId)()}/accept`
       );
 
       expect([401, 403, 404, 500, 501]).toContain(res.status);
@@ -379,7 +377,7 @@ describe('Trade Router - Comprehensive', () => {
 
     it('should require authentication for reject', async () => {
       const res = await request(app).post(
-        `/trades/${new (require('mongoose')).Types.ObjectId()}/reject`
+        `/trades/${new (require('mongoose').Types.ObjectId)()}/reject`
       );
 
       expect([401, 403, 404, 500, 501]).toContain(res.status);
@@ -431,9 +429,7 @@ describe('Trade Router - Comprehensive', () => {
     });
 
     it('should handle missing Authorization', async () => {
-      const res = await request(app)
-        .get('/trades')
-        .set('Authorization', '');
+      const res = await request(app).get('/trades').set('Authorization', '');
 
       expect([200, 401, 403, 404, 500]).toContain(res.status);
     });

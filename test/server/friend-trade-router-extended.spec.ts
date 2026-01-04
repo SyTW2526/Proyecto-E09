@@ -260,9 +260,7 @@ describe('Friend Trade Router Extended', () => {
       const fakeId = new mongoose.Types.ObjectId();
 
       const res = await request(app)
-        .post(
-          `/friend-trade-rooms/invites/${fakeId.toString()}/accept`
-        )
+        .post(`/friend-trade-rooms/invites/${fakeId.toString()}/accept`)
         .set('Authorization', `Bearer ${token2}`);
 
       expect(res.status).toBe(404);
@@ -320,9 +318,7 @@ describe('Friend Trade Router Extended', () => {
       const fakeId = new mongoose.Types.ObjectId();
 
       const res = await request(app)
-        .post(
-          `/friend-trade-rooms/invites/${fakeId.toString()}/reject`
-        )
+        .post(`/friend-trade-rooms/invites/${fakeId.toString()}/reject`)
         .set('Authorization', `Bearer ${token2}`);
 
       expect(res.status).toBe(404);

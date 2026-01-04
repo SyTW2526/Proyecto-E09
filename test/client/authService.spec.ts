@@ -232,7 +232,10 @@ describe('authService', () => {
       });
 
       await expect(
-        authService.updateProfileImage('testuser', 'https://example.com/image.jpg')
+        authService.updateProfileImage(
+          'testuser',
+          'https://example.com/image.jpg'
+        )
       ).rejects.toThrow('No autorizado');
     });
   });
@@ -340,19 +343,22 @@ describe('authService', () => {
         }),
       });
 
-      await expect(
-        authService.deleteProfileImage('testuser')
-      ).rejects.toThrow('No hay imagen que eliminar');
+      await expect(authService.deleteProfileImage('testuser')).rejects.toThrow(
+        'No hay imagen que eliminar'
+      );
     });
   });
 
   describe('deleteAccount', () => {
     it('elimina la cuenta del usuario', async () => {
       localStorage.setItem('token', 'jwt-token-123');
-      localStorage.setItem('user', JSON.stringify({
-        id: '123',
-        username: 'testuser',
-      }));
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          id: '123',
+          username: 'testuser',
+        })
+      );
 
       global.fetch = vi.fn().mockResolvedValueOnce({
         ok: true,
@@ -377,9 +383,9 @@ describe('authService', () => {
         }),
       });
 
-      await expect(
-        authService.deleteAccount('testuser')
-      ).rejects.toThrow('No se puede eliminar cuenta');
+      await expect(authService.deleteAccount('testuser')).rejects.toThrow(
+        'No se puede eliminar cuenta'
+      );
     });
   });
 

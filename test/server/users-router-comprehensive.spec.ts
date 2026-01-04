@@ -243,12 +243,10 @@ describe('Users Router - Comprehensive Coverage', () => {
   // ============================================
   describe('POST /users/login - Comprehensive Cases', () => {
     it('should login with correct credentials', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          username: testUser.username,
-          password: 'password123',
-        });
+      const res = await request(app).post('/users/login').send({
+        username: testUser.username,
+        password: 'password123',
+      });
 
       expect([200, 400, 401]).toContain(res.status);
       if (res.status === 200 && res.body?.data) {
@@ -257,87 +255,71 @@ describe('Users Router - Comprehensive Coverage', () => {
     });
 
     it('should reject wrong password', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          username: testUser.username,
-          password: 'wrongpassword',
-        });
+      const res = await request(app).post('/users/login').send({
+        username: testUser.username,
+        password: 'wrongpassword',
+      });
 
       expect([400, 401, 500]).toContain(res.status);
     });
 
     it('should handle non-existent user', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          username: 'nonexistent',
-          password: 'password123',
-        });
+      const res = await request(app).post('/users/login').send({
+        username: 'nonexistent',
+        password: 'password123',
+      });
 
       expect([400, 401, 404]).toContain(res.status);
     });
 
     it('should login with email', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          username: testUser.email,
-          password: 'password123',
-        });
+      const res = await request(app).post('/users/login').send({
+        username: testUser.email,
+        password: 'password123',
+      });
 
       expect([200, 400, 401]).toContain(res.status);
     });
 
     it('should reject null username', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          username: null,
-          password: 'password123',
-        });
+      const res = await request(app).post('/users/login').send({
+        username: null,
+        password: 'password123',
+      });
 
       expect([400, 401, 500]).toContain(res.status);
     });
 
     it('should reject null password', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          username: testUser.username,
-          password: null,
-        });
+      const res = await request(app).post('/users/login').send({
+        username: testUser.username,
+        password: null,
+      });
 
       expect([400, 401, 500]).toContain(res.status);
     });
 
     it('should handle missing username', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          password: 'password123',
-        });
+      const res = await request(app).post('/users/login').send({
+        password: 'password123',
+      });
 
       expect([400, 401, 500]).toContain(res.status);
     });
 
     it('should handle missing password', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          username: testUser.username,
-        });
+      const res = await request(app).post('/users/login').send({
+        username: testUser.username,
+      });
 
       expect([400, 401, 500]).toContain(res.status);
     });
 
     it('should be case-insensitive for username', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          username: testUser.username.toUpperCase(),
-          password: 'password123',
-        });
+      const res = await request(app).post('/users/login').send({
+        username: testUser.username.toUpperCase(),
+        password: 'password123',
+      });
 
       expect([200, 400, 401]).toContain(res.status);
     });
@@ -346,12 +328,10 @@ describe('Users Router - Comprehensive Coverage', () => {
       const promises = [];
       for (let i = 0; i < 3; i++) {
         promises.push(
-          request(app)
-            .post('/users/login')
-            .send({
-              username: testUser.username,
-              password: 'password123',
-            })
+          request(app).post('/users/login').send({
+            username: testUser.username,
+            password: 'password123',
+          })
         );
       }
 
@@ -367,93 +347,79 @@ describe('Users Router - Comprehensive Coverage', () => {
   // ============================================
   describe('POST /users/register - Comprehensive Cases', () => {
     it('should register new user', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'newuser',
-          email: 'new@example.com',
-          password: 'password123',
-          confirmPassword: 'password123',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'newuser',
+        email: 'new@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
 
       expect([200, 201, 400, 500]).toContain(res.status);
     });
 
     it('should reject mismatched passwords', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'mismatch',
-          email: 'mismatch@example.com',
-          password: 'password123',
-          confirmPassword: 'password456',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'mismatch',
+        email: 'mismatch@example.com',
+        password: 'password123',
+        confirmPassword: 'password456',
+      });
 
       expect([400, 500]).toContain(res.status);
     });
 
     it('should reject weak password', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'weak',
-          email: 'weak@example.com',
-          password: '123',
-          confirmPassword: '123',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'weak',
+        email: 'weak@example.com',
+        password: '123',
+        confirmPassword: '123',
+      });
 
       expect([400, 422, 500]).toContain(res.status);
     });
 
     it('should reject duplicate username', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: testUser.username,
-          email: 'duplicate@example.com',
-          password: 'password123',
-          confirmPassword: 'password123',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: testUser.username,
+        email: 'duplicate@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
 
       expect([400, 409, 500]).toContain(res.status);
     });
 
     it('should reject duplicate email', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'dupuser',
-          email: testUser.email,
-          password: 'password123',
-          confirmPassword: 'password123',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'dupuser',
+        email: testUser.email,
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
 
       expect([400, 409, 500]).toContain(res.status);
     });
 
     it('should reject invalid email', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'invalidemail',
-          email: 'not-an-email',
-          password: 'password123',
-          confirmPassword: 'password123',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'invalidemail',
+        email: 'not-an-email',
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
 
       expect([400, 422, 500]).toContain(res.status);
     });
 
     it('should handle special characters in bio', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'special',
-          email: 'special@example.com',
-          password: 'password123',
-          confirmPassword: 'password123',
-          bio: '!@#$%^&*()',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'special',
+        email: 'special@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+        bio: '!@#$%^&*()',
+      });
 
       expect([200, 201, 400, 500]).toContain(res.status);
     });

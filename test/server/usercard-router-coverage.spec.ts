@@ -48,7 +48,10 @@ describe('UserCard Router - Coverage Tests (76.59% -> 95%)', () => {
           {
             id: 'sv04pt-1',
             name: 'Charizard',
-            images: { small: 'http://example.com/small.jpg', large: 'http://example.com/large.jpg' },
+            images: {
+              small: 'http://example.com/small.jpg',
+              large: 'http://example.com/large.jpg',
+            },
           },
         ],
       };
@@ -158,7 +161,9 @@ describe('UserCard Router - Coverage Tests (76.59% -> 95%)', () => {
     it('debe validar tipo de colección válido (línea 82-86)', () => {
       mockRequest.params = { username: 'testuser', type: 'invalid' };
 
-      const isValid = ['collection', 'wishlist'].includes(mockRequest.params.type);
+      const isValid = ['collection', 'wishlist'].includes(
+        mockRequest.params.type
+      );
 
       if (!isValid) {
         mockResponse
@@ -172,14 +177,18 @@ describe('UserCard Router - Coverage Tests (76.59% -> 95%)', () => {
     it('debe aceptar type collection (línea 82-86)', () => {
       mockRequest.params = { username: 'testuser', type: 'collection' };
 
-      const isValid = ['collection', 'wishlist'].includes(mockRequest.params.type);
+      const isValid = ['collection', 'wishlist'].includes(
+        mockRequest.params.type
+      );
       expect(isValid).toBe(true);
     });
 
     it('debe aceptar type wishlist (línea 82-86)', () => {
       mockRequest.params = { username: 'testuser', type: 'wishlist' };
 
-      const isValid = ['collection', 'wishlist'].includes(mockRequest.params.type);
+      const isValid = ['collection', 'wishlist'].includes(
+        mockRequest.params.type
+      );
       expect(isValid).toBe(true);
     });
 
@@ -411,7 +420,9 @@ describe('UserCard Router - Coverage Tests (76.59% -> 95%)', () => {
         { collectionType: 'collection', _id: new mongoose.Types.ObjectId() },
       ];
 
-      expect(userCards.every((c) => c.collectionType === 'collection')).toBe(true);
+      expect(userCards.every((c) => c.collectionType === 'collection')).toBe(
+        true
+      );
     });
 
     it('debe incluir cartas de intercambio (línea 200-201)', () => {
@@ -432,7 +443,9 @@ describe('UserCard Router - Coverage Tests (76.59% -> 95%)', () => {
       ];
 
       const filtered = userCards.filter((c) =>
-        c.cardName.toLowerCase().includes(mockRequest.query.search.toLowerCase())
+        c.cardName
+          .toLowerCase()
+          .includes(mockRequest.query.search.toLowerCase())
       );
 
       expect(filtered).toHaveLength(1);
@@ -466,7 +479,9 @@ describe('UserCard Router - Coverage Tests (76.59% -> 95%)', () => {
         { collectionType: 'wishlist', _id: new mongoose.Types.ObjectId() },
       ];
 
-      expect(userCards.every((c) => c.collectionType === 'wishlist')).toBe(true);
+      expect(userCards.every((c) => c.collectionType === 'wishlist')).toBe(
+        true
+      );
     });
 
     it('debe incluir prioridad de deseo (línea 219)', () => {
@@ -511,7 +526,9 @@ describe('UserCard Router - Coverage Tests (76.59% -> 95%)', () => {
     it('debe validar array de cartas (línea 248-250)', () => {
       mockRequest.body = { cards: [{ cardId: 'id1' }, { cardId: 'id2' }] };
 
-      const cards = Array.isArray(mockRequest.body.cards) ? mockRequest.body.cards : [];
+      const cards = Array.isArray(mockRequest.body.cards)
+        ? mockRequest.body.cards
+        : [];
 
       expect(Array.isArray(cards)).toBe(true);
     });

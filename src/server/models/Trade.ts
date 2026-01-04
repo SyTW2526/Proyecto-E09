@@ -82,7 +82,7 @@ const tradeSchema = new mongoose.Schema(
     tradeType: {
       type: String,
       enum: ['public', 'private'],
-      required: true,
+      default: 'public',
     },
     privateRoomCode: {
       type: String,

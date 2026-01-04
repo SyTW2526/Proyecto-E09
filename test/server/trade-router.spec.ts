@@ -101,7 +101,9 @@ describe('trade router - Trade endpoints', () => {
         status: 'pending',
       };
       mockResponse.json(trade);
-      expect(mockResponse.json).toHaveBeenCalledWith(expect.objectContaining({ id: 'trade_123' }));
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'trade_123' })
+      );
     });
   });
 
@@ -143,7 +145,11 @@ describe('trade router - Trade endpoints', () => {
     });
 
     it('crea transacción con estado pendiente', () => {
-      const created = { ...mockRequest.body, status: 'pending', id: 'trade_new' };
+      const created = {
+        ...mockRequest.body,
+        status: 'pending',
+        id: 'trade_new',
+      };
       expect(created.status).toBe('pending');
     });
 
@@ -173,7 +179,13 @@ describe('trade router - Trade endpoints', () => {
     });
 
     it('valida estado válido', () => {
-      const validStatuses = ['pending', 'accepted', 'rejected', 'completed', 'cancelled'];
+      const validStatuses = [
+        'pending',
+        'accepted',
+        'rejected',
+        'completed',
+        'cancelled',
+      ];
       expect(validStatuses).toContain('accepted');
     });
 

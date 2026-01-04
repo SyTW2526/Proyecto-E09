@@ -37,9 +37,7 @@ describe('UserCard Router - Real Code Execution Tests (76.59% Coverage)', () => 
       };
 
       if (!mockReq.body.setId) {
-        mockRes
-          .status(400)
-          .send({ error: 'setId es requerido' });
+        mockRes.status(400).send({ error: 'setId es requerido' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -52,9 +50,7 @@ describe('UserCard Router - Real Code Execution Tests (76.59% Coverage)', () => 
       };
 
       if (!mockReq.body.apiSource) {
-        mockRes
-          .status(400)
-          .send({ error: 'apiSource es requerido' });
+        mockRes.status(400).send({ error: 'apiSource es requerido' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -67,12 +63,10 @@ describe('UserCard Router - Real Code Execution Tests (76.59% Coverage)', () => 
         cardIds: ['sv04-1', 'sv04-2'],
       };
 
-      mockRes
-        .status(200)
-        .send({
-          message: 'Cartas importadas',
-          count: 2,
-        });
+      mockRes.status(200).send({
+        message: 'Cartas importadas',
+        count: 2,
+      });
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
@@ -83,9 +77,7 @@ describe('UserCard Router - Real Code Execution Tests (76.59% Coverage)', () => 
       try {
         throw error;
       } catch (err: any) {
-        mockRes
-          .status(400)
-          .send({ error: err.message });
+        mockRes.status(400).send({ error: err.message });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -100,9 +92,7 @@ describe('UserCard Router - Real Code Execution Tests (76.59% Coverage)', () => 
       };
 
       if (!mockReq.body.pokemonTcgId) {
-        mockRes
-          .status(400)
-          .send({ error: 'pokemonTcgId es requerido' });
+        mockRes.status(400).send({ error: 'pokemonTcgId es requerido' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -115,9 +105,7 @@ describe('UserCard Router - Real Code Execution Tests (76.59% Coverage)', () => 
       };
 
       if (!mockReq.body.quantity || mockReq.body.quantity < 1) {
-        mockRes
-          .status(400)
-          .send({ error: 'Cantidad debe ser > 0' });
+        mockRes.status(400).send({ error: 'Cantidad debe ser > 0' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -130,16 +118,14 @@ describe('UserCard Router - Real Code Execution Tests (76.59% Coverage)', () => 
         cardName: 'Pikachu',
       };
 
-      mockRes
-        .status(201)
-        .send({
-          message: 'Carta agregada',
-          userCard: {
-            _id: userCardId,
-            pokemonTcgId,
-            quantity: 2,
-          },
-        });
+      mockRes.status(201).send({
+        message: 'Carta agregada',
+        userCard: {
+          _id: userCardId,
+          pokemonTcgId,
+          quantity: 2,
+        },
+      });
 
       expect(mockRes.status).toHaveBeenCalledWith(201);
     });
@@ -151,7 +137,11 @@ describe('UserCard Router - Real Code Execution Tests (76.59% Coverage)', () => 
 
       const collection = [
         { _id: userCardId, pokemonTcgId: 'sv04-1', quantity: 2 },
-        { _id: new mongoose.Types.ObjectId(), pokemonTcgId: 'sv04-2', quantity: 1 },
+        {
+          _id: new mongoose.Types.ObjectId(),
+          pokemonTcgId: 'sv04-2',
+          quantity: 1,
+        },
       ];
 
       mockRes.status(200).send({ collection });
@@ -209,21 +199,17 @@ describe('UserCard Router - Real Code Execution Tests (76.59% Coverage)', () => 
     it('debe validar ID de usercard', () => {
       mockReq.params = { id: userCardId.toString() };
 
-      const isValid = mongoose.Types.ObjectId.isValid(
-        mockReq.params.id
-      );
+      const isValid = mongoose.Types.ObjectId.isValid(mockReq.params.id);
       expect(isValid).toBe(true);
     });
 
     it('debe actualizar cantidad', () => {
       mockReq.body = { quantity: 5 };
 
-      mockRes
-        .status(200)
-        .send({
-          message: 'Carta actualizada',
-          quantity: 5,
-        });
+      mockRes.status(200).send({
+        message: 'Carta actualizada',
+        quantity: 5,
+      });
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
@@ -231,12 +217,10 @@ describe('UserCard Router - Real Code Execution Tests (76.59% Coverage)', () => 
     it('debe actualizar notas (línea 248)', () => {
       mockReq.body = { notes: 'Edición especial' };
 
-      mockRes
-        .status(200)
-        .send({
-          message: 'Notas actualizadas',
-          notes: 'Edición especial',
-        });
+      mockRes.status(200).send({
+        message: 'Notas actualizadas',
+        notes: 'Edición especial',
+      });
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
@@ -247,20 +231,16 @@ describe('UserCard Router - Real Code Execution Tests (76.59% Coverage)', () => 
       mockReq.userId = userId;
       const userCard = { userId, _id: userCardId };
 
-      const isAuthorized = userCard.userId.equals(
-        mockReq.userId
-      );
+      const isAuthorized = userCard.userId.equals(mockReq.userId);
       expect(isAuthorized).toBe(true);
     });
 
     it('debe eliminar carta exitosamente', () => {
       mockReq.params = { id: userCardId.toString() };
 
-      mockRes
-        .status(200)
-        .send({
-          message: 'Carta eliminada',
-        });
+      mockRes.status(200).send({
+        message: 'Carta eliminada',
+      });
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
@@ -270,9 +250,7 @@ describe('UserCard Router - Real Code Execution Tests (76.59% Coverage)', () => 
       const otherId = new mongoose.Types.ObjectId();
       const userCard = { userId: otherId, _id: userCardId };
 
-      const isAuthorized = userCard.userId.equals(
-        mockReq.userId
-      );
+      const isAuthorized = userCard.userId.equals(mockReq.userId);
       expect(isAuthorized).toBe(false);
     });
   });
@@ -308,9 +286,7 @@ describe('UserCard Router - Real Code Execution Tests (76.59% Coverage)', () => 
         { pokemonTcgId: 'sv04-2', quantity: -1 },
       ];
 
-      const allValid = cards.every(
-        (c) => (c.quantity || 1) > 0
-      );
+      const allValid = cards.every((c) => (c.quantity || 1) > 0);
       expect(allValid).toBe(false);
     });
   });

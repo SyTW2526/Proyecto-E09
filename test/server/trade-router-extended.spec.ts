@@ -55,8 +55,14 @@ describe('Trade Router - Endpoints HTTP', () => {
 
     // Generar tokens JWT
     const secret = process.env.JWT_SECRET || 'test-secret';
-    token1 = jwt.sign({ userId: testUser1._id, username: testUser1.username }, secret);
-    token2 = jwt.sign({ userId: testUser2._id, username: testUser2.username }, secret);
+    token1 = jwt.sign(
+      { userId: testUser1._id, username: testUser1.username },
+      secret
+    );
+    token2 = jwt.sign(
+      { userId: testUser2._id, username: testUser2.username },
+      secret
+    );
   });
 
   afterEach(async () => {

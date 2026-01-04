@@ -68,9 +68,7 @@ describe('Trade Request Router - Integration Tests (54.76% Coverage)', () => {
       const me = null;
 
       if (!me) {
-        mockRes
-          .status(404)
-          .send({ error: 'Usuario actual no encontrado' });
+        mockRes.status(404).send({ error: 'Usuario actual no encontrado' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -80,9 +78,7 @@ describe('Trade Request Router - Integration Tests (54.76% Coverage)', () => {
       const receiver = null;
 
       if (!receiver) {
-        mockRes
-          .status(404)
-          .send({ error: 'Usuario destino no encontrado' });
+        mockRes.status(404).send({ error: 'Usuario destino no encontrado' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -266,9 +262,7 @@ describe('Trade Request Router - Integration Tests (54.76% Coverage)', () => {
     it('debe filtrar por dirección (línea 216-221)', () => {
       mockReq.query = { direction: 'received' };
 
-      const requests = [
-        { _id: requestId, from: receiverId, to: userId },
-      ];
+      const requests = [{ _id: requestId, from: receiverId, to: userId }];
 
       expect(requests[0].to).toEqual(userId);
     });
@@ -301,9 +295,7 @@ describe('Trade Request Router - Integration Tests (54.76% Coverage)', () => {
       const tradeRequest = null;
 
       if (!tradeRequest) {
-        mockRes
-          .status(404)
-          .send({ error: 'Solicitud no encontrada' });
+        mockRes.status(404).send({ error: 'Solicitud no encontrada' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -313,9 +305,7 @@ describe('Trade Request Router - Integration Tests (54.76% Coverage)', () => {
       const tradeRequest = { status: 'accepted' };
 
       if (tradeRequest.status !== 'pending') {
-        mockRes
-          .status(400)
-          .send({ error: 'Solicitud ya fue procesada' });
+        mockRes.status(400).send({ error: 'Solicitud ya fue procesada' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -358,9 +348,7 @@ describe('Trade Request Router - Integration Tests (54.76% Coverage)', () => {
       const tradeRequest = null;
 
       if (!tradeRequest) {
-        mockRes
-          .status(404)
-          .send({ error: 'Solicitud no encontrada' });
+        mockRes.status(404).send({ error: 'Solicitud no encontrada' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -370,9 +358,7 @@ describe('Trade Request Router - Integration Tests (54.76% Coverage)', () => {
       const tradeRequest = { status: 'rejected' };
 
       if (tradeRequest.status !== 'pending') {
-        mockRes
-          .status(400)
-          .send({ error: 'Solicitud ya fue procesada' });
+        mockRes.status(400).send({ error: 'Solicitud ya fue procesada' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -404,9 +390,7 @@ describe('Trade Request Router - Integration Tests (54.76% Coverage)', () => {
       const tradeRequest = null;
 
       if (!tradeRequest) {
-        mockRes
-          .status(404)
-          .send({ error: 'Solicitud no encontrada' });
+        mockRes.status(404).send({ error: 'Solicitud no encontrada' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(404);

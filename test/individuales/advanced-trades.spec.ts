@@ -20,15 +20,35 @@ describe('Advanced Trade Features', () => {
      * Verifica que se pueden crear trades públicos con los datos correctos
      */
     it('debe permitir crear intercambios públicos', async () => {
-      const user1 = await User.create({ username: 'trader1', email: 'trader1@example.com', password: 'pass123' });
-      const user2 = await User.create({ username: 'trader2', email: 'trader2@example.com', password: 'pass123' });
+      const user1 = await User.create({
+        username: 'trader1',
+        email: 'trader1@example.com',
+        password: 'pass123',
+      });
+      const user2 = await User.create({
+        username: 'trader2',
+        email: 'trader2@example.com',
+        password: 'pass123',
+      });
 
       const trade = await Trade.create({
         initiatorUserId: user1._id,
         receiverUserId: user2._id,
         tradeType: 'public',
-        initiatorCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 50 }],
-        receiverCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 50 }],
+        initiatorCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 50,
+          },
+        ],
+        receiverCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 50,
+          },
+        ],
         initiatorTotalValue: 50,
         receiverTotalValue: 50,
         status: 'pending',
@@ -44,15 +64,35 @@ describe('Advanced Trade Features', () => {
      * Verifica que se pueden crear trades privados correctamente
      */
     it('debe permitir crear intercambios privados', async () => {
-      const user1 = await User.create({ username: 'priv1', email: 'priv1@example.com', password: 'pass123' });
-      const user2 = await User.create({ username: 'priv2', email: 'priv2@example.com', password: 'pass123' });
+      const user1 = await User.create({
+        username: 'priv1',
+        email: 'priv1@example.com',
+        password: 'pass123',
+      });
+      const user2 = await User.create({
+        username: 'priv2',
+        email: 'priv2@example.com',
+        password: 'pass123',
+      });
 
       const trade = await Trade.create({
         initiatorUserId: user1._id,
         receiverUserId: user2._id,
         tradeType: 'private',
-        initiatorCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 75 }],
-        receiverCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 75 }],
+        initiatorCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 75,
+          },
+        ],
+        receiverCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 75,
+          },
+        ],
         initiatorTotalValue: 75,
         receiverTotalValue: 75,
         status: 'pending',
@@ -67,24 +107,56 @@ describe('Advanced Trade Features', () => {
      * Verifica que se pueden distinguir intercambios públicos y privados
      */
     it('debe permitir filtrar intercambios por tipo', async () => {
-      const user1 = await User.create({ username: 'f1', email: 'f1@ex.com', password: 'p' });
-      const user2 = await User.create({ username: 'f2', email: 'f2@ex.com', password: 'p' });
+      const user1 = await User.create({
+        username: 'f1',
+        email: 'f1@ex.com',
+        password: 'p',
+      });
+      const user2 = await User.create({
+        username: 'f2',
+        email: 'f2@ex.com',
+        password: 'p',
+      });
 
       await Trade.insertMany([
         {
           initiatorUserId: user1._id,
           receiverUserId: user2._id,
           tradeType: 'public',
-          initiatorCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 10 }],
-          receiverCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 10 }],
+          initiatorCards: [
+            {
+              userCardId: new mongoose.Types.ObjectId(),
+              cardId: new mongoose.Types.ObjectId(),
+              estimatedValue: 10,
+            },
+          ],
+          receiverCards: [
+            {
+              userCardId: new mongoose.Types.ObjectId(),
+              cardId: new mongoose.Types.ObjectId(),
+              estimatedValue: 10,
+            },
+          ],
           status: 'pending',
         },
         {
           initiatorUserId: user2._id,
           receiverUserId: user1._id,
           tradeType: 'private',
-          initiatorCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 20 }],
-          receiverCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 20 }],
+          initiatorCards: [
+            {
+              userCardId: new mongoose.Types.ObjectId(),
+              cardId: new mongoose.Types.ObjectId(),
+              estimatedValue: 20,
+            },
+          ],
+          receiverCards: [
+            {
+              userCardId: new mongoose.Types.ObjectId(),
+              cardId: new mongoose.Types.ObjectId(),
+              estimatedValue: 20,
+            },
+          ],
           status: 'pending',
         },
       ]);
@@ -105,15 +177,35 @@ describe('Advanced Trade Features', () => {
      * Verifica que se puede cambiar el estado correctamente
      */
     it('debe permitir cambiar estado de pending a completed', async () => {
-      const user1 = await User.create({ username: 's1', email: 's1@ex.com', password: 'p' });
-      const user2 = await User.create({ username: 's2', email: 's2@ex.com', password: 'p' });
+      const user1 = await User.create({
+        username: 's1',
+        email: 's1@ex.com',
+        password: 'p',
+      });
+      const user2 = await User.create({
+        username: 's2',
+        email: 's2@ex.com',
+        password: 'p',
+      });
 
       const trade = await Trade.create({
         initiatorUserId: user1._id,
         receiverUserId: user2._id,
         tradeType: 'public',
-        initiatorCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 50 }],
-        receiverCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 50 }],
+        initiatorCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 50,
+          },
+        ],
+        receiverCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 50,
+          },
+        ],
         status: 'pending',
       });
 
@@ -129,15 +221,35 @@ describe('Advanced Trade Features', () => {
      * Verifica que se pueden cancelar trades correctamente
      */
     it('debe permitir cambiar estado de pending a cancelled', async () => {
-      const user1 = await User.create({ username: 'c1', email: 'c1@ex.com', password: 'p' });
-      const user2 = await User.create({ username: 'c2', email: 'c2@ex.com', password: 'p' });
+      const user1 = await User.create({
+        username: 'c1',
+        email: 'c1@ex.com',
+        password: 'p',
+      });
+      const user2 = await User.create({
+        username: 'c2',
+        email: 'c2@ex.com',
+        password: 'p',
+      });
 
       const trade = await Trade.create({
         initiatorUserId: user1._id,
         receiverUserId: user2._id,
         tradeType: 'public',
-        initiatorCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 50 }],
-        receiverCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 50 }],
+        initiatorCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 50,
+          },
+        ],
+        receiverCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 50,
+          },
+        ],
         status: 'pending',
       });
 
@@ -153,24 +265,56 @@ describe('Advanced Trade Features', () => {
      * Verifica que se pueden obtener trades por su estado
      */
     it('debe permitir filtrar intercambios por estado', async () => {
-      const user1 = await User.create({ username: 'st1', email: 'st1@ex.com', password: 'p' });
-      const user2 = await User.create({ username: 'st2', email: 'st2@ex.com', password: 'p' });
+      const user1 = await User.create({
+        username: 'st1',
+        email: 'st1@ex.com',
+        password: 'p',
+      });
+      const user2 = await User.create({
+        username: 'st2',
+        email: 'st2@ex.com',
+        password: 'p',
+      });
 
       await Trade.insertMany([
         {
           initiatorUserId: user1._id,
           receiverUserId: user2._id,
           tradeType: 'public',
-          initiatorCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 10 }],
-          receiverCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 10 }],
+          initiatorCards: [
+            {
+              userCardId: new mongoose.Types.ObjectId(),
+              cardId: new mongoose.Types.ObjectId(),
+              estimatedValue: 10,
+            },
+          ],
+          receiverCards: [
+            {
+              userCardId: new mongoose.Types.ObjectId(),
+              cardId: new mongoose.Types.ObjectId(),
+              estimatedValue: 10,
+            },
+          ],
           status: 'pending',
         },
         {
           initiatorUserId: user2._id,
           receiverUserId: user1._id,
           tradeType: 'public',
-          initiatorCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 20 }],
-          receiverCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 20 }],
+          initiatorCards: [
+            {
+              userCardId: new mongoose.Types.ObjectId(),
+              cardId: new mongoose.Types.ObjectId(),
+              estimatedValue: 20,
+            },
+          ],
+          receiverCards: [
+            {
+              userCardId: new mongoose.Types.ObjectId(),
+              cardId: new mongoose.Types.ObjectId(),
+              estimatedValue: 20,
+            },
+          ],
           status: 'completed',
         },
       ]);
@@ -189,15 +333,35 @@ describe('Advanced Trade Features', () => {
      * Verifica que se pueden crear intercambios aunque los valores no sean exactamente iguales
      */
     it('debe permitir intercambios con valores desiguales dentro del límite', async () => {
-      const user1 = await User.create({ username: 'v1', email: 'v1@ex.com', password: 'p' });
-      const user2 = await User.create({ username: 'v2', email: 'v2@ex.com', password: 'p' });
+      const user1 = await User.create({
+        username: 'v1',
+        email: 'v1@ex.com',
+        password: 'p',
+      });
+      const user2 = await User.create({
+        username: 'v2',
+        email: 'v2@ex.com',
+        password: 'p',
+      });
 
       const trade = await Trade.create({
         initiatorUserId: user1._id,
         receiverUserId: user2._id,
         tradeType: 'public',
-        initiatorCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 100 }],
-        receiverCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 95 }],
+        initiatorCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 100,
+          },
+        ],
+        receiverCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 95,
+          },
+        ],
         initiatorTotalValue: 100,
         receiverTotalValue: 95,
         status: 'pending',
@@ -213,20 +377,44 @@ describe('Advanced Trade Features', () => {
      * Verifica que se almacenan correctamente los valores totales
      */
     it('debe guardar totales de valor correctamente', async () => {
-      const user1 = await User.create({ username: 'tot1', email: 'tot1@ex.com', password: 'p' });
-      const user2 = await User.create({ username: 'tot2', email: 'tot2@ex.com', password: 'p' });
+      const user1 = await User.create({
+        username: 'tot1',
+        email: 'tot1@ex.com',
+        password: 'p',
+      });
+      const user2 = await User.create({
+        username: 'tot2',
+        email: 'tot2@ex.com',
+        password: 'p',
+      });
 
       const trade = await Trade.create({
         initiatorUserId: user1._id,
         receiverUserId: user2._id,
         tradeType: 'public',
         initiatorCards: [
-          { userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 50 },
-          { userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 30 },
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 50,
+          },
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 30,
+          },
         ],
         receiverCards: [
-          { userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 60 },
-          { userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 20 },
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 60,
+          },
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 20,
+          },
         ],
         initiatorTotalValue: 80,
         receiverTotalValue: 80,
@@ -245,16 +433,36 @@ describe('Advanced Trade Features', () => {
      * Verifica que se pueden recuperar múltiples trades
      */
     it('debe retornar intercambios paginados', async () => {
-      const user1 = await User.create({ username: 'pg1', email: 'pg1@ex.com', password: 'p' });
-      const user2 = await User.create({ username: 'pg2', email: 'pg2@ex.com', password: 'p' });
+      const user1 = await User.create({
+        username: 'pg1',
+        email: 'pg1@ex.com',
+        password: 'p',
+      });
+      const user2 = await User.create({
+        username: 'pg2',
+        email: 'pg2@ex.com',
+        password: 'p',
+      });
 
       await Trade.insertMany(
         Array.from({ length: 5 }, (_, i) => ({
           initiatorUserId: user1._id,
           receiverUserId: user2._id,
           tradeType: 'public',
-          initiatorCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 10 }],
-          receiverCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 10 }],
+          initiatorCards: [
+            {
+              userCardId: new mongoose.Types.ObjectId(),
+              cardId: new mongoose.Types.ObjectId(),
+              estimatedValue: 10,
+            },
+          ],
+          receiverCards: [
+            {
+              userCardId: new mongoose.Types.ObjectId(),
+              cardId: new mongoose.Types.ObjectId(),
+              estimatedValue: 10,
+            },
+          ],
           status: 'pending',
         }))
       );
@@ -268,19 +476,41 @@ describe('Advanced Trade Features', () => {
      * Verifica que se puede recuperar un trade completo
      */
     it('debe retornar un intercambio por ID con poblaciones', async () => {
-      const user1 = await User.create({ username: 'pop1', email: 'pop1@ex.com', password: 'p' });
-      const user2 = await User.create({ username: 'pop2', email: 'pop2@ex.com', password: 'p' });
+      const user1 = await User.create({
+        username: 'pop1',
+        email: 'pop1@ex.com',
+        password: 'p',
+      });
+      const user2 = await User.create({
+        username: 'pop2',
+        email: 'pop2@ex.com',
+        password: 'p',
+      });
 
       const trade = await Trade.create({
         initiatorUserId: user1._id,
         receiverUserId: user2._id,
         tradeType: 'public',
-        initiatorCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 50 }],
-        receiverCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 50 }],
+        initiatorCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 50,
+          },
+        ],
+        receiverCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 50,
+          },
+        ],
         status: 'pending',
       });
 
-      const retrieved = await Trade.findById(trade._id).populate('initiatorUserId').populate('receiverUserId');
+      const retrieved = await Trade.findById(trade._id)
+        .populate('initiatorUserId')
+        .populate('receiverUserId');
       expect(retrieved?._id.toString()).toBe(trade._id.toString());
       expect(retrieved?.initiatorUserId).toBeDefined();
     });
@@ -321,15 +551,35 @@ describe('Advanced Trade Features', () => {
      * Verifica que se pueden cambiar estados válidos solamente
      */
     it('debe permitir cambios de estado válidos', async () => {
-      const user1 = await User.create({ username: 'inv1', email: 'inv1@ex.com', password: 'p' });
-      const user2 = await User.create({ username: 'inv2', email: 'inv2@ex.com', password: 'p' });
+      const user1 = await User.create({
+        username: 'inv1',
+        email: 'inv1@ex.com',
+        password: 'p',
+      });
+      const user2 = await User.create({
+        username: 'inv2',
+        email: 'inv2@ex.com',
+        password: 'p',
+      });
 
       const trade = await Trade.create({
         initiatorUserId: user1._id,
         receiverUserId: user2._id,
         tradeType: 'public',
-        initiatorCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 50 }],
-        receiverCards: [{ userCardId: new mongoose.Types.ObjectId(), cardId: new mongoose.Types.ObjectId(), estimatedValue: 50 }],
+        initiatorCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 50,
+          },
+        ],
+        receiverCards: [
+          {
+            userCardId: new mongoose.Types.ObjectId(),
+            cardId: new mongoose.Types.ObjectId(),
+            estimatedValue: 50,
+          },
+        ],
         status: 'pending',
       });
 

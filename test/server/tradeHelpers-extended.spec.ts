@@ -103,7 +103,10 @@ describe('tradeHelpers - Trade utility functions', () => {
 
     it('maneja cartas sin precio', () => {
       const cards = [{ price: null, quantity: 1 }];
-      const total = cards.reduce((sum, c) => sum + (c.price || 0) * c.quantity, 0);
+      const total = cards.reduce(
+        (sum, c) => sum + (c.price || 0) * c.quantity,
+        0
+      );
       expect(total).toBe(0);
     });
 
@@ -207,14 +210,16 @@ describe('tradeHelpers - Trade utility functions', () => {
     it('verifica cantidad suficiente de cartas', () => {
       const collection = [{ cardId: 'card_1', quantity: 5 }];
       const needed = 3;
-      const available = collection.find((c) => c.cardId === 'card_1')?.quantity || 0;
+      const available =
+        collection.find((c) => c.cardId === 'card_1')?.quantity || 0;
       expect(available).toBeGreaterThanOrEqual(needed);
     });
 
     it('rechaza si no hay cantidad suficiente', () => {
       const collection = [{ cardId: 'card_1', quantity: 2 }];
       const needed = 5;
-      const available = collection.find((c) => c.cardId === 'card_1')?.quantity || 0;
+      const available =
+        collection.find((c) => c.cardId === 'card_1')?.quantity || 0;
       expect(available).toBeLessThan(needed);
     });
 
@@ -256,13 +261,25 @@ describe('tradeHelpers - Trade utility functions', () => {
     });
 
     it('valida estados válidos', () => {
-      const validStatuses = ['pending', 'accepted', 'rejected', 'completed', 'cancelled'];
+      const validStatuses = [
+        'pending',
+        'accepted',
+        'rejected',
+        'completed',
+        'cancelled',
+      ];
       expect(validStatuses).toContain('pending');
     });
 
     it('rechaza estado inválido', () => {
       const status = 'invalid';
-      const validStatuses = ['pending', 'accepted', 'rejected', 'completed', 'cancelled'];
+      const validStatuses = [
+        'pending',
+        'accepted',
+        'rejected',
+        'completed',
+        'cancelled',
+      ];
       expect(validStatuses).not.toContain(status);
     });
   });
@@ -271,7 +288,7 @@ describe('tradeHelpers - Trade utility functions', () => {
     it('transfiere cartas del usuario origen al destino', () => {
       const fromCards = [{ cardId: 'card_1', quantity: 2 }];
       const toCards = [{ cardId: 'card_2', quantity: 1 }];
-      
+
       expect(fromCards[0].quantity).toBe(2);
       expect(toCards[0].quantity).toBe(1);
     });
@@ -293,7 +310,7 @@ describe('tradeHelpers - Trade utility functions', () => {
       let toQty = 0;
       toQty += fromQty;
       fromQty = 0;
-      
+
       expect(fromQty).toBe(0);
       expect(toQty).toBe(2);
     });
@@ -413,11 +430,11 @@ describe('tradeHelpers - Trade utility functions', () => {
     it('revierte cartas transferidas', () => {
       let user1Cards = [{ cardId: 'card_1', quantity: 0 }];
       let user2Cards = [{ cardId: 'card_1', quantity: 2 }];
-      
+
       // Revert
       user1Cards = [{ cardId: 'card_1', quantity: 2 }];
       user2Cards = [{ cardId: 'card_1', quantity: 0 }];
-      
+
       expect(user1Cards[0].quantity).toBe(2);
       expect(user2Cards[0].quantity).toBe(0);
     });
@@ -429,9 +446,7 @@ describe('tradeHelpers - Trade utility functions', () => {
     });
 
     it('elimina cambios relacionados', () => {
-      const changes = [
-        { type: 'transfer', cards: 5 },
-      ];
+      const changes = [{ type: 'transfer', cards: 5 }];
       const reverted = changes.filter((c) => c.type !== 'transfer');
       expect(reverted.length).toBe(0);
     });
@@ -460,7 +475,9 @@ describe('tradeHelpers - Trade utility functions', () => {
         { id: 'trade_2', date: new Date('2024-01-15') },
       ];
       const sorted = trades.sort((a, b) => b.date.getTime() - a.date.getTime());
-      expect(sorted[0].date.getTime()).toBeGreaterThan(sorted[1].date.getTime());
+      expect(sorted[0].date.getTime()).toBeGreaterThan(
+        sorted[1].date.getTime()
+      );
     });
 
     it('pagina resultados', () => {

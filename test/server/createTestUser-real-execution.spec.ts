@@ -29,8 +29,7 @@ describe('CreateTestUser Script - Real Code Execution Tests (0% Coverage)', () =
     });
 
     it('debe cargar nombre de base de datos', () => {
-      const DB_NAME =
-        process.env.DB_NAME || 'proyecto-e09';
+      const DB_NAME = process.env.DB_NAME || 'proyecto-e09';
       expect(DB_NAME).toBeDefined();
     });
   });
@@ -38,28 +37,21 @@ describe('CreateTestUser Script - Real Code Execution Tests (0% Coverage)', () =
   describe('MongoDB Connection (línea 11-25)', () => {
     it('debe conectarse a MongoDB', async () => {
       const mongoUri =
-        process.env.MONGO_URI ||
-        'mongodb://localhost:27017/default';
+        process.env.MONGO_URI || 'mongodb://localhost:27017/default';
 
       expect(mongoUri).toMatch(/^mongodb/);
     });
 
     it('debe manejar error de conexión', async () => {
-      const invalidUri =
-        'mongodb://invalid:99999/nonexistent';
+      const invalidUri = 'mongodb://invalid:99999/nonexistent';
 
       // Simulación de error
-      const error = new Error(
-        'Failed to connect'
-      );
+      const error = new Error('Failed to connect');
 
       try {
         throw error;
       } catch (err: any) {
-        console.error(
-          'Connection error:',
-          err.message
-        );
+        console.error('Connection error:', err.message);
         expect(mockConsoleError).toHaveBeenCalled();
       }
     });
@@ -67,16 +59,13 @@ describe('CreateTestUser Script - Real Code Execution Tests (0% Coverage)', () =
     it('debe log de conexión exitosa', () => {
       console.log('Connected to MongoDB');
 
-      expect(mockConsoleLog).toHaveBeenCalledWith(
-        'Connected to MongoDB'
-      );
+      expect(mockConsoleLog).toHaveBeenCalledWith('Connected to MongoDB');
     });
   });
 
   describe('User Model Import (línea 26-30)', () => {
     it('debe importar modelo User', () => {
-      const userModelPath =
-        '../src/server/models/User.js';
+      const userModelPath = '../src/server/models/User.js';
       expect(userModelPath).toContain('User');
     });
 
@@ -104,8 +93,7 @@ describe('CreateTestUser Script - Real Code Execution Tests (0% Coverage)', () =
       const saltRounds = 10;
 
       // Simulación de hash
-      const hashedPassword =
-        '$2b$10$...hashedvalue...';
+      const hashedPassword = '$2b$10$...hashedvalue...';
 
       expect(hashedPassword).toContain('$2b$10$');
     });
@@ -132,9 +120,7 @@ describe('CreateTestUser Script - Real Code Execution Tests (0% Coverage)', () =
 
       const hasMinLength = testUserPassword.length >= 8;
       const hasNumber = /\d/.test(testUserPassword);
-      const hasSpecialChar = /[!@#$%^&*]/.test(
-        testUserPassword
-      );
+      const hasSpecialChar = /[!@#$%^&*]/.test(testUserPassword);
 
       expect(hasMinLength).toBe(true);
       expect(hasNumber).toBe(true);
@@ -186,9 +172,7 @@ describe('CreateTestUser Script - Real Code Execution Tests (0% Coverage)', () =
     });
 
     it('debe manejar duplicado de email', async () => {
-      const error = new Error(
-        'Email already exists'
-      );
+      const error = new Error('Email already exists');
 
       try {
         throw error;
@@ -198,9 +182,7 @@ describe('CreateTestUser Script - Real Code Execution Tests (0% Coverage)', () =
     });
 
     it('debe manejar duplicado de username', async () => {
-      const error = new Error(
-        'Username already exists'
-      );
+      const error = new Error('Username already exists');
 
       try {
         throw error;
@@ -213,9 +195,7 @@ describe('CreateTestUser Script - Real Code Execution Tests (0% Coverage)', () =
   describe('Success Logging (línea 59-62)', () => {
     it('debe logear usuario creado', () => {
       const userId = '507f1f77bcf86cd799439011';
-      console.log(
-        `Test user created successfully: ${userId}`
-      );
+      console.log(`Test user created successfully: ${userId}`);
 
       expect(mockConsoleLog).toHaveBeenCalledWith(
         expect.stringContaining('Test user created')
@@ -244,9 +224,7 @@ describe('CreateTestUser Script - Real Code Execution Tests (0% Coverage)', () =
 
   describe('Error Handling (línea sin cobertura)', () => {
     it('debe manejar error de conexión', () => {
-      const error = new Error(
-        'Connection failed'
-      );
+      const error = new Error('Connection failed');
 
       try {
         throw error;
@@ -264,20 +242,15 @@ describe('CreateTestUser Script - Real Code Execution Tests (0% Coverage)', () =
       };
 
       const errors = [];
-      if (!userData.email.includes('@'))
-        errors.push('Invalid email');
-      if (userData.username.length < 3)
-        errors.push('Username too short');
-      if (userData.password.length < 6)
-        errors.push('Password too weak');
+      if (!userData.email.includes('@')) errors.push('Invalid email');
+      if (userData.username.length < 3) errors.push('Username too short');
+      if (userData.password.length < 6) errors.push('Password too weak');
 
       expect(errors.length).toBe(3);
     });
 
     it('debe manejar error de hash de password', async () => {
-      const error = new Error(
-        'Hashing failed'
-      );
+      const error = new Error('Hashing failed');
 
       try {
         throw error;

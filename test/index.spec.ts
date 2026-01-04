@@ -41,7 +41,9 @@ import './client/features/collectionSlice.spec';
 import './client/features/whislistSlice.spec';
 import './client/authService.spec';
 import './client/socket.spec';
-// import './client/apiService.spec'; // File not found
+import './individuales/users-coverage.spec';
+import './individuales/users-friends.spec';
+import './individuales/trade-coverage.spec';
 import './client/hooks.spec';
 import './client/utils.spec';
 import './client/redux-slices.spec';

@@ -56,19 +56,17 @@ describe('Trade Router - Extended Coverage', () => {
   // ============================================
   describe('POST /trades - Error Scenarios', () => {
     it('should reject trade creation without authentication (line 40)', async () => {
-      const res = await request(app)
-        .post('/trades')
-        .send({
-          receiverUserId: receiverUser._id.toString(),
-          initiatorCards: [],
-          receiverCards: [],
-        });
+      const res = await request(app).post('/trades').send({
+        receiverUserId: receiverUser._id.toString(),
+        initiatorCards: [],
+        receiverCards: [],
+      });
 
       expect([401, 400, 403, 500]).toContain(res.status);
     });
 
     it('should handle receiver user not found (line 44-49)', async () => {
-      const fakeUserId = new (require('mongoose')).Types.ObjectId();
+      const fakeUserId = new (require('mongoose').Types.ObjectId)();
       const res = await request(app)
         .post('/trades')
         .set('Authorization', `Bearer ${testToken}`)
@@ -132,7 +130,7 @@ describe('Trade Router - Extended Coverage', () => {
     });
 
     it('should create trade with requestId (line 65)', async () => {
-      const fakeRequestId = new (require('mongoose')).Types.ObjectId();
+      const fakeRequestId = new (require('mongoose').Types.ObjectId)();
       const res = await request(app)
         .post('/trades')
         .set('Authorization', `Bearer ${testToken}`)
@@ -254,7 +252,7 @@ describe('Trade Router - Extended Coverage', () => {
     });
 
     it('should handle non-existent trade ID', async () => {
-      const fakeId = new (require('mongoose')).Types.ObjectId();
+      const fakeId = new (require('mongoose').Types.ObjectId)();
       const res = await request(app)
         .get(`/trades/${fakeId.toString()}`)
         .set('Authorization', `Bearer ${testToken}`);
@@ -371,7 +369,7 @@ describe('Trade Router - Extended Coverage', () => {
     });
 
     it('should handle delete of non-existent trade', async () => {
-      const fakeId = new (require('mongoose')).Types.ObjectId();
+      const fakeId = new (require('mongoose').Types.ObjectId)();
       const res = await request(app)
         .delete(`/trades/${fakeId.toString()}`)
         .set('Authorization', `Bearer ${testToken}`);

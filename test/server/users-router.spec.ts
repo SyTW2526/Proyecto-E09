@@ -260,9 +260,7 @@ describe('users router - User Management', () => {
 
     it('incluye fecha de amistad', () => {
       mockResponse.json({
-        friends: [
-          { id: 'user_1', friendSince: '2023-01-01' },
-        ],
+        friends: [{ id: 'user_1', friendSince: '2023-01-01' }],
       });
       expect(mockResponse.json).toHaveBeenCalled();
     });
@@ -347,7 +345,7 @@ describe('users router - User Management', () => {
 
     it('calcula valor total de colección', () => {
       mockResponse.json({
-        collectionValue: 5000.50,
+        collectionValue: 5000.5,
       });
       expect(mockResponse.json).toHaveBeenCalled();
     });
@@ -376,9 +374,7 @@ describe('users router - User Management', () => {
     });
 
     it('retorna solo usuarios públicos', () => {
-      const results = [
-        { id: 'user_1', isPublic: true },
-      ];
+      const results = [{ id: 'user_1', isPublic: true }];
       expect(results.every((u) => u.isPublic)).toBe(true);
     });
 

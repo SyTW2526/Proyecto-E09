@@ -1,11 +1,15 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import type { WebDriver } from "selenium-webdriver";
-import fs from "fs";
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import type { WebDriver } from 'selenium-webdriver';
+import fs from 'fs';
 
-import { buildDriver, config } from "./config";
-import { waitForElement, click, waitUrl } from "./utils";
+import { buildDriver, config } from './config';
+import { waitForElement, click, waitUrl } from './utils';
 
-async function loginProgrammatically(driver: WebDriver, username: string, password: string) {
+async function loginProgrammatically(
+  driver: WebDriver,
+  username: string,
+  password: string
+) {
   await driver.get(config.baseUrl);
 
   const script = `
@@ -26,11 +30,11 @@ async function loginProgrammatically(driver: WebDriver, username: string, passwo
   await driver.executeAsyncScript(script, username, password);
 }
 
-describe("Open Pack Page - Selenium (Vitest)", () => {
+describe('Open Pack Page - Selenium (Vitest)', () => {
   let driver: WebDriver;
 
   const { username, password } = JSON.parse(
-    fs.readFileSync("./test/selenium/tmp_user.json", "utf8")
+    fs.readFileSync('./test/selenium/tmp_user.json', 'utf8')
   );
 
   beforeAll(async () => {
@@ -39,33 +43,41 @@ describe("Open Pack Page - Selenium (Vitest)", () => {
 
     await driver.get(`${config.baseUrl}/home`);
     await click(driver, 'a[href="/abrir"]');
-    await waitUrl(driver, "/abrir");
+    await waitUrl(driver, '/abrir');
   });
 
   afterAll(async () => {
     await driver.quit();
   });
 
-  it("Carga correctamente la página de Abrir sobre", async () => {
-    const title = await waitForElement(driver, ".collection-inner h2");
-    expect(await title.getText()).toContain("Abrir");
+  it('Carga correctamente la página de Abrir sobre', async () => {
+    const title = await waitForElement(driver, '.collection-inner h2');
+    expect(await title.getText()).toContain('Abrir');
   });
-  
-  it("Renderiza las opciones de sets para abrir", async () => {
+
+  it('Renderiza las opciones de sets para abrir', async () => {
     const btn = await waitForElement(driver, '[data-testid="set-btn-me01"]');
     expect(btn).toBeDefined();
   });
 
-  it("Permite cambiar entre sets (forzamos me01)", async () => {
+  it('Permite cambiar entre sets (forzamos me01)', async () => {
     const setBtn = await waitForElement(driver, '[data-testid="set-btn-me01"]');
     await setBtn.click();
     expect(true).toBe(true);
   });
 
-  it("Permite abrir un sobre y obtener cartas", async () => {
-    const openBtn = await waitForElement(driver, '[data-testid="open-pack-btn"]', 30000);
+  it('Permite abrir un sobre y obtener cartas', async () => {
+    const openBtn = await waitForElement(
+      driver,
+      '[data-testid="open-pack-btn"]',
+      30000
+    );
     await openBtn.click();
-    const grid = await waitForElement(driver, '[data-testid="opened-pack-grid"]', 60000);
+    const grid = await waitForElement(
+      driver,
+      '[data-testid="opened-pack-grid"]',
+      60000
+    );
 
     const cards = await driver.findElements({
       css: '[data-testid="opened-pack-grid"] .collection-card',
@@ -74,11 +86,11 @@ describe("Open Pack Page - Selenium (Vitest)", () => {
     expect(cards.length).toBeGreaterThan(0);
   });
 
-  it("Añade las cartas abiertas a la colección del usuario", async () => {
+  it('Añade las cartas abiertas a la colección del usuario', async () => {
     await click(driver, 'a[href="/collection"]');
-    await waitUrl(driver, "/collection");
+    await waitUrl(driver, '/collection');
 
-    const card = await waitForElement(driver, ".collection-card", 60000);
+    const card = await waitForElement(driver, '.collection-card', 60000);
 
     expect(card).toBeDefined();
   });

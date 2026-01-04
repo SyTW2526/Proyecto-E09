@@ -50,77 +50,65 @@ describe('Users Router - Additional Comprehensive Tests', () => {
   // ============================================
   describe('POST /users/register - Additional Cases', () => {
     it('should reject registration with weak password', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'newuser',
-          email: 'new@example.com',
-          password: '123',  // Too short
-          confirmPassword: '123',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'newuser',
+        email: 'new@example.com',
+        password: '123', // Too short
+        confirmPassword: '123',
+      });
 
       expect([400, 422]).toContain(res.status);
     });
 
     it('should reject mismatched passwords', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'newuser',
-          email: 'new@example.com',
-          password: 'password123',
-          confirmPassword: 'password456',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'newuser',
+        email: 'new@example.com',
+        password: 'password123',
+        confirmPassword: 'password456',
+      });
 
       expect([400, 422]).toContain(res.status);
     });
 
     it('should reject duplicate username', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'testuser', // Already exists
-          email: 'another@example.com',
-          password: 'password123',
-          confirmPassword: 'password123',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'testuser', // Already exists
+        email: 'another@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
 
       expect([400, 409]).toContain(res.status);
     });
 
     it('should reject duplicate email', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'newuser',
-          email: 'test@example.com', // Already exists
-          password: 'password123',
-          confirmPassword: 'password123',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'newuser',
+        email: 'test@example.com', // Already exists
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
 
       expect([400, 409, 500]).toContain(res.status);
     });
 
     it('should reject invalid email format', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'newuser',
-          email: 'not-an-email',
-          password: 'password123',
-          confirmPassword: 'password123',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'newuser',
+        email: 'not-an-email',
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
 
       expect([400, 422, 500]).toContain(res.status);
     });
 
     it('should reject missing fields', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'newuser',
-          // Missing email, password, confirmPassword
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'newuser',
+        // Missing email, password, confirmPassword
+      });
 
       expect([400, 422]).toContain(res.status);
     });
@@ -139,14 +127,12 @@ describe('Users Router - Additional Comprehensive Tests', () => {
     });
 
     it('should reject special characters in username', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'user@#$%',
-          email: 'special@example.com',
-          password: 'password123',
-          confirmPassword: 'password123',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'user@#$%',
+        email: 'special@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
 
       expect([200, 201, 400, 422]).toContain(res.status);
     });
@@ -154,67 +140,55 @@ describe('Users Router - Additional Comprehensive Tests', () => {
 
   describe('POST /users/login - Additional Cases', () => {
     it('should reject login with non-existent username', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          identifier: 'nonexistent',
-          password: 'password123',
-        });
+      const res = await request(app).post('/users/login').send({
+        identifier: 'nonexistent',
+        password: 'password123',
+      });
 
       expect([400, 401]).toContain(res.status);
     });
 
     it('should reject login with wrong password', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          identifier: 'testuser',
-          password: 'wrongpassword',
-        });
+      const res = await request(app).post('/users/login').send({
+        identifier: 'testuser',
+        password: 'wrongpassword',
+      });
 
       expect([400, 401]).toContain(res.status);
     });
 
     it('should reject login with empty credentials', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          identifier: '',
-          password: '',
-        });
+      const res = await request(app).post('/users/login').send({
+        identifier: '',
+        password: '',
+      });
 
       expect([400, 401]).toContain(res.status);
     });
 
     it('should reject login with missing fields', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          identifier: 'testuser',
-          // Missing password
-        });
+      const res = await request(app).post('/users/login').send({
+        identifier: 'testuser',
+        // Missing password
+      });
 
       expect([400, 401]).toContain(res.status);
     });
 
     it('should handle login with email instead of username', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          identifier: 'test@example.com',
-          password: 'hashed_password', // This is the actual stored password in test
-        });
+      const res = await request(app).post('/users/login').send({
+        identifier: 'test@example.com',
+        password: 'hashed_password', // This is the actual stored password in test
+      });
 
       expect([200, 400, 401]).toContain(res.status);
     });
 
     it('should reject login with null credentials', async () => {
-      const res = await request(app)
-        .post('/users/login')
-        .send({
-          identifier: null,
-          password: null,
-        });
+      const res = await request(app).post('/users/login').send({
+        identifier: null,
+        password: null,
+      });
 
       expect([400, 401]).toContain(res.status);
     });
@@ -225,29 +199,25 @@ describe('Users Router - Additional Comprehensive Tests', () => {
   // ============================================
   describe('GET /users/:identifier - Additional Cases', () => {
     it('should return 401 for non-existent user', async () => {
-      const res = await request(app)
-        .get('/users/nonexistentuser');
+      const res = await request(app).get('/users/nonexistentuser');
 
       expect([404, 400]).toContain(res.status);
     });
 
     it('should handle empty identifier', async () => {
-      const res = await request(app)
-        .get('/users/');
+      const res = await request(app).get('/users/');
 
       expect([404, 400, 501]).toContain(res.status);
     });
 
     it('should handle special characters in identifier', async () => {
-      const res = await request(app)
-        .get('/users/user%40domain.com');
+      const res = await request(app).get('/users/user%40domain.com');
 
       expect([200, 404, 400]).toContain(res.status);
     });
 
     it('should handle very long identifier', async () => {
-      const res = await request(app)
-        .get(`/users/${'a'.repeat(300)}`);
+      const res = await request(app).get(`/users/${'a'.repeat(300)}`);
 
       expect([404, 400]).toContain(res.status);
     });
@@ -258,11 +228,9 @@ describe('Users Router - Additional Comprehensive Tests', () => {
   // ============================================
   describe('PATCH /users/:username - Additional Cases', () => {
     it('should reject update without authentication', async () => {
-      const res = await request(app)
-        .patch('/users/testuser')
-        .send({
-          bio: 'Updated bio',
-        });
+      const res = await request(app).patch('/users/testuser').send({
+        bio: 'Updated bio',
+      });
 
       expect([401, 403]).toContain(res.status);
     });
@@ -296,11 +264,9 @@ describe('Users Router - Additional Comprehensive Tests', () => {
     });
 
     it('should handle missing authentication header', async () => {
-      const res = await request(app)
-        .patch('/users/testuser')
-        .send({
-          bio: 'New bio',
-        });
+      const res = await request(app).patch('/users/testuser').send({
+        bio: 'New bio',
+      });
 
       expect([401, 403]).toContain(res.status);
     });
@@ -332,8 +298,7 @@ describe('Users Router - Additional Comprehensive Tests', () => {
   // ============================================
   describe('DELETE /users/:username - Additional Cases', () => {
     it('should reject delete without authentication', async () => {
-      const res = await request(app)
-        .delete('/users/testuser');
+      const res = await request(app).delete('/users/testuser');
 
       expect([401, 403]).toContain(res.status);
     });
@@ -374,8 +339,7 @@ describe('Users Router - Additional Comprehensive Tests', () => {
   // ============================================
   describe('DELETE /users/:username/profile-image - Additional Cases', () => {
     it('should reject delete without authentication', async () => {
-      const res = await request(app)
-        .delete('/users/testuser/profile-image');
+      const res = await request(app).delete('/users/testuser/profile-image');
 
       expect([401, 403]).toContain(res.status);
     });
@@ -427,10 +391,7 @@ describe('Users Router - Additional Comprehensive Tests', () => {
       const promises = [];
 
       for (let i = 0; i < 5; i++) {
-        promises.push(
-          request(app)
-            .get(`/users/testuser`)
-        );
+        promises.push(request(app).get(`/users/testuser`));
       }
 
       const results = await Promise.all(promises);
@@ -443,41 +404,34 @@ describe('Users Router - Additional Comprehensive Tests', () => {
     });
 
     it('should handle null/undefined in request body', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: null,
-          email: undefined,
-          password: null,
-          confirmPassword: undefined,
-        });
+      const res = await request(app).post('/users/register').send({
+        username: null,
+        email: undefined,
+        password: null,
+        confirmPassword: undefined,
+      });
 
       expect([400, 422]).toContain(res.status);
     });
 
     it('should handle special characters in email', async () => {
-      const res = await request(app)
-        .post('/users/register')
-        .send({
-          username: 'newuser',
-          email: 'test+tag@example.com',
-          password: 'password123',
-          confirmPassword: 'password123',
-        });
+      const res = await request(app).post('/users/register').send({
+        username: 'newuser',
+        email: 'test+tag@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
 
       // Email with + should be valid
       expect([200, 201, 400]).toContain(res.status);
     });
 
     it('should handle case-insensitive username lookup', async () => {
-      const res1 = await request(app)
-        .get('/users/testuser');
+      const res1 = await request(app).get('/users/testuser');
 
-      const res2 = await request(app)
-        .get('/users/TESTUSER');
+      const res2 = await request(app).get('/users/TESTUSER');
 
-      const res3 = await request(app)
-        .get('/users/TestUser');
+      const res3 = await request(app).get('/users/TestUser');
 
       // All should return same result
       expect([res1.status, res2.status, res3.status]).toEqual(

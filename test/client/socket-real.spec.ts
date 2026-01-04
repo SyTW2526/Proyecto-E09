@@ -3,9 +3,15 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 // Stub localStorage token
 const localStorageMock = {
   store: new Map<string, string>(),
-  getItem(key: string) { return this.store.get(key) || null; },
-  setItem(key: string, value: string) { this.store.set(key, value); },
-  removeItem(key: string) { this.store.delete(key); },
+  getItem(key: string) {
+    return this.store.get(key) || null;
+  },
+  setItem(key: string, value: string) {
+    this.store.set(key, value);
+  },
+  removeItem(key: string) {
+    this.store.delete(key);
+  },
 };
 // Guarded localStorage setup for Node test env
 if (!('localStorage' in global)) {
@@ -45,7 +51,11 @@ const fakeSocket = {
 
 vi.mock('socket.io-client', () => ({ io: vi.fn(() => fakeSocket) }));
 
-import { initSocket, getSocket, disconnectSocket } from '../../src/client/socket';
+import {
+  initSocket,
+  getSocket,
+  disconnectSocket,
+} from '../../src/client/socket';
 import { store as mockedStore } from '@/store/store';
 
 describe('socket - real init with mocks', () => {
@@ -64,7 +74,9 @@ describe('socket - real init with mocks', () => {
     // simulate server notification
     const notif = { title: 'Hi', message: 'Test' };
     fakeSocket.emit('notification', notif);
-    expect(mockedStore.dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'notifications/add' }));
+    expect(mockedStore.dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'notifications/add' })
+    );
   });
 
   it('disconnectSocket closes and clears instance', () => {

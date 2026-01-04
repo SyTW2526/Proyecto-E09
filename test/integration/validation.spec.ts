@@ -114,8 +114,9 @@ describe('Error Handling', () => {
     };
 
     expect(() => validateUser({})).toThrow('Invalid user data');
-    expect(() => validateUser({ username: 'test', email: 'test@example.com' }))
-      .not.toThrow();
+    expect(() =>
+      validateUser({ username: 'test', email: 'test@example.com' })
+    ).not.toThrow();
   });
 
   it('handles missing required fields', () => {

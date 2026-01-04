@@ -177,15 +177,15 @@ describe('Trade Request Router - Full Coverage Tests', () => {
     });
 
     it('debería obtener detalles de solicitud', async () => {
-      const res = await request(app)
-        .get(`/trade-requests/${request_._id}`);
+      const res = await request(app).get(`/trade-requests/${request_._id}`);
 
       expect([501, 200, 401, 403, 404, 500]).toContain(res.status);
     });
 
     it('debería retornar 404 para solicitud inexistente', async () => {
-      const res = await request(app)
-        .get(`/trade-requests/${new mongoose.Types.ObjectId()}`);
+      const res = await request(app).get(
+        `/trade-requests/${new mongoose.Types.ObjectId()}`
+      );
 
       expect([501, 401, 404, 500]).toContain(res.status);
     });
@@ -286,8 +286,7 @@ describe('Trade Request Router - Full Coverage Tests', () => {
     });
 
     it('debería rechazar sin autenticación', async () => {
-      const res = await request(app)
-        .get('/trade-requests/my');
+      const res = await request(app).get('/trade-requests/my');
 
       expect([501, 401, 403, 404, 500]).toContain(res.status);
     });

@@ -7,7 +7,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 describe('Utility Functions', () => {
   describe('String utilities', () => {
     it('capitalizes first letter', () => {
-      const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+      const capitalize = (str: string) =>
+        str.charAt(0).toUpperCase() + str.slice(1);
       expect(capitalize('hello')).toBe('Hello');
     });
 
@@ -86,7 +87,10 @@ describe('Utility Functions', () => {
     });
 
     it('flattens nested array', () => {
-      const flattened = [[1, 2], [3, 4]].flat();
+      const flattened = [
+        [1, 2],
+        [3, 4],
+      ].flat();
       expect(flattened).toEqual([1, 2, 3, 4]);
     });
   });
@@ -213,11 +217,7 @@ describe('Business Logic', () => {
     });
 
     it('calculates collection value', () => {
-      const cards = [
-        { price: 5.0 },
-        { price: 10.0 },
-        { price: 3.5 },
-      ];
+      const cards = [{ price: 5.0 }, { price: 10.0 }, { price: 3.5 }];
       const total = cards.reduce((sum, card) => sum + card.price, 0);
       expect(total).toBe(18.5);
     });

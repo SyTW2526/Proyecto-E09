@@ -43,9 +43,7 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
       };
 
       if (!mockReq.body.email) {
-        mockRes
-          .status(400)
-          .send({ error: 'Email es requerido' });
+        mockRes.status(400).send({ error: 'Email es requerido' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -59,9 +57,7 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
       };
 
       if (!mockReq.body.password) {
-        mockRes
-          .status(400)
-          .send({ error: 'Password es requerido' });
+        mockRes.status(400).send({ error: 'Password es requerido' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -75,9 +71,7 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
       };
 
       if (!mockReq.body.username) {
-        mockRes
-          .status(400)
-          .send({ error: 'Username es requerido' });
+        mockRes.status(400).send({ error: 'Username es requerido' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -117,12 +111,9 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
       };
 
       if (mockReq.body.password.length < 6) {
-        mockRes
-          .status(400)
-          .send({
-            error:
-              'Password debe tener al menos 6 caracteres',
-          });
+        mockRes.status(400).send({
+          error: 'Password debe tener al menos 6 caracteres',
+        });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -145,16 +136,14 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
         username: username,
       };
 
-      mockRes
-        .status(201)
-        .send({
-          message: 'Usuario registrado exitosamente',
-          user: {
-            _id: userId,
-            email: email,
-            username: username,
-          },
-        });
+      mockRes.status(201).send({
+        message: 'Usuario registrado exitosamente',
+        user: {
+          _id: userId,
+          email: email,
+          username: username,
+        },
+      });
 
       expect(mockRes.status).toHaveBeenCalledWith(201);
     });
@@ -168,9 +157,7 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
       };
 
       if (!mockReq.body.email) {
-        mockRes
-          .status(400)
-          .send({ error: 'Email es requerido' });
+        mockRes.status(400).send({ error: 'Email es requerido' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -183,9 +170,7 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
       };
 
       if (!mockReq.body.password) {
-        mockRes
-          .status(400)
-          .send({ error: 'Password es requerido' });
+        mockRes.status(400).send({ error: 'Password es requerido' });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -198,9 +183,7 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
       };
 
       // Usuario no existe o password incorrecto
-      mockRes
-        .status(401)
-        .send({ error: 'Email o password inválidos' });
+      mockRes.status(401).send({ error: 'Email o password inválidos' });
 
       expect(mockRes.status).toHaveBeenCalledWith(401);
     });
@@ -213,16 +196,14 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
 
       const token = 'jwt.token.here';
 
-      mockRes
-        .status(200)
-        .send({
-          message: 'Login exitoso',
-          token: token,
-          user: {
-            _id: userId,
-            email: email,
-          },
-        });
+      mockRes.status(200).send({
+        message: 'Login exitoso',
+        token: token,
+        user: {
+          _id: userId,
+          email: email,
+        },
+      });
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.send).toHaveBeenCalled();
@@ -256,13 +237,11 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
     it('debe retornar usuario encontrado', () => {
       mockReq.params = { identifier: username };
 
-      mockRes
-        .status(200)
-        .send({
-          _id: userId,
-          email: email,
-          username: username,
-        });
+      mockRes.status(200).send({
+        _id: userId,
+        email: email,
+        username: username,
+      });
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
@@ -270,9 +249,7 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
     it('debe retornar 404 si usuario no encontrado', () => {
       mockReq.params = { identifier: 'nonexistent' };
 
-      mockRes
-        .status(404)
-        .send({ error: 'Usuario no encontrado' });
+      mockRes.status(404).send({ error: 'Usuario no encontrado' });
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
     });
@@ -284,9 +261,7 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
       mockReq.params = { id: userId.toString() };
 
       const isAuthorized = userId.equals(
-        new mongoose.Types.ObjectId(
-          mockReq.params.id
-        )
+        new mongoose.Types.ObjectId(mockReq.params.id)
       );
       expect(isAuthorized).toBe(true);
     });
@@ -315,11 +290,9 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
       };
 
       if (!mockReq.body.profileImageUrl) {
-        mockRes
-          .status(400)
-          .send({
-            error: 'profileImageUrl es requerido',
-          });
+        mockRes.status(400).send({
+          error: 'profileImageUrl es requerido',
+        });
       }
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -330,12 +303,10 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
         profileImageUrl: 'https://example.com/new-image.jpg',
       };
 
-      mockRes
-        .status(200)
-        .send({
-          message: 'Imagen de perfil actualizada',
-          profileImageUrl: mockReq.body.profileImageUrl,
-        });
+      mockRes.status(200).send({
+        message: 'Imagen de perfil actualizada',
+        profileImageUrl: mockReq.body.profileImageUrl,
+      });
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
@@ -346,19 +317,16 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
       mockReq.userId = userId;
       mockReq.params = { id: userId.toString() };
 
-      const isAuthorized = userId.toString() ===
-        mockReq.params.id;
+      const isAuthorized = userId.toString() === mockReq.params.id;
       expect(isAuthorized).toBe(true);
     });
 
     it('debe eliminar imagen exitosamente', () => {
       mockReq.userId = userId;
 
-      mockRes
-        .status(200)
-        .send({
-          message: 'Imagen de perfil eliminada',
-        });
+      mockRes.status(200).send({
+        message: 'Imagen de perfil eliminada',
+      });
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
@@ -379,15 +347,13 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
       mockReq.params = { username: username };
       mockReq.body = { bio: 'Updated bio' };
 
-      mockRes
-        .status(200)
-        .send({
-          message: 'Perfil actualizado',
-          user: {
-            username: username,
-            bio: 'Updated bio',
-          },
-        });
+      mockRes.status(200).send({
+        message: 'Perfil actualizado',
+        user: {
+          username: username,
+          bio: 'Updated bio',
+        },
+      });
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
@@ -424,8 +390,9 @@ describe('Users Router - Real Code Execution Tests (27.07% Coverage)', () => {
       ];
 
       expect(userIds.length).toBe(3);
-      expect(userIds.every((id) => mongoose.Types.ObjectId.isValid(id)))
-        .toBe(true);
+      expect(userIds.every((id) => mongoose.Types.ObjectId.isValid(id))).toBe(
+        true
+      );
     });
   });
 });

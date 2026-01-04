@@ -60,7 +60,10 @@ describe('notificationsSlice', () => {
           updatedAt: new Date().toISOString(),
         },
       ];
-      const state = notificationsReducer(initialState, setNotifications(notifications));
+      const state = notificationsReducer(
+        initialState,
+        setNotifications(notifications)
+      );
       expect(state.notifications).toEqual(notifications);
       expect(state.unread).toBe(1);
     });
@@ -104,7 +107,10 @@ describe('notificationsSlice', () => {
           updatedAt: new Date().toISOString(),
         },
       ];
-      const state = notificationsReducer(initialState, setNotifications(notifications));
+      const state = notificationsReducer(
+        initialState,
+        setNotifications(notifications)
+      );
       expect(state.unread).toBe(2);
     });
   });
@@ -121,7 +127,10 @@ describe('notificationsSlice', () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      let state = notificationsReducer(initialState, addNotification(notification));
+      let state = notificationsReducer(
+        initialState,
+        addNotification(notification)
+      );
       expect(state.notifications[0]).toEqual(notification);
       expect(state.unread).toBe(1);
     });
@@ -137,7 +146,10 @@ describe('notificationsSlice', () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      const state = notificationsReducer(initialState, addNotification(notification));
+      const state = notificationsReducer(
+        initialState,
+        addNotification(notification)
+      );
       expect(state.notifications.length).toBe(1);
       expect(state.unread).toBe(0);
     });
@@ -163,7 +175,10 @@ describe('notificationsSlice', () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      let state = notificationsReducer(initialState, addNotification(notification1));
+      let state = notificationsReducer(
+        initialState,
+        addNotification(notification1)
+      );
       state = notificationsReducer(state, addNotification(notification2));
       expect(state.notifications.length).toBe(2);
       expect(state.unread).toBe(2);
@@ -200,7 +215,10 @@ describe('notificationsSlice', () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      let state = notificationsReducer(initialState, addNotification(notification));
+      let state = notificationsReducer(
+        initialState,
+        addNotification(notification)
+      );
       expect(state.unread).toBe(1);
 
       state = notificationsReducer(state, markAsRead('1'));
@@ -219,7 +237,10 @@ describe('notificationsSlice', () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      let state = notificationsReducer(initialState, addNotification(notification));
+      let state = notificationsReducer(
+        initialState,
+        addNotification(notification)
+      );
       expect(state.unread).toBe(0);
 
       state = notificationsReducer(state, markAsRead('1'));
@@ -242,7 +263,10 @@ describe('notificationsSlice', () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      let state = notificationsReducer(initialState, addNotification(notification));
+      let state = notificationsReducer(
+        initialState,
+        addNotification(notification)
+      );
       state = notificationsReducer(state, markAsRead('1'));
       const stored = JSON.parse(localStorage.getItem('app_notifications')!);
       expect(stored[0].isRead).toBe(true);
@@ -273,7 +297,10 @@ describe('notificationsSlice', () => {
           updatedAt: new Date().toISOString(),
         },
       ];
-      let state = notificationsReducer(initialState, setNotifications(notifications));
+      let state = notificationsReducer(
+        initialState,
+        setNotifications(notifications)
+      );
       expect(state.unread).toBe(2);
 
       state = notificationsReducer(state, markAllAsRead());
@@ -294,7 +321,10 @@ describe('notificationsSlice', () => {
           updatedAt: new Date().toISOString(),
         },
       ];
-      let state = notificationsReducer(initialState, setNotifications(notifications));
+      let state = notificationsReducer(
+        initialState,
+        setNotifications(notifications)
+      );
       state = notificationsReducer(state, markAllAsRead());
       const stored = JSON.parse(localStorage.getItem('app_notifications')!);
       expect(stored[0].isRead).toBe(true);
@@ -313,7 +343,10 @@ describe('notificationsSlice', () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      let state = notificationsReducer(initialState, addNotification(notification));
+      let state = notificationsReducer(
+        initialState,
+        addNotification(notification)
+      );
       expect(state.unread).toBe(1);
 
       state = notificationsReducer(state, removeNotification('1'));
@@ -332,7 +365,10 @@ describe('notificationsSlice', () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      let state = notificationsReducer(initialState, addNotification(notification));
+      let state = notificationsReducer(
+        initialState,
+        addNotification(notification)
+      );
       state = notificationsReducer(state, removeNotification('1'));
       expect(state.notifications.length).toBe(0);
       expect(state.unread).toBe(0);
@@ -361,7 +397,10 @@ describe('notificationsSlice', () => {
           updatedAt: new Date().toISOString(),
         },
       ];
-      let state = notificationsReducer(initialState, setNotifications(notifications));
+      let state = notificationsReducer(
+        initialState,
+        setNotifications(notifications)
+      );
       state = notificationsReducer(state, removeNotification('1'));
       expect(state.notifications.length).toBe(1);
       expect(state.notifications[0]._id).toBe('2');
@@ -379,7 +418,10 @@ describe('notificationsSlice', () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      let state = notificationsReducer(initialState, addNotification(notification));
+      let state = notificationsReducer(
+        initialState,
+        addNotification(notification)
+      );
       state = notificationsReducer(state, removeNotification('1'));
       const stored = JSON.parse(localStorage.getItem('app_notifications')!);
       expect(stored.length).toBe(0);
@@ -433,7 +475,10 @@ describe('notificationsSlice', () => {
           updatedAt: new Date().toISOString(),
         },
       ];
-      let state = notificationsReducer(initialState, setNotifications(notifications));
+      let state = notificationsReducer(
+        initialState,
+        setNotifications(notifications)
+      );
       expect(state.unread).toBe(1);
 
       const newNotif: Notification = {

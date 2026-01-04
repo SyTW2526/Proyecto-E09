@@ -129,18 +129,14 @@ describe('Trade Router - Real Code Execution Tests', () => {
     it('debe validar ID de trade', () => {
       mockReq.params = { id: tradeId.toString() };
 
-      const isValidId = mongoose.Types.ObjectId.isValid(
-        mockReq.params.id
-      );
+      const isValidId = mongoose.Types.ObjectId.isValid(mockReq.params.id);
       expect(isValidId).toBe(true);
     });
 
     it('debe rechazar ID inválido', () => {
-      mockReq.params = { id: 'invalid-id'};
+      mockReq.params = { id: 'invalid-id' };
 
-      const isValidId = mongoose.Types.ObjectId.isValid(
-        mockReq.params.id
-      );
+      const isValidId = mongoose.Types.ObjectId.isValid(mockReq.params.id);
       expect(isValidId).toBe(false);
     });
 
@@ -174,9 +170,7 @@ describe('Trade Router - Real Code Execution Tests', () => {
       mockReq.params = { id: tradeId.toString() };
 
       // Simulación de éxito
-      mockRes
-        .status(200)
-        .send({ message: 'Intercambio eliminado', tradeId });
+      mockRes.status(200).send({ message: 'Intercambio eliminado', tradeId });
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.send).toHaveBeenCalled();
@@ -227,9 +221,7 @@ describe('Trade Router - Real Code Execution Tests', () => {
         .to(`user:${notifiedUser}`)
         .emit('tradeCompleted', { tradeId, completedAt: new Date() });
 
-      expect(mockReq.io.to).toHaveBeenCalledWith(
-        `user:${notifiedUser}`
-      );
+      expect(mockReq.io.to).toHaveBeenCalledWith(`user:${notifiedUser}`);
     });
   });
 
@@ -276,12 +268,10 @@ describe('Trade Router - Real Code Execution Tests', () => {
     it('línea 76: guarda trade', () => {
       const tradeDoc = { save: vi.fn().mockResolvedValue(true) };
 
-      mockRes
-        .status(201)
-        .send({
-          message: 'Intercambio creado correctamente',
-          tradeId: tradeId,
-        });
+      mockRes.status(201).send({
+        message: 'Intercambio creado correctamente',
+        tradeId: tradeId,
+      });
 
       expect(mockRes.status).toHaveBeenCalledWith(201);
     });
@@ -321,9 +311,7 @@ describe('Trade Router - Real Code Execution Tests', () => {
     it('línea 185-202: valida PATCH id', () => {
       mockReq.params = { id: 'invalid' };
 
-      const isValid = mongoose.Types.ObjectId.isValid(
-        mockReq.params.id
-      );
+      const isValid = mongoose.Types.ObjectId.isValid(mockReq.params.id);
       expect(isValid).toBe(false);
     });
 

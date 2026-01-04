@@ -81,7 +81,9 @@ describe('Users Router - Extended Coverage', () => {
 
     it('elimina amigo de la lista', () => {
       testUser.friends.push(anotherUser._id);
-      testUser.friends = testUser.friends.filter((id: any) => id !== anotherUser._id);
+      testUser.friends = testUser.friends.filter(
+        (id: any) => id !== anotherUser._id
+      );
       expect(testUser.friends).not.toContain(anotherUser._id);
     });
 
@@ -111,7 +113,9 @@ describe('Users Router - Extended Coverage', () => {
 
     it('desbloquea un usuario', () => {
       testUser.blockedUsers.push(anotherUser._id);
-      testUser.blockedUsers = testUser.blockedUsers.filter((id: any) => id !== anotherUser._id);
+      testUser.blockedUsers = testUser.blockedUsers.filter(
+        (id: any) => id !== anotherUser._id
+      );
       expect(testUser.blockedUsers).not.toContain(anotherUser._id);
     });
 

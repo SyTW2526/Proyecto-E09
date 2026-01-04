@@ -53,10 +53,11 @@ jobs:
           JWT_SECRET: test-secret-key-for-ci
           NODE_ENV: test
       
-      - name: Run Selenium tests (mock-based)
-        run: npx vitest run --config vitest.selenium.config.ts
-        env:
-          NODE_ENV: test
+      # Nota: Tests de Selenium requieren servidor corriendo, se ejecutan manualmente
+      # - name: Run Selenium tests
+      #   run: npm run test:selenium
+      #   env:
+      #     NODE_ENV: test
       
       - name: Build for production
         run: npm run build

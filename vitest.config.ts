@@ -90,6 +90,8 @@ export default defineConfig({
         'src/server/api.ts',
         'src/server/utils/fetchHelpers.ts',
         'src/server/utils/responseHelpers.ts',
+        'src/server/routers/api.ts',
+        'src/server/services/tcgdx.ts'
       ],
     },
   },

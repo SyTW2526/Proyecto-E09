@@ -31,6 +31,7 @@ import './individuales/cards_services_extended.spec';
 import './individuales/collection_slice.spec.ts';
 import './individuales/preferencesSlice.spec';
 import './individuales/trade-request-coverage.spec.ts';
+import './individuales/usercard-coverage.spec.ts';
 import './client/users.slice.spec';
 import './client/cards.slice.spec';
 import './client/trades.slice.spec';

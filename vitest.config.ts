@@ -83,6 +83,7 @@ export default defineConfig({
         'src/client/store/**',
         'src/client/types.ts',
         'src/client/socket.ts',
+        'src/client/features/**',
         'src/client/services/apiService.ts',
         'src/client/utils/imageHelpers.ts',
         'src/client/utils/fetchHelpers.ts',
@@ -94,7 +95,7 @@ export default defineConfig({
         'src/server/utils/responseHelpers.ts',
         'src/server/routers/api.ts',
         'src/server/services/tcgdx.ts',
-        'src/server/db/mongoose.ts'
+        'src/server/db/mongoose.ts',
       ],
     },
   },

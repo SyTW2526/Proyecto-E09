@@ -4,7 +4,7 @@ import { describe, it, beforeEach, afterEach } from "vitest";
 
 describe("debug_language", () => {
   let driver;
-
+ 
   beforeEach(async () => {
     const options = new chrome.Options();
     options.addArguments("--headless");

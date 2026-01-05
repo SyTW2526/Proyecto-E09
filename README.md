@@ -1,6 +1,12 @@
-# Proyecto-E09 - Pokémon Trading Platform
+# Proyecto-E09 - CARDS AMI
 
-**Plataforma de intercambio de cartas Pokémon TCG con trading en tiempo real, gestión de colecciones y notificaciones.**
+[![CI/CD Pipeline](https://github.com/SyTW2526/Proyecto-E09/actions/workflows/ci.yml/badge.svg)](https://github.com/SyTW2526/Proyecto-E09/actions/workflows/ci.yml)
+
+
+[![Coverage Status](https://coveralls.io/repos/github/SyTW2526/Proyecto-E09/badge.svg?branch=main)](https://coveralls.io/github/SyTW2526/Proyecto-E09?branch=main)
+
+
+**Plataforma de intercambio de cartas Pokémon TCG con trading en tiempo real y gestión de colecciones**
 
 Proyecto desarrollado con **Node.js, Express, TypeScript y MongoDB** en el backend, y **React, Redux Toolkit y Tailwind CSS** en el frontend.
 
@@ -11,10 +17,13 @@ Aplicación full-stack para coleccionistas de cartas Pokémon TCG que permite:
 - **Trading de Cartas**: Intercambiar cartas con otros usuarios (público o privado)
 - **Gestión de Colección**: Organizar y valorar tu colección personal
 - **Wishlist**: Lista de deseos de cartas que quieres obtener
+- **TradeList**: Lista de cartas a intercambiar
+- **OpenPacks**: Abrir sobres para añadir cartas a la colección
 - **Comunicación en Tiempo Real**: Chat privado y notificaciones de trading vía Socket.io
 - **Búsqueda de Cartas**: Acceso a base de datos completa de cartas Pokémon TCG
-- **Multiidioma**: Soporte para Español e Inglés
 - **Sistema de Amistad**: Conecta con otros coleccionistas
+- **Multiidioma**: Soporte para Español e Inglés
+
 
 ## Tecnologías
 
@@ -46,7 +55,7 @@ Aplicación full-stack para coleccionistas de cartas Pokémon TCG que permite:
 
 ### Requisitos previos
 - Node.js (v16+)
-- MongoDB (local o Atlas)
+- MongoDB (local)
 - npm o yarn
 
 ### Pasos
@@ -80,15 +89,11 @@ Aplicación full-stack para coleccionistas de cartas Pokémon TCG que permite:
 
 ### Desarrollo
 
-**Cliente (React) - Terminal 1:**
+**Cliente -  Servidor**
 ```bash
-npm run dev:client
+npm run dev:all
 ```
 Abre http://localhost:5173
-
-**Servidor (Express) - Terminal 2:**
-```bash
-npm run dev:server
 ```
 Servidor en http://localhost:3000
 
@@ -174,41 +179,13 @@ Proyecto-E09/
 ├── vite.config.ts                    # Configuración de Vite
 ├── vitest.config.ts                  # Configuración de Vitest
 ├── tailwind.config.js                # Configuración de Tailwind
-├── DOCUMENTATION.md                  # Documentación detallada
 ├── README.md                         # Este archivo
 └── package.json                      # Dependencias y scripts
 ```
 
-## Endpoints Principales de API
 
-### Autenticación
-- `POST /users/register` - Registrar nuevo usuario
-- `POST /users/login` - Iniciar sesión
-- `GET /users/profile` - Obtener perfil (requiere auth)
 
-### Cartas
-- `GET /cards` - Listar cartas paginadas
-- `GET /cards/featured` - Cartas destacadas
-- `GET /cards/search?q=...` - Búsqueda de cartas
-- `GET /pokemon/cards/:id` - Detalle de carta
-
-### Trading
-- `POST /trades` - Iniciar trading
-- `PATCH /trades/:id` - Actualizar estado de trade
-- `GET /trades` - Mis trades
-- `POST /trade-requests` - Solicitar carta específica
-
-### Colección
-- `GET /usercards` - Mi colección
-- `POST /usercards` - Agregar carta
-- `PATCH /usercards/:id` - Editar carta
-- `DELETE /usercards/:id` - Eliminar carta
-
-### Notificaciones
-- `GET /notifications` - Mis notificaciones
-- `PATCH /notifications/:id/read` - Marcar como leída
-
-##  Flujos de Negocio Principales
+##  Flujos de negocio Principales
 
 ### 1. Autenticación y Registro
 1. Usuario se registra con username, email y contraseña
@@ -291,6 +268,4 @@ Proyecto E09 - Universidad (SyTW2526)
 
 Proyecto educativo de la Universidad.
 
-**Última actualización:** Diciembre 4, 2025
-
-**Estado del Proyecto:** En desarrollo activo 
+**Estado del Proyecto:** finalizado

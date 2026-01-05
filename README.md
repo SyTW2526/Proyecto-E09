@@ -9,6 +9,9 @@
 **Plataforma de intercambio de cartas Pokémon TCG con trading en tiempo real y gestión de colecciones**
 
 Proyecto desarrollado con **Node.js, Express, TypeScript y MongoDB** en el backend, y **React, Redux Toolkit y Tailwind CSS** en el frontend.
+## Documentación
+
+https://sytw2526.github.io/Proyecto-E09/
 
 ## Descripción
 

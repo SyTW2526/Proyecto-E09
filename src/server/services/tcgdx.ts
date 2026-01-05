@@ -1,14 +1,43 @@
 /**
  * @file tcgdx.ts
- * @description Utilidades para procesar respuestas de la API TCGdex
+ * @description Utilidades TCGDEX - Procesamiento de respuestas API
  *
- * Proporciona funciones para:
- * - Sanitizar datos removiendo referencias circulares
- * - Determinar la categoría de la carta
- * - Extraer precios de diferentes mercados
- * - Normalizar URLs de imágenes
+ * Conjunto de funciones utilitarias para manejo de datos desde la API TCGdex.net.
+ * Abstraen la complejidad de estructuras RAW de la API.
  *
- * @module services/tcgdx
+ * Funciones principales:
+ * - sanitizeBriefCard(): Limpia referencias circulares de cartas
+ * - extractCardCategory(): Determina tipo (pokemon, trainer, energy)
+ * - extractPrices(): Extrae precios de múltiples mercados
+ * - normalizeImageUrl(): Normaliza URLs de imágenes inconsistentes
+ * - validateCardData(): Valida estructura de carta recibida
+ * - filterValidCards(): Filtra cartas inválidas de resultados
+ *
+ * Problemas resueltos:
+ * - API TCGdex devuelve referencias circulares en relaciones
+ * - URLs de imágenes incompletas o con formatos inconsistentes
+ * - Estructura de datos varía entre tipos de cartas
+ * - Campos opcionales que pueden faltar o ser null
+ * - Necesidad de compatibilidad backwards
+ *
+ * Patrones:
+ * - Funciones puras (sin efectos secundarios)
+ * - Defaults seguros (fallbacks en campos faltantes)
+ * - Validación defensiva
+ * - Tipado TypeScript fuerte
+ *
+ * Integración:
+ * - Importado por cardDataBuilder.ts
+ * - Usado en cardsService.ts para procesamiento
+ * - Reutilizable en futuros servicios de API
+ * - Frontend usa cardHelpers.ts similar en cliente
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @module server/services/tcgdx
+ * @see services/cardDataBuilder.ts
+ * @see services/cards.ts
+ * @see services/pokemon.ts
  */
 
 /**

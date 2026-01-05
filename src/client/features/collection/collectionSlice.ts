@@ -1,3 +1,22 @@
+/**
+ * @file collectionSlice.ts
+ * @description Redux Slice para gestionar la colección personal de cartas del usuario
+ *
+ * Maneja:
+ * - Obtención de cartas en la colección del usuario
+ * - Adición de cartas a la colección
+ * - Eliminación de cartas de la colección
+ * - Estados de carga y errores
+ * - Sincronización con servidor
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires @reduxjs/toolkit
+ * @requires ../../services/apiService
+ * @requires ../../types
+ * @module features/collection/collectionSlice
+ */
+
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../services/apiService';
 import { UserOwnedCard } from '../../types';

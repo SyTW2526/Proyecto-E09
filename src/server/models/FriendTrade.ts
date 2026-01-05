@@ -1,11 +1,41 @@
 /**
  * @file FriendTrade.ts
- * @description Modelo de Invitaciones a Salas de Trading entre Amigos
+ * @description Modelo de FriendTrade - Salas de trading privadas entre amigos
  *
- * Gestiona las invitaciones de trading privado entre amigos.
- * Incluye estado de aceptación, código de sala y referencia al trade.
+ * Gestiona invitaciones y sesiones de trading privado entre usuarios amigos.
+ * Similar a Trade, pero:
+ * - Requiere relación de amistad previa
+ * - Ocurre en "salas" privadas
+ * - Comunicación en tiempo real vía Socket.io
+ * - Posibilidad de chat paralelo durante el trading
  *
- * @requires mongoose - ODM para MongoDB
+ * Estados:
+ * - PENDING: Invitación enviada, esperando aceptación
+ * - ACCEPTED: Amistad aceptó la invitación
+ * - ACTIVE: Trading en progreso
+ * - COMPLETED: Trading completado
+ * - REJECTED: Amistad rechazó la invitación
+ * - CANCELLED: Cancelado durante el trading
+ *
+ * Características:
+ * - Código de sala único para identificar la sesión
+ * - Cartas propuestas por cada participante
+ * - Socket.io room para comunicación en tiempo real
+ * - Integración con sistema de notificaciones
+ * - Historial de cambios
+ *
+ * Flujo:
+ * 1. Usuario A invita a amigo Usuario B
+ * 2. Usuario B acepta → se crea sala
+ * 3. Ambos añaden cartas a intercambiar
+ * 4. Se confirman mutuamente → se completa
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @module server/models/FriendTrade
+ * @see User
+ * @see Trade
  */
 
 import mongoose from 'mongoose';

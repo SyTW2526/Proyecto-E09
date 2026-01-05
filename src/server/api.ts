@@ -1,17 +1,23 @@
 /**
  * @file api.ts
- * @description Configuración de la aplicación Express con middleware CORS
+ * @description Configuración centralizada de la aplicación Express
  *
- * Este archivo configura la instancia de Express que será usada tanto
+ * Este archivo configura la instancia de Express que es usada tanto
  * para las pruebas como para el servidor principal (index.ts).
  *
- * Características:
- * - CORS habilitado para localhost:5173
- * - Parseo de JSON y formularios con límite de 10MB
- * - Routers registrados para todas las rutas de la API
+ * Configura:
+ * - CORS habilitado para desarrollo (localhost:5173)
+ * - Parseo de JSON y formularios URL-encoded
+ * - Límite de tamaño de payload (10MB)
+ * - Enrutadores de API registrados
+ * - Manejo de errores centralizado
  *
- * @requires express - Framework web
- * @requires cors - Middleware CORS
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires express
+ * @requires cors
+ * @requires ./db/mongoose
+ * @module server/api
  */
 
 import express from 'express';

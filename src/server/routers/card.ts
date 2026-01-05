@@ -1,20 +1,62 @@
 /**
  * @file card.ts
- * @description Router para operaciones CRUD de cartas Pokémon
+ * @description Router Card - Endpoints CRUD y búsqueda de cartas
  *
- * Gestiona:
- * - Listado y búsqueda de cartas
- * - Cartas destacadas
- * - Búsqueda de cartas por rarity, serie, conjunto, tipos
- * - Importación de cartas desde API externa
+ * API REST para catálogo de cartas disponibles en el sistema.
+ * Gestión de cartas Pokémon, Entrenador y Energía.
  *
- * @requires express - Framework web
- * @requires Card - Modelo de datos de carta genérica
- * @requires PokemonCard - Modelo de carta Pokémon
- * @requires TrainerCard - Modelo de carta Entrenador
- * @requires EnergyCard - Modelo de carta Energía
- */
-
+ * **Búsqueda y listado:**
+ * - GET /cards - Listar cartas con paginación
+ * - GET /cards/search - Búsqueda por nombre/criterios
+ * - GET /cards/:id - Obtener detalles de una carta
+ * - GET /cards/featured - Cartas destacadas
+ *
+ * **Filtros disponibles:**
+ * - Por tipo (water, fire, electric, etc)
+ * - Por rareza (common, rare, holo rare)
+ * - Por serie/expansión
+ * - Por rango de precio
+ * - Por set/colección
+ *
+ * **Gestión del catálogo:**
+ * - POST /cards/sync - Sincronizar cartas desde API TCGdex
+ * - PUT /cards/:id - Actualizar información de carta
+ * - DELETE /cards/:id - Eliminar carta
+ * - GET /cards/stats - Estadísticas del catálogo
+ *
+ * **Relaciones:**
+ * - Card base (genérica)
+ * - PokemonCard (con ataques, habilidades)
+ * - TrainerCard (Items, Supporters)
+ * - EnergyCard (tipos de energía)
+ *
+ * Características:
+ * - Búsqueda full-text (nombre, descripción)
+ * - Paginación con límite configurable
+ * - Filtros complejos (AND/OR)
+ * - Caché de búsquedas frecuentes
+ * - Índices de base de datos para rendimiento
+ *
+ * Integración:
+ * - Services/cards.ts para lógica de negocio
+ * - Services/pokemon.ts para datos TCGdex
+ * - Models: Card, PokemonCard, TrainerCard, EnergyCard
+ * - Socket.io para notificaciones de nuevas cartas
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires express
+ * @requires mongoose
+ * @requires ../services/cards
+ * @requires ../services/pokemon
+ * @requires ../models/Card
+ * @requires ../models/PokemonCard
+ * @requires ../models/TrainerCard
+ * @requires ../models/EnergyCard
+ * @module server/routers/card
+ * @see services/cards.ts
+ * @see services/pokemon.ts
+*/
 import express from 'express';
 import { Card } from '../models/Card.js';
 import { PokemonCard } from '../models/PokemonCard.js';

@@ -1,13 +1,88 @@
 /**
  * @file responseHelpers.ts
- * @description Utilidades para estandarizar respuestas HTTP y manejo de errores
+ * @description ResponseHelpers - Estandarización de respuestas HTTP
  *
- * Proporciona funciones helper para:
- * - Respuestas exitosas consistentes
- * - Manejo de errores estandarizado
- * - Validaciones comunes
- * - Paginación normalizada
- * - Wrapper asyncHandler para eliminar try-catch duplicado
+ * Conjunto de utilidades para manejar respuestas y errores de forma consistente.
+ * Proporciona una interfaz uniforme para toda la API REST.
+ *
+ * **Respuesta estándar exitosa:**
+ * ```json
+ * {
+ *   "success": true,
+ *   "data": { ... },
+ *   "message": "Descripción opcional"
+ * }
+ * ```
+ *
+ * **Respuesta estándar error:**
+ * ```json
+ * {
+ *   "success": false,
+ *   "error": "Mensaje de error",
+ *   "statusCode": 400
+ * }
+ * ```
+ *
+ * **Funciones principales:**
+ * - sendSuccess(): Envía respuesta exitosa (200/201)
+ * - sendError(): Envía respuesta de error con status
+ * - asyncHandler(): Wrapper para rutas async
+ * - ensureResourceExists(): Valida que recurso exista
+ * - validateInput(): Valida entrada del usuario
+ * - sendPaginated(): Envía resultados con paginación
+ *
+ * **Características:**
+ * - Códigos HTTP apropiados (200, 201, 400, 404, 500)
+ * - Mensajes consistentes para debugging
+ * - Manejo de excepciones sin crash
+ * - Logging de errores (opcional)
+ * - Stack traces en desarrollo
+ *
+ * **Paginación:**
+ * ```json
+ * {
+ *   "success": true,
+ *   "data": [ ... ],
+ *   "pagination": {
+ *     "page": 1,
+ *     "limit": 20,
+ *     "total": 100,
+ *     "pages": 5
+ *   }
+ * }
+ * ```
+ *
+ * **Uso en routers:**
+ * ```typescript
+ * router.get('/items', asyncHandler(async (req, res) => {
+ *   const items = await Item.find();
+ *   sendSuccess(res, items, 'Items retrieved');
+ * }));
+ * ```
+ *
+ * **Error handling:**
+ * - Try-catch envuelto en asyncHandler
+ * - Errores enviados vía sendError
+ * - Mensajes seguros (sin información sensible)
+ * - Logging para debugging
+ *
+ * **Validación:**
+ * - Valida tipos de datos
+ * - Valida campos requeridos
+ * - Valida rangos/límites
+ * - Mensajes específicos de error
+ *
+ * Integración:
+ * - Usado en todos los routers
+ * - Middleware para manejo global de errores
+ * - Frontend espera estructura consistente
+ * - Simplifica testing de endpoints
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires express
+ * @module server/utils/responseHelpers
+ * @see routers/*.ts
  */
 
 import { Request, Response, NextFunction, RequestHandler } from 'express';

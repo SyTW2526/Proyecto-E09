@@ -1,9 +1,47 @@
 /**
  * @file cardDataBuilder.ts
- * @description Builder para construir objetos de datos de cartas normalizados
+ * @description CardDataBuilder - Constructor/Normalizador de datos de cartas
  *
- * Elimina duplicación masiva al centralizar la lógica de mapeo
- * de datos RAW de TCGdex a nuestros modelos internos.
+ * Patrón Builder para construir objetos de cartas normalizados desde
+ * respuestas RAW de la API TCGdex.
+ *
+ * Responsabilidades:
+ * - Mapeo de estructuras TCGdex → esquemas internos
+ * - Normalización de campos (URLs, nombres, tipos)
+ * - Validación de datos antes de persistencia
+ * - Construcción de objetos complejos (Pokémon con ataques)
+ * - Extracción de información relevante
+ * - Sanitización de strings
+ *
+ * Procesos principales:
+ * - buildPokemonCard(): Transforma datos TCGdex → PokemonCard
+ * - buildTrainerCard(): Transforma datos TCGdex → TrainerCard
+ * - buildEnergyCard(): Transforma datos TCGdex → EnergyCard
+ * - normalización de imágenes (manejo de URLs inconsistentes)
+ * - extracción de precios y valores
+ *
+ * Patrón:
+ * - Métodos estáticos o factory para cada tipo
+ * - Valida estructura esperada de API
+ * - Rellena defaults para campos opcionales
+ * - Lanza excepciones en casos de datos inválidos
+ *
+ * Integración:
+ * - Usado por cardsService.ts en sincronización
+ * - Recibe datos de pokemonService.ts
+ * - Produce objetos listos para guardar en MongoDB
+ * - Reutiliza utilidades de tcgdx.ts
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires ./tcgdx
+ * @requires ../models/Card
+ * @requires ../models/PokemonCard
+ * @requires ../models/TrainerCard
+ * @requires ../models/EnergyCard
+ * @module server/services/cardDataBuilder
+ * @see services/tcgdx.ts
+ * @see services/cards.ts
  */
 
 import {

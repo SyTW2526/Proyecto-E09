@@ -1,12 +1,65 @@
 /**
  * @file packHelpers.ts
- * @description Helpers para operaciones de sobres (packs) con token-bucket rate limiting
+ * @description PackHelpers - Gestión de packs y rate limiting
  *
- * Centraliza la lógica de:
- * - Cálculo de tokens disponibles
- * - Validación de rate limiting
- * - Refill automático de tokens
- * - Generación de cartas para packs
+ * Utilidades para el sistema de aperturas de packs de cartas.
+ * Implementa token-bucket rate limiting para controlar abusos.
+ *
+ * **Conceptos:**
+ * - Pack: Sobre virtual de cartas (5 cartas aleatorias)
+ * - Token: Moneda para abrir packs (1 token = 1 pack)
+ * - Rate Limiting: Token-bucket para limitar aperturas/hora
+ * - Refill: Regeneración automática de tokens cada cierto tiempo
+ *
+ * **Sistema Token-Bucket:**
+ * ```
+ * Tokens disponibles = min(capacidad máxima, usado + refill_rate)
+ * Cuando usuario abre pack: tokens -= 1
+ * Cada hora: tokens += refill_rate (up to max)
+ * Si tokens == 0: Usuario debe esperar refill
+ * ```
+ *
+ * **Características:**
+ * - Capacidad máxima: 3-5 tokens (configurable)
+ * - Refill rate: 1 token/hora
+ * - Validación antes de abrir pack
+ * - Registro de aperturas (PackOpen model)
+ * - Protección contra rate limiting bypass
+ * - Configuración por usuario
+ *
+ * **Funciones principales:**
+ * - canOpenPack(): Valida si usuario puede abrir
+ * - calculateAvailableTokens(): Calcula tokens disponibles
+ * - refillTokens(): Regenera tokens basado en tiempo
+ * - generatePackCards(): Selecciona cartas aleatorias
+ * - consumeToken(): Deduce un token tras abrir
+ *
+ * **Generación de cartas:**
+ * - 5 cartas por pack
+ * - Rareza distribuida por probabilidad
+ * - Sin duplicados en mismo pack
+ * - Selección aleatoria del catálogo
+ *
+ * **Persistencia:**
+ * - Tokens guardados en User model
+ * - Aperturas registradas en PackOpen
+ * - Timestamps para cálculos de refill
+ * - Historial disponible en estadísticas
+ *
+ * **Integración:**
+ * - Users router USA packHelpers para validación
+ * - Pack abierto = crea UserCard entries
+ * - Notificación a usuario con cartas obtenidas
+ * - Actualización de saldo de tokens
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires ../constants/pokemon
+ * @requires ../models/User
+ * @requires ../models/PackOpen
+ * @module server/utils/packHelpers
+ * @see routers/users.ts
+ * @see models/PackOpen.ts
  */
 
 import { Response } from 'express';

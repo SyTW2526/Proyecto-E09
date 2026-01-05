@@ -1,15 +1,23 @@
 /**
  * @file TrainerCard.ts
- * @description Discriminator de Card para cartas de tipo Entrenador
+ * @description Discriminator de Card para cartas de Entrenador
  *
  * Extiende el modelo base Card añadiendo campos específicos de cartas Entrenador:
- * texto descriptivo, efecto, y subtipo (Supporter, Item, Stadium).
+ * - Texto descriptivo del efecto
+ * - Subtipo (Supporter, Item, Stadium, etc)
+ * - Costo de juego
  *
- * Usa el patrón discriminator de Mongoose, todas las cartas se almacenan
- * en la colección 'cards' con category='trainer'.
+ * Almacenamiento:
+ * - Colección: 'cards'
+ * - Discriminator: 'trainer'
+ * - Una sola colección para todos los tipos de cartas
  *
- * @requires mongoose - ODM para MongoDB
- * @requires Card - Modelo base
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @requires ./Card
+ * @module server/models/TrainerCard
+ * @extends Card
  */
 
 import mongoose from 'mongoose';

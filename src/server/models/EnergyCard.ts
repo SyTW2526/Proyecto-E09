@@ -1,15 +1,23 @@
 /**
  * @file EnergyCard.ts
- * @description Discriminator de Card para cartas de tipo Energía
+ * @description Discriminador de Card para cartas de Energía
  *
  * Extiende el modelo base Card añadiendo campos específicos de cartas Energía:
- * tipo de energía, texto descriptivo y subtipo.
+ * - Tipo de energía (agua, fuego, planta, etc)
+ * - Nombre de energía especial (si aplica)
+ * - Texto de efecto especial
  *
- * Usa el patrón discriminator de Mongoose, todas las cartas se almacenan
- * en la colección 'cards' con category='energy'.
+ * Almacenamiento:
+ * - Colección: 'cards'
+ * - Discriminator: 'energy'
+ * - Una sola colección para todos los tipos de cartas
  *
- * @requires mongoose - ODM para MongoDB
- * @requires Card - Modelo base
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @requires ./Card
+ * @module server/models/EnergyCard
+ * @extends Card
  */
 
 import mongoose from 'mongoose';

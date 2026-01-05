@@ -1,19 +1,28 @@
 /**
  * @file apiService.ts
- * @description Servicio centralizado para todas las llamadas API REST y tcgDex
+ * @description Servicio centralizado para todas las llamadas API REST
  *
  * Proporciona métodos para:
- * - Búsqueda y obtención de cartas
- * - Operaciones CRUD de usuarios
- * - Gestión de trading y solicitudes
- * - Operaciones de colección de cartas
- * - Notificaciones y preferencias
+ * - Búsqueda y obtención de cartas Pokémon
+ * - Operaciones CRUD de usuarios (registro, perfil, etc)
+ * - Gestión de trading y solicitudes comerciales
+ * - Operaciones de colección de cartas del usuario
+ * - Manejo de notificaciones y preferencias
+ * - Operaciones con packs de cartas
+ * - Gestión de amigos y solicitudes de amistad
  *
  * URLs de API:
- * - API local: http://localhost:3000
+ * - API local backend: http://localhost:3000
  * - API externa tcgDex: https://api.tcgdex.net/v2/en
+ * - Assets tcgDex: https://assets.tcgdex.net
  *
- * @requires authService - Servicio de autenticación
+ * Todas las llamadas incluyen autenticación JWT cuando es necesario.
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires authService
+ * @requires config/constants
+ * @requires types
  * @module services/apiService
  */
 

@@ -1,11 +1,78 @@
 /**
  * @file friendHelpers.ts
- * @description Helpers para operaciones de amigos (friends management)
+ * @description FriendHelpers - Utilidades del sistema de amigos
  *
- * Centraliza la lógica de:
- * - Gestión de solicitudes de amistad
- * - Operaciones bidireccionales de amigos
- * - Eliminación de relaciones
+ * Centraliza operaciones del sistema de amistades y contactos.
+ * Maneja relaciones bidireccionales entre usuarios.
+ *
+ * **Conceptos:**
+ * - Amistad: Relación mutua entre dos usuarios
+ * - Solicitud: Petición unidireccional de amistad
+ * - Bloqueado: Usuario que no puede enviar solicitud
+ * - Estado: Amigo, Pendiente, Bloqueado, Ninguno
+ *
+ * **Operaciones disponibles:**
+ * - addFriend(): Envía solicitud de amistad
+ * - acceptFriendRequest(): Acepta solicitud
+ * - rejectFriendRequest(): Rechaza solicitud
+ * - removeFriend(): Elimina amistad existente
+ * - blockUser(): Bloquea usuario
+ * - unblockUser(): Desbloquea usuario
+ *
+ * **Estructura en User:**
+ * ```javascript
+ * friends: [ObjectId],        // Lista de amigos confirmados
+ * friendRequests: {
+ *   incoming: [ObjectId],    // Solicitudes recibidas
+ *   outgoing: [ObjectId]     // Solicitudes enviadas
+ * },
+ * blocked: [ObjectId]        // Usuarios bloqueados
+ * ```
+ *
+ * **Validaciones:**
+ * - No enviar si ya son amigos
+ * - No enviar si ya existe solicitud
+ * - No enviar a bloqueado
+ * - Validar que usuarios existen
+ * - Evitar bucles infinitos
+ *
+ * **Notificaciones:**
+ * - Socket.io notifica solicitud entrante
+ * - Notificación BD en Notifications model
+ * - Email opcional (si configurado)
+ * - Push notification opcional
+ *
+ * **Bidireccionalidad:**
+ * - addFriend A→B crea B's incoming
+ * - acceptFriendRequest de B añade A a B.friends
+ * - removeFriend sincroniza ambos lados
+ * - Rollback automático en errores
+ *
+ * **Funciones helper:**
+ * - isFriendOf(): Pregunta si son amigos
+ * - hasPendingRequest(): Hay solicitud?
+ * - canAddFriend(): Puede enviar solicitud?
+ * - getFriendsList(): Retorna lista completa
+ * - getPendingRequests(): Solo pendientes
+ *
+ * **Caché (opcional):**
+ * - Cache de lista de amigos
+ * - Invalidación en cambios
+ * - Mejora performance
+ *
+ * **Integración:**
+ * - routers/users.ts handlers de amistad
+ * - models/User.ts estructura de datos
+ * - Socket.io notificaciones
+ * - Notifications model registra
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @requires ../models/User
+ * @module server/utils/friendHelpers
+ * @see models/User.ts
+ * @see routers/users.ts
  */
 
 import { User } from '../models/User.js';

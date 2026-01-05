@@ -4,10 +4,18 @@
  *
  * Obtiene el idioma actual del estado Redux y actualiza
  * automáticamente el atributo lang en el elemento HTML root.
+ * Sincroniza con i18next para traducciones en toda la aplicación.
  *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires react
+ * @requires react-redux
+ * @requires i18next
  * @module hooks/useLanguage
- * @requires react - Librería React
- * @requires react-redux - Bindings de Redux para React
+ * @returns {string} Código de idioma actual (ej: 'es', 'en')
+ * @example
+ * const language = useLanguage();
+ * console.log(language); // 'es'
  */
 
 import { useEffect } from 'react';

@@ -1,3 +1,70 @@
+/**
+ * @file friend_trade.ts (router)
+ * @description Router FriendTrade - Endpoints de salas de trading entre amigos
+ *
+ * API REST para gestión de salas de trading privadas entre amigos.
+ * Facilita trading colaborativo en tiempo real.
+ *
+ * **Operaciones disponibles:**
+ * - GET /friend-trade-rooms/invites - Listar invitaciones
+ * - GET /friend-trade-rooms/:roomId - Obtener detalles de sala
+ * - POST /friend-trade-rooms/invite - Invitar a amigo
+ * - PATCH /friend-trade-rooms/:roomId/accept - Aceptar invitación
+ * - PATCH /friend-trade-rooms/:roomId/reject - Rechazar invitación
+ * - POST /friend-trade-rooms/:roomId/cards - Añadir cartas a intercambiar
+ * - DELETE /friend-trade-rooms/:roomId/cards/:cardId - Remover carta
+ * - POST /friend-trade-rooms/:roomId/confirm - Confirmar y completar
+ * - DELETE /friend-trade-rooms/:roomId - Cancelar sala
+ *
+ * **Características especiales:**
+ * - Requiere relación de amistad previa
+ * - Salas privadas con código único
+ * - Trading en tiempo real via Socket.io
+ * - Chat paralelo durante la sala
+ * - Validación de cartas disponibles
+ * - Confirmación bilateral antes de completar
+ *
+ * **Estados de sala:**
+ * - PENDING: Esperando aceptación
+ * - ACTIVE: Trading en progreso
+ * - COMPLETED: Intercambio finalizado
+ * - REJECTED: Rechazado
+ * - CANCELLED: Cancelado
+ *
+ * **Flujo típico:**
+ * 1. Usuario A invita a amigo Usuario B
+ * 2. Usuario B acepta → se crea sala ACTIVE
+ * 3. Ambos usuarios añaden cartas
+ * 4. Socket.io sincroniza cambios en tiempo real
+ * 5. Ambos confirman → se completa Trade
+ * 6. Cartas se transfieren
+ *
+ * **Diferencias con trade.ts:**
+ * - trade.ts: Intercambios entre cualquier usuario
+ * - friend_trade.ts: Solo entre amigos, en salas privadas
+ * - friend_trade.ts: Más colaborativo, chat integrado
+ * - friend_trade.ts: Basado en Socket.io para sincronización real
+ *
+ * Integración:
+ * - Modelos: FriendTrade, Trade, User
+ * - Middleware JWT para autenticación
+ * - Socket.io para eventos en tiempo real
+ * - Validación de relación de amistad
+ * - Notificaciones automáticas
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires express
+ * @requires mongoose
+ * @requires ../middleware/authMiddleware
+ * @requires ../models/FriendTrade
+ * @requires ../models/Trade
+ * @requires ../utils/mongoHelpers
+ * @module server/routers/friend_trade
+ * @see models/FriendTrade.ts
+ * @see routers/trade.ts
+ */
+
 import express, { Response } from 'express';
 import mongoose from 'mongoose';
 import { AuthRequest, authMiddleware } from '../middleware/authMiddleware.js';

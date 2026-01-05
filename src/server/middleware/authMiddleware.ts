@@ -1,3 +1,92 @@
+/**
+ * @file authMiddleware.ts
+ * @description Middleware de Autenticación - Verificación de JWT
+ *
+ * Middleware Express para validar JSON Web Tokens en requests.
+ * Protege rutas que requieren autenticación de usuario.
+ *
+ * **Flujo de autenticación:**
+ * 1. Cliente envía token en header Authorization
+ * 2. Middleware extrae y valida token
+ * 3. Si válido: almacena userId en request
+ * 4. Si inválido: retorna 401 Unauthorized
+ * 5. Siguiente handler recibe request autenticado
+ *
+ * **Header esperado:**
+ * ```
+ * Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+ * ```
+ *
+ * **Interfaz AuthRequest:**
+ * Extiende Request de Express con campos:
+ * - userId: ID MongoDB del usuario
+ * - username: Nombre de usuario
+ * - io: Instancia de Socket.io (opcional)
+ *
+ * **Validaciones:**
+ * - Presencia del header Authorization
+ * - Formato "Bearer <token>"
+ * - Token válido (firma correcta)
+ * - Token no expirado
+ * - Payload contiene userId
+ *
+ * **Respuestas de error:**
+ * - 401: Token no proporcionado
+ * - 401: Formato inválido (no es Bearer)
+ * - 401: Token inválido/malformado
+ * - 401: Token expirado
+ * - 401: Firma incorrecta
+ *
+ * **Uso en routers:**
+ * ```typescript
+ * router.get('/profile', authMiddleware, async (req, res) => {
+ *   const userId = (req as AuthRequest).userId; // Ya autenticado
+ *   // ... handler logic
+ * });
+ * ```
+ *
+ * **Seguridad:**
+ * - Valida en servidor (no confía cliente)
+ * - HMAC con secret fuerte
+ * - Expiración de tokens (7 días)
+ * - Manejo de errores sin leaks
+ * - Rate limiting recomendado
+ *
+ * **Socket.io integración:**
+ * - Valida token en handshake Socket.io
+ * - Propaga io al request (si existe)
+ * - Permite emisión de eventos desde rutas
+ *
+ * **Alternativas consideradas:**
+ * - Passport.js (más complejo)
+ * - OpenID Connect (OAuth)
+ * - API Keys (menos seguro)
+ * - Sessions (requiere servidor stateful)
+ * → Elegimos JWT por stateless y simplicidad
+ *
+ * **Mejoras posibles:**
+ * - Refresh tokens (reissue tokens expirados)
+ * - Token blacklist (logout efectivo)
+ * - CSRF protection (si usa cookies)
+ * - Rate limiting por usuario
+ * - Auditoría de accesos
+ *
+ * **Integración:**
+ * - Aplicado a rutas protegidas
+ * - jwtHelpers.ts para token signing
+ * - routers/users.ts genera tokens
+ * - Socket.io usa en setup
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires express
+ * @requires jsonwebtoken
+ * @module server/middleware/authMiddleware
+ * @see utils/jwtHelpers.ts
+ * @see routers/users.ts
+ * @see index.ts
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 

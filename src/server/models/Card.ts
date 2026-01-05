@@ -2,13 +2,29 @@
  * @file Card.ts
  * @description Modelo BASE de Carta con Discriminator Pattern
  *
- * Este es el modelo base que contiene todos los campos comunes a todas las cartas.
- * Usa el patrón discriminator de Mongoose para soportar herencia con una sola colección.
+ * Modelo base que contiene campos comunes a todas las cartas Pokémon TCG.
+ * Usa el patrón discriminator de Mongoose para soportar herencia en una
+ * única colección (polimorfismo en MongoDB).
  *
- * Los modelos PokemonCard, TrainerCard y EnergyCard heredan de este modelo base
- * y añaden campos específicos de cada categoría.
+ * Submodelos (discriminators):
+ * - PokemonCard - Cartas de Pokémon
+ * - TrainerCard - Cartas de Entrenador
+ * - EnergyCard - Cartas de Energía
  *
- * @requires mongoose - ODM para MongoDB
+ * Campos Base:
+ * - ID único (pokemonTcgId)
+ * - Nombre y descripción
+ * - Imágenes (grande y pequeña)
+ * - Datos de rareza y precios
+ * - Metadatos de set y número
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @module server/models/Card
+ * @see PokemonCard
+ * @see TrainerCard
+ * @see EnergyCard
  */
 
 import mongoose from 'mongoose';

@@ -1,3 +1,96 @@
+/**
+ * @file tradeHelpers.ts
+ * @description TradeHelpers - Utilidades de gestión de trades
+ *
+ * Centraliza lógica repetida para operaciones de intercambio.
+ * Simplifica queries, validaciones y transformaciones de trades.
+ *
+ * **Consultas comunes:**
+ * - getPaginatedTrades(): Lista con paginación
+ * - getTradeByRoomCode(): Obtiene por código único
+ * - getPopulatedTrade(): Obtiene con datos relacionados
+ * - getTradeBetweenUsers(): Trade entre dos usuarios
+ * - getTradeHistory(): Historial completo
+ *
+ * **Poblamiento (populate):**
+ * Campos estándar para traer relaciones:
+ * - Usuarios: username, email, imagen
+ * - Cartas: nombre, imagen, rareza, tipo
+ * - Historial: timestamps, estado previo
+ *
+ * **Validaciones:**
+ * - validateTrade(): Estructura válida
+ * - validateCards(): Cartas pertenecen a usuarios
+ * - validateEquity(): Equidad de valores
+ * - canCancel(): Usuario puede cancelar?
+ * - isCompleted(): Estado de trade
+ *
+ * **Estados de trade:**
+ * - PENDING: Esperando respuesta
+ * - ACCEPTED: Ambos aceptaron
+ * - COMPLETED: Cartas transferidas
+ * - REJECTED: Rechazado
+ * - CANCELLED: Cancelado por usuario
+ *
+ * **Estadísticas:**
+ * - getTotalTrades(): Conteo de todos
+ * - getCompletedTrades(): Solo completados
+ * - getTradeValue(): Valor total intercambiado
+ * - getFrequentTrader(): Usuarios más activos
+ *
+ * **Filtros:**
+ * - Por estado
+ * - Por usuario
+ * - Por rango de fechas
+ * - Por valor de cartas
+ * - Por tipo de cartas
+ *
+ * **Paginación:**
+ * ```javascript
+ * {
+ *   docs: [...trades],
+ *   total: 150,
+ *   page: 1,
+ *   pages: 5,
+ *   hasNextPage: true,
+ *   hasPrevPage: false
+ * }
+ * ```
+ *
+ * **Transformaciones:**
+ * - formatTrade(): Estructura para cliente
+ * - enrichTrade(): Añade datos calculados
+ * - normalizeTrade(): Campos estándar
+ * - sanitizeTrade(): Remueve sensibles
+ *
+ * **Seguridad:**
+ * - Valida propiedad de cartas
+ * - Verifica autorización de usuario
+ * - Previene dobles transferencias
+ * - Logging de operaciones
+ *
+ * **Performance:**
+ * - Índices en userId, estado, fecha
+ * - Proyecciones eficientes
+ * - Caching de trades recientes
+ * - Batch processing
+ *
+ * **Integración:**
+ * - routers/trade.ts usa helpers
+ * - routers/trade_request.ts al convertir
+ * - socketHelpers.ts para notificaciones
+ * - User model para saldo de cartas
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @requires ../models/Trade
+ * @requires ../models/TradeRequest
+ * @module server/utils/tradeHelpers
+ * @see models/Trade.ts
+ * @see routers/trade.ts
+ */
+
 import { FilterQuery } from 'mongoose';
 import { Trade } from '../models/Trade.js';
 import { TradeRequest } from '../models/TradeRequest.js';

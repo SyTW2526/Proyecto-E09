@@ -1,3 +1,59 @@
+/**
+ * @file pokemon.ts (router)
+ * @description Router Pokemon - Endpoints de búsqueda y consulta de datos
+ *
+ * API REST para consultas de datos del catálogo de cartas desde TCGdex.
+ * Proporciona búsquedas avanzadas y filtros sobre las cartas disponibles.
+ *
+ * **Búsquedas por parámetro:**
+ * - GET /pokemon/cards/name/:name - Búsqueda por nombre
+ * - GET /pokemon/cards/id/:id - Obtener carta específica
+ * - GET /pokemon/cards/type/:type - Filtrar por tipo
+ * - GET /pokemon/cards/hp/:hp - Búsqueda por rango HP
+ * - GET /pokemon/cards/rarity/:rarity - Filtrar por rareza
+ * - GET /pokemon/cards/set/:setId - Cartas de una expansión
+ *
+ * **Catálogos:**
+ * - GET /pokemon/sets - Listar todas las expansiones
+ * - GET /pokemon/sets/:id - Detalles de expansión
+ * - GET /pokemon/series - Listar todas las series
+ * - GET /pokemon/series/:id - Detalles de serie
+ *
+ * **Búsqueda avanzada:**
+ * - GET /pokemon/search - Búsqueda full-text con parámetros
+ *
+ * Características:
+ * - Consultas a datos de TCGdex (datos de referencia)
+ * - Paginación en resultados grandes
+ * - Manejo de errores con responses estandarizadas
+ * - Filtros combinables
+ * - Datos en cache para rendimiento
+ *
+ * Responsabilidades:
+ * - Valida parámetros de entrada
+ * - Llama a pokemonService.ts para obtener datos
+ * - Formatea respuestas en estructura estándar
+ * - Maneja errores de API externa
+ * - Documentación de cada endpoint vía JSDoc
+ *
+ * Diferencia con router/card.ts:
+ * - pokemon.ts = búsquedas en catálogo TCGdex
+ * - card.ts = cartas guardadas en MongoDB del usuario
+ *
+ * Integración:
+ * - Services/pokemon.ts para consultas
+ * - Respuestas estandarizadas via responseHelpers
+ * - Cliente usa estos datos para UI de búsqueda
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires express
+ * @requires ../services/pokemon
+ * @requires ../utils/responseHelpers
+ * @module server/routers/pokemon
+ * @see services/pokemon.ts
+ */
+
 import { Router, Request, Response } from 'express';
 import {
   getCardsByName,

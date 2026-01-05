@@ -1,5 +1,21 @@
 /**
  * @file imageHelpers.ts
+ * @description Funciones utilidad para manejo de imágenes de cartas
+ *
+ * Proporciona:
+ * - Validación y normalización de URLs de imágenes
+ * - Manejo de imágenes fallidas (fallback)
+ * - Optimización y corrección de URLs de TCGdex
+ * - Preload y cache de imágenes
+ * - Detección de errores de carga
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @module utils/imageHelpers
+ */
+
+/**
+ * @file imageHelpers.ts
  * @description Utilidades para manejo y normalización de URLs de imágenes de cartas
  * Centraliza la lógica de corrección de URLs malformadas de TCGdex
  */

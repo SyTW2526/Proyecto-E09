@@ -2,13 +2,18 @@
  * @file types.ts
  * @description Definiciones de tipos TypeScript para la aplicación cliente
  *
- * Incluye interfaces para:
- * - Cartas Pokémon y sus propiedades
+ * Centraliza todas las interfaces y tipos utilizados en toda la aplicación,
+ * proporcionando type-safety para:
+ * - Cartas Pokémon y sus propiedades (rareza, ataques, precios)
  * - Usuarios y datos de perfil
- * - Trading y transacciones
- * - Respuestas de API
+ * - Trading y solicitudes comerciales
+ * - Respuestas de API (éxito, paginadas)
+ * - Notificaciones y preferencias
  *
+ * @author Proyecto E09
+ * @version 1.0.0
  * @module types
+ * @requires TypeScript
  */
 
 /**

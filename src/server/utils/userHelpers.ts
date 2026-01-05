@@ -1,8 +1,79 @@
 /**
  * @file userHelpers.ts
- * @description Utilidades para operaciones comunes con usuarios
+ * @description UserHelpers - Utilidades de gestión de usuarios
  *
- * Centraliza lógica repetitiva de búsqueda y validación de usuarios
+ * Centraliza lógica compartida para operaciones con usuarios.
+ * Elimina duplicación en búsquedas, validaciones y manipulaciones.
+ *
+ * **Funcionalidades:**
+ * - Búsqueda flexible (por ID o username)
+ * - Validación de existencia de usuario
+ * - Gestión de colecciones de cartas
+ * - Operaciones de amistad
+ * - Paginación de datos de usuario
+ * - Normalización de respuestas
+ *
+ * **Búsqueda flexible:**
+ * - findUserOrFail(): Busca por ID o username
+ * - findUserByUsername(): Búsqueda por nombre
+ * - findUserById(): Búsqueda por ObjectId
+ * - Manejo de errores consistente
+ * - Retorna usuario populate o null
+ *
+ * **Validaciones:**
+ * - validateUsername(): Valida formato username
+ * - validateEmail(): Valida formato email
+ * - validatePassword(): Valida fortaleza contraseña
+ * - isValidCollectionType(): Valida tipo de colección
+ * - checkUserExists(): Verifica existencia
+ *
+ * **Colección de cartas:**
+ * - getUserCardsPaginated(): Obtiene cartas con paginación
+ * - getUserCardByTcgId(): Busca carta por ID TCG
+ * - addToUserCollection(): Añade carta a colección
+ * - removeFromCollection(): Elimina de colección
+ * - calculateCollectionValue(): Suma de valores
+ *
+ * **Amistad:**
+ * - isFriendOf(): Verifica si son amigos
+ * - getFriendsList(): Obtiene lista de amigos
+ * - addFriend(): Envía solicitud
+ * - removeFriend(): Elimina de amigos
+ * - getPendingRequests(): Solicitudes pendientes
+ *
+ * **Paginación:**
+ * ```javascript
+ * {
+ *   page: 1,
+ *   limit: 20,
+ *   skip: 0,
+ *   total: 150,
+ *   pages: 8
+ * }
+ * ```
+ *
+ * **Normalización:**
+ * - Estructura consistente de respuestas
+ * - Campos sensibles removidos (password)
+ * - Datos completos cuando needed
+ * - Errores formatados uniformemente
+ *
+ * **Integración:**
+ * - Usado por routers/users.ts
+ * - Usado por routers/usercard.ts
+ * - Usado en trading logic
+ * - Valida en trade requests
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @requires ../models/User
+ * @requires ../models/UserCard
+ * @requires ../utils/responseHelpers
+ * @module server/utils/userHelpers
+ * @see models/User.ts
+ * @see routers/users.ts
+ * @see routers/usercard.ts
  */
 
 import { User } from '../models/User.js';

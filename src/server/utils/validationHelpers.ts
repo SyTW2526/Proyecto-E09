@@ -1,11 +1,77 @@
 /**
  * @file validationHelpers.ts
- * @description Helpers para validaciones comunes de usuarios
+ * @description ValidationHelpers - Validaciones de entrada y datos
  *
- * Centraliza la lógica de:
- * - Búsqueda por username o email
- * - Validación de existencia de credenciales
- * - Validación de propiedad de recursos
+ * Utilidades para validar datos de usuario, cartas, trades y otros.
+ * Centraliza reglas de validación para consistencia en toda la API.
+ *
+ * **Validaciones de usuario:**
+ * - validateUsername(): Formato válido (3-20 chars, alfanuméricos)
+ * - validateEmail(): Formato email válido
+ * - validatePassword(): Fortaleza (min 8 chars, mixed case, números)
+ * - validateUserInput(): Valida registro/login
+ *
+ * **Reglas username:**
+ * - Longitud: 3-20 caracteres
+ * - Caracteres: Letras, números, _, -
+ * - No espacios, sin caracteres especiales
+ * - Case-insensitive para duplicados
+ *
+ * **Reglas email:**
+ * - Formato RFC 5322 simple
+ * - Máximo 254 caracteres
+ * - Única por usuario
+ * - Case-insensitive
+ *
+ * **Reglas password:**
+ * - Mínimo 8 caracteres
+ * - Al menos una mayúscula
+ * - Al menos una minúscula
+ * - Al menos un número
+ * - Preferiblemente carácter especial
+ * - Nunca se almacena en plain text
+ *
+ * **Validaciones de datos:**
+ * - validateCardData(): Estructura de carta válida
+ * - validateTradeData(): Trade tiene cartas válidas
+ * - validateObjectId(): ID MongoDB válido
+ * - validateDates(): Ranges de fecha válidos
+ * - validateEnums(): Valores en enum válido
+ *
+ * **Búsquedas de credenciales:**
+ * - checkUsernameExists(): Usuario tomado
+ * - checkEmailExists(): Email registrado
+ * - findByUsername(): Busca usuario
+ * - findByEmail(): Busca usuario
+ * - findByCredentials(): Auth username/password
+ *
+ * **Mensajes de error:**
+ * - Específicos a problema (no generales)
+ * - Guían al usuario a solución
+ * - Lenguaje claro y educado
+ * - Sin información de seguridad
+ *
+ * **Seguridad:**
+ * - Validación en servidor (no confiar cliente)
+ * - XSS prevention (sanitización)
+ * - Injection prevention (parametrizado)
+ * - Rate limiting en validación
+ * - Logging de intentos fallidos
+ *
+ * **Integración:**
+ * - routers/users.ts en register/login
+ * - routers/trade.ts valida trades
+ * - authMiddleware.ts verifica tokens
+ * - Todos los routers usan helpers
+ * - Middleware global de validación
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @requires ../models/User
+ * @module server/utils/validationHelpers
+ * @see routers/users.ts
+ * @see middleware/authMiddleware.ts
  */
 
 import { User } from '../models/User.js';

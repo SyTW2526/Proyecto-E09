@@ -1,15 +1,26 @@
 /**
  * @file PokemonCard.ts
- * @description Discriminator de Card para cartas de tipo Pokémon
+ * @description Discriminator de Card para cartas de Pokémon
  *
  * Extiende el modelo base Card añadiendo campos específicos de cartas Pokémon:
- * HP, tipos, ataques, habilidades, debilidades, resistencias, etc.
+ * - HP (Puntos de Salud)
+ * - Tipos de energía
+ * - Ataques con costes y daño
+ * - Habilidades especiales
+ * - Debilidades, resistencias, costo de retirada
+ * - Evoluciones y parentesco
  *
- * Usa el patrón discriminator de Mongoose, todas las cartas se almacenan
- * en la colección 'cards' con category='pokemon'.
+ * Almacenamiento:
+ * - Colección: 'cards'
+ * - Discriminator: 'pokemon'
+ * - Una sola colección para todos los tipos de cartas
  *
- * @requires mongoose - ODM para MongoDB
- * @requires Card - Modelo base
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @requires ./Card
+ * @module server/models/PokemonCard
+ * @extends Card
  */
 
 import mongoose from 'mongoose';

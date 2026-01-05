@@ -1,12 +1,25 @@
 /**
  * @file User.ts
- * @description Modelo de Usuario para la base de datos MongoDB
+ * @description Modelo de Usuario para MongoDB con autenticación y preferencias
  *
- * Define la estructura de datos para los usuarios de la aplicación
- * incluyendo autenticación, configuraciones, amigos y más.
+ * Define la estructura completa de datos para usuarios incluyendo:
+ * - Credenciales (username, email, contraseña hasheada)
+ * - Perfil (imagen, estado)
+ * - Configuraciones (idioma, tema oscuro, notificaciones, privacidad)
+ * - Sistema de amigos (lista, solicitudes pendientes)
+ * - Gestión de packs (tokens, última recarga)
+ * - Tokens de acceso para packs
  *
- * @requires mongoose - ODM para MongoDB
- * @requires validator - Validación de datos (emails, etc)
+ * Validaciones:
+ * - Email único y validado
+ * - Username único
+ * - Contraseña mínimo 6 caracteres
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @requires validator
+ * @module server/models/User
  */
 
 import mongoose from 'mongoose';

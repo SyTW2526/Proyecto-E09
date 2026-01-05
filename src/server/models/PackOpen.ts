@@ -1,11 +1,36 @@
 /**
  * @file PackOpen.ts
- * @description Modelo de Registro de Aperturas de Packs
+ * @description Modelo de PackOpen - Registro de aperturas de packs
  *
- * Registra cuándo un usuario abre un pack de cartas.
- * Se usa para controlar los tokens y el rate limiting de aperturas.
+ * Registra cada instancia cuando un usuario abre un pack de cartas.
+ * Utilizado para:
+ * - Rate limiting: Control de cuántos packs puede abrir un usuario
+ * - Sistema de tokens: Consumo de pack tokens
+ * - Analytics: Estadísticas de actividad
+ * - Auditoría: Historial de aperturas
  *
- * @requires mongoose - ODM para MongoDB
+ * Características:
+ * - Una entrada por cada pack abierto
+ * - Referencia al usuario
+ * - Timestamp de creación
+ * - Índice por userId y fecha para búsquedas eficientes
+ * - TTL Index para limpiar registros antiguos (opcional)
+ *
+ * Relación:
+ * - Muchas PackOpen → Un Usuario (User)
+ * - Un PackOpen genera múltiples cartas (vía random selection)
+ *
+ * Integración:
+ * - Se crea cuando usuario consume un token
+ * - packHelpers.ts usa este modelo para rate limiting
+ * - Datos disponibles en estadísticas y perfil del usuario
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @module server/models/PackOpen
+ * @see User
+ * @see packHelpers.ts
  */
 
 import mongoose from 'mongoose';

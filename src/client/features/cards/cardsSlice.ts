@@ -1,3 +1,23 @@
+/**
+ * @file cardsSlice.ts
+ * @description Redux Slice para gestionar búsqueda y visualización de cartas
+ *
+ * Maneja:
+ * - Lista de cartas destacadas (featured cards)
+ * - Búsqueda de cartas por query
+ * - Obtención de cartas individuales por ID
+ * - Selección de cartas para vista detallada
+ * - Estados de carga y errores
+ * - Paginación de resultados
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires @reduxjs/toolkit
+ * @requires ../../services/apiService
+ * @requires ../../types
+ * @module features/cards/cardsSlice
+ */
+
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../services/apiService';
 import { PokemonCard, PaginatedResponse } from '../../types';

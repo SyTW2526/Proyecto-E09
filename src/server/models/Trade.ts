@@ -1,12 +1,35 @@
 /**
  * @file Trade.ts
- * @description Modelo de Transacción de Trading entre usuarios
+ * @description Modelo de Trade - Transacción completa entre dos usuarios
  *
- * Gestiona el intercambio de cartas entre dos usuarios,
- * incluyendo estado, cartas ofrecidas, aceptaciones y más.
+ * Representa un intercambio de cartas completado o en progreso entre dos
+ * jugadores. Cada Trade incluye:
+ * - Participantes (Usuario ofertante, Usuario receptor)
+ * - Cartas ofertadas por cada lado (lista de UserCard)
+ * - Estado (pendiente, aceptado, rechazado, completado, cancelado)
+ * - Timestamps (creación, actualización, completado)
+ * - Validación y confirmación de ambos usuarios
  *
- * @requires mongoose - ODM para MongoDB
- * @requires nanoid - Generador de IDs únicos
+ * Estados del Trade:
+ * - PENDING: Esperando respuesta del receptor
+ * - ACCEPTED: Ambos usuarios aceptaron
+ * - REJECTED: Rechazado
+ * - COMPLETED: Intercambio completado
+ * - CANCELLED: Cancelado por uno de los usuarios
+ *
+ * Características:
+ * - Sistema de confirmación bilateral
+ * - Historial de cambios de estado
+ * - Estimación de valor para validar equidad
+ * - Integración con Socket.io para notificaciones en tiempo real
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @requires nanoid
+ * @module server/models/Trade
+ * @see User
+ * @see UserCard
  */
 
 import mongoose from 'mongoose';

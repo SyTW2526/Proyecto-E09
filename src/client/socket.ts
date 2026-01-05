@@ -3,11 +3,19 @@
  * @description Configuración de conexión a Socket.io para comunicación en tiempo real
  *
  * Gestiona:
- * - Inicialización de la conexión Socket.io
- * - Autenticación con JWT
- * - Acceso global a la instancia del socket
+ * - Inicialización de la conexión Socket.io con autenticación JWT
+ * - Listeners para eventos del servidor (notificaciones, trades, etc)
+ * - Integración con Redux para sincronizar notificaciones
+ * - Reconexión automática ante desconexiones
+ * - Toast notifications para eventos en tiempo real
  *
- * @requires socket.io-client - Cliente de Socket.io
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires socket.io-client
+ * @requires config/constants
+ * @requires store/store
+ * @requires features/notifications/notificationsSlice
+ * @requires components/ToastManager
  * @module socket
  */
 

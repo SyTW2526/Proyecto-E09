@@ -1,11 +1,30 @@
 /**
  * @file UserCard.ts
- * @description Modelo de Carta del Usuario en su Colección
+ * @description Modelo de Carta del Usuario - Colección personal del jugador
  *
- * Representa una carta específica que posee un usuario,
- * incluyendo condición, estado de público/privado, si está en venta, etc.
+ * Representa una instancia específica de una carta en posesión de un usuario.
+ * Cada UserCard mapea a un usuario y a una carta base, incluyendo información
+ * específica de su copia personal:
+ * - Condición física (Mint, Near Mint, Excellent, Good, Poor)
+ * - Estado de disponibilidad (en venta, tradeable)
+ * - Anotaciones personales
+ * - Historial de cambios
  *
- * @requires mongoose - ODM para MongoDB
+ * Relaciones:
+ * - Muchas UserCard → Un Usuario (User)
+ * - Muchas UserCard → Una Carta (Card)
+ * - Referencia a Card base para información de título, tipo, etc
+ *
+ * Almacenamiento:
+ * - Colección: 'usercards'
+ * - Índices: userId, cardId, condition para búsquedas eficientes
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @module server/models/UserCard
+ * @see User
+ * @see Card
  */
 
 import mongoose from 'mongoose';

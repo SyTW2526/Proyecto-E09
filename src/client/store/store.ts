@@ -1,19 +1,26 @@
 /**
  * @file store.ts
- * @description Configuración del store Redux para la aplicación
+ * @description Configuración centralizada del store Redux
  *
  * Gestiona el estado global de:
- * - Usuarios (authentication, profile)
- * - Cartas (featured, búsqueda)
+ * - Usuarios (autenticación y datos de perfil)
+ * - Cartas (búsqueda, cartas destacadas)
  * - Colección personal del usuario
- * - Trading y solicitudes
+ * - Trading y solicitudes comerciales
  * - Lista de deseos (wishlist)
- * - Notificaciones
- * - Preferencias de usuario
+ * - Notificaciones en tiempo real
+ * - Preferencias de usuario (idioma, tema, etc)
  *
- * @requires @reduxjs/toolkit - Toolkit para Redux
- * @requires react-redux - Bindings de React para Redux
+ * Utiliza Redux Toolkit con redux-persist para persistencia en localStorage.
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires @reduxjs/toolkit
+ * @requires redux-persist
+ * @requires react-redux
  * @module store
+ * @see {@link RootState|RootState} para el tipo del estado global
+ * @see {@link AppDispatch|AppDispatch} para el tipo del dispatch
  */
 
 import { configureStore } from '@reduxjs/toolkit';

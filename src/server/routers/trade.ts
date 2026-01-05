@@ -1,3 +1,61 @@
+/**
+ * @file trade.ts (router)
+ * @description Router Trade - Endpoints de transacciones de intercambio
+ *
+ * API REST para gestión de intercambios de cartas entre usuarios.
+ * Maneja ciclo de vida completo de trades desde propuesta hasta completado.
+ *
+ * **Gestión de Trades:**
+ * - GET /trades - Listar trades del usuario autenticado
+ * - GET /trades/:id - Obtener detalles de un trade
+ * - POST /trades - Crear nuevo trade (propuesta)
+ * - PATCH /trades/:id - Actualizar estado (aceptar/rechazar)
+ * - DELETE /trades/:id - Cancelar trade
+ *
+ * **Estados de Trade:**
+ * - PENDING: Propuesta, esperando respuesta
+ * - ACCEPTED: Ambos aceptaron, listo para completar
+ * - COMPLETED: Intercambio finalizado
+ * - REJECTED: Rechazado por uno de los usuarios
+ * - CANCELLED: Cancelado durante el proceso
+ *
+ * **Características:**
+ * - Validación de cartas disponibles
+ * - Cambio de propiedad automático al completarse
+ * - Notificaciones en tiempo real via Socket.io
+ * - Historial completo de cambios
+ * - Cálculo de equidad (valor de cartas)
+ * - Protección contra duplicados
+ *
+ * **Flujo típico:**
+ * 1. Usuario A crea Trade (POST)
+ * 2. Usuario B recibe notificación
+ * 3. Usuario B acepta/rechaza (PATCH)
+ * 4. Si aceptado: ambos confirman
+ * 5. Sistema transfiere cartas
+ * 6. Trade se marca como COMPLETED
+ *
+ * Integración:
+ * - Modelos: Trade, TradeRequest, UserCard, User
+ * - Socket.io para notificaciones reales
+ * - Middleware JWT para autenticación
+ * - tradeHelpers.ts para lógica de validación
+ * - Notificaciones automáticas
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires express
+ * @requires mongoose
+ * @requires ../middleware/authMiddleware
+ * @requires ../models/Trade
+ * @requires ../models/TradeRequest
+ * @requires ../models/UserCard
+ * @requires ../utils/tradeHelpers
+ * @module server/routers/trade
+ * @see models/Trade.ts
+ * @see utils/tradeHelpers.ts
+ */
+
 import express, { Response } from 'express';
 import mongoose from 'mongoose';
 import { User } from '../models/User.js';

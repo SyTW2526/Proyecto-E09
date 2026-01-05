@@ -1,17 +1,46 @@
 /**
  * @file cards.ts
- * @description Servicio de sincronización y gestión de cartas en la base de datos
+ * @description Servicio Cards - Sincronización y gestión de cartas en BD
  *
- * Proporciona funciones para:
- * - Sincronizar cartas desde la API externa a MongoDB
- * - Actualizar información de cartas
- * - Crear nuevas cartas desde datos RAW de la API
- * - Normalizar y sanitizar datos de cartas
+ * Capa de lógica de negocio para operaciones con cartas.
+ * Responsabilidades principales:
+ * - Sincronizar datos de TCGdex a MongoDB
+ * - Crear cartas (Pokémon, Entrenador, Energía) desde API
+ * - Actualizar cartas existentes
+ * - Normalizar datos RAW de API a esquema MongoDB
+ * - Sanitizar y validar información
+ * - Deduplicación de cartas
+ * - Gestión de errores en sincronización
  *
- * @requires Card - Modelo genérico de cartas
- * @requires PokemonCard - Modelo de cartas Pokémon
- * @requires TrainerCard - Modelo de cartas Entrenador
- * @requires EnergyCard - Modelo de cartas Energía
+ * Patrón Mongoose:
+ * - Usa discriminator pattern para polimorfismo
+ * - Una colección 'cards' para todas las variantes
+ * - Enrutamiento automático según tipo (pokemon, trainer, energy)
+ *
+ * Procesos:
+ * - Sincronización inicial (importa todas las cartas de TCGdex)
+ * - Actualizaciones incrementales
+ * - Manejo de cartas nuevas/eliminadas
+ * - Validación de integridad
+ *
+ * Integración:
+ * - Llamado por routers/card.ts para CRUD
+ * - Utiliza pokemonService.ts para obtener datos
+ * - Usa cardDataBuilder.ts para normalizar
+ * - Gestiona índices y búsquedas de cartas
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @requires ./pokemon
+ * @requires ./cardDataBuilder
+ * @requires ../models/Card
+ * @requires ../models/PokemonCard
+ * @requires ../models/TrainerCard
+ * @requires ../models/EnergyCard
+ * @module server/services/cards
+ * @see services/pokemon.ts
+ * @see services/cardDataBuilder.ts
  */
 
 import { Card } from '../models/Card.js';

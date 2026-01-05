@@ -1,3 +1,60 @@
+/**
+ * @file trade_request.ts (router)
+ * @description Router TradeRequest - Endpoints de propuestas de intercambio
+ *
+ * API REST para gestión de propuestas de trade pendientes.
+ * Diferencia importante: TradeRequest es unidireccional, Trade es bilateral.
+ *
+ * **Operaciones disponibles:**
+ * - GET /trade-requests - Listar propuestas recibidas
+ * - GET /trade-requests/sent - Listar propuestas enviadas
+ * - GET /trade-requests/:id - Obtener detalles de propuesta
+ * - POST /trade-requests - Crear nueva propuesta
+ * - PATCH /trade-requests/:id/accept - Aceptar propuesta
+ * - PATCH /trade-requests/:id/reject - Rechazar propuesta
+ * - DELETE /trade-requests/:id - Cancelar propuesta
+ *
+ * **Flujo de propuesta:**
+ * 1. Usuario A envía TradeRequest a Usuario B
+ * 2. Usuario B ve en lista de propuestas recibidas
+ * 3. Usuario B puede:
+ *    - Aceptar → Se crea Trade oficial
+ *    - Rechazar → Se elimina TradeRequest
+ *    - Ignorar → Permanece pendiente
+ * 4. Usuario A puede cancelar en cualquier momento
+ *
+ * **Diferencia Trade vs TradeRequest:**
+ * - TradeRequest: Propuesta unidireccional, uno propone
+ * - Trade: Acuerdo bilateral, ambos participan
+ * - TradeRequest puede convertirse en Trade
+ *
+ * **Características:**
+ * - Validación de cartas disponibles
+ * - Notificaciones en tiempo real
+ * - Prevención de propuestas duplicadas
+ * - Expiración automática (opcional)
+ * - Historial de cambios
+ *
+ * Integración:
+ * - Modelos: TradeRequest, Trade, User, UserCard
+ * - Socket.io para notificaciones
+ * - Middleware JWT para autenticación
+ * - Crea Notifications automáticamente
+ * - Valida mediante UserCard
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires express
+ * @requires mongoose
+ * @requires ../middleware/authMiddleware
+ * @requires ../models/TradeRequest
+ * @requires ../models/Trade
+ * @requires ../models/Notification
+ * @module server/routers/trade_request
+ * @see models/TradeRequest.ts
+ * @see routers/trade.ts
+ */
+
 import express, { Response } from 'express';
 import mongoose from 'mongoose';
 import { TradeRequest } from '../models/TradeRequest.js';

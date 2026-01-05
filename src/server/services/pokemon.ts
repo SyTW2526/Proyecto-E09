@@ -1,13 +1,40 @@
 /**
  * @file pokemon.ts
- * @description Servicio de integración con API TCGdex para cartas Pokémon
+ * @description Servicio Pokemon - Integración con API TCGdex para cartas Pokémon
  *
- * Proporciona funciones para obtener datos de cartas desde la API pública TCGdex.net.
- * Actúa como capa intermedia entre la aplicación y la API externa.
+ * Capa de abstracción para interacción con la API pública TCGdex.net.
+ * Responsabilidades:
+ * - Obtención de datos de cartas desde TCGdex
+ * - Transformación de respuestas de API
+ * - Normalización de estructura de datos
+ * - Caché de datos (si aplica)
+ * - Manejo de errores de red
  *
  * Base URL: https://api.tcgdex.net/v2/en
  *
- * @requires fetch - API de Node.js para solicitudes HTTP
+ * Endpoints principales:
+ * - /cards - Lista de cartas disponibles
+ * - /series - Series/expansiones de cartas
+ * - /types - Tipos de energía
+ * - /rarities - Rarezas de cartas
+ *
+ * Características:
+ * - Requests asíncronos
+ * - Formato JSON de respuestas
+ * - Fallback para imágenes no disponibles
+ * - Validación de datos recibidos
+ *
+ * Integración:
+ * - Utilizado por cardsService.ts para sincronización
+ * - Llamadas desde routers/pokemon.ts para API endpoints
+ * - cardDataBuilder.ts usa estos datos para normalizar
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires fetch
+ * @module server/services/pokemon
+ * @see services/cardDataBuilder.ts
+ * @see routers/pokemon.ts
  */
 
 // services/pokemon.ts

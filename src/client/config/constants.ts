@@ -1,7 +1,17 @@
 /**
  * @file constants.ts
  * @description Constantes globales de configuración del cliente
- * Centraliza URLs, configuraciones y valores constantes usados en toda la aplicación
+ *
+ * Centraliza:
+ * - URLs de APIs (backend local, TCGdex externa)
+ * - URLs de assets y recursos
+ * - Configuraciones globales de la aplicación
+ *
+ * Actualizar estas constantes si cambian los servidores o URLs.
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @module config/constants
  */
 
 /**

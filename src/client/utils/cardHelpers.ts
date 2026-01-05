@@ -1,4 +1,20 @@
 /**
+ * @file cardHelpers.ts
+ * @description Funciones utilidad para operaciones con cartas Pokémon
+ *
+ * Proporciona:
+ * - Generación de URLs de imágenes desde IDs de cartas
+ * - Obtención de mejor imagen disponible (con fallback)
+ * - Formateo y procesamiento de información de cartas
+ * - Cálculo de rarezas y valores
+ * - Manejo de diferentes lenguajes de cartas
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @module utils/cardHelpers
+ */
+
+/**
  * Utility functions for handling Pokémon TCG card images
  */
 

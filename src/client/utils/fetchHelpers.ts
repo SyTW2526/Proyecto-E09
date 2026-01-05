@@ -1,5 +1,22 @@
 /**
  * @file fetchHelpers.ts
+ * @description Funciones utilidad para manejo de peticiones HTTP con autenticación
+ *
+ * Proporciona:
+ * - Wrappers sobre fetch para simplificar llamadas HTTP
+ * - Inclusión automática de headers de autenticación JWT
+ * - Manejo centralizado de errores de red
+ * - Conversión de respuestas a JSON
+ * - Construcción de headers comunes (Content-Type, Authorization)
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires ../services/authService
+ * @module utils/fetchHelpers
+ */
+
+/**
+ * @file fetchHelpers.ts
  * @description Funciones auxiliares para realizar peticiones HTTP con autenticación
  *
  * Proporciona helpers para:

@@ -1,4 +1,20 @@
 /**
+ * @file responseHelpers.ts
+ * @description Funciones utilidad para manejo de respuestas de API
+ *
+ * Proporciona:
+ * - Validación de respuestas de servidor
+ * - Extracción segura de datos de respuestas
+ * - Manejo de códigos de estado HTTP
+ * - Parseo seguro de JSON
+ * - Transformación de datos de respuesta
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @module utils/responseHelpers
+ */
+
+/**
  * Utility functions for handling HTTP responses
  */
 

@@ -1,3 +1,22 @@
+/**
+ * @file whislistSlice.ts
+ * @description Redux Slice para gestionar lista de deseos (wishlist)
+ *
+ * Maneja:
+ * - Cartas añadidas a la lista de deseos del usuario
+ * - Prioridades de deseos
+ * - Notificaciones cuando aparecen cartas deseadas
+ * - Estados de carga y errores
+ * - Sincronización con servidor
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires @reduxjs/toolkit
+ * @requires ../../services/apiService
+ * @requires ../../types
+ * @module features/whislist/whislistSlice
+ */
+
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../services/apiService';
 import { UserOwnedCard } from '../../types';

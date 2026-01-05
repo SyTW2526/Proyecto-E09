@@ -3,11 +3,19 @@
  * @description Hook personalizado para manejo de estados de carga y error
  *
  * Proporciona:
- * - Estado de carga (loading)
- * - Estado de error con mensaje
- * - Funciones para actualizar ambos estados
+ * - Estado de carga (loading) durante operaciones asincrónicas
+ * - Estado de error con mensaje descriptivo
+ * - Funciones para setear loading y error independientemente
+ * - Función para limpiar errores
+ * - Interfaz simplificada para componentes
  *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires react
  * @module hooks/useLoadingError
+ * @returns {UseLoadingErrorReturn} Objeto con loading, error, setLoading, setError, clearError
+ * @example
+ * const { loading, error, setLoading, setError } = useLoadingError();
  */
 
 import { useState } from 'react';

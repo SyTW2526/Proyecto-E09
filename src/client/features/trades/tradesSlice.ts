@@ -1,3 +1,22 @@
+/**
+ * @file tradesSlice.ts
+ * @description Redux Slice para gestionar trading de cartas
+ *
+ * Maneja:
+ * - Lista de trades activos y completados
+ * - Solicitudes comerciales entre usuarios
+ * - Estados del trading (pending, accepted, rejected, completed)
+ * - Historial de transacciones
+ * - Sincronización en tiempo real con Socket.io
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires @reduxjs/toolkit
+ * @requires ../../services/apiService
+ * @requires ../../types
+ * @module features/trades/tradesSlice
+ */
+
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../services/apiService';
 import { Trade, TradeStatus } from '../../types';

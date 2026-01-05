@@ -1,13 +1,23 @@
 /**
  * @file useAuth.ts
- * @description Hook personalizado para manejo de autenticación
+ * @description Hook personalizado para manejo de autenticación y sesión de usuario
  *
  * Proporciona:
- * - Estado del usuario actual
- * - Funciones de autenticación (login, logout)
- * - Verificación de autenticación
+ * - Estado del usuario actual autenticado
+ * - Funciones de logout y refresh de usuario
+ * - Verificación de autenticación activa
+ * - Sincronización con cambios en localStorage
+ * - Listener para cambios de sesión en otras pestañas
  *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires react
+ * @requires ../services/authService
  * @module hooks/useAuth
+ * @returns {Object} Objeto con user, isAuthenticated, logout, refreshUser
+ * @example
+ * const { user, isAuthenticated, logout } = useAuth();
+ * if (!isAuthenticated) return <Navigate to="/login" />;
  */
 
 import { useState, useEffect } from 'react';

@@ -1,19 +1,27 @@
 /**
  * @file index.ts
- * @description Archivo principal del servidor Express con configuración de Socket.io
+ * @description Archivo principal del servidor Express con WebSocket Socket.io
  *
  * Configura:
- * - Servidor Express con CORS
- * - Websocket (Socket.io) para comunicación en tiempo real
+ * - Servidor Express con CORS habilitado
+ * - WebSocket (Socket.io) para comunicación en tiempo real
  * - Autenticación JWT para conexiones Socket.io
- * - Enrutadores de la API REST
- * - Eventos de Socket.io para salas de trading y mensajes privados
+ * - Enrutadores REST para las operaciones de API
+ * - Listeners de eventos Socket.io para trading, mensajes, notificaciones
+ * - Conexión a MongoDB mediante Mongoose
  *
- * @requires express - Framework web
- * @requires http - Módulo HTTP de Node.js
- * @requires cors - Middleware CORS
- * @requires jsonwebtoken - Autenticación JWT
- * @requires socket.io - Websocket para tiempo real
+ * Puertos:
+ * - HTTP/WebSocket: 3000
+ * 
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires express
+ * @requires http
+ * @requires cors
+ * @requires jsonwebtoken
+ * @requires socket.io
+ * @requires dotenv
+ * @module server
  */
 
 import express from 'express';

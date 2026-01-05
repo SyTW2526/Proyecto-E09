@@ -1,3 +1,22 @@
+/**
+ * @file usersSlice.ts
+ * @description Redux Slice para gestionar datos de usuarios
+ *
+ * Maneja:
+ * - Datos del usuario actual autenticado
+ * - Lista de amigos del usuario
+ * - Información de perfil
+ * - Estados de carga y errores
+ * - Sincronización con servidor
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires @reduxjs/toolkit
+ * @requires ../../services/apiService
+ * @requires ../../types
+ * @module features/users/usersSlice
+ */
+
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { User } from '../../types';
 import api from '../../services/apiService';

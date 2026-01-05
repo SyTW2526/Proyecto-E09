@@ -3,11 +3,23 @@
  * @description Hook personalizado para manejo de inputs de formularios
  *
  * Proporciona:
- * - Estado del formulario
- * - Función handleChange genérica
- * - Reset del formulario
+ * - Estado del formulario con valores iniciales
+ * - Función handleChange genérica para inputs
+ * - Reset del formulario a valores iniciales
+ * - Soporte para inputs, textareas, selects y checkboxes
+ * - Función setValue para actualizaciones programáticas
  *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @template T Tipo del objeto de formulario
+ * @requires react
  * @module hooks/useFormInput
+ * @returns {Object} Objeto con values, handleChange, reset, setValue
+ * @example
+ * const { values, handleChange, reset } = useFormInput({
+ *   username: '',
+ *   password: ''
+ * });
  */
 
 import { useState, ChangeEvent } from 'react';

@@ -1,3 +1,20 @@
+/**
+ * @file preferencesSlice.ts
+ * @description Redux Slice para gestionar preferencias de usuario
+ *
+ * Maneja:
+ * - Idioma preferido (español, inglés)
+ * - Modo oscuro/claro
+ * - Configuración de notificaciones
+ * - Configuración de privacidad
+ * - Persistencia en localStorage
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires @reduxjs/toolkit
+ * @module features/preferences/preferencesSlice
+ */
+
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface UserPreferences {

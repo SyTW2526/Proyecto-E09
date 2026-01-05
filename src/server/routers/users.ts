@@ -1,22 +1,61 @@
 /**
  * @file users.ts
- * @description Router de usuarios - Autenticación, perfil, amigos y configuración
+ * @description Router Users - Endpoints de autenticación, perfil, amigos y configuración
  *
- * Proporciona endpoints para:
- * - Registro e inicio de sesión
- * - Perfil de usuario (GET, PATCH)
- * - Gestión de amigos (add, remove, list, requests)
- * - Historial de chats
- * - Apertura de booster packs
- * - Compra de pack tokens
- * - Información de servidores y configuración
+ * API REST para gestión de usuarios del sistema.
+ * Secciones principales:
  *
- * @requires express - Framework web
- * @requires mongoose - ODM para MongoDB
- * @requires bcryptjs - Hash seguro de contraseñas
- * @requires User - Modelo de usuario
- * @requires authMiddleware - Validación JWT
- * @module routers/users
+ * **Autenticación:**
+ * - POST /register - Crear nuevo usuario
+ * - POST /login - Autenticar y obtener JWT
+ * - POST /logout - Cerrar sesión
+ *
+ * **Perfil:**
+ * - GET /profile - Obtener datos del usuario autenticado
+ * - PATCH /profile - Actualizar imagen, estado, etc
+ *
+ * **Amigos:**
+ * - GET /friends - Listar amigos
+ * - POST /friends/requests - Enviar solicitud de amistad
+ * - GET /friends/requests - Listar solicitudes pendientes
+ * - PATCH /friends/requests/:id - Aceptar/rechazar solicitud
+ * - DELETE /friends/:userId - Eliminar amigo
+ *
+ * **Packs:**
+ * - POST /packs/open - Abrir booster pack (consume token)
+ * - GET /packs/tokens - Obtener saldo de tokens
+ * - POST /packs/buy-tokens - Comprar más tokens
+ *
+ * **Chat:**
+ * - GET /chats/conversations - Listar conversaciones
+ *
+ * **Utilidades:**
+ * - GET /server-info - Información del servidor
+ *
+ * Autenticación:
+ * - Middleware JWT obligatorio para endpoints autenticados
+ * - Validación de entrada (username, email, password)
+ * - Rate limiting en login/register
+ *
+ * Integración:
+ * - Usa modelos User, UserCard, Chat, Notification
+ * - Socket.io para notificaciones en tiempo real
+ * - packHelpers para validación de tokens
+ * - jwtHelpers para autenticación
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires express
+ * @requires mongoose
+ * @requires ../middleware/authMiddleware
+ * @requires ../models/User
+ * @requires ../models/UserCard
+ * @requires ../utils/jwtHelpers
+ * @requires ../utils/packHelpers
+ * @module server/routers/users
+ * @see middleware/authMiddleware.ts
+ * @see utils/jwtHelpers.ts
+ * @see utils/packHelpers.ts
  */
 
 import express, { Request, Response } from 'express';
@@ -76,7 +115,10 @@ export const userRouter = express.Router();
 
 /**
  * POST /users/register
- * Registrar un nuevo usuario con username, email y contraseña
+ * Registrar nuevo usuario
+ * Valida datos, hashea contraseña y crea usuario
+ * Devuelve info básica del usuario creado
+ * Body: { username, email, password, confirmPassword }
  */
 userRouter.post('/users/register', async (req: Request, res: Response) => {
   try {

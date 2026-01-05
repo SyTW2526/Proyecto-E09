@@ -1,3 +1,70 @@
+/**
+ * @file usercard.ts (router)
+ * @description Router UserCard - Endpoints de colección personal del usuario
+ *
+ * API REST para gestión de la colección de cartas personal del usuario.
+ * Cada UserCard es una instancia de una carta en posesión del usuario.
+ *
+ * **Operaciones disponibles:**
+ * - GET /usercards - Listar cartas de la colección
+ * - GET /usercards/:id - Obtener detalles de una carta personal
+ * - POST /usercards - Añadir carta a colección (manual)
+ * - POST /usercards/import - Importar cartas desde lista (bulk)
+ * - PATCH /usercards/:id - Actualizar condición, estado, etc
+ * - DELETE /usercards/:id - Remover carta de colección
+ *
+ * **Filtros y búsqueda:**
+ * - Por nombre de carta
+ * - Por tipo (pokemon, trainer, energy)
+ * - Por condición (Mint, Near Mint, etc)
+ * - Por disponibilidad (tradeable, en venta)
+ * - Paginación
+ *
+ * **Campos de UserCard:**
+ * - userId: Propietario
+ * - cardId: Referencia a Card
+ * - condition: Estado físico de la copia
+ * - publicized: Visible en mercado
+ * - forSale: Disponible para venta
+ * - notes: Anotaciones personales
+ * - acquired: Fecha de adquisición
+ *
+ * **Características:**
+ * - Validación de cartas existentes
+ * - Deduplicación automática
+ * - Manejo de bulk imports
+ * - Búsqueda avanzada
+ * - Organización por categoría
+ * - Integración con Trading
+ *
+ * **Casos de uso:**
+ * - Usuario visualiza su colección
+ * - Busca cartas para intercambiar
+ * - Actualiza condición de una carta
+ * - Importa colección desde CSV/JSON
+ * - Marca cartas para venta
+ *
+ * Integración:
+ * - Modelos: UserCard, User, Card
+ * - Servicios: pokemon.ts, cards.ts
+ * - Utils: userHelpers.ts, responseHelpers.ts
+ * - Validación de User autenticado
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires express
+ * @requires mongoose
+ * @requires ../models/UserCard
+ * @requires ../models/User
+ * @requires ../models/Card
+ * @requires ../services/pokemon
+ * @requires ../services/cards
+ * @requires ../utils/userHelpers
+ * @module server/routers/usercard
+ * @see models/UserCard.ts
+ * @see routers/card.ts
+ */
+
 import express from 'express';
 import { UserCard } from '../models/UserCard.js';
 import { User } from '../models/User.js';

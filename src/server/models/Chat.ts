@@ -1,11 +1,33 @@
 /**
  * @file Chat.ts
- * @description Modelo de Mensajes Privados entre Usuarios
+ * @description Modelo de Chat - Mensajes privados entre usuarios
  *
- * Almacena mensajes privados intercambiados entre usuarios.
- * Los mensajes se borran automáticamente después de 3 días.
+ * Almacena mensajes directos entre dos usuarios con características:
+ * - Relación bidireccional (de usuario a usuario)
+ * - Contenido de texto plano
+ * - Timestamps de creación y lectura
+ * - Expiración automática (TTL Index de 3 días)
+ * - Indexación para búsquedas rápidas por usuarios
  *
- * @requires mongoose - ODM para MongoDB
+ * Características:
+ * - Mensajes privados punto-a-punto
+ * - Se borra automáticamente después de 3 días (TTL)
+ * - Marca de leído (si se implementa en frontend)
+ * - Utiliza Socket.io para entregas en tiempo real
+ * - Sincronización con notificaciones
+ *
+ * Flujo:
+ * 1. Usuario A envía mensaje a Usuario B vía Socket.io
+ * 2. Se crea documento Chat
+ * 3. Usuario B recibe vía Socket notificación
+ * 4. Se elimina automáticamente después de TTL
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @module server/models/Chat
+ * @see User
+ * @see Notification
  */
 
 import mongoose from 'mongoose';

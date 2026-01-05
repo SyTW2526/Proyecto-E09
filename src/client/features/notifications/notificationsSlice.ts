@@ -1,3 +1,21 @@
+/**
+ * @file notificationsSlice.ts
+ * @description Redux Slice para gestionar notificaciones
+ *
+ * Maneja:
+ * - Notificaciones de trading y solicitudes comerciales
+ * - Notificaciones de mensajes
+ * - Solicitudes de amistad
+ * - Limpieza automática de notificaciones antiguas
+ * - Persistencia en localStorage
+ * - Estados de lectura/no lectura
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires @reduxjs/toolkit
+ * @module features/notifications/notificationsSlice
+ */
+
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 const STORAGE_KEY = 'app_notifications';
 

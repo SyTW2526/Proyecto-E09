@@ -1,11 +1,37 @@
 /**
  * @file Notification.ts
- * @description Modelo de Notificación para Usuarios
+ * @description Modelo de Notificación del Sistema para Usuarios
  *
- * Almacena notificaciones del sistema, mensajes, solicitudes de amistad
- * y alertas de trading para los usuarios.
+ * Almacena todas las notificaciones que reciben los usuarios:
+ * - Solicitudes de intercambio (trades)
+ * - Mensajes privados (chat)
+ * - Solicitudes de amistad
+ * - Alertas del sistema
+ * - Eventos en tiempo real
  *
- * @requires mongoose - ODM para MongoDB
+ * Características:
+ * - Clasificación por tipo para filtrado y gestión
+ * - Marca de leído/no leído
+ * - Datos contextuales (relatedUserId, relatedItemId)
+ * - Timestamps para ordenamiento temporal
+ * - Enrutamiento automático según tipo
+ *
+ * Tipos de notificación:
+ * - trade: Propuesta o actualización de intercambio
+ * - message: Nuevo mensaje privado
+ * - friendRequest: Solicitud de amistad
+ * - system: Eventos del servidor
+ *
+ * Integración:
+ * - Se crean automáticamente en eventos de trading/chat
+ * - Se envían en tiempo real via Socket.io
+ * - Se pueden recuperar en UI para feed de notificaciones
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires mongoose
+ * @module server/models/Notification
+ * @see User
  */
 
 import mongoose from 'mongoose';

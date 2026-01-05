@@ -1,16 +1,22 @@
 /**
  * @file authService.ts
- * @description Servicio centralizado de autenticación
+ * @description Servicio centralizado de autenticación y gestión de sesión
  *
  * Maneja:
- * - Registro de nuevos usuarios
- * - Inicio de sesión (login)
- * - Cierre de sesión (logout)
+ * - Registro de nuevos usuarios con validación
+ * - Inicio de sesión (login) con JWT
+ * - Cierre de sesión (logout) y limpieza
  * - Gestión de tokens JWT en localStorage
- * - Recuperación de usuario autenticado
+ * - Recuperación de datos del usuario autenticado
+ * - Validación de sesión activa
+ * - Sincronización de estado con servicios
  *
- * @requires API_BASE_URL - URL base del servidor
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires config/constants
  * @module services/authService
+ * @see {@link http://localhost:3000/api/users/register|Register Endpoint}
+ * @see {@link http://localhost:3000/api/users/login|Login Endpoint}
  */
 
 import { API_BASE_URL } from '../config/constants';

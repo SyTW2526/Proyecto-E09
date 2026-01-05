@@ -96,6 +96,7 @@ export default defineConfig({
         'src/server/routers/api.ts',
         'src/server/services/tcgdx.ts',
         'src/server/db/mongoose.ts',
+        'src/server/middleware/**',
       ],
     },
   },

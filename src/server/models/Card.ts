@@ -54,7 +54,7 @@ import mongoose from 'mongoose';
  * @property {Date} updatedAt - Fecha de última actualización (automático)
  */
 const cardSchema = new mongoose.Schema(
-  {
+  { 
     pokemonTcgId: {
       type: String,
       required: true,

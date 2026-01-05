@@ -1,3 +1,9 @@
+/**
+ * @packageDocumentation
+ * @module src/client/pages/CollectionPage
+ * @brief Página de visualización y gestión de la colección del usuario.
+ *
+ */
 import React, {
   useCallback,
   useEffect,
@@ -26,7 +32,9 @@ import {
   ChevronDown,
   Check,
 } from 'lucide-react';
-
+/**
+ * @brief Orden canónico de rarezas para ordenación consistente.
+ */
 const RARITY_ORDER = [
   'Common',
   'Uncommon',
@@ -71,7 +79,13 @@ const RARITY_ORDER = [
 
 type ViewMode = 'comfortable' | 'dense';
 type SelectOption = { value: string; label: string };
-
+/**
+ * @brief Hook para detectar clics fuera de un elemento.
+ *
+ * @param ref Referencia al elemento DOM
+ * @param onOutside Callback cuando se detecta clic externo
+ * @param enabled Activa o desactiva el listener
+ */
 function useOutsideClick<T extends HTMLElement>(
   ref: React.RefObject<T | null>,
   onOutside: () => void,
@@ -88,7 +102,9 @@ function useOutsideClick<T extends HTMLElement>(
     return () => document.removeEventListener('mousedown', handle);
   }, [enabled, onOutside, ref]);
 }
-
+/**
+ * @brief Selector reutilizable con búsqueda y soporte de múltiples columnas.
+ */
 const SelectPopover: React.FC<{
   value: string;
   onChange: (v: string) => void;
@@ -191,26 +207,28 @@ const SelectPopover: React.FC<{
     </div>
   );
 };
-
+/**
+ * @brief Página principal de la colección del usuario.
+ */
 const CollectionPage: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
 
   const collection = useSelector((s: RootState) => s.collection.cards) as any[];
   const loading = useSelector((s: RootState) => s.collection.loading);
-
+  // Estado para la consulta de búsqueda y filtros
   const [query, setQuery] = useState('');
   const [selectedSet, setSelectedSet] = useState('');
   const [selectedRarity, setSelectedRarity] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedSort, setSelectedSort] = useState<'' | 'name' | 'rarity'>('');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
-
+  // Estado para la vista y paginación
   const [view, setView] = useState<ViewMode>('comfortable');
   const pageSize = view === 'dense' ? 25 : 18;
 
   const [page, setPage] = useState(1);
-
+  // Estado para intercambios y detalles de cartas
   const [optimisticTrades, setOptimisticTrades] = useState<
     Record<string, boolean>
   >({});
@@ -224,12 +242,16 @@ const CollectionPage: React.FC = () => {
 
   const user = authService.getUser();
   const username = user?.username;
-
+  /**
+   * @brief Carga inicial de la colección del usuario.
+   */
   useEffect(() => {
     if (!username) return;
     dispatch(fetchUserCollection(username));
   }, [dispatch, username]);
-
+  /**
+   * @brief Cierra paneles al hacer clic fuera.
+   */
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
       const target = e.target as Node;
@@ -241,12 +263,17 @@ const CollectionPage: React.FC = () => {
     document.addEventListener('mousedown', onDown);
     return () => document.removeEventListener('mousedown', onDown);
   }, []);
-
+  /**
+   * @brief Detecta si el dispositivo es táctil.
+   */
   const isTouchLike = () => {
     if (typeof window === 'undefined') return false;
     return window.matchMedia?.('(hover: none)').matches ?? false;
   };
-
+  /**
+   * @brief Obtiene detalles extendidos de una carta bajo demanda.
+   * @param card - Carta a consultar
+   */
   const ensureDetail = async (card: any) => {
     const tcg = card.pokemonTcgId as string | undefined;
     if (!tcg) return;
@@ -254,7 +281,9 @@ const CollectionPage: React.FC = () => {
     const detail = await api.getCachedCardByTcgId(tcg);
     setDetailsById((prev) => ({ ...prev, [card.id]: detail }));
   };
-
+ /**
+   * @brief Colección filtrada y ordenada.
+   */
   const sets = useMemo(() => {
     const s = new Set<string>();
     (collection || []).forEach((c: any) => {
@@ -363,7 +392,9 @@ const CollectionPage: React.FC = () => {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const pageItems = filtered.slice((page - 1) * pageSize, page * pageSize);
-
+    /**
+   * @brief Resetea la página al cambiar filtros o vista.
+   */
   useEffect(() => {
     setPage(1);
   }, [
@@ -375,7 +406,9 @@ const CollectionPage: React.FC = () => {
     sortDir,
     view,
   ]);
-
+  /**
+   * @brief Limpia todos los filtros activos.
+   */
   const clearFilters = () => {
     setSelectedSet('');
     setSelectedRarity('');
@@ -421,7 +454,7 @@ const CollectionPage: React.FC = () => {
       style={{ backgroundColor: 'var(--background)', color: 'var(--text)' }}
     >
       <Header />
-
+      {/* contenido de la página */}
       <main className="collectionMain">
         <div className="collectionHeaderRow collectionHeaderRow--center">
           <h1 className="collectionTitleLine">
@@ -795,6 +828,7 @@ const CollectionPage: React.FC = () => {
             </section>
           )}
         </div>
+         {/* Paginador */}
         {!loading && pageItems.length > 0 && (
           <div className="pagerZone">
             <div className="pager">

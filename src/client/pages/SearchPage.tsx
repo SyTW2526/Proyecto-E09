@@ -1,3 +1,7 @@
+/**
+ * @file SearchPage.tsx
+ * @description Página de búsqueda de cartas
+ */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
@@ -16,9 +20,9 @@ import { authService } from '../services/authService';
 import { RootState, AppDispatch } from '../store/store';
 import { useSearchParams } from 'react-router-dom';
 import { useLoadingError } from '../hooks';
-
+// Número de resultados por página
 const PAGE_SIZE = 12;
-
+// Orden de rarezas
 const RARITY_ORDER = [
   'Common',
   'Uncommon',
@@ -28,7 +32,7 @@ const RARITY_ORDER = [
   'Ultra Rare',
   'Secret Rare',
 ];
-
+// Página de búsqueda de cartas
 const SearchPage: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();

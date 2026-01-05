@@ -1,3 +1,7 @@
+/**
+ * @file ProfilePage.tsx
+ * @description Página de perfil de usuario
+ */
 import React, { useEffect, useState, useRef } from 'react';
 import Header from '../components/Header/Header';
 import Footer from '@/components/Footer';
@@ -8,10 +12,11 @@ import { RootState, AppDispatch } from '../store/store';
 import { authService } from '../services/authService';
 import { useTranslation } from 'react-i18next';
 import '../styles/profile.css';
-
+// Ruta del avatar por defecto
 const DEFAULT_AVATAR = '/icono.png';
+// Número de ítems por página
 const ITEMS_PER_PAGE = 8;
-
+// Componente de la página de perfil
 const ProfilePage: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
@@ -44,9 +49,8 @@ const ProfilePage: React.FC = () => {
       </div>
     );
   }
-
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
+  // Manejador de subida de foto de perfil
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -76,7 +80,7 @@ const ProfilePage: React.FC = () => {
 
     reader.readAsDataURL(file);
   };
-
+  // Estados para edición y eliminación
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     username: user.username,
@@ -84,7 +88,7 @@ const ProfilePage: React.FC = () => {
   });
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeletingPhoto, setIsDeletingPhoto] = useState(false);
-
+  // Función para guardar los cambios del perfil
   const saveProfile = async () => {
     try {
       const updatedUser = await authService.updateProfile(
@@ -109,25 +113,24 @@ const ProfilePage: React.FC = () => {
       showToast('error', t('profile.saveError', 'Error saving profile.'));
     }
   };
-
+  // Filtrado de listas
   const tradeList = collection.filter((c) => c.forTrade);
-
   const [wishlistPage, setWishlistPage] = useState(1);
   const [tradePage, setTradePage] = useState(1);
-
+  // Cálculo de páginas totales
   const wishlistTotalPages = Math.ceil(wishlist.length / ITEMS_PER_PAGE);
   const tradeTotalPages = Math.ceil(tradeList.length / ITEMS_PER_PAGE);
-
+  // Lista de cartas de la wishlist paginada
   const wishlistPaginated = wishlist.slice(
     (wishlistPage - 1) * ITEMS_PER_PAGE,
     wishlistPage * ITEMS_PER_PAGE
   );
-
+  // Lista de cartas para trade paginada
   const tradePaginated = tradeList.slice(
     (tradePage - 1) * ITEMS_PER_PAGE,
     tradePage * ITEMS_PER_PAGE
   );
-
+  // Verificación de cambios en el perfil
   const hasChanges =
     editData.username !== user.username || editData.email !== user.email;
 

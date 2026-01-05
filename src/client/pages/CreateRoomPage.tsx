@@ -1,3 +1,12 @@
+/**
+ * @file CreateRoomPage.tsx
+ * @description Página para crear salas de intercambio privadas con amigos
+ * Proporciona una interfaz para que los usuarios puedan:
+ * - Ver su lista de amigos
+ * - Buscar amigos por nombre de usuario
+ * - Seleccionar un amigo para invitar a una sala privada
+ * @author Equipo E09
+ */
 import React, { useEffect, useMemo, useState } from 'react';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer';
@@ -8,20 +17,27 @@ import { useTranslation } from 'react-i18next';
 import { useLoadingError } from '../hooks';
 import '../styles/request.css';
 
+/**
+ * @brief Representa un usuario amigo.
+ */
 interface FriendUser {
   _id: string;
   username: string;
   email?: string;
   profileImage?: string;
 }
-
+/**
+ * @brief Representa una invitación de intercambio entre amigos.
+ */
 interface InviteUser {
   _id: string;
   username: string;
   email?: string;
   profileImage?: string;
 }
-
+/**
+ * @brief Representa una invitación de intercambio entre amigos.
+ */
 interface FriendInvite {
   _id: string;
   from?: InviteUser;
@@ -30,22 +46,32 @@ interface FriendInvite {
   createdAt: string;
   privateRoomCode?: string | null;
 }
-
+/**
+ * @brief Página para crear salas de intercambio privadas con amigos.
+ */
 const CreateRoomPage: React.FC = () => {
   const { t } = useTranslation();
+  // Estado del usuario actual
   const [user, setUser] = useState<any>(authService.getUser());
+  // Estado de la lista de amigos
   const [friends, setFriends] = useState<FriendUser[]>([]);
+  // Estado de las invitaciones recibidas
   const [receivedInvites, setReceivedInvites] = useState<FriendInvite[]>([]);
+  // Estado de las invitaciones enviadas
   const [sentInvites, setSentInvites] = useState<FriendInvite[]>([]);
+  // Estado del amigo seleccionado para invitar
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
+  // Estado del término de búsqueda para filtrar amigos
   const [search, setSearch] = useState<string>('');
-
+  // Estados de carga y error
   const { loading, error, startLoading, stopLoading, handleError, clearError } =
     useLoadingError(true);
+  // Estado para la acción de confirmación (aceptar/rechazar invitación)
   const [confirmAction, setConfirmAction] = useState<{
     type: 'accept' | 'reject';
     inviteId: string;
   } | null>(null);
+  // Estado para mostrar modales de información
   const [infoModal, setInfoModal] = useState<{
     titleKey: string;
     messageKey: string;
@@ -54,14 +80,16 @@ const CreateRoomPage: React.FC = () => {
   const userId = user?.id || user?._id;
 
   const navigate = useNavigate();
-
+  // Cargar usuario al montar el componente
   useEffect(() => {
     if (!user) {
       const u = authService.getUser();
       setUser(u);
     }
   }, [user]);
-
+  /**
+   * @brief Función para cargar la lista de amigos
+   */
   const loadFriends = async () => {
     try {
       const u = authService.getUser();
@@ -82,7 +110,9 @@ const CreateRoomPage: React.FC = () => {
       setFriends([]);
     }
   };
-
+  /**
+   * @brief Función para cargar las invitaciones de intercambio
+   */
   const loadInvites = async () => {
     try {
       const resp = await authenticatedFetch('/friend-trade-rooms/invites');
@@ -95,7 +125,6 @@ const CreateRoomPage: React.FC = () => {
       setSentInvites(data.sent || []);
     } catch {}
   };
-
   useEffect(() => {
     const loadAll = async () => {
       startLoading();
@@ -108,17 +137,25 @@ const CreateRoomPage: React.FC = () => {
     if (authService.isAuthenticated()) loadAll();
     else stopLoading();
   }, [userId]);
-
+  /**
+   * @brief Filtra la lista de amigos según el término de búsqueda
+   */
   const filteredFriends = useMemo(() => {
     const term = search.trim().toLowerCase();
     if (!term) return friends;
     return friends.filter((f) => f.username.toLowerCase().includes(term));
   }, [friends, search]);
 
+  /**
+   * @brief Maneja la selección de un amigo para invitar
+   */
   const handleSelectFriend = (friendId: string) => {
     setSelectedFriendId((prev) => (prev === friendId ? null : friendId));
   };
 
+  /**
+   * @brief Maneja la creación de una invitación
+   */
   const handleCreateInvite = async () => {
     if (!selectedFriendId) {
       setInfoModal({
@@ -166,6 +203,9 @@ const CreateRoomPage: React.FC = () => {
     }
   };
 
+  /**
+   * @brief Maneja la aceptación de una invitación
+   */
   const handleAcceptInvite = async (inviteId: string) => {
     try {
       const resp = await authenticatedFetch(
@@ -208,11 +248,17 @@ const CreateRoomPage: React.FC = () => {
     }
   };
 
+  /**
+   * @brief Maneja la navegación a una sala de intercambio
+   */
   const handleGoRoom = (roomCode?: string | null) => {
     if (!roomCode) return;
     navigate(`/trade-room/${roomCode}`);
   };
 
+  /**
+   * @brief Filtra las invitaciones recibidas en activas y de historial
+   */
   const receivedActive = receivedInvites.filter(
     (i) => i.status === 'pending' || i.status === 'accepted'
   );
@@ -222,7 +268,9 @@ const CreateRoomPage: React.FC = () => {
       i.status === 'cancelled' ||
       i.status === 'rejected'
   );
-
+  /**
+   * @brief Filtra las invitaciones enviadas en activas y de historial
+   */
   const sentActive = sentInvites.filter(
     (i) => i.status === 'pending' || i.status === 'accepted'
   );
@@ -248,7 +296,7 @@ const CreateRoomPage: React.FC = () => {
   return (
     <div className="trade-requests-container">
       <Header />
-
+      {/*  @brief Main de la página de creación de salas de intercambio */ }
       <main className="trade-requests-main">
         <div className="discover-header">
           <h1 className="trade-requests-title">{t('createRoom.title')}</h1>

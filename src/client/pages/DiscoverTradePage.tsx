@@ -1,3 +1,9 @@
+/**
+ * @file DiscoverTradePage.tsx
+ * @description Página para descubrir cartas disponibles para intercambio
+ * @author Equipo E09
+ * 
+ */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
@@ -22,6 +28,10 @@ import TradeModeModal from '@/components/Trade/TradeModeModal';
 import TradeMessageModal from '@/components/Trade/TradeMessageModal';
 import TradeOfferCardModal from '@/components/Trade/TradeOfferCardModal';
 import ConfirmModal from '@/components/ConfirmModal';
+
+/**
+ * @brief Representa una carta normalizada desde la API.
+ */
 interface ApiCardNormalized {
   id: string;
   name: string;
@@ -34,16 +44,25 @@ interface ApiCardNormalized {
   series?: string;
 }
 
+/**
+ * @brief Representa la información del propietario de una carta para intercambio.
+ */
 interface TradeOwnerInfo {
   username: string;
   quantity: number;
   condition?: string;
 }
 
+/**
+ * @brief Representa una carta para intercambio con información de propietarios.
+ */
 interface TradeCard extends ApiCardNormalized {
   owners: TradeOwnerInfo[];
 }
 
+/**
+ * @brief Representa una carta de usuario.
+ */
 interface UserCard {
   id: string;
   name: string;
@@ -53,13 +72,29 @@ interface UserCard {
   price?: { low?: number; mid?: number; high?: number };
 }
 
+/**
+ * @brief Número de cartas por página en la paginación.
+ */
 const CARDS_PER_PAGE = 12;
+/**
+ * @brief Modos de visualización en cuadrícula.
+ */
 type GridMode = 'normal' | 'large';
+/**
+ * @brief Criterios de ordenación.
+ */
 type SortBy = 'name' | 'price';
+/**
+ * @brief Dirección de ordenación.
+ */
 type SortDir = 'asc' | 'desc';
-
+/**
+ * @brief Tipo para las opciones del selector.
+ */
 type Opt = { value: string; label: string };
-
+/**
+ * @brief Componente de selector personalizado con búsqueda y opción de dos columnas.
+ */
 function SelectPro({
   value,
   options,
@@ -159,38 +194,41 @@ function SelectPro({
     </div>
   );
 }
-
+/**
+ * @brief Componente principal para descubrir cartas de intercambio.
+ */
 const DiscoverTradeCards: React.FC = () => {
   const { t } = useTranslation();
+  // Obtener el usuario actual
   const user = authService.getUser();
   const currentUsername = user?.username;
-
+  // Estado de las cartas disponibles para intercambio
   const [tradeCards, setTradeCards] = useState<TradeCard[]>([]);
   const { loading, error, startLoading, stopLoading, handleError } =
     useLoadingError(true);
-
+  // Estado de filtros y ordenación
   const [search, setSearch] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-
+ 
   const [sortBy, setSortBy] = useState<SortBy>('name');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
 
   const [rarityFilter, setRarityFilter] = useState<string>('all');
   const [setFilter, setSetFilter] = useState<string>('all');
   const [groupBySet, setGroupBySet] = useState<boolean>(false);
-
+  // Estado de paginación 
   const [gridMode, setGridMode] = useState<GridMode>('normal');
   const [page, setPage] = useState(1);
-
+  // Estado de la carta seleccionada para intercambio
   const [selectedCardForTrade, setSelectedCardForTrade] =
     useState<TradeCard | null>(null);
   const [selectedOwner, setSelectedOwner] = useState('');
   const [tradeNote, setTradeNote] = useState('');
-
+  // Modales
   const modeModal = useModal();
   const messageModal = useModal();
   const offerModal = useModal();
-
+  // Estado de mis cartas
   const [myCards, setMyCards] = useState<UserCard[]>([]);
   const [selectedMyCard, setSelectedMyCard] = useState<UserCard | null>(null);
   const [confirmModal, setConfirmModal] = useState<{
@@ -198,11 +236,14 @@ const DiscoverTradeCards: React.FC = () => {
     message: string;
     variant?: 'success' | 'error' | 'info';
   } | null>(null);
+  /**
+   * @brief Normaliza y corrige la URL de la imagen de una carta.
+   */
   const normalizeImageUrl = (url?: string) => {
     if (!url) return '';
     let s = String(url);
 
-    // Correct malformed TCGdex URLs (missing series component)
+    // Manejar URLs de TCGdex mal formateadas
     const tcgdexMatch = s.match(
       /^(https?:\/\/assets\.tcgdex\.net\/)(?:jp|en)\/([a-z0-9.]+)\/(.+)$/i
     );
@@ -215,12 +256,14 @@ const DiscoverTradeCards: React.FC = () => {
       }
     }
 
-    // Normalize quality to high
     if (/\/(small|large|high|low)\.png$/i.test(s))
       return s.replace(/\/(small|large|high|low)\.png$/i, '/high.png');
     if (/\.(png|jpg|jpeg|gif|webp)$/i.test(s)) return s;
     return s.endsWith('/') ? s + 'high.png' : s + '/high.png';
   };
+  /**
+   * @brief Traduce códigos de error de intercambio a mensajes legibles.
+   */
   const translateTradeError = (code?: string) => {
     switch (code) {
       case 'TRADE_ALREADY_EXISTS':
@@ -239,6 +282,9 @@ const DiscoverTradeCards: React.FC = () => {
         return t('common.errorSendingRequest', 'Error enviando solicitud.');
     }
   };
+  /**
+   * @brief Normaliza una carta desde los datos crudos de la API.
+   */
   const normalizeApiCard = (raw: any): ApiCardNormalized => {
     const id = raw.pokemonTcgId || raw.id || '';
     let img =
@@ -402,7 +448,7 @@ const DiscoverTradeCards: React.FC = () => {
       mounted = false;
     };
   }, [currentUsername]);
-
+  // Obtener conjuntos y rarezas disponibles para filtros
   const availableSets = useMemo(() => {
     const s = new Set<string>();
     tradeCards.forEach((c) => {
@@ -411,7 +457,7 @@ const DiscoverTradeCards: React.FC = () => {
     });
     return [...s].sort((a, b) => a.localeCompare(b));
   }, [tradeCards]);
-
+  // Obtener rarezas disponibles para filtros
   const availableRarities = useMemo(() => {
     const s = new Set<string>();
     tradeCards.forEach((c) => {
@@ -420,7 +466,7 @@ const DiscoverTradeCards: React.FC = () => {
     });
     return [...s].sort((a, b) => a.localeCompare(b));
   }, [tradeCards]);
-
+  // Filtrado y ordenación de cartas
   const filteredAndSorted = useMemo(() => {
     let list = [...tradeCards];
     const q = search.trim().toLowerCase();
@@ -449,7 +495,7 @@ const DiscoverTradeCards: React.FC = () => {
       list = list.filter((c) => (c.rarity || '') === rarityFilter);
     if (setFilter !== 'all')
       list = list.filter((c) => (c.set || '') === setFilter);
-
+    // Ordenación
     const priceMid = (c: TradeCard) =>
       typeof c.price?.mid === 'number' ? c.price!.mid! : null;
     const dirMul = sortDir === 'asc' ? 1 : -1;
@@ -468,7 +514,7 @@ const DiscoverTradeCards: React.FC = () => {
 
     return list;
   }, [tradeCards, search, rarityFilter, setFilter, sortBy, sortDir]);
-
+  // Agrupación por conjunto
   const groupedData = useMemo(() => {
     const bySet = new Map<string, TradeCard[]>();
     for (const c of filteredAndSorted) {
@@ -481,7 +527,7 @@ const DiscoverTradeCards: React.FC = () => {
     );
     return { bySet, orderedSetNames };
   }, [filteredAndSorted]);
-
+  // Paginación
   const paginatedFlat = useMemo(() => {
     const total = filteredAndSorted.length;
     const totalPages = Math.max(1, Math.ceil(total / CARDS_PER_PAGE));
@@ -490,7 +536,7 @@ const DiscoverTradeCards: React.FC = () => {
     const items = filteredAndSorted.slice(start, start + CARDS_PER_PAGE);
     return { items, totalPages, safe };
   }, [filteredAndSorted, page]);
-
+  // Paginación con agrupación por conjunto
   const paginatedSets = useMemo(() => {
     const pages: Array<Array<{ setName: string; cards: TradeCard[] }>> = [];
     let current: Array<{ setName: string; cards: TradeCard[] }> = [];
@@ -540,7 +586,7 @@ const DiscoverTradeCards: React.FC = () => {
     groupBySet,
     tradeCards,
   ]);
-
+  // Componente para la tarjeta de intercambio con efecto flip
   const TradeFlipCard = ({
     card,
     onProposeTrade,
@@ -623,14 +669,14 @@ const DiscoverTradeCards: React.FC = () => {
       </div>
     );
   };
-
+  // Manejar apertura del modal de modo de intercambio
   const handleOpenTradeMode = (card: TradeCard) => {
     setSelectedCardForTrade(card);
     setSelectedOwner(card.owners[0].username);
     setTradeNote('');
     modeModal.open();
   };
-
+  // Cargar mis cartas disponibles para intercambio
   const loadMyCardsForTrade = async () => {
     if (!currentUsername) return;
 
@@ -682,7 +728,7 @@ const DiscoverTradeCards: React.FC = () => {
 
     setMyCards(normalized);
   };
-
+  // Manejar envío de solicitud de intercambio simple
   const handleSendTradeRequest = async () => {
     if (!selectedCardForTrade) return;
 
@@ -729,7 +775,7 @@ const DiscoverTradeCards: React.FC = () => {
       });
     }
   };
-
+  // Manejar envío de solicitud de intercambio con carta ofrecida
   const sendTradeWithCard = async () => {
     if (!selectedCardForTrade || !selectedMyCard) return;
 
@@ -784,9 +830,9 @@ const DiscoverTradeCards: React.FC = () => {
       });
     }
   };
-
+  // Total de resultados después de filtros
   const totalResults = filteredAndSorted.length;
-
+  // Opciones para los selectores
   const sortByOptions: Opt[] = [
     { value: 'name', label: t('discover.sortByName') || 'Nombre' },
     { value: 'price', label: t('discover.sortByPrice') || 'Precio' },
@@ -1061,7 +1107,7 @@ const DiscoverTradeCards: React.FC = () => {
             </>
           )}
         </div>
-
+        {} Modales  
         <TradeModeModal
           visible={modeModal.isOpen}
           onClose={modeModal.close}

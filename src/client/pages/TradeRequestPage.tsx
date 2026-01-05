@@ -1,3 +1,8 @@
+/**
+ * @module
+ * @description
+ * @author
+ */
 import React, { useEffect, useState, useMemo } from 'react';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer';

@@ -1,3 +1,7 @@
+/**
+ * @file OpenPackPage.tsx
+ * @description Página para abrir sobres de cartas
+ */
 import React, { useRef, useEffect, useState } from 'react';
 import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
@@ -7,7 +11,9 @@ import { authenticatedFetch } from '../utils/fetchHelpers';
 import { useTranslation } from 'react-i18next';
 import confetti from 'canvas-confetti';
 import '../styles/open_pack.css';
-
+/**
+ * @brief Función para simular la explosión de un sobre al abrirlo
+ */
 const explodePack = () => {
   confetti({ particleCount: 180, spread: 70, origin: { y: 0.6 } });
   confetti({
@@ -23,11 +29,16 @@ const explodePack = () => {
     origin: { x: 1, y: 0.6 },
   });
 };
-
+/**
+ * @brief Página principal para abrir sobres de cartas
+ */
 const OpenPackPage: React.FC = () => {
   const { t } = useTranslation();
+  // Estado para la información del set seleccionado
   const [setInfo, setSetInfo] = useState<any | null>(null);
+  // Estado de carga del set
   const [loadingSet, setLoadingSet] = useState(false);
+  // Estado para el proceso de apertura del sobre
   const [opening, setOpening] = useState(false);
   const [packOpened, setPackOpened] = useState(false);
   const [openedCards, setOpenedCards] = useState<any[]>([]);
@@ -35,7 +46,7 @@ const OpenPackPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [timeUntilNext, setTimeUntilNext] = useState<string>('');
   const openedCardsRef = useRef<HTMLDivElement | null>(null);
-
+  // Opciones de sets disponibles
   const SET_OPTIONS = [
     {
       id: 'me01',
@@ -128,6 +139,7 @@ const OpenPackPage: React.FC = () => {
     };
   }, [selectedSet]);
 
+  // Función para obtener la URL del logo del set
   const getLogoUrl = () => {
     if (!setInfo) return '';
     const imgs = setInfo.images || {};
@@ -145,7 +157,7 @@ const OpenPackPage: React.FC = () => {
 
     return '';
   };
-
+  // Función para abrir un sobre
   const openPack = async () => {
     setOpening(true);
     setOpenedCards([]);
@@ -353,9 +365,9 @@ const OpenPackPage: React.FC = () => {
             </div>
           )}
         </div>
-
+         {/* Modales de error y cartas abiertas */}
         {error && <div style={{ color: 'red', marginTop: 12 }}>{error}</div>}
-
+        {/* Cartas abiertas */}
         {openedCards.length > 0 && (
           <div ref={openedCardsRef} style={{ marginTop: 20 }}>
             <div className="collection-grid">

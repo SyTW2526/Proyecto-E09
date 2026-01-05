@@ -1,3 +1,8 @@
+/**
+ * @file FriendsPage.tsx
+ * @description Página para gestionar amigos, solicitudes y chat privado.
+ * @author Equipo E09
+ */
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer';
@@ -6,51 +11,61 @@ import { authService } from '../services/authService';
 import { authenticatedFetch } from '../utils/fetchHelpers';
 import '../styles/friends.css';
 import { useTranslation } from 'react-i18next';
-
+// Interfaz de usuario
 interface User {
   id: string;
   username: string;
   profileImage?: string;
 }
-
+// Interfaz de amigos
 interface Friend {
   _id: string;
   username: string;
   profileImage?: string;
 }
-
+// Interfaz de solicitudes
 interface Request {
   userId: string;
   username: string;
   profileImage?: string;
 }
-
+// Interfaz de solicitudes enviadas
 interface SentRequest {
   _id: string;
   username: string;
   profileImage?: string;
 }
-
+// Interfaz de mensajes
 interface Message {
   from: string;
   to: string;
   text: string;
   createdAt?: string;
 }
-
+/**
+ * @description Componente principal de la página de amigos.
+ */
 const FriendsPage: React.FC = () => {
   const { t } = useTranslation();
   const user = authService.getUser() as User | null;
   if (!user) return null;
-
+  // Estado del componente  
   const [view, setView] = useState<'chat' | 'requests'>('chat');
+  // Estado de amigos
   const [friends, setFriends] = useState<Friend[]>([]);
+  // Estado de solicitudes recibidas
   const [received, setReceived] = useState<Request[]>([]);
+  // Estado de solicitudes enviadas
   const [sent, setSent] = useState<SentRequest[]>([]);
+  // Estado de búsqueda
   const [search, setSearch] = useState('');
+  // Estado de resultados de búsqueda
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  // Estado de chat
   const [activeFriend, setActiveFriend] = useState<Friend | null>(null);
+  // Estado del socket
   const [socket, setSocket] = useState<any>(null);
+  // Estado de mensajes
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -62,7 +77,7 @@ const FriendsPage: React.FC = () => {
     visible: false,
     message: '',
   });
-
+  // Función para cargar amigos y solicitudes
   const loadAll = useCallback(async () => {
     try {
       const [f, r, s] = await Promise.all([
@@ -132,8 +147,6 @@ const FriendsPage: React.FC = () => {
   useEffect(() => {
     const s = initSocket();
     if (!s) return;
-
-    // Estos listeners se registran una sola vez y escuchan independientemente
     const onFriendRequestReceived = () => {
       loadAll();
     };
@@ -156,7 +169,7 @@ const FriendsPage: React.FC = () => {
       s.off('friendRequestRejected', onFriendRequestRejected);
     };
   }, [loadAll]);
-
+  // Función para abrir chat con un amigo
   const openChat = async (friend: Friend) => {
     setActiveFriend(friend);
     setIsTyping(false);
@@ -178,7 +191,7 @@ const FriendsPage: React.FC = () => {
     socket.emit('stopTyping', { to: activeFriend._id });
     setMessageInput('');
   };
-
+  // Función para aceptar solicitud
   const accept = async (id: string) => {
     try {
       const res = await authenticatedFetch(`/friends/accept/${id}`, {
@@ -202,7 +215,7 @@ const FriendsPage: React.FC = () => {
       });
     }
   };
-
+  // Función para rechazar solicitud
   const reject = async (id: string) => {
     try {
       const res = await authenticatedFetch(`/friends/reject/${id}`, {
@@ -226,7 +239,7 @@ const FriendsPage: React.FC = () => {
       });
     }
   };
-
+  // Función para cancelar solicitud enviada
   const cancel = async (id: string) => {
     try {
       const res = await authenticatedFetch(`/friends/requests/cancel/${id}`, {
@@ -251,6 +264,7 @@ const FriendsPage: React.FC = () => {
     }
   };
 
+  // Función para enviar solicitud de amistad
   const sendFriendRequest = async (id: string) => {
     try {
       const res = await authenticatedFetch(`/friends/request/${id}`, {
@@ -278,7 +292,7 @@ const FriendsPage: React.FC = () => {
       });
     }
   };
-
+  // Función para mostrar toast de confirmación
   const showConfirmToast = (message: string, onConfirm: () => void) => {
     setToast({
       visible: true,
@@ -286,7 +300,7 @@ const FriendsPage: React.FC = () => {
       action: onConfirm,
     });
   };
-
+  // Función para eliminar amigo
   const removeFriend = (friend: Friend) => {
     showConfirmToast(friend.username, async () => {
       await authenticatedFetch(`/friends/remove/${friend._id}`, {
@@ -299,7 +313,7 @@ const FriendsPage: React.FC = () => {
       loadAll();
     });
   };
-
+  // Función para buscar usuarios
   const handleSearch = async () => {
     if (!search.trim()) return;
 

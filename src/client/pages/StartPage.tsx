@@ -1,3 +1,8 @@
+/**
+ * @module src/client/pages/Startpage
+ * @description Página de inicio que permite a los usuarios iniciar sesión o registrarse.
+ * @author Equipo E09
+ */
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header/AuthHeader';
 import Start from '../components/Start';
@@ -5,7 +10,9 @@ import Footer from '../components/Footer';
 import SignInForm from '../components/SignInForm';
 import SignUpForm from '../components/SignUpForm';
 import '../styles/app.css';
-
+/**
+ * @brief Página de inicio con opciones de autenticación.
+ */
 const StartPage: React.FC = () => {
   const [modal, setModal] = useState<'signin' | 'signup' | null>(null);
 

@@ -20,7 +20,8 @@
     "test:all": "npm test && npm run test:selenium",
     "coverage": "env-cmd -f ./config/test.env vitest run --coverage test/index.spec.ts",
     "coverage:selenium": "npx vitest run --config vitest.selenium.config.ts --coverage",
-    "coverage:all": "npm run coverage && npm run coverage:selenium"
+    "coverage:all": "npm run coverage && npm run coverage:selenium",
+    "docs:typedoc": "typedoc --options typedoc.json"
   },
   "repository": {
     "type": "git",
@@ -54,6 +55,8 @@
     "tailwindcss": "^4.0.0",
     "tsc-watch": "^7.2.0",
     "tsx": "^4.20.6",
+    "typedoc": "^0.28.15",
+    "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "^5.9.3",
     "vite": "^7.2.0",
     "vitest": "^4.0.15"

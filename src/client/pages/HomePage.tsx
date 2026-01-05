@@ -1,3 +1,7 @@
+/**
+ * @file HomePage.tsx
+ * @description Página principal de la aplicación
+ */
 import React from 'react';
 import Header from '../components/Header/Header';
 import Hero from '../components/Hero';

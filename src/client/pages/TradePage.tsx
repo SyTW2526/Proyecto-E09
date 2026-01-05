@@ -1,3 +1,8 @@
+/**
+ * @module src/client/pages/TradePage
+ * @description Página de intercambios
+ * @author Equipo E09
+ */
 import React, { useState, useEffect, useMemo } from 'react';
 import { Socket } from 'socket.io-client';
 import { initSocket } from '../socket';

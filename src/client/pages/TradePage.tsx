@@ -1,7 +1,29 @@
 /**
- * @module src/client/pages/TradePage
- * @description Página de intercambios
- * @author Equipo E09
+ * @file TradePage.tsx
+ * @description Página de Trading - Gestión de intercambios
+ *
+ * Interfaz para visualizar, gestionar y ejecutar intercambios de cartas.
+ * Centro de operaciones de trading en tiempo real.
+ *
+ * Características:
+ * - Listado de trades activos (propios)
+ * - Listado de trades pendientes (esperando respuesta)
+ * - Detalles de cada trade (cartas, estado, valor)
+ * - Modal para aceptar/rechazar trades
+ * - Chat integrado en sala de trading
+ * - Confirmación bilateral antes de completar
+ * - Historial de trades completados
+ * - Estadísticas de trading (balance, cartas intercambiadas)
+ * - Filtros por estado (pendiente, aceptado, completado)
+ * - Notificaciones de cambios
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires react
+ * @requires react-redux
+ * @requires ../services/apiService
+ * @requires ../services/socketService
+ * @module client/pages/TradePage
  */
 import React, { useState, useEffect, useMemo } from 'react';
 import { Socket } from 'socket.io-client';

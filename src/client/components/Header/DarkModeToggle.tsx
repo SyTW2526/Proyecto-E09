@@ -1,3 +1,55 @@
+/**
+ * @file DarkModeToggle.tsx
+ * @description Toggle para cambiar entre modo oscuro y claro
+ *
+ * Componente botón en el header que permite alternar entre tema oscuro y claro.
+ * Persiste la preferencia en localStorage y aplica clases CSS al documento.
+ *
+ * **Características principales:**
+ * - Toggle button con icono Sol (light mode) / Luna (dark mode)
+ * - Sincronización con Redux preferencesSlice
+ * - Persistencia en localStorage (darkMode)
+ * - Aplica clase "dark" al elemento HTML
+ * - Cambia colorScheme CSS del body (dark/light)
+ * - Animación de transición suave
+ * - Responsive design (adapta tamaño en mobile/desktop)
+ *
+ * **Comportamiento:**
+ * - Al cargar: Lee preferencia guardada de localStorage
+ * - Al hacer click: Toglea el modo y guarda en localStorage
+ * - Automático: Aplica CSS class al documentElement
+ * - Persistente: Se mantiene entre sesiones
+ *
+ * **Estados:**
+ * - darkMode: Boolean de preferencia (Redux)
+ * - Sin estado local (todo en Redux + localStorage)
+ *
+ * **Estilo:**
+ * - Light mode: Icono Luna (blanco), botón con hover semi-transparent
+ * - Dark mode: Icono Sol (amarillo/dorado), botón con hover semi-transparent
+ *
+ * **Integración:**
+ * - Redux preferencesSlice (setDarkMode)
+ * - localStorage para persistencia
+ * - CSS Tailwind class "dark" para estilos globales
+ *
+ * **Accesibilidad:**
+ * - aria-label dinámico (Dark Mode / Light Mode)
+ * - Keyboard accessible (click vía Enter/Space)
+ * - Icono claro e intuitivo
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @component
+ * @requires react
+ * @requires react-redux
+ * @requires react-i18next
+ * @requires lucide-react (Moon, Sun icons)
+ * @module client/components/Header/DarkModeToggle
+ * @see Header.tsx
+ * @see preferencesSlice.ts
+ */
+
 import React, { useEffect } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';

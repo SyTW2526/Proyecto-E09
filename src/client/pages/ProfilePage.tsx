@@ -1,6 +1,31 @@
 /**
  * @file ProfilePage.tsx
- * @description Página de perfil de usuario
+ * @description Página de Perfil - Panel personal del usuario
+ *
+ * Página de perfil personal donde el usuario puede:
+ * - Ver y editar información personal (avatar, estado)
+ * - Gestionar amigos (lista, solicitudes, agregar/remover)
+ * - Visualizar colección de cartas (con paginación)
+ * - Ver wishlist (cartas deseadas)
+ * - Estadísticas de la colección (cantidad, valor total)
+ * - Cambiar configuración de privacidad
+ * - Acceder a historial de trades
+ *
+ * Características:
+ * - Avatar personalizado (subida de imagen)
+ * - Información de usuario (username, email, fecha registro)
+ * - Stats: Cards owned, collection value, trades completed
+ * - Secciones tabuladas: Info, Collection, Wishlist, Friends
+ * - Paginación de cartas (8 por página)
+ * - Botones de acción (editar, agregar amigo, etc)
+ * - Responsive design con grid layout
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires react
+ * @requires react-redux
+ * @requires ../services/authService
+ * @module client/pages/ProfilePage
  */
 import React, { useEffect, useState, useRef } from 'react';
 import Header from '../components/Header/Header';

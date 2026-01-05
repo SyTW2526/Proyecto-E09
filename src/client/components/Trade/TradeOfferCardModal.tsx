@@ -1,3 +1,82 @@
+/**
+ * @file TradeOfferCardModal.tsx
+ * @description Modal para seleccionar carta propia a ofrecer en trading
+ *
+ * Modal que permite al usuario seleccionar una carta de su colección para ofrecer
+ * a otro usuario en un intercambio. Incluye selector de destinatario, vista de la
+ * carta buscada, y grid paginado de sus propias cartas.
+ *
+ * **Características principales:**
+ * - Lado izquierdo: Imagen de carta buscada (la que quiere)
+ * - Centro superior: Selector de propietario/destinatario
+ * - Centro/derecha: Grid paginado de sus cartas (9 por página)
+ * - Selección visual de carta elegida
+ * - Navegación entre páginas (anterior/siguiente)
+ * - Cierre con X o click en overlay
+ * - Botón Enviar (solo activo si owner + card seleccionados)
+ *
+ * **Flujo:**
+ * 1. Usuario ve carta buscada (izq) + destinatario (selector)
+ * 2. Navega por sus cartas en grid (9 por página)
+ * 3. Click en carta → la selecciona
+ * 4. Click Enviar → propuesta se envía
+ * 5. Modal cierra
+ *
+ * **Props:**
+ * - visible: Mostrar/ocultar
+ * - onClose: Callback cerrar
+ * - cardImage: URL de la carta buscada
+ * - owners: Array {username, quantity} propietarios disponibles
+ * - selectedOwner: Owner actual
+ * - onOwnerChange: Callback cambio owner
+ * - myCards: Array de UserCard (su colección)
+ * - selectedMyCard: UserCard seleccionada (null = ninguna)
+ * - onSelectMyCard: Callback seleccionar carta
+ * - onSend: Callback enviar oferta
+ *
+ * **Paginación:**
+ * - 9 cartas por página (3x3 grid)
+ * - total pages = ceil(myCards.length / 9)
+ * - Botones prev/next habilitados según página actual
+ * - Resettea a página 1 cuando cambia owner o cartas
+ *
+ * **Validación:**
+ * - Owner seleccionado: Requerido
+ * - Carta seleccionada: Requerido
+ * - Botón Enviar deshabilitado si falta alguno
+ *
+ * **Estilos:**
+ * - tradeModalCard--wide: Ancho para mostrar grid
+ * - Layout: 3 columnas (carta buscada | selector + grid)
+ * - Grid responsive (3 cols en desktop, menos en mobile)
+ * - Tarjeta seleccionada: Borde/efecto visual
+ *
+ * **Integración:**
+ * - Usado en: TradePage, DiscoverTradePage, CreateRoomPage
+ * - TradeOwnerSelect: Selector de propietarios
+ * - i18next para traducciones
+ * - Lucide-react para iconos
+ *
+ * **Estados:**
+ * - page: Página actual de paginación
+ * - Resettea cuando visible=false
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @component
+ * @requires react
+ * @requires react-i18next
+ * @requires lucide-react (X icon)
+ * @requires ./TradeOwnerSelect
+ * @requires ../../styles/trade_modals.css
+ * @module client/components/Trade/TradeOfferCardModal
+ * @see TradePage.tsx
+ * @see DiscoverTradePage.tsx
+ * @see CreateRoomPage.tsx
+ * @see TradeOwnerSelect.tsx
+ * @see TradeMessageModal.tsx
+ */
+
 import React from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

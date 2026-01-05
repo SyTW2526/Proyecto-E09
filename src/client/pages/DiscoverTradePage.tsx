@@ -1,8 +1,29 @@
 /**
  * @file DiscoverTradePage.tsx
- * @description Página para descubrir cartas disponibles para intercambio
- * @author Equipo E09
- * 
+ * @description Página de Descubrimiento de Trading - Explorador de trades públicos
+ *
+ * Interfaz para descubrir y buscar intercambios publicados por otros usuarios.
+ * Permite explorar oportunidades de trading más allá de contactos directos.
+ *
+ * Características:
+ * - Listado de trades públicos disponibles
+ * - Búsqueda por cartas ofrecidas/solicitadas
+ * - Filtros por tipo de carta (Pokémon, Trainer, Energy)
+ * - Filtros por rareza
+ * - Filtros por valor aproximado
+ * - Búsqueda por usuario
+ * - Vista de cartas del trade
+ * - Información del usuario ofertante
+ * - Botón "Hacer oferta" para proponer contra-trade
+ * - Historial de interacciones previas
+ * - Rating/reputación del usuario
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires react
+ * @requires react-redux
+ * @requires ../services/apiService
+ * @module client/pages/DiscoverTradePage
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Header from '../components/Header/Header';

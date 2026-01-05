@@ -1,3 +1,37 @@
+/**
+ * @file SignInForm.tsx
+ * @description Componente SignInForm - Formulario de inicio de sesión
+ *
+ * Formulario para autenticación de usuarios ya registrados.
+ * Permite acceder con username/email y contraseña.
+ *
+ * Características:
+ * - Input para username/email
+ * - Input para contraseña (enmascarado)
+ * - Validación de campos
+ * - Mensajes de error específicos
+ * - Loading state durante autenticación
+ * - Enlace a registro para nuevos usuarios
+ * - Recuperación de contraseña (opcional)
+ * - Submit al presionar Enter
+ * - Integración con Redux/authService
+ *
+ * Estados:
+ * - username: Valor del input usuario
+ * - password: Valor del input contraseña
+ * - loading: Enviando al servidor
+ * - error: Mensaje de error si falla
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires react
+ * @requires ../services/authService
+ * @requires ../hooks
+ * @module client/components/SignInForm
+ * @see SignUpForm
+ * @see shared/FormComponents
+ */
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';

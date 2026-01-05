@@ -1,3 +1,96 @@
+/**
+ * @file FeaturedCards.tsx
+ * @description Carrusel de cartas destacadas en la página de inicio
+ *
+ * Componente que renderiza un carrusel horizontal de cartas destacadas que aparece
+ * en la HomePage. Permite ver detalles, añadir a wishlist, y navegar con flechas.
+ *
+ * **Características principales:**
+ * - Carrusel horizontal con 7 cartas fijas destacadas
+ * - Navegación con botones anterior/siguiente
+ * - Zoom al pasar mouse sobre carta
+ * - Botón wishlist (corazón) para añadir/remover de deseados
+ * - Visualización de detalles: HP, rareza, serie, precio (bajo/medio/alto)
+ * - Carga desde endpoint /cards/featured
+ * - Estados de carga y error
+ * - Animación suave de desplazamiento (CSS transform)
+ *
+ * **Cartas destacadas (IDs fijos):**
+ * - me01-178, me01-180, me02-125, me02-129
+ * - sv10.5b-166, sv10.5b-172, sv10.5w-173
+ *
+ * **Interacciones:**
+ * - Click flecha izq: Retrocede una carta
+ * - Click flecha der: Avanza una carta
+ * - Click corazón: Añade/remueve de wishlist
+ * - Hover carta: Muestra zoom CSS
+ * - Mouse sobre info: Despliega detalles completos
+ *
+ * **Estados:**
+ * - currentIndex: Índice de carta visible (0-6)
+ * - featuredCards: Array de cartas cargadas
+ * - loading: Cargando datos
+ * - error: Mensaje de error si falla carga
+ * - wishlistSet: Set de IDs en wishlist para marca rápida
+ *
+ * **Estructura de Card:**
+ * - id: ID único de TCGdex
+ * - name: Nombre de carta
+ * - image: URL de imagen normalizada
+ * - hp: Puntos de salud (Pokémon)
+ * - rarity: Rareza (Común, Raro, Holo, etc.)
+ * - price: {low, mid, high} precios
+ * - set/series: Información del set
+ * - cardNumber: Número en el set
+ * - illustrator: Artista
+ *
+ * **Ciclo de vida:**
+ * 1. Componente monta
+ * 2. Fetch /cards/featured
+ * 3. Normaliza URLs de imagen
+ * 4. Renderiza cartas con index=0 (primera visible)
+ * 5. Listener mouse para zoom
+ * 6. Cleanup al desmontar
+ *
+ * **Integración:**
+ * - Redux wishlistSlice (add/removeFromWishlist)
+ * - authService para verificar usuario
+ * - Imágenes normalizadas con imageHelpers
+ * - Hook useLoadingError para estados
+ * - i18next para traducciones
+ *
+ * **Estilos:**
+ * - feature.css: Carrusel, animaciones, zoom
+ * - Transform3D para mejor rendimiento
+ * - CSS transitions suaves
+ * - Responsive en mobile (botones adaptados)
+ *
+ * **Uso:**
+ * ```tsx
+ * <FeaturedCards />  // En HomePage
+ * ```
+ *
+ * **Características avanzadas:**
+ * - Normalización de URLs de imagen (protocolo relativo)
+ * - Getters para información de carta (getCardImage, etc.)
+ * - Set para O(1) lookup en wishlist
+ * - Cleanup de mounted flag para evitar memory leaks
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @component
+ * @requires react
+ * @requires react-redux
+ * @requires react-i18next
+ * @requires lucide-react (ChevronLeft, ChevronRight icons)
+ * @requires ../services/authService
+ * @requires ../hooks/useLoadingError
+ * @requires ../styles/feature.css
+ * @module client/components/FeaturedCards
+ * @see HomePage.tsx
+ * @see whislistSlice.ts
+ */
+
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '../store/store';

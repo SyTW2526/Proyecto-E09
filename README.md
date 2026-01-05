@@ -238,6 +238,43 @@ npm run test:coverage
 npm run test:e2e
 ```
 
+### Documentación del Código
+
+Toda la codebase está documentada con comentarios Doxygen/JSDoc que incluyen:
+- **Descripción detallada** de cada archivo
+- **Características principales** de componentes y funciones
+- **Props y parámetros** con tipos
+- **Estados y comportamientos**
+- **Integración** (APIs, Redux, Socket.io, etc.)
+- **Ejemplos de uso** cuando aplica
+
+#### Generar documentación
+
+```bash
+npm run docs:typedoc
+```
+
+Esto genera documentación HTML interactiva en `/docs` que incluye:
+- Todas las páginas (11 componentes en client/pages/)
+- Todos los componentes (30+ en client/components/)
+- Todos los modelos (10 en server/models/)
+- Todos los servicios y utilidades
+- Enlaces cruzados y referencias
+
+#### Componentes documentados
+
+**Páginas (11/11 completadas):**
+- StartPage, HomePage, SearchPage, CollectionPage
+- ProfilePage, TradePage, TradeRequestPage, DiscoverTradePage
+- FriendsPage, OpenPackPage, CreateRoomPage
+
+**Componentes principales (15+ documentados):**
+- Header (navbar), Footer, Hero, Start
+- SignInForm, SignUpForm, ToastManager, ConfirmModal
+- FeaturedCards, CardsSlider
+- TradeMessageModal, TradeModeModal, TradeOfferCardModal, TradeOwnerSelect
+- Componentes compartidos de formularios
+
 ## Idiomas
 
 La aplicación soporta:

@@ -1,7 +1,32 @@
 /**
- * @module
- * @description
- * @author
+ * @file TradeRequestPage.tsx
+ * @description Página de Solicitudes de Trade - Gestión de propuestas
+ *
+ * Interfaz para ver y gestionar solicitudes de trading pendientes.
+ * Diferente de TradePage: solo propuestas sin aceptar vs trades en progreso.
+ *
+ * Características:
+ * - Listado de solicitudes recibidas
+ * - Listado de solicitudes enviadas
+ * - Vista rápida de cartas ofertadas/solicitadas
+ * - Información del usuario ofertante
+ * - Botones aceptar/rechazar
+ * - Modal de confirmación antes de aceptar
+ * - Contador de pendientes
+ * - Filtros por tipo (enviadas, recibidas)
+ * - Ordenamiento por fecha
+ * - Información de equidad (recomendación)
+ *
+ * Diferencia con TradePage:
+ * - TradeRequest: Propuestas sin resolver
+ * - Trade: Intercambios ya aceptados o en progreso
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires react
+ * @requires react-redux
+ * @requires ../services/apiService
+ * @module client/pages/TradeRequestPage
  */
 import React, { useEffect, useState, useMemo } from 'react';
 import Header from '@/components/Header/Header';

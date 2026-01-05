@@ -1,7 +1,33 @@
 /**
  * @file FriendsPage.tsx
- * @description Página para gestionar amigos, solicitudes y chat privado.
- * @author Equipo E09
+ * @description Página de Amigos - Gestión de red de contactos
+ *
+ * Interfaz completa para gestión de amigos y contactos en la plataforma.
+ * Centro de comunicación y coordinación con otros jugadores.
+ *
+ * Características:
+ * - Lista de amigos confirmados
+ * - Solicitudes de amistad pendientes (enviadas y recibidas)
+ * - Búsqueda de usuarios para agregar
+ * - Gestión de amigos (agregar, remover, bloquear)
+ * - Ver perfil/stats de amigos
+ * - Historial de trades con cada amigo
+ * - Estado de línea (online/offline)
+ * - Botones de acción rápida (chat, proponer trade)
+ * - Filtros (todos, online, offline)
+ *
+ * Secciones:
+ * - Mi lista de amigos: Amigos confirmados
+ * - Solicitudes entrantes: Usuarios que te pidieron amistad
+ * - Solicitudes salientes: Amigos a quienes le enviaste solicitud
+ * - Agregar amigos: Búsqueda por username
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires react
+ * @requires react-redux
+ * @requires ../services/apiService
+ * @module client/pages/FriendsPage
  */
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Header from '@/components/Header/Header';

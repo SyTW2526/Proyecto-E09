@@ -1,7 +1,42 @@
 /**
- * @module src/client/pages/Startpage
- * @description Página de inicio que permite a los usuarios iniciar sesión o registrarse.
- * @author Equipo E09
+ * @file StartPage.tsx
+ * @description Página de autenticación - Landing page con acceso a login/registro
+ *
+ * Página principal de bienvenida para usuarios no autenticados.
+ * Proporciona acceso a formularios de registro e inicio de sesión.
+ *
+ * Características:
+ * - Interfaz de hero/landing page
+ * - Modal para login y registro
+ * - Control de scroll cuando modal está abierto
+ * - Header con botones de autenticación
+ * - Footer informativo
+ * - Responsive design
+ *
+ * Estados:
+ * - modal: 'signin' | 'signup' | null - Formulario actualmente mostrado
+ *
+ * Flujo:
+ * 1. Usuario ve página de inicio
+ * 2. Clickea en "Iniciar sesión" o "Registrarse"
+ * 3. Se abre modal con el formulario correspondiente
+ * 4. Usuario completa y envía
+ * 5. Si exitoso, redirige a HomePage
+ *
+ * Estilos:
+ * - Gradiente de fondo dinámico
+ * - Dark mode soportado
+ * - Overlay para modal
+ * - Animaciones suaves
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @module client/pages/StartPage
+ * @component
+ * @returns {React.ReactElement} Página de inicio
+ * @see components/SignInForm
+ * @see components/SignUpForm
+ * @see components/Header/AuthHeader
  */
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header/AuthHeader';
@@ -10,9 +45,7 @@ import Footer from '../components/Footer';
 import SignInForm from '../components/SignInForm';
 import SignUpForm from '../components/SignUpForm';
 import '../styles/app.css';
-/**
- * @brief Página de inicio con opciones de autenticación.
- */
+
 const StartPage: React.FC = () => {
   const [modal, setModal] = useState<'signin' | 'signup' | null>(null);
 

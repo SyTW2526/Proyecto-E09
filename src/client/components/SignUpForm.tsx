@@ -1,3 +1,39 @@
+/**
+ * @file SignUpForm.tsx
+ * @description Componente SignUpForm - Formulario de registro
+ *
+ * Formulario para registro de nuevos usuarios en la plataforma.
+ * Valida datos y crea nueva cuenta.
+ *
+ * Características:
+ * - Input para username (único)
+ * - Input para email (único, validado)
+ * - Input para contraseña (con requisitos)
+ * - Input de confirmación de contraseña
+ * - Validación de contraseña fuerte
+ * - Mensajes de error específicos
+ * - Loading state durante registro
+ * - Enlace a login para usuarios existentes
+ * - Términos y condiciones (checkbox)
+ * - Submit al presionar Enter
+ * - Integración con authService
+ *
+ * Validaciones:
+ * - Username: 3-20 caracteres, alfanuméricos
+ * - Email: Formato válido, único en BD
+ * - Password: Min 8 chars, mayúscula, minúscula, número
+ * - Confirmation: Debe coincidir con password
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires react
+ * @requires ../services/authService
+ * @requires ../hooks
+ * @module client/components/SignUpForm
+ * @see SignInForm
+ * @see shared/FormComponents
+ */
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';

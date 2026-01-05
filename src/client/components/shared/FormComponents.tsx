@@ -1,3 +1,45 @@
+/**
+ * @file FormComponents.tsx
+ * @description Componentes compartidos de formularios - Inputs, botones, headers
+ *
+ * Colección de componentes reutilizables para formularios.
+ * Proporciona un estilo consistente en toda la aplicación.
+ *
+ * **Componentes incluidos:**
+ * - FormInput: Input de texto con label y validación
+ * - FormButton: Botón primario/secundario
+ * - FormHeader: Header con título de formulario
+ * - ErrorMessage: Mensaje de error con icono
+ * - SwitchFormLink: Link para cambiar entre login/signup
+ * - FormContainer: Wrapper con estilos
+ *
+ * **Características:**
+ * - Estilos Tailwind CSS consistentes
+ * - Accesibilidad (labels, ARIA)
+ * - Soporte para estados (focus, error, disabled)
+ * - Validación visual
+ * - Responsive design
+ * - Dark mode compatible
+ *
+ * **Estados visuales:**
+ * - Default: Estilo normal
+ * - Focus: Borde highlight
+ * - Error: Borde rojo, icono de error
+ * - Disabled: Opacidad reducida, cursor no-drop
+ * - Loading: Spinner en botón
+ *
+ * **Uso en formularios:**
+ * - Registro de usuarios
+ * - Login
+ * - Búsqueda de cartas
+ * - Preferencias
+ * - Cualquier formulario en la app
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @module client/components/shared/FormComponents
+ */
+
 import React from 'react';
 
 interface FormInputProps {

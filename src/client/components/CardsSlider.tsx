@@ -1,3 +1,91 @@
+/**
+ * @file CardsSlider.tsx
+ * @description Slider reutilizable para visualizar cartas en carrusel horizontal
+ *
+ * Componente genérico que muestra un listado de cartas en un carrusel horizontal
+ * auto-rotativo con navegación manual. Reutilizable en múltiples páginas.
+ *
+ * **Características principales:**
+ * - Carrusel horizontal auto-rotativo (5 segundos por carta)
+ * - Botones anterior/siguiente para navegar manualmente
+ * - Scroll suave con `behavior: 'smooth'`
+ * - Muestra imagen, nombre y rareza de carta
+ * - Normalización automática de URLs de imagen
+ * - Responsive design
+ * - Título opcional
+ * - Precio medio visible (si disponible)
+ *
+ * **Props:**
+ * - title?: Título del slider (opcional)
+ * - cards: Array de SimpleCard (cartas a mostrar)
+ *
+ * **Estructura de SimpleCard:**
+ * - id: Identificador único
+ * - name?: Nombre de la carta
+ * - image?: URL de la imagen
+ * - rarity?: Nivel de rareza (Común, Raro, Holo, etc.)
+ * - price?: {mid?: number} Precio medio de mercado
+ *
+ * **Comportamiento:**
+ * 1. Renderiza cartas en grid horizontal
+ * 2. Auto-rotación cada 5 segundos
+ * 3. Click botones nav: Avanza/retrocede manualmente
+ * 4. Click sobre carta: Puede navegar a detalles
+ * 5. Resettea índice si cambia prop cards
+ *
+ * **Interacciones:**
+ * - Flecha izq: Ir a carta anterior
+ * - Flecha der: Ir a carta siguiente
+ * - Auto-scroll cada 5 segundos
+ * - Pausar auto-scroll si usuario interactúa? (No, sigue)
+ *
+ * **Estados:**
+ * - currentIndex: Índice de carta actual visible
+ * - displayCards: Cartas normalizadas a mostrar
+ *
+ * **Cálculos de scroll:**
+ * - cardWidth = firstCard.offsetWidth + gap(24px)
+ * - scrollLeft = index * cardWidth
+ * - scrollBehavior: smooth
+ *
+ * **Integración:**
+ * - Usado en: HomePage, SearchPage (resultados)
+ * - Normaliza URLs con imageHelpers
+ * - Estilos desde feature.css
+ * - Sin dependencias de Redux/API
+ *
+ * **Estilos (feature.css):**
+ * - featured-card: Contenedor individual
+ * - pokemon-card: Tarjeta con imagen
+ * - pokemon-card-image: Imagen escalada
+ * - Overlay con gradiente negro para texto
+ * - Responsive gap/padding
+ *
+ * **Diferencias con FeaturedCards:**
+ * - FeaturedCards: Fijo a 7 cartas destacadas, con wishlist
+ * - CardsSlider: Genérico, recibe cartas por prop, sin wishlist
+ * - FeaturedCards: Datos traídos de API
+ * - CardsSlider: Datos pasados desde padre
+ *
+ * **Rendimiento:**
+ * - useMemo para displayCards (evita recálculo)
+ * - Cleanup de interval en unmount
+ * - Reseteo de index si cambian cartas
+ * - Container scroll (no DOM reflow)
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @component
+ * @requires react
+ * @requires lucide-react (ChevronLeft, ChevronRight icons)
+ * @requires ../utils/imageHelpers
+ * @requires ../styles/feature.css
+ * @module client/components/CardsSlider
+ * @see HomePage.tsx
+ * @see SearchPage.tsx
+ * @see FeaturedCards.tsx
+ */
+
 import React from 'react';
 import { normalizeImageUrl } from '../utils/imageHelpers';
 import '../styles/feature.css';

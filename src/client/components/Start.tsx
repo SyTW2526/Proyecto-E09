@@ -1,3 +1,84 @@
+/**
+ * @file Start.tsx
+ * @description Sección de inicio/bienvenida - Hero section con CTA
+ *
+ * Componente de bienvenida que aparece en StartPage (landing).
+ * Presenta la propuesta de valor con logo, título, descripción y CTA.
+ *
+ * **Estructura:**
+ * - Logo grande (logo.png)
+ * - Título principal en gradiente azul
+ * - Subtítulo descriptivo
+ * - Botón "Get Started" con animación hover
+ * - Grid 3 columnas con características (Collect, Trade, Explore)
+ *
+ * **Características principales:**
+ * - Gradiente radial de fondo (azul sutil)
+ * - Responsive (stack vertical en mobile, grid 3 cols en desktop)
+ * - Dark mode compatible (colores adaptados)
+ * - Animaciones suaves (shadow, scale en botón)
+ * - Traducciones i18n (ES/EN)
+ * - Callback onStart cuando usuario hace click
+ *
+ * **Props:**
+ * - onStart?: Callback cuando hace click en "Get Started"
+ *   (típicamente abre modal de auth o navega)
+ *
+ * **Secciones de características:**
+ * 1. Collect: Construye tu colección de cartas
+ * 2. Trade: Intercambia cartas con otros usuarios
+ * 3. Explore: Descubre nuevas cartas
+ *
+ * **Estilos:**
+ * - Gradientes (fondo, botón)
+ * - Sombras (logo, botón)
+ * - Bordes sutiles (cards, botón)
+ * - Transiciones suaves (hover, active)
+ * - Layout: Flexbox column centrado
+ * - Padding: 20 en Y (px-6 en X)
+ * - Max-width: 6xl
+ *
+ * **Animaciones:**
+ * - Botón hover: Shadow intenso, color más oscuro
+ * - Botón active: Scale reduce (0.98)
+ * - Cards hover: Shadow aumenta
+ * - Transición suave en todas
+ *
+ * **Responsividad:**
+ * - Mobile: 1 column, fonts md
+ * - Tablet: 1 column -> 3 columns
+ * - Desktop: 3 columns, fonts lg
+ * - Logo: 192px width
+ * - Título: 5xl md:6xl
+ * - Gaps y padding adaptados
+ *
+ * **Integración:**
+ * - Usado en: StartPage
+ * - i18next para traducciones
+ * - Callback pasado desde StartPage
+ * - Imagen logo.png en public/
+ *
+ * **Flujo de usuario:**
+ * 1. Usuario ve bienvenida con características
+ * 2. Lee descripción (ES/EN según idioma)
+ * 3. Click botón "Get Started"
+ * 4. onStart callback ejecutado
+ * 5. Típicamente abre modal de Sign In/Sign Up
+ *
+ * **Color scheme:**
+ * - Light: Texto gris, botón azul/cielo
+ * - Dark: Texto claro, botón azul más intenso
+ * - Accents: Amarillo/dorado (borde, sombra)
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @component
+ * @requires react
+ * @requires react-i18next
+ * @module client/components/Start
+ * @see StartPage.tsx
+ */
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 

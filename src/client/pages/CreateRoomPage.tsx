@@ -1,11 +1,37 @@
 /**
  * @file CreateRoomPage.tsx
- * @description Página para crear salas de intercambio privadas con amigos
- * Proporciona una interfaz para que los usuarios puedan:
- * - Ver su lista de amigos
- * - Buscar amigos por nombre de usuario
- * - Seleccionar un amigo para invitar a una sala privada
- * @author Equipo E09
+ * @description Página de Creación de Salas - Trading privado con amigos
+ *
+ * Interfaz para crear salas de trading privado con amigos.
+ * Experiencia interactiva y colaborativa de trading en tiempo real.
+ *
+ * Características:
+ * - Seleccionar amigo para trading
+ * - Interfaz tipo "mostrador" para intercambio
+ * - Arrastrar/soltar cartas desde colección
+ * - Visualizar oferta de ambos lados
+ * - Cálculo automático de valor
+ * - Recomendación de equidad
+ * - Chat en vivo durante trading
+ * - Sincronización en tiempo real (Socket.io)
+ * - Confirmación bilateral antes de finalizar
+ * - Historial de cambios en la sala
+ *
+ * Secciones:
+ * - Selección de amigo (debe ser amigo confirmado)
+ * - Mostrador lado izquierdo (tus cartas)
+ * - Mostrador lado derecho (cartas del amigo)
+ * - Cartas seleccionadas para ofertar
+ * - Botones: Proponer, Cancelar, Confirmar
+ * - Chat panel para comunicación
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires react
+ * @requires react-redux
+ * @requires ../services/apiService
+ * @requires ../services/socketService
+ * @module client/pages/CreateRoomPage
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import Header from '@/components/Header/Header';

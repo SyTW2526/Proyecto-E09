@@ -1,3 +1,81 @@
+/**
+ * @file TradeMessageModal.tsx
+ * @description Modal para enviar oferta de trading a otro usuario
+ *
+ * Modal que aparece cuando un usuario quiere enviar una propuesta de trading.
+ * Muestra la carta a ofrecer, permite seleccionar el destinatario y escribir un mensaje.
+ *
+ * **Características principales:**
+ * - Visualización de la carta a ofrecer (imagen grande)
+ * - Selector de propietario/destinatario (dropdown)
+ * - Muestra cantidad de copias disponibles del propietario
+ * - Campo de texto libre para mensaje/nota
+ * - Botón enviar solo habilitado si hay owner y nota
+ * - Modal con overlay oscuro (click outside para cerrar)
+ * - Cerrar con botón X o click en overlay
+ *
+ * **Flujo de interacción:**
+ * 1. Usuario ve imagen de carta a ofrecer
+ * 2. Selecciona a quién ofrecerla (owner/destinatario)
+ * 3. Escribe mensaje con términos de la oferta
+ * 4. Click Enviar → Propuesta se envía
+ * 5. Modal se cierra
+ *
+ * **Props:**
+ * - visible: Mostrar/ocultar modal
+ * - onClose: Callback para cerrar
+ * - onSend: Callback para enviar oferta
+ * - cardImage: URL de imagen de la carta
+ * - owners: Array de {username, quantity} propietarios disponibles
+ * - selectedOwner: Owner actual seleccionado
+ * - onOwnerChange: Callback cambio de owner
+ * - note: Contenido del mensaje/oferta
+ * - onNoteChange: Callback cambio de nota
+ *
+ * **Estados:**
+ * - visible: Controlado desde padre (TradePage, DiscoverTradePage)
+ * - selectedOwner: Username del destinatario
+ * - note: Texto del mensaje
+ * - canSend: Boolean derivado (ownerSelected && noteTrimmed.length > 0)
+ *
+ * **Validación:**
+ * - Owner seleccionado: Requerido
+ * - Nota no vacía: Requerido (min 1 char visible)
+ * - Botón Enviar deshabilitado si falta alguno
+ *
+ * **Estilos:**
+ * - tradeModalOverlay: Fondo oscuro semitransparente
+ * - tradeModalCard: Centro, blanco, sombra, radio redondeado
+ * - Layout: 2 columnas (imagen izq, formulario der)
+ * - Responsive: Stack vertical en mobile
+ *
+ * **Integración:**
+ * - Usado en: TradePage, DiscoverTradePage, CreateRoomPage
+ * - TradeOwnerSelect: Dropdown de propietarios
+ * - i18next para traducciones
+ * - Lucide-react para icono X
+ *
+ * **Accesibilidad:**
+ * - role="dialog" y aria-modal="true"
+ * - aria-label en botón cerrar
+ * - Click-outside handling (stopPropagation)
+ * - Keyboard navigation en formulario
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @component
+ * @requires react
+ * @requires react-i18next
+ * @requires lucide-react (X icon)
+ * @requires ./TradeOwnerSelect
+ * @requires ../../styles/trade_modals.css
+ * @module client/components/Trade/TradeMessageModal
+ * @see TradePage.tsx
+ * @see DiscoverTradePage.tsx
+ * @see CreateRoomPage.tsx
+ * @see TradeOwnerSelect.tsx
+ */
+
 import React, { useMemo } from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

@@ -1,6 +1,46 @@
 /**
  * @file SearchPage.tsx
- * @description Página de búsqueda de cartas
+ * @description Página de búsqueda avanzada de cartas
+ *
+ * Interfaz completa para buscar cartas en el catálogo.
+ * Proporciona filtros, búsqueda full-text y navegación de resultados.
+ *
+ * Características:
+ * - Búsqueda por nombre en tiempo real
+ * - Filtros por tipo, rareza, serie, HPFilter
+ * - Paginación de resultados
+ * - Vista en grid responsive
+ * - Cartas clickeables para detalle completo
+ * - Historial de búsquedas recientes
+ * - Búsquedas guardadas/favoritas
+ *
+ * Estados:
+ * - searchTerm: Texto a buscar
+ * - filters: Filtros activos (tipo, rareza, etc)
+ * - results: Cartas encontradas
+ * - page: Página actual
+ * - loading: Estado de carga
+ * - recentSearches: Historial de búsquedas
+ *
+ * Filtros disponibles:
+ * - Tipo: Water, Fire, Electric, Grass, Psychic, Fighting, Darkness, Metal, Fairy, Colorless
+ * - Rareza: Common, Uncommon, Rare, Holo Rare, V, GX, Ex
+ * - Serie: Expansion sets
+ * - HP: Rango de HP para Pokémon
+ *
+ * Integraciones:
+ * - API: Llamadas a /api/pokemon/search
+ * - Redux: Cachea resultados
+ * - URL params: Persiste búsquedas (shareable)
+ * - Socket.io: Actualizaciones en tiempo real
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @module client/pages/SearchPage
+ * @component
+ * @returns {React.ReactElement} Página de búsqueda
+ * @see services/apiService.ts
+ * @see features/cards/cardsSlice
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Header from '../components/Header/Header';

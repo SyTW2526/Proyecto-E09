@@ -1,3 +1,60 @@
+/**
+ * @file NotificationBell.tsx
+ * @description Campana de notificaciones - Dropdown de notificaciones en tiempo real
+ *
+ * Componente de la barra superior que muestra todas las notificaciones del sistema.
+ * Incluye badge con contador de no leídas, dropdown desplegable y marcar como leído.
+ *
+ * **Características principales:**
+ * - Badge rojo con contador de notificaciones no leídas
+ * - Animación de anillo cuando llega notificación nueva
+ * - Dropdown con lista de todas las notificaciones
+ * - Marcar individual o todas como leído
+ * - Eliminar notificaciones del dropdown
+ * - Máximo 9+ en el contador para no sobrecargar
+ * - Click outside para cerrar dropdown
+ *
+ * **Tipos de notificaciones:**
+ * - Trade aceptado/rechazado
+ * - Nueva solicitud de amistad
+ * - Amigo online/offline
+ * - Mensaje en sala privada
+ * - Sistema (mantenimiento, cambios)
+ *
+ * **Estados:**
+ * - isOpen: Dropdown abierto/cerrado
+ * - notifications: Array de todas las notificaciones
+ * - unread: Contador de no leídas (calculado)
+ *
+ * **Animaciones:**
+ * - Pulse en badge cuando hay no leídas
+ * - Ring animation (anillo) cuando llega notificación nueva
+ * - Fade out al eliminar notificación
+ *
+ * **Integración:**
+ * - Redux notificationsSlice (markAsRead, markAllAsRead, removeNotification)
+ * - i18next para traducciones
+ * - Socket.io recibe eventos de notificación en tiempo real
+ * - Dispatch automático al cambiar notificaciones
+ *
+ * **Interacción:**
+ * - Click en campana: Abre/cierra dropdown
+ * - Click fuera: Cierra dropdown
+ * - Marca como leído: Oculta animación de no leído
+ * - Eliminar: Quita de lista
+ * - Mark all: Marca todas como leído de una vez
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @component
+ * @requires react
+ * @requires react-redux
+ * @requires react-i18next
+ * @requires lucide-react (Bell, X, CheckCheck icons)
+ * @module client/components/Header/NotificationBell
+ * @see Header.tsx
+ */
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Bell, X, CheckCheck } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';

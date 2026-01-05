@@ -1,6 +1,29 @@
 /**
  * @file OpenPackPage.tsx
- * @description Página para abrir sobres de cartas
+ * @description Página de Apertura de Packs - Sorteo de cartas
+ *
+ * Interfaz interactiva para abrir booster packs y obtener cartas aleatorias.
+ * Experiencia de "loot box" con animaciones y recompensas.
+ *
+ * Características:
+ * - Visualización de token disponibles
+ * - Botón para abrir pack (consume 1 token)
+ * - Animación de apertura de sobre
+ * - Reveal progresivo de 5 cartas
+ * - Display de rareza con efectos visuales
+ * - Sonidos (si está habilitado)
+ * - Historial de últimos packs abiertos
+ * - Estadísticas (cartas únicas, rarezas mejores)
+ * - Opción de comprar más tokens
+ * - Cooldown/rate limiting visual
+ * - Cartas obtenidas se agregan a colección
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires react
+ * @requires react-redux
+ * @requires ../services/apiService
+ * @module client/pages/OpenPackPage
  */
 import React, { useRef, useEffect, useState } from 'react';
 import Header from '../components/Header/Header';

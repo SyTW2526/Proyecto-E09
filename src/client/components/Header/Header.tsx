@@ -1,3 +1,58 @@
+/**
+ * @file Header.tsx
+ * @description Componente Header/Navbar - Navegación principal de la aplicación
+ *
+ * Navbar persistente que aparece en todas las páginas autenticadas.
+ * Proporciona navegación, búsqueda, notificaciones y menú de usuario.
+ *
+ * **Características principales:**
+ * - Navegación a las diferentes secciones
+ * - Búsqueda de cartas con autocompletar
+ * - Campana de notificaciones
+ * - Menú desplegable de usuario
+ * - Selector de idioma (ES/EN)
+ * - Toggle dark mode
+ * - Responsive design (menú móvil)
+ *
+ * **Secciones del navbar:**
+ * - Home: Dashboard principal
+ * - Search: Búsqueda avanzada
+ * - Trading: Interface de intercambio
+ * - Collection: Colección personal
+ * - Friends: Gestión de amigos
+ * - Discover Trades: Trades públicos
+ * - Open Packs: Abrir sobres
+ *
+ * **Menú de usuario (dropdown):**
+ * - Profile: Ver perfil
+ * - Preferences: Configuración
+ * - Logout: Cerrar sesión
+ *
+ * **Estados:**
+ * - mobileOpen: Menú móvil abierto
+ * - profileOpen: Dropdown de usuario abierto
+ * - tradeOpen: Submenu de trades abierto
+ * - cards: Resultados de búsqueda
+ * - isSearching: Buscando cartas
+ *
+ * **Responsividad:**
+ * - Menú hamburguesa en pantallas pequeñas
+ * - Modo stack vertical en mobile
+ * - Touch-friendly en dispositivos móviles
+ *
+ * **Integración:**
+ * - Redux para estado de usuario
+ * - i18next para traducciones
+ * - Socket.io para notificaciones
+ * - API para búsqueda de cartas
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @component
+ * @example
+ * return <Header />
+ */
+
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Search, User, ChevronDown, Menu, X } from 'lucide-react';

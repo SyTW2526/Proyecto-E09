@@ -1,4 +1,52 @@
 /**
+ * @file CollectionPage.tsx
+ * @description Página de colección - Gestión de cartas personales del usuario
+ *
+ * Interfaz para ver, buscar y gestionar la colección de cartas personales.
+ * Permite filtrar, ordenar, valorar colección y preparar para trading.
+ *
+ * Características:
+ * - Vista de cartas en colección
+ * - Búsqueda y filtros avanzados
+ * - Información detallada por carta (condición, rareza)
+ * - Estadísticas (cantidad, valor total)
+ * - Ordenamiento (por nombre, rareza, valor, fecha)
+ * - Exportación de colección
+ * - Marcar cartas para trading
+ * - Gestión de condiciones
+ *
+ * Estados:
+ * - collection: Array de UserCard del usuario
+ * - searchTerm: Filtro de búsqueda
+ * - filters: Filtros activos (tipo, condición, rareza)
+ * - sortBy: Criterio de ordenamiento (nombre, valor, fecha)
+ * - selectedCards: Cartas seleccionadas para operaciones
+ * - loading: Estado de carga
+ *
+ * Funcionalidades:
+ * - Búsqueda full-text en tiempo real
+ * - Filtros por tipo, rareza, condición
+ * - Estadísticas calculadas (total, valor)
+ * - Bulk operations (marcar para trading)
+ * - Actualización de condición
+ * - Eliminación de cartas
+ * - Paginación de resultados
+ *
+ * Filtros disponibles:
+ * - Tipo: Pokemon, Trainer, Energy
+ * - Condición: Mint, Near Mint, Excellent, Good, Poor
+ * - Rareza: Common, Uncommon, Rare, Holo Rare
+ * - Estado: Tradeable, En venta, Privado
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @module client/pages/CollectionPage
+ * @component
+ * @returns {React.ReactElement} Página de colección
+ * @see components/CardsSlider
+ * @see features/collection/collectionSlice
+ */
+/**
  * @packageDocumentation
  * @module src/client/pages/CollectionPage
  * @brief Página de visualización y gestión de la colección del usuario.

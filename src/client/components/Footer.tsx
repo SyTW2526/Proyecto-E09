@@ -1,3 +1,34 @@
+/**
+ * @file Footer.tsx
+ * @description Componente Footer - Pie de página
+ *
+ * Footer persistente que aparece en todas las páginas.
+ * Contiene links, información legal y redes sociales.
+ *
+ * Características:
+ * - Links a secciones principales
+ * - Links a redes sociales (Instagram, YouTube)
+ * - Información de copyright
+ * - Links legales (términos, privacidad)
+ * - Información de contacto
+ * - Responsive design
+ * - Multiidioma (i18n)
+ * - Tema oscuro/claro compatible
+ *
+ * Secciones:
+ * - Redes sociales con iconos
+ * - Navegación rápida
+ * - Información legal
+ * - Copyright y créditos
+ *
+ * @author Proyecto E09
+ * @version 1.0.0
+ * @requires react
+ * @requires react-i18next
+ * @requires lucide-react
+ * @module client/components/Footer
+ */
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Instagram, Youtube } from 'lucide-react';

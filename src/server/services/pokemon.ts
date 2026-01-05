@@ -1,24 +1,65 @@
+/**
+ * @file pokemon.ts
+ * @description Servicio de integración con API TCGdex para cartas Pokémon
+ *
+ * Proporciona funciones para obtener datos de cartas desde la API pública TCGdex.net.
+ * Actúa como capa intermedia entre la aplicación y la API externa.
+ *
+ * Base URL: https://api.tcgdex.net/v2/en
+ *
+ * @requires fetch - API de Node.js para solicitudes HTTP
+ */
+
 // services/pokemon.ts
 
+/**
+ * URL base de la API TCGdex
+ * @constant
+ * @type {string}
+ */
 const TCGDEX_BASE_URL = 'https://api.tcgdex.net/v2/en';
 
+/**
+ * Función auxiliar para hacer fetches a la API TCGdex
+ * Maneja errores y retorna JSON automáticamente
+ *
+ * @param {string} endpoint - Endpoint relativo (ej: "/cards", "/sets/swsh3")
+ * @returns {Promise<any>} Respuesta JSON de la API
+ * @throws {Error} Si la respuesta no es 200 OK
+ */
 async function apiFetch(endpoint: string) {
-  const response = await fetch(`${TCGDEX_BASE_URL}${endpoint}`, {
+  const url = `${TCGDEX_BASE_URL}${endpoint}`;
+  console.log('[TCGdex] Fetching:', url);
+
+  const response = await fetch(url, {
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   });
 
+  console.log(
+    '[TCGdex] Response status:',
+    response.status,
+    response.statusText
+  );
+
   if (!response.ok) {
-    throw new Error(`TCGdex API Error: ${response.statusText}`);
+    const errorText = await response.text();
+    console.error('[TCGdex] Error response:', errorText);
+    throw new Error(`TCGdex API Error: ${response.statusText} - ${errorText}`);
   }
-  return response.json();
+  const data = await response.json();
+  console.log(
+    '[TCGdex] Response data type:',
+    Array.isArray(data) ? 'array' : typeof data
+  );
+  return data;
 }
 
 /**
  * Obtiene cartas por nombre
- * @param name - Nombre del Pokémon a buscar
- * @returns Array de cartas que coinciden con el nombre
+ * @param {string} name - Nombre del Pokémon a buscar
+ * @returns {Promise<Array>} Array de cartas que coinciden con el nombre
  */
 export async function getCardsByName(name: string) {
   return apiFetch(`/cards?name=${encodeURIComponent(name)}`);
@@ -26,8 +67,8 @@ export async function getCardsByName(name: string) {
 
 /**
  * Obtiene una carta específica por ID
- * @param id - ID de la carta (ej: "swsh3-25")
- * @returns Detalles completos de la carta
+ * @param {string} id - ID de la carta (ej: "swsh3-25")
+ * @returns {Promise<Object>} Detalles completos de la carta
  */
 export async function getCardById(id: string) {
   return apiFetch(`/cards/${id}`);
@@ -35,8 +76,8 @@ export async function getCardById(id: string) {
 
 /**
  * Obtiene todas las cartas de un set específico
- * @param setId - ID del set (ej: "swsh3", "base1")
- * @returns Array de cartas del set
+ * @param {string} setId - ID del set (ej: "swsh3", "base1")
+ * @returns {Promise<Array>} Array de cartas del set
  */
 export async function getCardsBySet(setId: string) {
   return apiFetch(`/sets/${setId}`);
@@ -44,7 +85,7 @@ export async function getCardsBySet(setId: string) {
 
 /**
  * Obtiene la lista de todos los sets disponibles
- * @returns Array de sets con información básica
+ * @returns {Promise<Array>} Array de sets con información básica
  */
 export async function getAllSets() {
   return apiFetch('/sets');
@@ -107,13 +148,13 @@ export async function searchCards(filters: {
   set?: string;
 }) {
   const params = new URLSearchParams();
-  
+
   if (filters.name) params.append('name', filters.name);
   if (filters.types) params.append('types', filters.types);
   if (filters.hp) params.append('hp', filters.hp.toString());
   if (filters.rarity) params.append('rarity', filters.rarity);
   if (filters.set) params.append('set', filters.set);
-  
+
   const queryString = params.toString();
   return apiFetch(`/cards${queryString ? `?${queryString}` : ''}`);
 }

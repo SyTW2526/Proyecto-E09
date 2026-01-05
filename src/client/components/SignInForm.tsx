@@ -1,117 +1,100 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { authService } from "../services/authService";
-import { useTranslation } from "react-i18next";
-import "../styles/form.css";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { authService } from '../services/authService';
+import { useFormInput, useLoadingError } from '../hooks';
+import { useTranslation } from 'react-i18next';
+import {
+  FormHeader,
+  FormInput,
+  ErrorMessage,
+  FormButton,
+  SwitchFormLink,
+} from './shared/FormComponents';
+import '../styles/auth-modal.css';
 
-const SignInForm: React.FC = () => {
+interface SignInFormProps {
+  onSwitch?: () => void;
+}
+
+const SignInForm: React.FC<SignInFormProps> = ({ onSwitch }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
+  const { values: formData, handleChange } = useFormInput({
+    username: '',
+    password: '',
   });
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error, startLoading, stopLoading, handleError, clearError } =
+    useLoadingError();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    setError(null);
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+    startLoading();
 
     try {
       const response = await authService.login(formData);
-
       authService.saveUser(response.user);
       if (response.token) authService.saveToken(response.token);
-
-      navigate("/home");
+      navigate('/home');
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-      console.error("Error:", err);
+      handleError(err);
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleChange(e);
+    clearError();
+  };
+
   return (
-    <div className="signup-background pt-24 pb-12">
-      <div className="relative z-10 w-[520px] bg-white rounded-3xl shadow-2xl px-12 pt-16 pb-12 border border-sky-100 flex flex-col items-center">
+    <>
+      <FormHeader
+        title={t('signIn.title', 'Sign In')}
+        subtitle={t('signIn.subtitle', 'Access your account to explore more.')}
+      />
 
-        <h2 className="text-4xl font-bold text-sky-700 mb-6 text-center">
-          {t("signIn.titulo")}
-        </h2>
+      <form
+        className="w-full flex flex-col items-center gap-5"
+        onSubmit={handleSubmit}
+      >
+        {error && <ErrorMessage message={error} />}
 
-        <p className="text-gray-500 mb-12 text-center text-lg">
-          {t("signIn.subtitulo")}
-        </p>
+        <FormInput
+          label={t('signIn.usernameLabel', 'Username')}
+          name="username"
+          type="text"
+          value={formData.username}
+          onChange={handleInputChange}
+          placeholder={t('signIn.usernamePlaceholder', 'Enter your username')}
+        />
 
-        <form className="w-full flex flex-col items-center gap-5" onSubmit={handleSubmit}>
-          {error && (
-            <div className="w-4/5 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm text-center">
-              {error}
-            </div>
-          )}
+        <FormInput
+          label={t('signIn.passwordLabel', 'Password')}
+          name="password"
+          type="password"
+          value={formData.password}
+          onChange={handleInputChange}
+          placeholder={t('signIn.passwordPlaceholder', 'Enter your password')}
+        />
 
-          {/* Username */}
-          <div className="w-4/5 flex flex-col">
-            <label className="text-base font-semibold text-gray-900 mb-2 ml-1">
-              {t("signIn.usernameLabel")}
-            </label>
-            <input
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleInputChange}
-              placeholder={t("signIn.usernamePlaceholder")}
-              className="px-4 py-2.5 border border-sky-200 rounded-lg text-gray-800 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-400 transition"
-            />
-          </div>
+        <FormButton
+          loading={loading}
+          loadingText={t('signIn.loadingButton', 'Loading...')}
+        >
+          {t('signIn.signInButton', 'Sign In')}
+        </FormButton>
+      </form>
 
-          {/* Password */}
-          <div className="w-4/5 flex flex-col">
-            <label className="text-base font-semibold text-gray-900 mb-2 ml-1">
-              {t("signIn.passwordLabel")}
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              placeholder={t("signIn.passwordPlaceholder")}
-              className="px-4 py-2.5 border border-sky-200 rounded-lg text-gray-800 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-400 transition"
-            />
-          </div>
-
-          {/* Botón */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-4/5 mt-6 bg-linear-to-r from-sky-600 to-blue-600 text-white font-semibold py-3 rounded-lg shadow-md hover:from-sky-700 hover:to-blue-700 transition text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? t("signIn.botonCargando") : t("signIn.botonEntrar")}
-          </button>
-        </form>
-
-        {/* Enlace inferior */}
-        <p className="text-gray-500 text-sm mt-10 text-center">
-          {t("signIn.noCuenta")}{" "}
-          <a href="/signup" className="text-sky-600 font-semibold hover:underline">
-            {t("signIn.registrate")}
-          </a>
-        </p>
-      </div>
-    </div>
+      {onSwitch && (
+        <SwitchFormLink
+          onClick={onSwitch}
+          text={t('signUp.haveAccount', 'Already have an account?')}
+          linkText={t('signUp.signIn', 'Sign In')}
+        />
+      )}
+    </>
   );
 };
 

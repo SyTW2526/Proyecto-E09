@@ -1,18 +1,30 @@
+/**
+ * @file HomePage.tsx
+ * @description Página principal de la aplicación
+ */
 import React from 'react';
 import Header from '../components/Header/Header';
 import Hero from '../components/Hero';
 import FeaturedCards from '../components/FeaturedCards';
 import Footer from '../components/Footer';
 import '../styles/app.css';
+import '../styles/hero.css';
 
 const HomePage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-linear-to-b from-blue-100 to-white">
+    <div
+      className="homePage"
+      style={{ backgroundColor: 'var(--background)', color: 'var(--text)' }}
+    >
       <Header />
-      <Hero />
-      <FeaturedCards />
+      <main className="homeMain">
+        <Hero />
+        <div className="home-transition" />
+        <FeaturedCards />
+      </main>
       <Footer />
     </div>
   );
 };
+
 export default HomePage;

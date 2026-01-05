@@ -1,0 +1,19 @@
+{
+  "entryPoints": ["src"],
+  "entryPointStrategy": "expand",
+  "out": "docs/typedoc",
+  "tsconfig": "tsconfig.json",
+  "includeVersion": true,
+  "exclude": [
+    "**/__tests__/**",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.spec.js",
+    "**/node_modules/**"
+  ],
+  "plugin": ["typedoc-plugin-markdown"],
+  "gitRevision": "main",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "hideGenerator": false
+}

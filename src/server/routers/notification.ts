@@ -1,6 +1,12 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import { Notification } from '../models/Notification.js';
+import { validateObjectId } from '../utils/mongoHelpers.js';
+import {
+  sendError,
+  sendSuccess,
+  asyncHandler,
+  ensureResourceExists,
+} from '../utils/responseHelpers.js';
 
 export const notificationRouter = express.Router();
 
@@ -8,14 +14,13 @@ export const notificationRouter = express.Router();
  * GET /notifications/:userId
  * Obtener todas las notificaciones del usuario
  */
-notificationRouter.get('/notifications/:userId', async (req, res) => {
-  try {
+notificationRouter.get(
+  '/notifications/:userId',
+  asyncHandler(async (req, res) => {
     const { userId } = req.params;
     const { limit = 10, skip = 0 } = req.query;
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).send({ error: 'ID de usuario inválido' });
-    }
+    if (!validateObjectId(userId, res, 'ID de usuario')) return;
 
     const notifications = await Notification.find({ userId })
       .sort({ createdAt: -1 })
@@ -25,29 +30,26 @@ notificationRouter.get('/notifications/:userId', async (req, res) => {
     const total = await Notification.countDocuments({ userId });
     const unread = await Notification.countDocuments({ userId, isRead: false });
 
-    res.send({
+    return sendSuccess(res, {
       notifications,
       total,
       unread,
       limit: Number(limit),
-      skip: Number(skip)
+      skip: Number(skip),
     });
-  } catch (error) {
-    res.status(500).send({ error: (error as Error).message ?? String(error) });
-  }
-});
+  })
+);
 
 /**
  * PATCH /notifications/:notificationId/read
  * Marcar una notificación como leída
  */
-notificationRouter.patch('/notifications/:notificationId/read', async (req, res) => {
-  try {
+notificationRouter.patch(
+  '/notifications/:notificationId/read',
+  asyncHandler(async (req, res) => {
     const { notificationId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(notificationId)) {
-      return res.status(400).send({ error: 'ID de notificación inválido' });
-    }
+    if (!validateObjectId(notificationId, res, 'ID de notificación')) return;
 
     const notification = await Notification.findByIdAndUpdate(
       notificationId,
@@ -55,62 +57,48 @@ notificationRouter.patch('/notifications/:notificationId/read', async (req, res)
       { new: true }
     );
 
-    if (!notification) {
-      return res.status(404).send({ error: 'Notificación no encontrada' });
-    }
-
-    res.send(notification);
-  } catch (error) {
-    res.status(500).send({ error: (error as Error).message ?? String(error) });
-  }
-});
+    if (!ensureResourceExists(res, notification, 'Notificación')) return;
+    return sendSuccess(res, notification);
+  })
+);
 
 /**
  * PATCH /notifications/:userId/read-all
  * Marcar todas las notificaciones como leídas
  */
-notificationRouter.patch('/notifications/:userId/read-all', async (req, res) => {
-  try {
+notificationRouter.patch(
+  '/notifications/:userId/read-all',
+  asyncHandler(async (req, res) => {
     const { userId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).send({ error: 'ID de usuario inválido' });
-    }
+    if (!validateObjectId(userId, res, 'ID de usuario')) return;
 
     const result = await Notification.updateMany(
       { userId, isRead: false },
       { isRead: true }
     );
 
-    res.send({
+    return sendSuccess(res, {
       message: 'Todas las notificaciones han sido marcadas como leídas',
-      modifiedCount: result.modifiedCount
+      modifiedCount: result.modifiedCount,
     });
-  } catch (error) {
-    res.status(500).send({ error: (error as Error).message ?? String(error) });
-  }
-});
+  })
+);
 
 /**
  * DELETE /notifications/:notificationId
  * Eliminar una notificación
  */
-notificationRouter.delete('/notifications/:notificationId', async (req, res) => {
-  try {
+notificationRouter.delete(
+  '/notifications/:notificationId',
+  asyncHandler(async (req, res) => {
     const { notificationId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(notificationId)) {
-      return res.status(400).send({ error: 'ID de notificación inválido' });
-    }
+    if (!validateObjectId(notificationId, res, 'ID de notificación')) return;
 
     const notification = await Notification.findByIdAndDelete(notificationId);
 
-    if (!notification) {
-      return res.status(404).send({ error: 'Notificación no encontrada' });
-    }
-
-    res.send({ message: 'Notificación eliminada exitosamente' });
-  } catch (error) {
-    res.status(500).send({ error: (error as Error).message ?? String(error) });
-  }
-});
+    if (!ensureResourceExists(res, notification, 'Notificación')) return;
+    return sendSuccess(res, { message: 'Notificación eliminada exitosamente' });
+  })
+);

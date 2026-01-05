@@ -52,7 +52,8 @@
     "average": "Precio",
     "searching": "Buscando...",
     "loadingSets": "Cargando sets...",
-    "errorLoadingSets": "Error al cargar los sets."
+    "errorLoadingSets": "Error al cargar los sets.",
+    "loadingSet": "Cargando sets..."
   },
   "createRoom": {
     "title": "Crear Sala",

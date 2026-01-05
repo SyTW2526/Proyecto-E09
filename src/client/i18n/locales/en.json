@@ -52,7 +52,8 @@
     "searchRarity": "Search rarities…",
     "results": "Results",
     "loadingSets": "Loading sets...",
-    "errorLoadingSets": "Error loading sets."
+    "errorLoadingSets": "Error loading sets.",
+    "loadingSet": "Loading sets..."
   },
   "createRoom": {
     "title": "Create Room",

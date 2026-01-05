@@ -1,10 +1,28 @@
 /**
- * Servicio de autenticación
- * Maneja las llamadas a los endpoints de registro e inicio de sesión
+ * @file authService.ts
+ * @description Servicio centralizado de autenticación
+ *
+ * Maneja:
+ * - Registro de nuevos usuarios
+ * - Inicio de sesión (login)
+ * - Cierre de sesión (logout)
+ * - Gestión de tokens JWT en localStorage
+ * - Recuperación de usuario autenticado
+ *
+ * @requires API_BASE_URL - URL base del servidor
+ * @module services/authService
  */
 
 import { API_BASE_URL } from '../config/constants';
 
+/**
+ * Interface para datos de registro
+ * @interface RegisterData
+ * @property {string} username - Nombre de usuario (único)
+ * @property {string} email - Email del usuario (único)
+ * @property {string} password - Contraseña
+ * @property {string} confirmPassword - Confirmación de contraseña
+ */
 interface RegisterData {
   username: string;
   email: string;
@@ -12,11 +30,25 @@ interface RegisterData {
   confirmPassword: string;
 }
 
+/**
+ * Interface para datos de login
+ * @interface LoginData
+ * @property {string} username - Nombre de usuario o email
+ * @property {string} password - Contraseña
+ */
 interface LoginData {
   username: string;
   password: string;
 }
 
+/**
+ * Interface para datos de usuario autenticado
+ * @interface User
+ * @property {string} id - ID único del usuario (ObjectId)
+ * @property {string} username - Nombre de usuario
+ * @property {string} email - Email del usuario
+ * @property {string} [profileImage] - URL de imagen de perfil (opcional)
+ */
 interface User {
   id: string;
   username: string;
@@ -24,15 +56,38 @@ interface User {
   profileImage?: string;
 }
 
+/**
+ * Interface para respuesta de autenticación
+ * @interface AuthResponse
+ * @property {string} message - Mensaje de respuesta
+ * @property {User} user - Datos del usuario autenticado
+ * @property {string} [token] - JWT devuelto por el servidor en login
+ */
 interface AuthResponse {
   message: string;
   user: User;
   token?: string; // JWT devuelto por el servidor en login
 }
 
+/**
+ * Servicio de autenticación exportado como objeto singleton
+ * @namespace authService
+ */
 export const authService = {
   /**
-   * Registra un nuevo usuario
+   * @async
+   * @function register
+   * @description Registra un nuevo usuario en el sistema
+   * @param {RegisterData} data - Datos de registro (username, email, password)
+   * @returns {Promise<AuthResponse>} Usuario registrado y token JWT
+   * @throws {Error} Si el registro falla (usuario existe, email inválido, etc.)
+   * @example
+   * const response = await authService.register({
+   *   username: 'john_doe',
+   *   email: 'john@example.com',
+   *   password: 'secure123',
+   *   confirmPassword: 'secure123'
+   * });
    */
   async register(data: RegisterData): Promise<AuthResponse> {
     const response = await fetch(`${API_BASE_URL}/users/register`, {
@@ -52,7 +107,17 @@ export const authService = {
   },
 
   /**
-   * Inicia sesión con un usuario existente
+   * @async
+   * @function login
+   * @description Inicia sesión con credenciales de usuario existente
+   * @param {LoginData} data - Credenciales (username/email y password)
+   * @returns {Promise<AuthResponse>} Usuario autenticado y token JWT
+   * @throws {Error} Si las credenciales son inválidas
+   * @example
+   * const response = await authService.login({
+   *   username: 'john_doe',
+   *   password: 'secure123'
+   * });
    */
   async login(data: LoginData): Promise<AuthResponse> {
     const response = await fetch(`${API_BASE_URL}/users/login`, {
@@ -72,7 +137,13 @@ export const authService = {
   },
 
   /**
-   * Actualiza la imagen de perfil del usuario
+   * @async
+   * @function updateProfileImage
+   * @description Actualiza la imagen de perfil del usuario autenticado
+   * @param {string} username - Nombre de usuario
+   * @param {string} profileImage - URL de la nueva imagen de perfil
+   * @returns {Promise<User>} Datos del usuario actualizados
+   * @throws {Error} Si no está autorizado o la solicitud falla
    */
   async updateProfileImage(
     username: string,
@@ -179,7 +250,10 @@ export const authService = {
   },
 
   /**
-   * Guarda el usuario en localStorage
+   * @function saveUser
+   * @description Guarda los datos del usuario en localStorage
+   * @param {User} user - Datos del usuario a guardar
+   * @returns {void}
    */
   saveUser(user: User): void {
     const savedUser = {
@@ -194,7 +268,9 @@ export const authService = {
   },
 
   /**
-   * Obtiene el usuario del localStorage
+   * @function getUser
+   * @description Obtiene los datos del usuario del localStorage
+   * @returns {User | null} Datos del usuario o null si no está autenticado
    */
   getUser(): User | null {
     const user = localStorage.getItem('user');
@@ -202,21 +278,28 @@ export const authService = {
   },
 
   /**
-   * Guarda el token JWT en localStorage
+   * @function saveToken
+   * @description Guarda el token JWT en localStorage
+   * @param {string} token - Token JWT a guardar
+   * @returns {void}
    */
   saveToken(token: string): void {
     localStorage.setItem('token', token);
   },
 
   /**
-   * Obtiene el token JWT del localStorage
+   * @function getToken
+   * @description Obtiene el token JWT del localStorage
+   * @returns {string | null} Token JWT o null si no existe
    */
   getToken(): string | null {
     return localStorage.getItem('token');
   },
 
   /**
-   * Retorna headers con el token para peticiones autenticadas
+   * @function getAuthHeaders
+   * @description Retorna headers con el token JWT para peticiones autenticadas
+   * @returns {Object} Headers con Authorization o objeto vacío si no hay token
    */
   getAuthHeaders(): { Authorization: string } | {} {
     const token = this.getToken();
@@ -224,7 +307,9 @@ export const authService = {
   },
 
   /**
-   * Verifica si el usuario está autenticado
+   * @function isAuthenticated
+   * @description Verifica si el usuario está autenticado
+   * @returns {boolean} true si usuario y token existen, false en caso contrario
    */
   isAuthenticated(): boolean {
     // Verificar que existe tanto el usuario como el token

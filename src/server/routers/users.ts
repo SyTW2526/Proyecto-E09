@@ -1,3 +1,24 @@
+/**
+ * @file users.ts
+ * @description Router de usuarios - Autenticación, perfil, amigos y configuración
+ *
+ * Proporciona endpoints para:
+ * - Registro e inicio de sesión
+ * - Perfil de usuario (GET, PATCH)
+ * - Gestión de amigos (add, remove, list, requests)
+ * - Historial de chats
+ * - Apertura de booster packs
+ * - Compra de pack tokens
+ * - Información de servidores y configuración
+ *
+ * @requires express - Framework web
+ * @requires mongoose - ODM para MongoDB
+ * @requires bcryptjs - Hash seguro de contraseñas
+ * @requires User - Modelo de usuario
+ * @requires authMiddleware - Validación JWT
+ * @module routers/users
+ */
+
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';

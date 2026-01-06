@@ -1128,7 +1128,7 @@ const DiscoverTradeCards: React.FC = () => {
             </>
           )}
         </div>
-        {} Modales  
+        
         <TradeModeModal
           visible={modeModal.isOpen}
           onClose={modeModal.close}

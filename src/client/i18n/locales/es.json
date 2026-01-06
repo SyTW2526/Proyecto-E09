@@ -397,7 +397,7 @@
     "quickModalTitle": "Intercambio Rápido",
     "quickModalMessage": "¿Quieres rechazar esta solicitud de intercambio o crear una sala ?",
     "quickReceived": "Intercambios rápidos",
-    "noquickReceived": "No tienes intercambios rápidos."
+    "noQuickReceived": "No tienes intercambios rápidos."
   },
   "tradeModal": {
     "title": "Enviar mensaje",

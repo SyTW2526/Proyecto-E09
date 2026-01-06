@@ -718,7 +718,7 @@ const CollectionPage: React.FC = () => {
           {loading ? (
             <div className="stateBox loadingState">{t('common.loading')}</div>
           ) : pageItems.length === 0 ? (
-            <div className="stateBox">{t('collection.empty')}</div>
+            <div className="stateBox loadingState">{t('collection.empty')}</div>
           ) : (
             <section
               className={`cardsGrid ${view === 'dense' ? 'isDense' : 'isComfortable'}`}

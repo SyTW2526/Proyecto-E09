@@ -169,7 +169,12 @@
     "modal": {
       "title": "Menu Options",
       "close": "Close Menu"
-    }
+    },
+    "coleccion": "Collection",
+    "abrir": "Open",
+    "descubrirCartas": "Discover Cards",
+    "solicitudes": "Requests",
+    "crearSala": "Create Room"
   },
   "notifications": {
     "title": "Notifications",

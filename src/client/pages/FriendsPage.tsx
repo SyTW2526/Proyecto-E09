@@ -593,10 +593,6 @@ const FriendsPage: React.FC = () => {
               >
                 {t('common.cancel')}
               </button>
-
-              <button className="toastConfirm" onClick={toast.action}>
-                {t('friends.remove')}
-              </button>
             </div>
           </div>
         </div>

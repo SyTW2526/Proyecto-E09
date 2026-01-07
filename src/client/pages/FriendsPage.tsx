@@ -75,7 +75,7 @@ const FriendsPage: React.FC = () => {
   const { t } = useTranslation();
   const user = authService.getUser() as User | null;
   if (!user) return null;
-  // Estado del componente  
+  // Estado del componente
   const [view, setView] = useState<'chat' | 'requests'>('chat');
   // Estado de amigos
   const [friends, setFriends] = useState<Friend[]>([]);

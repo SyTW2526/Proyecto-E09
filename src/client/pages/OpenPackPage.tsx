@@ -388,7 +388,7 @@ const OpenPackPage: React.FC = () => {
             </div>
           )}
         </div>
-         {/* Modales de error y cartas abiertas */}
+        {/* Modales de error y cartas abiertas */}
         {error && <div style={{ color: 'red', marginTop: 12 }}>{error}</div>}
         {/* Cartas abiertas */}
         {openedCards.length > 0 && (

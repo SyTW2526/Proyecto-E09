@@ -22,7 +22,7 @@
  * **Uso:**
  * ```typescript
  * import { toast } from './components/ToastManager'
- * 
+ *
  * // Mostrar notificación
  * toast.push({
  *   title: 'Éxito',

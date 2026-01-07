@@ -322,7 +322,7 @@ const CreateRoomPage: React.FC = () => {
   return (
     <div className="trade-requests-container">
       <Header />
-      {/*  @brief Main de la página de creación de salas de intercambio */ }
+      {/*  @brief Main de la página de creación de salas de intercambio */}
       <main className="trade-requests-main">
         <div className="discover-header">
           <h1 className="trade-requests-title">{t('createRoom.title')}</h1>

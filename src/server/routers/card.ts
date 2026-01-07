@@ -56,7 +56,7 @@
  * @module server/routers/card
  * @see services/cards.ts
  * @see services/pokemon.ts
-*/
+ */
 import express from 'express';
 import { Card } from '../models/Card.js';
 import { PokemonCard } from '../models/PokemonCard.js';

@@ -333,40 +333,37 @@ const TradeRequestsPage: React.FC = () => {
       });
     }
   };
-const handleOpenRoom = async (requestId: string) => {
-  try {
-    const resp = await authenticatedFetch(
-      `/trade-requests/${requestId}/open-room`,
-      { method: 'POST' }
-    );
+  const handleOpenRoom = async (requestId: string) => {
+    try {
+      const resp = await authenticatedFetch(
+        `/trade-requests/${requestId}/open-room`,
+        { method: 'POST' }
+      );
 
-    const data = await safeJsonParse<{
-      error?: string;
-      privateRoomCode?: string;
-    }>(resp);
+      const data = await safeJsonParse<{
+        error?: string;
+        privateRoomCode?: string;
+      }>(resp);
 
-    if (!resp.ok) {
-      throw new Error(data.error || 'Error creando la sala');
+      if (!resp.ok) {
+        throw new Error(data.error || 'Error creando la sala');
+      }
+
+      if (!data.privateRoomCode) {
+        throw new Error('No se ha recibido el código de sala');
+      }
+
+      navigate(`/trade-room/${data.privateRoomCode}`);
+    } catch (e: any) {
+      setConfirmModal({
+        title: t('common.error', 'Error'),
+        message:
+          e.message ||
+          t('tradeReq.errorOpenRoom', 'Error al crear la sala de intercambio.'),
+        variant: 'error',
+      });
     }
-
-    if (!data.privateRoomCode) {
-      throw new Error('No se ha recibido el código de sala');
-    }
-
-    navigate(`/trade-room/${data.privateRoomCode}`);
-  } catch (e: any) {
-    setConfirmModal({
-      title: t('common.error', 'Error'),
-      message:
-        e.message ||
-        t(
-          'tradeReq.errorOpenRoom',
-          'Error al crear la sala de intercambio.'
-        ),
-      variant: 'error',
-    });
-  }
-};
+  };
 
   const goToRoomIfAvailable = (req: TradeRequest) => {
     const roomCode = req.tradeId?.privateRoomCode;

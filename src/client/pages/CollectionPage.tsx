@@ -329,7 +329,7 @@ const CollectionPage: React.FC = () => {
     const detail = await api.getCachedCardByTcgId(tcg);
     setDetailsById((prev) => ({ ...prev, [card.id]: detail }));
   };
- /**
+  /**
    * @brief Colección filtrada y ordenada.
    */
   const sets = useMemo(() => {
@@ -440,7 +440,7 @@ const CollectionPage: React.FC = () => {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const pageItems = filtered.slice((page - 1) * pageSize, page * pageSize);
-    /**
+  /**
    * @brief Resetea la página al cambiar filtros o vista.
    */
   useEffect(() => {
@@ -876,7 +876,7 @@ const CollectionPage: React.FC = () => {
             </section>
           )}
         </div>
-         {/* Paginador */}
+        {/* Paginador */}
         {!loading && pageItems.length > 0 && (
           <div className="pagerZone">
             <div className="pager">

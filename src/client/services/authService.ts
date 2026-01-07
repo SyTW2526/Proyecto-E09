@@ -151,112 +151,109 @@ export const authService = {
    * @returns {Promise<User>} Datos del usuario actualizados
    * @throws {Error} Si no está autorizado o la solicitud falla
    */
-async updateProfileImage(
-  username: string,
-  profileImage: string
-): Promise<User> {
-  const response = await fetch(
-    `${API_BASE_URL}/users/${username}/profile-image`,
-    {
+  async updateProfileImage(
+    username: string,
+    profileImage: string
+  ): Promise<User> {
+    const response = await fetch(
+      `${API_BASE_URL}/users/${username}/profile-image`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeaders(),
+        },
+        body: JSON.stringify({ profileImage }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.error || 'Error al actualizar imagen de perfil'
+      );
+    }
+
+    const json = await response.json();
+    const user = json.data?.user;
+
+    if (!user) {
+      throw new Error('Respuesta inválida del servidor');
+    }
+
+    this.saveUser(user);
+    return user;
+  },
+  /**
+   * Actualiza el perfil del usuario
+   */
+  async updateProfile(
+    currentUsername: string,
+    changes: { username?: string; email?: string }
+  ): Promise<User> {
+    const response = await fetch(`${API_BASE_URL}/users/${currentUsername}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         ...this.getAuthHeaders(),
       },
-      body: JSON.stringify({ profileImage }),
+      body: JSON.stringify(changes),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'UPDATE_ERROR');
     }
-  );
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(
-      errorData.error || 'Error al actualizar imagen de perfil'
-    );
-  }
+    const json = await response.json();
 
-  const json = await response.json();
-  const user = json.data?.user;
+    const user = json.data?.user;
+    const token = json.data?.token;
 
-  if (!user) {
-    throw new Error('Respuesta inválida del servidor');
-  }
+    if (!user) {
+      throw new Error('Respuesta inválida del servidor');
+    }
 
-  this.saveUser(user);
-  return user;
-}
-  ,
+    if (token) {
+      this.saveToken(token);
+    }
 
-  /**
-   * Actualiza el perfil del usuario
-   */
-async updateProfile(
-  currentUsername: string,
-  changes: { username?: string; email?: string }
-): Promise<User> {
-  const response = await fetch(`${API_BASE_URL}/users/${currentUsername}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      ...this.getAuthHeaders(),
-    },
-    body: JSON.stringify(changes),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || 'UPDATE_ERROR');
-  }
-
-  const json = await response.json();
-
-  const user = json.data?.user;
-  const token = json.data?.token;
-
-  if (!user) {
-    throw new Error('Respuesta inválida del servidor');
-  }
-
-  if (token) {
-    this.saveToken(token);
-  }
-
-  this.saveUser(user);
-  return user;
-},
+    this.saveUser(user);
+    return user;
+  },
 
   /**
    * Elimina la imagen de perfil del usuario
    */
-async deleteProfileImage(username: string): Promise<User> {
-  const response = await fetch(
-    `${API_BASE_URL}/users/${username}/profile-image`,
-    {
-      method: 'DELETE',
-      headers: {
-        ...this.getAuthHeaders(),
-      },
-    }
-  );
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(
-      errorData.error || 'Error al eliminar la imagen de perfil'
+  async deleteProfileImage(username: string): Promise<User> {
+    const response = await fetch(
+      `${API_BASE_URL}/users/${username}/profile-image`,
+      {
+        method: 'DELETE',
+        headers: {
+          ...this.getAuthHeaders(),
+        },
+      }
     );
-  }
 
-  const json = await response.json();
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.error || 'Error al eliminar la imagen de perfil'
+      );
+    }
 
- 
-  const user = json.data?.user;
+    const json = await response.json();
 
-  if (!user) {
-    throw new Error('Respuesta inválida del servidor');
-  }
+    const user = json.data?.user;
 
-  this.saveUser(user);
-  return user;
-},
+    if (!user) {
+      throw new Error('Respuesta inválida del servidor');
+    }
+
+    this.saveUser(user);
+    return user;
+  },
 
   /**
    * Elimina la cuenta del usuario

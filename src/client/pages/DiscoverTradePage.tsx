@@ -230,14 +230,14 @@ const DiscoverTradeCards: React.FC = () => {
   // Estado de filtros y ordenación
   const [search, setSearch] = useState('');
   const [showFilters, setShowFilters] = useState(false);
- 
+
   const [sortBy, setSortBy] = useState<SortBy>('name');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
 
   const [rarityFilter, setRarityFilter] = useState<string>('all');
   const [setFilter, setSetFilter] = useState<string>('all');
   const [groupBySet, setGroupBySet] = useState<boolean>(false);
-  // Estado de paginación 
+  // Estado de paginación
   const [gridMode, setGridMode] = useState<GridMode>('normal');
   const [page, setPage] = useState(1);
   // Estado de la carta seleccionada para intercambio
@@ -1128,7 +1128,7 @@ const DiscoverTradeCards: React.FC = () => {
             </>
           )}
         </div>
-        
+
         <TradeModeModal
           visible={modeModal.isOpen}
           onClose={modeModal.close}

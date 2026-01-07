@@ -173,7 +173,9 @@ describe('authService', () => {
         ok: true,
         json: async () => ({
           message: 'Imagen actualizada',
-          user: mockUser,
+          data: {
+            user: mockUser,
+          },
         }),
       });
 
@@ -208,7 +210,9 @@ describe('authService', () => {
         ok: true,
         json: async () => ({
           message: 'Imagen actualizada',
-          user: mockUser,
+          data: {
+            user: mockUser,
+          },
         }),
       });
 
@@ -254,8 +258,10 @@ describe('authService', () => {
         ok: true,
         json: async () => ({
           message: 'Perfil actualizado',
-          user: mockUser,
-          token: 'new-jwt-token-456',
+          data: {
+            user: mockUser,
+            token: 'new-jwt-token-456',
+          },
         }),
       });
 
@@ -281,8 +287,10 @@ describe('authService', () => {
         ok: true,
         json: async () => ({
           message: 'Perfil actualizado',
-          user: mockUser,
-          token: 'new-jwt-token-456',
+          data: {
+            user: mockUser,
+            token: 'new-jwt-token-456',
+          },
         }),
       });
 
@@ -324,7 +332,9 @@ describe('authService', () => {
         ok: true,
         json: async () => ({
           message: 'Imagen eliminada',
-          user: mockUser,
+          data: {
+            user: mockUser,
+          },
         }),
       });
 
